@@ -92,7 +92,7 @@ impl Platform for Gitea {
                         eprintln!("  Pconf name: {}", &self.config.pconf.clone());
                         eprintln!("  User: {}", owner);
                     },
-                    _ if error.message.starts_with("user does not exist [name: ") => {
+                    _ if error.message.starts_with("user redirect does not exist [name: ") => {
                         load_animation.finish_with_error("User/org does not exist");
                         cprintln!("User/org: <m>({})</>", owner);
                     },
