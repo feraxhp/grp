@@ -1,15 +1,16 @@
 use crate::config::structure::Config;
 use std::io;
-use clap::ArgMatches;
+use clap::{arg, command, ArgMatches, Command};
 
 const SUPPORTED_REPOS: [(&str, &str, &str); 2] = [
     ("0", "gh", "github"),
     ("1", "gt", "gitea"),
 ];
 
-pub(crate) fn set_configuration(add: &ArgMatches) {
+pub(crate) fn add_manager(add: &ArgMatches) {
 
     let quiet = add.get_one::<bool>("quiet").unwrap_or(&false);
+    let quiet = *quiet;
 
     let name = match add.get_one::<String>("name") {
         Some(name) => name.to_string(),
@@ -161,4 +162,17 @@ pub(crate) fn set_configuration(add: &ArgMatches) {
     let config = Config::new(name, owner, token, repo_type, endpoint);
     config.save().expect("Impossible to save configuration");
 
+}
+
+pub(crate) fn add_subcommand() -> Command {
+    command!("add")
+        .about("Add a new repository to the configuration file interactively")
+        .arg(arg!(-q --quiet "configure the repository without much interaction"))
+        .arg(arg!([type] "The repository type (github, gitea, [more planed])")
+            .value_parser(["github", "gitea"])
+        )
+        .arg(arg!([name] "The alias for the repository configuration"))
+        .arg(arg!([owner] "The default owner of the repository"))
+        .arg(arg!([token] "The token to access the repository"))
+        .arg(arg!([endpoint] "The client endpoint to access the repository"))
 }

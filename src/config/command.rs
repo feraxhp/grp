@@ -1,18 +1,22 @@
-use clap::{arg, command, Command};
+use crate::config::subcommands::add::{add_manager, add_subcommand};
+use crate::config::subcommands::default::{default_manager, default_subcommand};
+use clap::{command, Command};
+use crate::invalid;
+
+pub(crate) fn config_manager(config: &clap::ArgMatches) {
+    match config.subcommand() {
+        Some(sub) => match sub {
+            ("add", add) => add_manager(add),
+            ("default", default) => default_manager(default),
+            _ => invalid()
+        },
+        _ => invalid()
+    }
+}
 
 pub(crate) fn config_command() -> Command {
     command!("config")
         .about("Manage the configuration file")
-        .subcommand(
-            command!("add")
-                .about("Add a new repository to the configuration file interactively")
-                .arg(arg!(-q --quiet "configure the repository without much interaction"))
-                .arg(arg!([type] "The repository type (github, gitea, [more planed])")
-                    .value_parser(["github", "gitea"])
-                )
-                .arg(arg!([name] "The alias for the repository configuration"))
-                .arg(arg!([owner] "The default owner of the repository"))
-                .arg(arg!([token] "The token to access the repository"))
-                .arg(arg!([endpoint] "The client endpoint to access the repository"))
-        )
+        .subcommand(add_subcommand())
+        .subcommand(default_subcommand())
 }
