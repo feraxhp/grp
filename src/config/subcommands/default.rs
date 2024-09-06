@@ -26,7 +26,13 @@ pub(crate) fn default_subcommand() -> Command {
         if names.contains(&value.to_string()) {
             Ok(value.to_string())
         } else {
-            Err(format!("{} is not a valid repository name", value))
+            Err(
+                format!(
+                    "{} is not a valid repository name\n\
+                    posible values are {:?}",
+                    value, names
+                )
+            )
         }
     };
 
