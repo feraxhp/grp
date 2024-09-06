@@ -3,10 +3,12 @@
 
 mod girep;
 mod config;
+mod macros;
 
-use config::subcommands::add::set_configuration;
+use crate::config::command::config_manager;
 use crate::girep::base::RepoProvider;
-use clap::{arg, command};
+use clap::command;
+use crate::macros::macros::invalid;
 
 #[tokio::main]
 async fn main() {
@@ -16,9 +18,11 @@ async fn main() {
         .subcommand(config::command::config_command())
         .get_matches();
 
-    if let Some(config) = commands.subcommand_matches("config") {
-        if let Some(add) = config.subcommand_matches("add") {
-            set_configuration(add);
-        }
+    match commands.subcommand() {
+        Some(sub) => match sub {
+            ("config", config) => config_manager(config),
+            _ => invalid()
+        },
+        _ => invalid()
     }
 }

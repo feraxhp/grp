@@ -7,7 +7,6 @@ use crate::config::structure::Root;
 pub(crate) fn load_configurations() -> Root {
     let file_location = crate::config::location::get_location();
     let file_location = file_location.as_str();
-    eprintln!("File location: {}", file_location);
 
     let file = match std::fs::read_to_string(file_location) {
         Ok(file) => file,

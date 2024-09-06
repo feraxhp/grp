@@ -49,6 +49,11 @@ impl Config {
 
     pub(crate) fn save(&self) -> Result<(), std::io::Error> {
         let mut root = load_configurations();
+        root.add_config(self.clone());
+        Ok(())
+    }
+
+    pub(crate) fn clone(&self) -> Config {
         let temp: Config = Config::new(
             self.name.clone(),
             self.owner.clone(),
@@ -56,16 +61,18 @@ impl Config {
             self.r#type.clone(),
             self.endpoint.clone(),
         );
-
-        root.add_config(temp);
-        Ok(())
+        temp
     }
 }
 
 impl Root {
-    fn set_default(&mut self, default: String) {
-        self.default = default;
-        save_config(self).unwrap();
+    pub(crate) fn set_default(&mut self, default: String) {
+        self.default = default.clone();
+        match save_config(self) {
+            Ok(_) => eprintln!("Default set to {}", default),
+            Err(e) =>
+                eprintln!("Failed to save the default configuration\nError: {:?}", e),
+        };
     }
 
     pub(crate) fn add_config(&mut self, config: Config) {
@@ -73,5 +80,13 @@ impl Root {
         save_config(self).unwrap();
     }
 
+    pub(crate) fn get_repos(&self) -> Vec<Config> {
+        let mut repos: Vec<Config> = Vec::new();
 
+        for repo in self.repos.iter() {
+            repos.push(repo.clone());
+        }
+
+        repos
+    }
 }
