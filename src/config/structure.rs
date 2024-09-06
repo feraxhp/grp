@@ -90,4 +90,26 @@ impl Usettings {
 
         repos
     }
+
+    pub(crate) fn get_pconf(&self, name: String) -> Option<Pconf> {
+        for repo in self.pconfs.iter() {
+            if repo.name == name {
+                return Some(repo.clone());
+            }
+        }
+        None
+    }
+
+    pub(crate) fn get_default(&self) -> Pconf {
+        match self.get_pconf(self.default.clone()) {
+            Some(repo) => repo,
+            None => {
+                let default = self.pconfs[0].clone();
+                let mut uc = load_configurations();
+                uc.set_default(default.name.clone());
+
+                default
+            }
+        }
+    }
 }
