@@ -2,9 +2,9 @@
 // Licensed under the MIT License;
 
 use crate::config::save::save_config;
-use crate::config::structure::Root;
+use crate::config::structure::Usettings;
 
-pub(crate) fn load_configurations() -> Root {
+pub(crate) fn load_configurations() -> Usettings {
     let file_location = crate::config::location::get_location();
     let file_location = file_location.as_str();
 
@@ -19,9 +19,9 @@ pub(crate) fn load_configurations() -> Root {
     };
 
     if file.is_empty() {
-        let void_config = Root {
+        let void_config = Usettings {
             default: "<repo-name>".to_string(),
-            repos: vec![]
+            pconfs: vec![]
         };
 
         save_config(&void_config).unwrap();
@@ -31,7 +31,7 @@ pub(crate) fn load_configurations() -> Root {
         return void_config;
     }
 
-    let config: Root = match serde_json::from_str(&file) {
+    let config: Usettings = match serde_json::from_str(&file) {
         Ok(json) => json,
         Err(e) => {
             eprintln!("The config file is not valid");
