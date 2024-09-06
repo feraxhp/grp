@@ -14,9 +14,11 @@ use crate::macros::macros::invalid;
 async fn main() {
     let commands = command!()
         .name("grp")
-        .about("A simple CLI to manage repositories")
+        .about("A simple CLI to manage platforms for git repositories")
         .subcommand(config::command::config_command())
         .get_matches();
+
+    let user_settings = config::loader::load_configurations();
 
     match commands.subcommand() {
         Some(sub) => match sub {

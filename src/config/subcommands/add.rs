@@ -1,40 +1,39 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::config::structure::Config;
-use std::io;
+use crate::config::structure::Pconf;
+use girep::repos::supported::SUPPORTED_REPOS;
 use clap::{arg, command, ArgMatches, Command};
-
-const SUPPORTED_REPOS: [(&str, &str, &str); 2] = [
-    ("0", "gh", "github"),
-    ("1", "gt", "gitea"),
-];
+use std::io;
+use crate::girep;
 
 pub(crate) fn add_manager(add: &ArgMatches) {
 
     let quiet = add.get_one::<bool>("quiet").unwrap_or(&false);
     let quiet = *quiet;
+    let space = if quiet { "".to_string() } else { " ".repeat(4) };
+    let format_exp = format!("{}Something went wrong while reading the input", space);
 
     let name = match add.get_one::<String>("name") {
         Some(name) => name.to_string(),
         None => {
             if !quiet {
-                eprintln!("Name_______");
-                eprintln!("Write the name of the repo");
-                eprintln!("This name will be used to identify the repo while using the CLI");
+                eprintln!("Name|");
+                eprintln!("  Write the name of the repo");
+                eprintln!("  This name will be used to identify the repo while using the CLI");
             }
             let mut name: Option<String> = None;
             while name.is_none() {
-                eprint!("Name: ");
+                eprint!("{}Name: ", space);
                 let mut input = String::new();
                 io::stdin()
                     .read_line(&mut input)
-                    .expect("Something went wrong while reading the input");
+                    .expect(format_exp.as_str());
 
                 let input = input.trim();
 
                 if !input.is_empty() { name = Some(input.to_string()); }
-                else { if !quiet { eprintln!("Name cannot be empty"); } }
+                else { if !quiet { eprintln!("{space}Owner cannot be empty"); } }
             }
 
             name.unwrap()
@@ -45,23 +44,23 @@ pub(crate) fn add_manager(add: &ArgMatches) {
         Some(owner) => owner.to_string(),
         None => {
             if !quiet {
-                eprintln!("Owner_______");
-                eprintln!("Write the owner of the repo");
-                eprintln!("This owner will be used as the default owner of the repo");
+                eprintln!("Owner|");
+                eprintln!("  Write the owner of the repo");
+                eprintln!("  This owner will be used as the default owner of the repo");
             }
 
             let mut owner: Option<String> = None;
             while owner.is_none() {
-                eprint!("Owner: ");
+                eprint!("{}Owner: ", space);
                 let mut input = String::new();
                 io::stdin()
                     .read_line(&mut input)
-                    .expect("Something went wrong while reading the input");
+                    .expect(format_exp.as_str());
 
                 let input = input.trim();
 
                 if !input.is_empty() { owner = Some(input.to_string()); }
-                else { if !quiet { eprintln!("Owner cannot be empty"); } }
+                else { if !quiet { eprintln!("{space}Owner cannot be empty"); } }
             }
 
             owner.unwrap()
@@ -72,22 +71,22 @@ pub(crate) fn add_manager(add: &ArgMatches) {
         Some(token) => token.to_string(),
         None => {
             if !quiet {
-                eprintln!("Token_______");
-                eprintln!("Write the token of the repo");
-                eprintln!("This token will be used to authenticate the CLI with the repo");
+                eprintln!("Token|");
+                eprintln!("  Write the token of the repo");
+                eprintln!("  This token will be used to authenticate the CLI with the repo");
             }
             let mut token: Option<String> = None;
             while token.is_none() {
-                eprint!("Token: ");
+                eprint!("{}Token: ", space);
                 let mut input = String::new();
                 io::stdin()
                     .read_line(&mut input)
-                    .expect("Something went wrong while reading the input");
+                    .expect(format_exp.as_str());
 
                 let input = input.trim();
 
                 if !input.is_empty() { token = Some(input.to_string()); }
-                else { if !quiet { eprintln!("Token cannot be empty"); } }
+                else { if !quiet { eprintln!("{space}Token cannot be empty"); } }
             }
 
             token.unwrap()
@@ -98,21 +97,21 @@ pub(crate) fn add_manager(add: &ArgMatches) {
         Some(repo_type) => repo_type.to_string(),
         None => {
             if !quiet {
-                eprintln!("type_______");
-                eprintln!("Write the type of the repo");
-                eprintln!("options: ");
+                eprintln!("type|");
+                eprintln!("  Write the type of the repo");
+                eprintln!("  options: ");
                 for type_ in SUPPORTED_REPOS.iter() {
-                    eprintln!("{}: {}", type_.0, type_.2);
+                    eprintln!("      {}) {}", type_.0, type_.2);
                 }
             }
 
             let mut repo: Option<String> = None;
             while repo.is_none() {
-                eprint!("Type: ");
+                eprint!("{}Type: ", space);
                 let mut input = String::new();
                 io::stdin()
                     .read_line(&mut input)
-                    .expect("Something went wrong while reading the input");
+                    .expect(format_exp.as_str());
 
                 let input = input.trim();
                 for type_ in SUPPORTED_REPOS.iter() {
@@ -123,7 +122,7 @@ pub(crate) fn add_manager(add: &ArgMatches) {
                 }
 
                 if repo.is_none() && !quiet {
-                    eprintln!("It is not a valid option");
+                    eprintln!("{space}It is not a valid option");
                 }
             }
 
@@ -140,42 +139,62 @@ pub(crate) fn add_manager(add: &ArgMatches) {
             };
 
             if endpoint.is_none() && !quiet {
-                eprintln!("Endpoint_______");
-                eprintln!("Write the endpoint of the repo");
-                eprintln!("This endpoint will be used to access the repo");
+                eprintln!("Endpoint|");
+                eprintln!("  Write the endpoint of the repo");
+                eprintln!("  This endpoint will be used to access the repo");
             }
 
             while endpoint.is_none() {
-                eprint!("Endpoint: ");
+                eprint!("{}Endpoint: ", space);
                 let mut input = String::new();
                 io::stdin()
                     .read_line(&mut input)
-                    .expect("Something went wrong while reading the input");
+                    .expect(format_exp.as_str());
 
                 let input = input.trim();
 
                 if !input.is_empty() { endpoint = Some(input.to_string()); }
-                else { if !quiet { eprintln!("Endpoint cannot be empty"); } }
+                else { if !quiet { eprintln!("{space}Endpoint cannot be empty"); } }
             }
 
             endpoint.unwrap()
         }
     };
 
-    let config = Config::new(name, owner, token, repo_type, endpoint);
+    let config = Pconf::new(name, owner, token, repo_type, endpoint);
     config.save().expect("Impossible to save configuration");
 
 }
 
 pub(crate) fn add_subcommand() -> Command {
+    let posible_values = |value: &str| {
+        let names = SUPPORTED_REPOS.iter().map(|repo| repo.2.to_string()).collect::<Vec<String>>();
+        let abbreviations = SUPPORTED_REPOS.iter().map(|repo| repo.1.to_string()).collect::<Vec<String>>();
+
+
+        match &value.to_string(){
+            value if names.contains(&value) => Ok(value.to_string()),
+            value if abbreviations.contains(&value) => {
+                let index = abbreviations.iter().position(|r| r.eq(value)).unwrap();
+                Ok(names[index].to_string())
+            },
+            _ => Err(
+                format!(
+                    "{} is not a valid pconf type\n\
+                    posible values are {:?}",
+                    value, names
+                )
+            )
+        }
+    };
     command!("add")
-        .about("Add a new repository to the configuration file interactively")
-        .arg(arg!(-q --quiet "configure the repository without much interaction"))
-        .arg(arg!([type] "The repository type (github, gitea, [more planed])")
-            .value_parser(["github", "gitea"])
+        .about("Add a new pconf interactively")
+        .arg(arg!(-q --quiet "Add pconf without much dialog"))
+        .arg(arg!([type] "The platform type (github, gitea, [more planed])")
+            .value_parser(posible_values)
         )
-        .arg(arg!([name] "The alias for the repository configuration"))
-        .arg(arg!([owner] "The default owner of the repository"))
-        .arg(arg!([token] "The token to access the repository"))
-        .arg(arg!([endpoint] "The client endpoint to access the repository"))
+        .arg(arg!([name] "The alias for the pconf"))
+        .arg(arg!([owner] "The default owner to consult the platform"))
+        .arg(arg!([token] "The token to access the platform"))
+        .arg(arg!([endpoint] "The client endpoint to access the platform"))
 }

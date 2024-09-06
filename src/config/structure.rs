@@ -21,7 +21,7 @@ use crate::config::loader::load_configurations;
 use crate::config::save::save_config;
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct Config {
+pub(crate) struct Pconf {
     pub name: String,
     pub owner: String,
     pub token: String,
@@ -31,14 +31,15 @@ pub(crate) struct Config {
 }
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct Root {
+pub(crate) struct Usettings {
     pub default: String,
-    pub repos: Vec<Config>,
+    #[serde(rename = "pconf")]
+    pub pconfs: Vec<Pconf>,
 }
 
-impl Config {
+impl Pconf {
     pub fn new(name: String, owner: String, token: String, r#type: String, endpoint: String) -> Self {
-        Config {
+        Pconf {
             name,
             owner,
             token,
@@ -53,8 +54,8 @@ impl Config {
         Ok(())
     }
 
-    pub(crate) fn clone(&self) -> Config {
-        let temp: Config = Config::new(
+    pub(crate) fn clone(&self) -> Pconf {
+        let temp: Pconf = Pconf::new(
             self.name.clone(),
             self.owner.clone(),
             self.token.clone(),
@@ -65,7 +66,7 @@ impl Config {
     }
 }
 
-impl Root {
+impl Usettings {
     pub(crate) fn set_default(&mut self, default: String) {
         self.default = default.clone();
         match save_config(self) {
@@ -75,15 +76,15 @@ impl Root {
         };
     }
 
-    pub(crate) fn add_config(&mut self, config: Config) {
-        self.repos.push(config);
+    pub(crate) fn add_config(&mut self, config: Pconf) {
+        self.pconfs.push(config);
         save_config(self).unwrap();
     }
 
-    pub(crate) fn get_repos(&self) -> Vec<Config> {
-        let mut repos: Vec<Config> = Vec::new();
+    pub(crate) fn get_repos(&self) -> Vec<Pconf> {
+        let mut repos: Vec<Pconf> = Vec::new();
 
-        for repo in self.repos.iter() {
+        for repo in self.pconfs.iter() {
             repos.push(repo.clone());
         }
 

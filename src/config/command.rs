@@ -19,7 +19,7 @@ pub(crate) fn config_manager(config: &clap::ArgMatches) {
 
 pub(crate) fn config_command() -> Command {
     command!("config")
-        .about("Manage the configuration file")
+        .about("Manage the configurations for grp")
         .subcommand(add_subcommand())
         .subcommand(default_subcommand())
 }
