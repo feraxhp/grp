@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use std::path::PathBuf;
 
 pub fn get_location() -> String {

@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::config::structure::Root;
 
 pub(crate) fn save_config(config: &Root) -> Result<(), Box<dyn std::error::Error>> {
