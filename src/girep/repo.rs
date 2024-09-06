@@ -12,17 +12,23 @@ pub(crate) struct Repo {
 #[macro_export]
 macro_rules! show {
     ($r:expr) => {
+
+        if $r.is_empty() {
+            eprintln!("No repositories found");
+            return;
+        }
+
         let max_name = $r.iter().map(|r| r.full_name.len()).max().unwrap();
         let length = $r.len().to_string().len();
 
-        println!(
+        eprintln!(
             "{0:#^dig$} | {1: <width$} | {2: <7} | {3: <10}",
             "#", "Name", "State", "git clone",
             width = max_name,
             dig = length,
         );
         for (index, repo) in $r.iter().enumerate() {
-            println!(
+            eprintln!(
                 "{0: ^dig$} | {1: <width$} | {2: <7} | {3: <10}",
                 index + 1, repo.full_name, repo.state, repo.clone_url,
                 width = max_name,

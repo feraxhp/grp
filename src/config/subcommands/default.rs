@@ -1,6 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
+use crate::macros::validations::valid_pconfs;
 use crate::config::loader::load_configurations;
 use crate::config::structure::Pconf;
 use clap::{arg, command, Command};
@@ -22,22 +23,7 @@ pub(crate) fn default_manager(default: &clap::ArgMatches) {
 }
 
 pub(crate) fn default_subcommand() -> Command {
-    let posible_values = |value: &str| {
-        let config = load_configurations();
-        let repos = config.get_repos();
-        let names: Vec<String> = repos.iter().map(|repo| repo.name.clone()).collect();
-        if names.contains(&value.to_string()) {
-            Ok(value.to_string())
-        } else {
-            Err(
-                format!(
-                    "{} is not a valid pconf name\n\
-                    posible values are {:?}",
-                    value, names
-                )
-            )
-        }
-    };
+    let posible_values = valid_pconfs();
 
     command!("default")
         .about("Set the default pconf (platform configuration)")
