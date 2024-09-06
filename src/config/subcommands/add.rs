@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::config::structure::Config;
 use std::io;
 use clap::{arg, command, ArgMatches, Command};

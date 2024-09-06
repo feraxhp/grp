@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::config::loader::load_configurations;
 use crate::config::structure::Config;
 use clap::{arg, command, Command};
