@@ -23,4 +23,13 @@ impl Config {
             endpoint
         }
     }
+
+    pub(crate) fn clone(&self) -> Config {
+        Config::new(
+            self.pconf.clone(),
+            self.user.clone(),
+            self.token.clone(),
+            self.endpoint.clone()
+        )
+    }
 }

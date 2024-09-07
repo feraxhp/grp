@@ -4,8 +4,8 @@
 use crate::config::structure::Pconf;
 use crate::girep::base::Platform;
 use crate::girep::config::Config;
-use crate::girep::repos::gitea::Gitea;
-use crate::girep::repos::github::Github;
+use crate::girep::repos::gitea::implementation::Gitea;
+use crate::girep::repos::github::implementation::Github;
 use std::process::exit;
 
 pub(crate) async fn get_platform(pconf: Pconf) -> Box<dyn Platform> {
