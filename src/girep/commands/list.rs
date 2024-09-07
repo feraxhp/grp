@@ -4,7 +4,7 @@
 use clap::{arg, command, ArgMatches, Command};
 use crate::config::structure::Usettings;
 use crate::girep::repos::platform::get_platform;
-use crate::macros::validations::valid_pconfs;
+use crate::macros::validations::{valid_pconfs, valid_pconfs_and_plus};
 use crate::show;
 
 pub(crate) async fn list_manager(clist: &ArgMatches, usettings: Usettings) {
@@ -37,15 +37,14 @@ pub(crate) async fn list_manager(clist: &ArgMatches, usettings: Usettings) {
 }
 
 pub(crate) fn list_subcommand() -> Command {
-    let posible_values = valid_pconfs();
+    let possible_values = valid_pconfs_and_plus;
 
     command!("list")
         .alias("ls")
         .about("List the all the repositories from a configured repo")
         .arg(
             arg!([pconf] "The pconf to list the repositories from")
-                .value_parser(posible_values)
-                .value_parser(["-"])
+                .value_parser(possible_values)
         )
         .arg(
             arg!([owner] "The platform to list the repositories from")

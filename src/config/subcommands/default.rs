@@ -23,7 +23,7 @@ pub(crate) fn default_manager(default: &clap::ArgMatches) {
 }
 
 pub(crate) fn default_subcommand() -> Command {
-    let posible_values = valid_pconfs();
+    let possible_values = valid_pconfs;
 
     command!("default")
         .about("Set the default pconf (platform configuration)")
@@ -33,7 +33,7 @@ pub(crate) fn default_subcommand() -> Command {
         )
         .arg(
             arg!(<name> "name of the pconf to set as default")
-                .value_parser(posible_values)
+                .value_parser(possible_values)
         )
 }
 
