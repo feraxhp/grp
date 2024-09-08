@@ -188,6 +188,7 @@ pub(crate) fn add_subcommand() -> Command {
         }
     };
     command!("add")
+        .aliases(["+"])
         .about("Add a new pconf interactively")
         .arg(arg!(-q --quiet "Add pconf without much dialog"))
         .arg(arg!([type] "The platform type (github, gitea, [more planed])")
