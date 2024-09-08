@@ -68,6 +68,14 @@ pub(crate) async fn error_mannager(
                     eprintln!("  Pconf name: {}", config.pconf.clone());
                     eprintln!("  User: {}", debug_data.owner);
                 },
+                "GetOrgByName" if matches!(debug_data.rtype, Rtype::Create) => {
+                    finish_animation("User/org not found");
+                    cprintln!("User/org: <m>({})</>", debug_data.owner);
+                    cprintln!("  The user you provide is not an org");
+                    cprintln!("  Neither is the logged user");
+
+                    cprintln!("  <y>+ Please provide a valid org name</>");
+                },
                 _ if error.message.starts_with("user redirect does not exist [name: ") => {
                     finish_animation("User/org does not exist");
                     cprintln!("User/org: <m>({})</>", debug_data.owner);

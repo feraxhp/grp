@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::macros::validations::valid_pconfs;
+use crate::macros::validations::pconfs::valid_pconfs;
 use crate::config::loader::load_configurations;
 use crate::config::structure::Pconf;
 use clap::{arg, command, Command};
