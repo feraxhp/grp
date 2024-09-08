@@ -1,9 +1,11 @@
-use std::process::Command;
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
+use color_print::cformat;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::path::PathBuf;
-use clap::builder::Str;
-use color_print::cformat;
+use std::process::Command;
 
 pub(crate) fn add_remote(remote_url: &str, remote_name: &str, path_buf: PathBuf) -> Result<(), Error> {
     let current_dir = std::env::current_dir()?;
@@ -39,13 +41,15 @@ pub(crate) fn add_remote(remote_url: &str, remote_name: &str, path_buf: PathBuf)
     let _ = match Command::new("git")
         .arg("remote")
         .arg("add")
-        .arg(remote_name.clone())
+        .arg(remote_name)
         .arg(remote_url)
         .output()
     {
         Ok(_) => {},
         Err(_) => return Err(Error::new(ErrorKind::NotFound, "Failed to add remote".to_string()))
     };
+
+    let _ = std::env::set_current_dir(current_dir);
 
     Ok(())
 }

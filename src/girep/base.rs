@@ -1,14 +1,10 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use std::{eprint, eprintln, format, println};
-use std::process::exit;
-use hyper::HeaderMap;
 use crate::girep::config::Config;
 use crate::girep::repo::Repo;
 use async_trait::async_trait;
-use color_print::cprintln;
-use reqwest::Response;
+use hyper::HeaderMap;
 
 #[async_trait]
 pub(crate) trait Platform: Send + Sync {
