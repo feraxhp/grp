@@ -11,6 +11,7 @@ use color_print::cprintln;
 use hyper::HeaderMap;
 use serde::Deserialize;
 use std::process::exit;
+use crate::girep::repos::gitea::orgs::is_logged_user;
 
 #[derive(Deserialize)]
 struct Transpiler {
@@ -105,8 +106,19 @@ impl Platform for Gitea {
 
         let load_animation = animations::creation::Create::new("Creating repository ...");
 
+        let url = match is_logged_user(owner.as_str(), self.config.clone()).await {
+            Ok(false) => format!("https://{}/api/v1/orgs/{}/repos", self.config.endpoint, owner.clone()),
+            Ok(true) => format!("https://{}/api/v1/user/repos", self.config.endpoint),
+            Err(e) => {
+                load_animation.finish_with_error("This user name exists in the platform?");
+                eprintln!("Failed to verify the owner: {}\nError: {}", owner.clone(), e);
+                cprintln!("<y>Unknown error</>");
+                exit(101);
+            }
+        };
+
         let result = client
-            .post(format!("https://{}/api/v1/user/repos", self.config.endpoint))
+            .post(url)
             .headers(self.header.clone())
             .header("content-type", "application/json")
             .json(&serde_json::json!({

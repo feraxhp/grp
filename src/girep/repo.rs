@@ -9,6 +9,18 @@ pub(crate) struct Repo {
     pub(crate) clone_url: String,
 }
 
+impl Repo {
+    pub(crate) fn clone(&self) -> Repo {
+        Repo {
+            full_name: self.full_name.clone(),
+            description: self.description.clone(),
+            state: self.state.clone(),
+            html_url: self.html_url.clone(),
+            clone_url: self.clone_url.clone(),
+        }
+    }
+}
+
 #[macro_export]
 macro_rules! show {
     ($r:expr) => {
