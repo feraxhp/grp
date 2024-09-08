@@ -1,6 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
+use color_print::cprintln;
 use crate::config::save::save_config;
 use crate::config::structure::Usettings;
 
@@ -25,10 +26,10 @@ pub(crate) fn load_configurations() -> Usettings {
         };
 
         save_config(&void_config).unwrap();
-        println!("The config file has been created at {}", file_location);
-        println!("To configure run grp config add");
+        cprintln!(" The config file has been created at <i,u,b>{}</>", file_location);
+        cprintln!(" * To configure run <bg:#333333, #ffffff>'grp config add'</>");
 
-        return void_config;
+        std::process::exit(1);
     }
 
     let config: Usettings = match serde_json::from_str(&file) {

@@ -56,6 +56,7 @@ pub(crate) async fn create_mannager(ccreate: &ArgMatches, usettings: Usettings) 
                 },
                 Err(error) => {
                     process_animation.finish_with_error("Error adding remote");
+                    cprintln!("\n  <r>* {}</>", error);
                 }
             };
         },

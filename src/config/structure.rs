@@ -16,6 +16,7 @@
 	]
  }
  */
+use color_print::cprintln;
 use serde::{Deserialize, Serialize};
 use crate::config::loader::load_configurations;
 use crate::config::save::save_config;
@@ -104,6 +105,11 @@ impl Usettings {
         match self.get_pconf(self.default.clone()) {
             Some(repo) => repo,
             None => {
+                if self.pconfs.is_empty() {
+                    eprintln!(" No configurations found");
+                    cprintln!(" * Please add a configuration using <bg:#333333, #ffffff>'grp config add'</>");
+                    std::process::exit(1);
+                }
                 let default = self.pconfs[0].clone();
                 let mut uc = load_configurations();
                 uc.set_default(default.name.clone());
