@@ -10,6 +10,7 @@ pub struct DebugData {
 pub enum Rtype {
     List,
     Create,
+    Delete,
 }
 
 impl Rtype {
@@ -17,6 +18,7 @@ impl Rtype {
         match self {
             Rtype::List => "List".to_string(),
             Rtype::Create => "Create".to_string(),
+            Rtype::Delete => "Delete".to_string(),
         }
     }
 }

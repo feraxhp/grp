@@ -37,6 +37,19 @@ pub(crate) async fn error_mannager(
             eprintln!("  User: {}", debug_data.owner);
             exit(101);
         },
+        403 if matches!(debug_data.rtype, Rtype::Delete)=> {
+            finish_animation("Forbidden");
+            eprintln!("* Please check your token.");
+            eprintln!("  You must add the following scopes: ");
+            cprintln!("    <#e3750e>1. <m>delete_repo</>");
+            cprintln!("* Pconf name: {}", config.pconf.clone());
+            exit(101);
+        },
+        404 if matches!(debug_data.rtype, Rtype::Delete) => {
+            finish_animation("Repository not found");
+            cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
+            exit(101);
+        },
         404 => {
             finish_animation("User/org does not exist");
             cprintln!("User/org: <m>({})</>", debug_data.owner);
@@ -57,11 +70,11 @@ pub(crate) async fn error_mannager(
             match serde_json::from_str::<Error>(text.as_str()) {
                 Ok(error) => {
                     finish_animation(base_message.as_str());
-                    eprintln!("{:?}", serde_json::to_string_pretty(&error));
+                    eprintln!("{}", error.message.clone());
                 },
                 Err(e) => {
                     finish_animation(base_message.as_str());
-                   eprintln!("{:?}", e);
+                    eprintln!("{:?}", e);
                     cprintln!("<y>Unknown error</> {}", status.as_u16());
                 }
             };
