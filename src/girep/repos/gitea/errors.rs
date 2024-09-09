@@ -3,30 +3,11 @@ use color_print::cprintln;
 use reqwest::Response;
 use serde::Deserialize;
 use std::process::exit;
+use crate::girep::repos::comond::structs::{DebugData, Rtype};
 
 #[derive(Deserialize)]
 struct Error {
     message: String,
-}
-
-pub struct DebugData {
-    pub rtype: Rtype,
-    pub owner: String,
-    pub repo: Option<String>,
-}
-
-pub enum Rtype {
-    List,
-    Create,
-}
-
-impl Rtype {
-    pub fn to_string(&self) -> String {
-        match self {
-            Rtype::List => "List".to_string(),
-            Rtype::Create => "Create".to_string(),
-        }
-    }
 }
 
 pub(crate) async fn error_mannager(

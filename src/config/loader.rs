@@ -14,7 +14,7 @@ pub(crate) fn load_configurations() -> Usettings {
         Err(e) => {
             eprintln!("The config file could not be read");
             eprintln!("Error : {}", e);
-            println!("Please check the config file at {}", file_location);
+           eprintln!("Please check the config file at {}", file_location);
             std::process::exit(1);
         }
     };
@@ -37,7 +37,7 @@ pub(crate) fn load_configurations() -> Usettings {
         Err(e) => {
             eprintln!("The config file is not valid");
             eprintln!("Error : {}", e);
-            println!("Please check the config file at {}", file_location);
+           eprintln!("Please check the config file at {}", file_location);
             std::process::exit(1);
         }
     };

@@ -11,6 +11,8 @@ use color_print::cprintln;
 use hyper::HeaderMap;
 use serde::Deserialize;
 use std::process::exit;
+use crate::girep::repos::comond::structs::DebugData;
+use crate::girep::repos::github::orgs::is_logged_user;
 
 #[derive(Deserialize)]
 struct Transpiler {
@@ -65,7 +67,11 @@ impl Platform for Github {
 
         let response_text = error_mannager(
             result,
-            owner,
+            DebugData{
+                rtype: crate::girep::repos::comond::structs::Rtype::List,
+                owner: owner.clone(),
+                repo: None,
+            },
             self.config.clone(),
             "Failed to fetch repositories".to_string(),
             |str| { load_animation.finish_with_error(str); }
@@ -99,6 +105,68 @@ impl Platform for Github {
     }
 
     async fn create_repo(&self, owner: String, repo: Repo) -> Repo {
-        todo!()
+        let load_animation = animations::creation::Create::new("Creating repository ...");
+
+        let url = match is_logged_user(owner.as_str(), self.config.clone()).await {
+            Ok(true) => format!("https://{}/user/repos", self.config.endpoint),
+            Ok(false) => format!("https://{}/orgs/{}/repos", self.config.endpoint, owner),
+            Err(e) => {
+                load_animation.finish_with_error("This user name exists in the platform?");
+                eprintln!("Failed to verify the owner: {}\nError: {}", owner.clone(), e);
+                cprintln!("<y>Unknown error</>");
+                exit(101);
+            }
+        };
+
+        let client = reqwest::Client::new();
+        let result = client
+            .post(url)
+            .headers(self.header.clone())
+            .json(&serde_json::json!({
+                "name": repo.full_name,
+                "description": repo.description,
+                "private": repo.state == "private"
+            }))
+            .send()
+            .await
+            .unwrap_or_else(
+                |e| {
+                    load_animation.finish_with_error("Failed to create repository");
+                    cprintln!("<r>*</> {}", e);
+                    cprintln!("<y>Please verify your endpoint</>");
+                    exit(101);
+                }
+        );
+
+        let response_text = error_mannager(
+            result,
+            DebugData{
+                rtype: crate::girep::repos::comond::structs::Rtype::Create,
+                owner: owner.clone(),
+                repo: Some(repo.full_name.clone()),
+            },
+            self.config.clone(),
+            "Failed to create repository".to_string(),
+            |str| { load_animation.finish_with_error(str); }
+        ).await;
+
+        let transpiler: Transpiler = serde_json::from_str(&response_text)
+            .unwrap_or_else(|e| {
+                load_animation.finish_with_error("Failed to create repository");
+                eprintln!("Failed to parse the response: {}", e);
+                eprintln!("Response: {}", response_text);
+                cprintln!("<y>Unknown error</>");
+                exit(101);
+            });
+
+        load_animation.finish_with_success("Done!");
+
+        Repo {
+            full_name: transpiler.full_name,
+            description: transpiler.description.unwrap_or("".to_string()),
+            state: if transpiler.private { "private".to_string() } else { "public".to_string() },
+            html_url: transpiler.html_url,
+            clone_url: transpiler.clone_url,
+        }
     }
 }
