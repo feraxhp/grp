@@ -6,3 +6,4 @@ pub(crate) mod github;
 pub(crate) mod supported;
 pub(crate) mod platform;
 pub(crate) mod local;
+pub(crate) mod comond;

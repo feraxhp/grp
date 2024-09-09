@@ -5,12 +5,13 @@ use crate::animations;
 use crate::girep::base::Platform;
 use crate::girep::config::Config;
 use crate::girep::repo::Repo;
-use crate::girep::repos::gitea::errors::{error_mannager, DebugData};
+use crate::girep::repos::gitea::errors::{error_mannager};
 use async_trait::async_trait;
 use color_print::cprintln;
 use hyper::HeaderMap;
 use serde::Deserialize;
 use std::process::exit;
+use crate::girep::repos::comond::structs::{DebugData, Rtype};
 use crate::girep::repos::gitea::orgs::is_logged_user;
 
 #[derive(Deserialize)]
@@ -64,7 +65,7 @@ impl Platform for Gitea {
         let response_text = error_mannager(
                 result,
                 DebugData{
-                    rtype: crate::girep::repos::gitea::errors::Rtype::List,
+                    rtype: Rtype::List,
                     owner: owner.clone(),
                     repo: None,
                 },
@@ -140,7 +141,7 @@ impl Platform for Gitea {
         let response_text = error_mannager(
                 result,
                 DebugData{
-                    rtype: crate::girep::repos::gitea::errors::Rtype::Create,
+                    rtype: Rtype::Create,
                     owner: owner.clone(),
                     repo: Some(repo.full_name.clone()),
                 },

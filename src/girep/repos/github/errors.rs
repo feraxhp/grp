@@ -3,6 +3,7 @@ use color_print::cprintln;
 use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use crate::girep::config::Config;
+use crate::girep::repos::comond::structs::{DebugData, Rtype};
 
 #[derive(Serialize, Deserialize)]
 struct Error {
@@ -12,7 +13,7 @@ struct Error {
 
 pub(crate) async fn error_mannager(
     result: Response,
-    owner: String,
+    debug_data: DebugData,
     config: Config,
     base_message: String,
     finish_animation: impl Fn(&str),
@@ -28,16 +29,28 @@ pub(crate) async fn error_mannager(
 
     match status.as_u16() {
         200 => { text },
+        201 if matches!(debug_data.rtype, Rtype::Create) => { text },
         401 => {
             finish_animation("Bad credentials");
             eprintln!("* Please check your token.");
             eprintln!("  Pconf name: {}", config.pconf.clone());
-            eprintln!("  User: {}", owner);
+            eprintln!("  User: {}", debug_data.owner);
             exit(101);
         },
         404 => {
             finish_animation("User/org does not exist");
-            cprintln!("User/org: <m>({})</>", owner);
+            cprintln!("User/org: <m>({})</>", debug_data.owner);
+            if matches!(debug_data.rtype, Rtype::Create) {
+                cprintln!("  The user you provide is not an org");
+                cprintln!("  Neither is the logged user");
+
+                cprintln!("  <y>+ Please provide a valid org name</>");
+            }
+            exit(101);
+        },
+        422 if matches!(debug_data.rtype, Rtype::Create) => {
+            finish_animation("Repository already exists");
+            cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
             exit(101);
         },
         _ => {
@@ -48,7 +61,7 @@ pub(crate) async fn error_mannager(
                 },
                 Err(e) => {
                     finish_animation(base_message.as_str());
-                    println!("{:?}", e);
+                   eprintln!("{:?}", e);
                     cprintln!("<y>Unknown error</> {}", status.as_u16());
                 }
             };
