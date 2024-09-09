@@ -13,6 +13,8 @@ use crate::girep::commands::list::mannager::list_manager;
 use crate::girep::commands::list::subcommand::list_subcommand;
 use crate::macros::macros::invalid;
 use clap::command;
+use crate::girep::commands::delete::mannager::delete_manager;
+use crate::girep::commands::delete::subcommand::delete_subcommand;
 
 #[tokio::main]
 async fn main() {
@@ -22,6 +24,7 @@ async fn main() {
         .subcommand(config_command())
         .subcommand(list_subcommand())
         .subcommand(create_subcommand())
+        .subcommand(delete_subcommand())
         .get_matches();
 
     let user_settings = config::loader::load_configurations();
@@ -31,6 +34,7 @@ async fn main() {
             ("config", config) => config_manager(config),
             ("list", list) => list_manager(list, user_settings).await,
             ("create", create) => create_mannager(create, user_settings).await,
+            ("delete", delete) => delete_manager(delete, user_settings).await,
             _ => invalid()
         },
         _ => invalid()

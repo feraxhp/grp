@@ -22,7 +22,7 @@ pub(crate) async fn create_mannager(ccreate: &ArgMatches, usettings: Usettings) 
 
     let remote = ccreate.get_one::<PathBuf>("remote");
 
-    let (pconf, owner, repo_name) = unfold_repo_structure(srepo.as_str()).unwrap();
+    let (pconf, owner, repo_name) = unfold_repo_structure(srepo.as_str(), false).unwrap();
 
     let pconf = match pconf {
         Some(value) => usettings.get_pconf(value).unwrap(),

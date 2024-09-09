@@ -1,10 +1,11 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
+use color_print::cformat;
 use crate::macros::validations::pconfs;
 
 pub(crate) fn validate_repo_structure(value: &str) -> Result<String, String> {
-    let (pconf, owner, repo_name) = match unfold_repo_structure(value) {
+    let (pconf, owner, repo_name) = match unfold_repo_structure(value, false) {
         Ok((pconf, owner, repo_name)) => (pconf, owner, repo_name),
         Err(e) => return Err(e)
     };
@@ -42,7 +43,52 @@ pub(crate) fn validate_repo_structure(value: &str) -> Result<String, String> {
     Ok(value.to_string())
 }
 
-pub(crate) fn unfold_repo_structure(value: &str) -> Result<(Option<String>, String, String), String> {
+pub(crate) fn validate_repo_structure_with_pconf(value: &str) -> Result<String, String> {
+    let (pconf, owner, repo_name) = match unfold_repo_structure(value, true) {
+        Ok((pconf, owner, repo_name)) => (pconf, owner, repo_name),
+        Err(e) => return Err(e)
+    };
+
+    let _ = match pconf {
+        Some(string) => match pconfs::valid_pconfs(string.as_str()) {
+            Ok(_) => { },
+            Err(e) => return Err(e)
+        },
+        None => return Err(
+            cformat!(
+                "{} is not a valid repo structure\
+                \n<s>* you have to provide a pconf</>",
+                value
+            )
+        )
+    };
+
+    let _ = match owner {
+        _ if owner.is_empty() => return Err(
+            format!(
+                "{} the owner cannot be empty\
+                \n* if you want to use, the default owner, use the '*'\
+                \n  e.g. <pconf>:*/<repo>",
+                value
+            )
+        ),
+        _ => { }
+    };
+
+    let _ = match repo_name {
+        _ if repo_name.is_empty() => return Err(
+            format!(
+                "{} the repo name cannot be empty",
+                value
+            )
+        ),
+        _ => { }
+    };
+
+    Ok(value.to_string())
+}
+
+pub(crate) fn unfold_repo_structure(value: &str, required_pconf: bool) -> Result<(Option<String>, String, String), String> {
     let (pconf, repo_full_name): (Option<String>, String) = match value.contains(":") {
         true => {
             let parts: Vec<&str> = value.split(':').collect();
@@ -59,7 +105,16 @@ pub(crate) fn unfold_repo_structure(value: &str) -> Result<(Option<String>, Stri
             let repo = parts[1].to_string();
             (Some(pconf), repo)
         },
-        false => (None, value.to_string())
+        false => {
+            if !required_pconf { (None, value.to_string()) }
+            else { return Err(
+                cformat!(
+                    "{} is not a valid repo structure\
+                    \n<s>* you have to provide a pconf</>",
+                    value
+                )
+            )}
+        }
     };
 
     let (owner, repo_name): (String, String) = match repo_full_name.contains("/") {
