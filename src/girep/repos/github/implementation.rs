@@ -11,7 +11,8 @@ use color_print::cprintln;
 use hyper::HeaderMap;
 use serde::Deserialize;
 use std::process::exit;
-use crate::girep::repos::comond::structs::DebugData;
+use crate::animations::delition::Delete;
+use crate::girep::repos::comond::structs::{DebugData, Rtype};
 use crate::girep::repos::github::orgs::is_logged_user;
 
 #[derive(Deserialize)]
@@ -168,5 +169,46 @@ impl Platform for Github {
             html_url: transpiler.html_url,
             clone_url: transpiler.clone_url,
         }
+    }
+
+    async fn delete_repo(&self, owner: String, repo: String) -> bool {
+        let client = reqwest::Client::new();
+
+        let load_animation = Delete::new("Deleting repository ...");
+
+        let url = format!("https://{}/repos/{}/{}", self.config.endpoint, owner, repo);
+
+        let result = client
+            .delete(url)
+            .headers(self.header.clone())
+            .send()
+            .await
+            .unwrap_or_else(
+                |e| {
+                    load_animation.finish_with_error("Failed to contact the platform");
+                    eprintln!("Failed to delete repository: {}", e);
+                    cprintln!("<y>Unknown error</>");
+                    exit(101);
+                }
+            );
+
+        if result.status().as_u16() == 204 {
+            load_animation.finish_with_success("Done!");
+            return true;
+        }
+
+        let _response_text = error_mannager(
+            result,
+            DebugData{
+                rtype: Rtype::Delete,
+                owner: owner.clone(),
+                repo: Some(repo.clone()),
+            },
+            self.config.clone(),
+            "Failed to delete repository".to_string(),
+            |str| { load_animation.finish_with_error(str); }
+        ).await;
+
+        false
     }
 }

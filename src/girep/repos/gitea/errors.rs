@@ -29,6 +29,11 @@ pub(crate) async fn error_mannager(
     match status.as_u16() {
         200 if matches!(debug_data.rtype, Rtype::List) => { return text; },
         201 if matches!(debug_data.rtype, Rtype::Create) => { return text; },
+        404 if matches!(debug_data.rtype, Rtype::Delete) => {
+            finish_animation("Repository not found");
+            cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
+            exit(101);
+        },
         409 if matches!(debug_data.rtype, Rtype::Create) => {
             finish_animation("Repository already exists");
             cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
