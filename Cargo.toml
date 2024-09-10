@@ -2,6 +2,9 @@
 name = "grp"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+authors = ["feraxhp"]
+description = "A simple CLI tool to mannage platforms for git repositories"
 
 [dependencies]
 hyper = "1.4.1"
