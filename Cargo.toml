@@ -17,3 +17,15 @@ dirs = "5.0.1"
 color-print = "0.3.6"
 async-trait = "0.1.82"
 indicatif = "0.17.8"
+
+[package.metadata.generate-rpm]
+url="https://github.com/feraxhp/grp"
+assets = [
+    { source = "target/release/grp", dest = "/usr/bin/grp", mode = "755" },
+]
+
+[package.metadata.deb]
+depends="$auto"
+assets = [
+    ["target/release/grp", "usr/bin/", "755"],
+]
