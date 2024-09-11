@@ -21,8 +21,8 @@ pub(crate) async fn error_mannager(
     let status = result.status();
     let text = result.text().await.unwrap_or_else(|e| {
         finish_animation(base_message.as_str());
-        eprintln!("Failed to read the response text: {}", e);
-        cprintln!("<y>Unknown error</>");
+        eprintln!("* Failed to read the response text: {}", e);
+        cprintln!("<y>* Unknown error</>");
         exit(101);
     });
 
@@ -31,12 +31,12 @@ pub(crate) async fn error_mannager(
         201 if matches!(debug_data.rtype, Rtype::Create) => { return text; },
         404 if matches!(debug_data.rtype, Rtype::Delete) => {
             finish_animation("Repository not found");
-            cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
+            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
             exit(101);
         },
         409 if matches!(debug_data.rtype, Rtype::Create) => {
             finish_animation("Repository already exists");
-            cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
+            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
         },
         _ => {
             let error: Error = serde_json::from_str(&text)
@@ -56,7 +56,7 @@ pub(crate) async fn error_mannager(
                 },
                 "GetOrgByName" if matches!(debug_data.rtype, Rtype::Create) => {
                     finish_animation("User/org not found");
-                    cprintln!("User/org: <m>({})</>", debug_data.owner);
+                    cprintln!("* User/org: <m>({})</>", debug_data.owner);
                     cprintln!("  The user you provide is not an org");
                     cprintln!("  Neither is the logged user");
 
@@ -64,7 +64,7 @@ pub(crate) async fn error_mannager(
                 },
                 _ if error.message.starts_with("user redirect does not exist [name: ") => {
                     finish_animation("User/org does not exist");
-                    cprintln!("User/org: <m>({})</>", debug_data.owner);
+                    cprintln!("* User/org: <m>({})</>", debug_data.owner);
                 },
                 _ if error.message.starts_with("token does not have at least one of required scope(s):") => {
                     finish_animation("Bad token scope");

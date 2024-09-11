@@ -58,7 +58,7 @@ impl Platform for Gitea {
                 |e| {
                     load_animation.finish_with_error("Failed to fetch repositories");
                     cprintln!("<r>*</> {}", e);
-                    cprintln!("<y>Please verify your endpoint</>");
+                    cprintln!("<y>  Please verify your endpoint</>");
                     exit(101);
                 }
             );
@@ -79,9 +79,9 @@ impl Platform for Gitea {
         let repositories: Vec<Transpiler> = serde_json::from_str(&response_text)
             .unwrap_or_else(|e| {
                 load_animation.finish_with_error("Failed to fetch repositories");
-                eprintln!("Failed to parse the response: {}", e);
-                eprintln!("Response: {}", response_text);
-                cprintln!("<y>Unknown error</>");
+                eprintln!("* Failed to parse the response: {}", e);
+                eprintln!("  Response: {}", response_text);
+                cprintln!("<y>* Unknown error</>");
                 exit(101);
             });
 
@@ -113,8 +113,8 @@ impl Platform for Gitea {
             Ok(true) => format!("https://{}/api/v1/user/repos", self.config.endpoint),
             Err(e) => {
                 load_animation.finish_with_error("This user name exists in the platform?");
-                eprintln!("Failed to verify the owner: {}\nError: {}", owner.clone(), e);
-                cprintln!("<y>Unknown error</>");
+                eprintln!("* Failed to verify the owner: {}\n  Error: {}", owner.clone(), e);
+                cprintln!("<y>* Unknown error</>");
                 exit(101);
             }
         };
@@ -133,8 +133,8 @@ impl Platform for Gitea {
             .unwrap_or_else(
                 |e| {
                     load_animation.finish_with_error("Failed to contact the platform");
-                    eprintln!("Failed to create repository: {}", e);
-                    cprintln!("<y>Unknown error</>");
+                    eprintln!("* Failed to create repository: {}", e);
+                    cprintln!("<y>  Unknown error</>");
                     exit(101);
                 }
             );
@@ -154,9 +154,9 @@ impl Platform for Gitea {
         let transpiler: Transpiler = serde_json::from_str(&response_text).unwrap_or_else(
             |e| {
                 load_animation.finish_with_error("Failed to create repository");
-                eprintln!("Failed to parse the response: {}", e);
-                eprintln!("Response: {}", response_text);
-                cprintln!("<y>Unknown error</>");
+                eprintln!("* Failed to parse the response: {}", e);
+                eprintln!("  Response: {}", response_text);
+                cprintln!("<y>* Unknown error</>");
                 exit(101);
             }
         );
@@ -187,8 +187,8 @@ impl Platform for Gitea {
             .unwrap_or_else(
                 |e| {
                     load_animation.finish_with_error("Failed to contact the platform");
-                    eprintln!("Failed to delete repository: {}", e);
-                    cprintln!("<y>Unknown error</>");
+                    eprintln!("* Failed to delete repository: {}", e);
+                    cprintln!("<y>  Unknown error</>");
                     exit(101);
                 }
             );

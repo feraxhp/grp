@@ -13,8 +13,8 @@ pub(crate) fn load_configurations() -> Usettings {
         Ok(file) => file,
         Err(e) => {
             eprintln!("The config file could not be read");
-            eprintln!("Error : {}", e);
-           eprintln!("Please check the config file at {}", file_location);
+            eprintln!("* Error : {}", e);
+            cprintln!("  Please check the config file at <i,u,b>{}</>", file_location);
             std::process::exit(1);
         }
     };
@@ -36,8 +36,8 @@ pub(crate) fn load_configurations() -> Usettings {
         Ok(json) => json,
         Err(e) => {
             eprintln!("The config file is not valid");
-            eprintln!("Error : {}", e);
-           eprintln!("Please check the config file at {}", file_location);
+            eprintln!("* Error : {}", e);
+            cprintln!("  Please check the config file at <i,u,b>{}</>", file_location);
             std::process::exit(1);
         }
     };

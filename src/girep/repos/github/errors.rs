@@ -47,12 +47,12 @@ pub(crate) async fn error_mannager(
         },
         404 if matches!(debug_data.rtype, Rtype::Delete) => {
             finish_animation("Repository not found");
-            cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
+            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
             exit(101);
         },
         404 => {
             finish_animation("User/org does not exist");
-            cprintln!("User/org: <m>({})</>", debug_data.owner);
+            cprintln!("* User/org: <m>({})</>", debug_data.owner);
             if matches!(debug_data.rtype, Rtype::Create) {
                 cprintln!("  The user you provide is not an org");
                 cprintln!("  Neither is the logged user");
@@ -63,7 +63,7 @@ pub(crate) async fn error_mannager(
         },
         422 if matches!(debug_data.rtype, Rtype::Create) => {
             finish_animation("Repository already exists");
-            cprintln!("Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
+            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
             exit(101);
         },
         _ => {

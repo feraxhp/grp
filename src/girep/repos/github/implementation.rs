@@ -61,7 +61,7 @@ impl Platform for Github {
                 |e| {
                     load_animation.finish_with_error("Failed to fetch repositories");
                     cprintln!("<r>*</> {}", e);
-                    cprintln!("<y>Please verify your endpoint</>");
+                    cprintln!("  <y>Please verify your endpoint</>");
                     exit(101);
                 }
         );
@@ -81,9 +81,9 @@ impl Platform for Github {
         let repositories: Vec<Transpiler> = serde_json::from_str(&response_text)
             .unwrap_or_else(|e| {
                 load_animation.finish_with_error("Failed to fetch repositories");
-                eprintln!("Failed to parse the response: {}", e);
-                eprintln!("Response: {}", response_text);
-                cprintln!("<y>Unknown error</>");
+                eprintln!("* Failed to parse the response: {}", e);
+                eprintln!("  Response: {}", response_text);
+                cprintln!("<y>* Unknown error</>");
                 exit(101);
             });
 
@@ -113,8 +113,8 @@ impl Platform for Github {
             Ok(false) => format!("https://{}/orgs/{}/repos", self.config.endpoint, owner),
             Err(e) => {
                 load_animation.finish_with_error("This user name exists in the platform?");
-                eprintln!("Failed to verify the owner: {}\nError: {}", owner.clone(), e);
-                cprintln!("<y>Unknown error</>");
+                eprintln!("* Failed to verify the owner: {}\n  Error: {}", owner.clone(), e);
+                cprintln!("<y>* Unknown error</>");
                 exit(101);
             }
         };
@@ -134,7 +134,7 @@ impl Platform for Github {
                 |e| {
                     load_animation.finish_with_error("Failed to create repository");
                     cprintln!("<r>*</> {}", e);
-                    cprintln!("<y>Please verify your endpoint</>");
+                    cprintln!("<y>  Please verify your endpoint</>");
                     exit(101);
                 }
         );
@@ -154,9 +154,9 @@ impl Platform for Github {
         let transpiler: Transpiler = serde_json::from_str(&response_text)
             .unwrap_or_else(|e| {
                 load_animation.finish_with_error("Failed to create repository");
-                eprintln!("Failed to parse the response: {}", e);
-                eprintln!("Response: {}", response_text);
-                cprintln!("<y>Unknown error</>");
+                eprintln!("* Failed to parse the response: {}", e);
+                eprintln!("  Response: {}", response_text);
+                cprintln!("<y>* Unknown error</>");
                 exit(101);
             });
 
@@ -186,8 +186,8 @@ impl Platform for Github {
             .unwrap_or_else(
                 |e| {
                     load_animation.finish_with_error("Failed to contact the platform");
-                    eprintln!("Failed to delete repository: {}", e);
-                    cprintln!("<y>Unknown error</>");
+                    eprintln!("* Failed to delete repository: {}", e);
+                    cprintln!("<y>  Unknown error</>");
                     exit(101);
                 }
             );
