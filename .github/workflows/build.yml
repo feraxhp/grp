@@ -1,10 +1,9 @@
 on:
   workflow_dispatch:
   push:
-    tags:
-      - 'v*'
-    branches:
-      - master
+  release:
+    types:
+      - created
 
 env:
   CARGO_TERM_COLOR: always
