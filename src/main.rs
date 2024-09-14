@@ -13,6 +13,7 @@ use crate::girep::commands::list::mannager::list_manager;
 use crate::girep::commands::list::subcommand::list_subcommand;
 use crate::macros::macros::invalid;
 use clap::command;
+use color_print::cprintln;
 use crate::girep::commands::delete::mannager::delete_manager;
 use crate::girep::commands::delete::subcommand::delete_subcommand;
 
@@ -37,6 +38,8 @@ async fn main() {
             ("delete", delete) => delete_manager(delete, user_settings).await,
             _ => invalid()
         },
-        _ => invalid()
+        _ => {
+            cprintln!("<y>* No command was provided try using <g,i>'--help'</>");
+        }
     }
 }
