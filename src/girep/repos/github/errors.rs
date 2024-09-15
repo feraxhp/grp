@@ -1,12 +1,14 @@
 use std::process::exit;
-use color_print::cprintln;
+use color_print::{cformat, cprintln};
 use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use crate::girep::config::Config;
+use crate::girep::errors::error::Error;
+use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::comond::structs::{DebugData, Rtype};
 
 #[derive(Serialize, Deserialize)]
-struct Error {
+struct ErrorDeserialize {
     message: String,
     status: String,
 }
@@ -16,69 +18,111 @@ pub(crate) async fn error_mannager(
     debug_data: DebugData,
     config: Config,
     base_message: String,
-    finish_animation: impl Fn(&str),
-) -> String{
+) -> Result<String, Error>{
 
     let status = result.status();
-    let text = result.text().await.unwrap_or_else(|e| {
-        finish_animation(base_message.as_str());
-        eprintln!("Failed to read the response text: {}", e);
-        cprintln!("<y>Unknown error</>");
-        exit(101);
+    let text = result.text().await.map_err(|e| {
+        Error::new(ErrorType::Unknown, vec![e.to_string().as_str()])
     });
 
-    match status.as_u16() {
-        200 => { text },
-        201 if matches!(debug_data.rtype, Rtype::Create) => { text },
-        401 => {
-            finish_animation("Bad credentials");
-            eprintln!("* Please check your token.");
-            eprintln!("  Pconf name: {}", config.pconf.clone());
-            eprintln!("  User: {}", debug_data.owner);
-            exit(101);
-        },
-        403 if matches!(debug_data.rtype, Rtype::Delete)=> {
-            finish_animation("Forbidden");
-            eprintln!("* Please check your token.");
-            eprintln!("  You must add the following scopes: ");
-            cprintln!("    <#e3750e>1. <m>delete_repo</>");
-            cprintln!("* Pconf name: {}", config.pconf.clone());
-            exit(101);
-        },
-        404 if matches!(debug_data.rtype, Rtype::Delete) => {
-            finish_animation("Repository not found");
-            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
-            exit(101);
-        },
-        404 => {
-            finish_animation("User/org does not exist");
-            cprintln!("* User/org: <m>({})</>", debug_data.owner);
-            if matches!(debug_data.rtype, Rtype::Create) {
-                cprintln!("  The user you provide is not an org");
-                cprintln!("  Neither is the logged user");
-
-                cprintln!("  <y>+ Please provide a valid org name</>");
-            }
-            exit(101);
-        },
-        422 if matches!(debug_data.rtype, Rtype::Create) => {
-            finish_animation("Repository already exists");
-            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
-            exit(101);
-        },
-        _ => {
-            match serde_json::from_str::<Error>(text.as_str()) {
-                Ok(error) => {
-                    finish_animation(base_message.as_str());
-                    eprintln!("{}", error.message.clone());
+    match text {
+        Ok(text) => {
+            match status.as_u16() {
+                200 => { Ok(text) },
+                201 if matches!(debug_data.rtype, Rtype::Create) => { Ok(text) },
+                401 => {
+                    Err(
+                        Error::new(
+                            ErrorType::Unauthorized,
+                            vec![
+                                config.pconf.as_str(),
+                                debug_data.owner.as_str(),
+                            ]
+                        )
+                    )
                 },
-                Err(e) => {
-                    finish_animation(base_message.as_str());
-                    eprintln!("{:?}", e);
-                    cprintln!("<y>Unknown error</> {}", status.as_u16());
+                403 if matches!(debug_data.rtype, Rtype::Delete) => {
+                    Err(
+                        Error::new(
+                            ErrorType::BadTokenScope,
+                            vec![
+                                config.pconf.as_str(),
+                                "delete_repo",
+                            ]
+                        )
+                    )
+
+                },
+                404 if matches!(debug_data.rtype, Rtype::Delete) => {
+                    Err(
+                        Error::new(
+                            ErrorType::NotFound,
+                            vec![
+                                debug_data.owner.as_str(),
+                                debug_data.repo.clone().unwrap().as_str(),
+                            ]
+                        )
+                    )
+                },
+                404 => {
+                    let mut content = vec![debug_data.owner.clone()];
+
+                    if matches!(debug_data.rtype, Rtype::Create) {
+                        let message = cformat!(
+                            "  The user you provide is not an org\
+                              Neither is the logged user\
+                            <y>+ Please provide a valid org name"
+                        );
+                        content.push(message);
+                    }
+
+                    Err(
+                        Error::new(
+                            ErrorType::NotFound,
+                            content.iter().map(|s| s.as_str()).collect()
+                        )
+                    )
+                },
+                422 if matches!(debug_data.rtype, Rtype::Create) => {
+                    Err(
+                        Error::new(
+                            ErrorType::AlreadyExists,
+                            vec![
+                                debug_data.owner.as_str(),
+                                debug_data.repo.clone().unwrap().as_str(),
+                            ]
+                        )
+                    )
+                },
+                _ => {
+                    match serde_json::from_str::<ErrorDeserialize>(text.as_str()) {
+                        Ok(error) => {
+                            Err(
+                                Error::new_custom(
+                                    base_message,
+                                    vec![
+                                        cformat!("<y>* Something went wrong: </>",),
+                                        cformat!("  <r,i>{}</>", error.status),
+                                        cformat!("  Error: {}", error.message)
+                                    ]
+                                )
+                            )
+                        },
+                        Err(e) => {
+
+                            Err(
+                                Error::new(
+                                    ErrorType::Dezerialized,
+                                    vec![
+                                        format!("{:?}", e).as_str(),
+                                    ]
+                                )
+                            )
+                        }
+                    }
                 }
-            };
-            exit(status.as_u16() as i32);
-        }
+            }
+        },
+        Err(e) => Err(e)
     }
 }

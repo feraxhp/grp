@@ -13,7 +13,7 @@ use serde::Deserialize;
 use std::process::exit;
 use crate::animations::delition::Delete;
 use crate::girep::repos::comond::structs::{DebugData, Rtype};
-use crate::girep::repos::gitea::orgs::is_logged_user;
+use crate::girep::repos::gitea::user::is_logged_user;
 
 #[derive(Deserialize)]
 struct Transpiler {
@@ -72,9 +72,17 @@ impl Platform for Gitea {
                 },
                 self.config.clone(),
                 "Failed to fetch repositories".to_string(),
-                |str| { load_animation.finish_with_error(str); }
             )
             .await;
+
+        let response_text = match response_text {
+            Ok(text) => text,
+            Err(e) => {
+                load_animation.finish_with_error(e.message.as_str());
+                e.show();
+                exit(101);
+            }
+        };
 
         let repositories: Vec<Transpiler> = serde_json::from_str(&response_text)
             .unwrap_or_else(|e| {
@@ -148,8 +156,16 @@ impl Platform for Gitea {
                 },
                 self.config.clone(),
                 "Failed to create repository".to_string(),
-                |str| { load_animation.finish_with_error(str); }
             ).await;
+
+        let response_text = match response_text {
+            Ok(text) => text,
+            Err(e) => {
+                load_animation.finish_with_error(e.message.as_str());
+                e.show();
+                exit(101);
+            }
+        };
 
         let transpiler: Transpiler = serde_json::from_str(&response_text).unwrap_or_else(
             |e| {
@@ -207,7 +223,6 @@ impl Platform for Gitea {
             },
             self.config.clone(),
             "Failed to delete repository".to_string(),
-            |str| { load_animation.finish_with_error(str); }
         ).await;
 
         false

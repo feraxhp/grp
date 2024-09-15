@@ -69,14 +69,22 @@ impl Platform for Github {
         let response_text = error_mannager(
             result,
             DebugData{
-                rtype: crate::girep::repos::comond::structs::Rtype::List,
+                rtype: Rtype::List,
                 owner: owner.clone(),
                 repo: None,
             },
             self.config.clone(),
             "Failed to fetch repositories".to_string(),
-            |str| { load_animation.finish_with_error(str); }
         ).await;
+
+        let response_text = match response_text {
+            Ok(text) => text,
+            Err(e) => {
+                load_animation.finish_with_error(e.message.as_str());
+                e.show();
+                exit(101);
+            }
+        };
 
         let repositories: Vec<Transpiler> = serde_json::from_str(&response_text)
             .unwrap_or_else(|e| {
@@ -148,8 +156,16 @@ impl Platform for Github {
             },
             self.config.clone(),
             "Failed to create repository".to_string(),
-            |str| { load_animation.finish_with_error(str); }
         ).await;
+
+        let response_text = match response_text {
+            Ok(text) => text,
+            Err(e) => {
+                load_animation.finish_with_error(e.message.as_str());
+                e.show();
+                exit(101);
+            }
+        };
 
         let transpiler: Transpiler = serde_json::from_str(&response_text)
             .unwrap_or_else(|e| {
@@ -206,7 +222,6 @@ impl Platform for Github {
             },
             self.config.clone(),
             "Failed to delete repository".to_string(),
-            |str| { load_animation.finish_with_error(str); }
         ).await;
 
         false

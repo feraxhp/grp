@@ -1,12 +1,14 @@
 use crate::girep::config::Config;
-use color_print::cprintln;
+use color_print::{cformat, cprintln};
 use reqwest::Response;
 use serde::Deserialize;
 use std::process::exit;
+use crate::girep::errors::error::Error;
+use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::comond::structs::{DebugData, Rtype};
 
 #[derive(Deserialize)]
-struct Error {
+struct ErrorDeserialize {
     message: String,
 }
 
@@ -15,76 +17,112 @@ pub(crate) async fn error_mannager(
     debug_data: DebugData,
     config: Config,
     base_message: String,
-    finish_animation: impl Fn(&str),
-) -> String{
+) -> Result<String, Error>{
 
     let status = result.status();
-    let text = result.text().await.unwrap_or_else(|e| {
-        finish_animation(base_message.as_str());
-        eprintln!("* Failed to read the response text: {}", e);
-        cprintln!("<y>* Unknown error</>");
-        exit(101);
+    let text = result.text().await.map_err(|e| {
+        Error::new(ErrorType::Unknown, vec![e.to_string().as_str()])
     });
 
-    match status.as_u16() {
-        200 if matches!(debug_data.rtype, Rtype::List) => { return text; },
-        201 if matches!(debug_data.rtype, Rtype::Create) => { return text; },
-        404 if matches!(debug_data.rtype, Rtype::Delete) => {
-            finish_animation("Repository not found");
-            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
-            exit(101);
-        },
-        409 if matches!(debug_data.rtype, Rtype::Create) => {
-            finish_animation("Repository already exists");
-            cprintln!("* Repository: <m>({}/{})</>", debug_data.owner, debug_data.repo.clone().unwrap());
-        },
-        _ => {
-            let error: Error = serde_json::from_str(&text)
-                .unwrap_or_else(|_| {
-                    Error {
-                        message: format!("{}", text)
-                    }
-                }
-                );
-
-            match error.message.as_str() {
-                "user does not exist [uid: 0, name: ]" => {
-                    finish_animation("Bad credentials");
-                    eprintln!("* Please check your token.");
-                    eprintln!("  Pconf name: {}", config.pconf.clone());
-                    eprintln!("  User: {}", debug_data.owner);
+    match text {
+        Ok(text) => {
+            match status.clone().as_u16() {
+                200 => { Ok(text) },
+                201 if matches!(debug_data.rtype, Rtype::Create) => { Ok(text) },
+                404 if matches!(debug_data.rtype, Rtype::Delete) => {
+                    Err(
+                        Error::new(
+                            ErrorType::NotFound,
+                            vec![
+                                debug_data.owner.as_str(),
+                                debug_data.repo.clone().unwrap().as_str(),
+                            ]
+                        )
+                    )
                 },
-                "GetOrgByName" if matches!(debug_data.rtype, Rtype::Create) => {
-                    finish_animation("User/org not found");
-                    cprintln!("* User/org: <m>({})</>", debug_data.owner);
-                    cprintln!("  The user you provide is not an org");
-                    cprintln!("  Neither is the logged user");
-
-                    cprintln!("  <y>+ Please provide a valid org name</>");
-                },
-                _ if error.message.starts_with("user redirect does not exist [name: ") => {
-                    finish_animation("User/org does not exist");
-                    cprintln!("* User/org: <m>({})</>", debug_data.owner);
-                },
-                _ if error.message.starts_with("token does not have at least one of required scope(s):") => {
-                    finish_animation("Bad token scope");
-                    cprintln!("\n<g>* Pconf name: <s,i>{}</>", config.pconf.clone());
-                    cprintln!("<i>* Please check your token.</>");
-                    cprintln!("  - You need to add one of the following scopes:");
-                    let scopes_index = (error.message.find("[").unwrap() + 1) .. error.message.find("]").unwrap();
-                    let scopes = error.message[scopes_index].split(",");
-                    for scope in scopes.enumerate() {
-                        cprintln!("    <#e3750e>{}. <m>{}</>", scope.0 + 1, scope.1);
-                    }
+                409 if matches!(debug_data.rtype, Rtype::Create) => {
+                    Err(
+                        Error::new(
+                            ErrorType::AlreadyExists,
+                            vec![
+                                debug_data.owner.as_str(),
+                                debug_data.repo.clone().unwrap().as_str(),
+                            ]
+                        )
+                    )
                 },
                 _ => {
-                    finish_animation(base_message.as_str());
-                    eprintln!("{}", &text);
-                    cprintln!("Request type: <r>{}</>", debug_data.rtype.to_string());
-                    cprintln!("<y>Unknown error</> {}", status.as_u16());
+                    let error: ErrorDeserialize = serde_json::from_str(&text)
+                        .unwrap_or_else(|_| {
+                            ErrorDeserialize {
+                                message: format!("{}", text)
+                            }
+                        }
+                    );
+
+                    match error.message.as_str() {
+                        "user does not exist [uid: 0, name: ]" => {
+                            Err(
+                                Error::new(
+                                    ErrorType::Unauthorized,
+                                    vec![
+                                        config.pconf.as_str(),
+                                        debug_data.owner.as_str(),
+                                    ]
+                                )
+                            )
+                        },
+                        "GetOrgByName" if matches!(debug_data.rtype, Rtype::Create) => {
+                            Err(
+                                Error::new(
+                                    ErrorType::NotFound,
+                                    vec![
+                                        debug_data.owner.as_str(),
+                                        debug_data.repo.clone().unwrap().as_str(),
+                                    ]
+                                )
+                            )
+                        },
+                        _ if error.message.starts_with("user redirect does not exist [name: ") => {
+                            Err(
+                                Error::new(
+                                    ErrorType::NotFound,
+                                    vec![
+                                        debug_data.owner.as_str(),
+                                    ]
+                                )
+                            )
+                        },
+                        _ if error.message.starts_with("token does not have at least one of required scope(s):") => {
+
+                            let scopes_index = (error.message.find("[").unwrap() + 1)..error.message.find("]").unwrap();
+                            let scopes = error.message[scopes_index].split(",");
+                            let mut content = vec![config.pconf.as_str()];
+                            content.extend(scopes);
+                            Err(
+                                Error::new(
+                                    ErrorType::BadTokenScope,
+                                    content
+                                )
+                            )
+                        },
+                        _ => {
+                            Err(
+                                Error::new_custom(
+                                    base_message,
+                                    vec![
+                                        cformat!("<y>* Something went wrong: </>",),
+                                        cformat!("  <r,i>{}</>", status.as_u16()),
+                                        cformat!("  Error: {}", error.message)
+                                    ]
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
-    };
-    exit(101);
+        Err(e) => Err(e)
+    }
+
 }

@@ -6,3 +6,4 @@ pub(crate) mod repo;
 pub(crate) mod config;
 pub(crate) mod repos;
 pub(crate) mod commands;
+pub(crate) mod errors;
