@@ -7,3 +7,4 @@ pub(crate) mod supported;
 pub(crate) mod platform;
 pub(crate) mod local;
 pub(crate) mod comond;
+pub(crate) mod user_type;

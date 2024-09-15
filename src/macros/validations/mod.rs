@@ -2,4 +2,4 @@
 // Licensed under the MIT License;
 
 pub(crate) mod pconfs;
-pub(crate) mod repo_structure;
+pub(crate) mod repo_command;

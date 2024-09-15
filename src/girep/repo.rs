@@ -34,14 +34,14 @@ macro_rules! show {
         let length = $r.len().to_string().len();
 
         eprintln!(
-            "{0:#^dig$} | {1: <width$} | {2: <7} | {3: <10}",
+            " {0:#^dig$} | {1: <width$} | {2: <7} | {3}",
             "#", "Name", "State", "git clone",
             width = max_name,
             dig = length,
         );
         for (index, repo) in $r.iter().enumerate() {
             eprintln!(
-                "{0: ^dig$} | {1: <width$} | {2: <7} | {3: <10}",
+                " {0: ^dig$} | {1: <width$} | {2: <7} | {3}",
                 index + 1, repo.full_name, repo.state, repo.clone_url,
                 width = max_name,
                 dig = length,

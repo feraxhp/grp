@@ -13,7 +13,7 @@ use serde::Deserialize;
 use std::process::exit;
 use crate::animations::delition::Delete;
 use crate::girep::repos::comond::structs::{DebugData, Rtype};
-use crate::girep::repos::github::orgs::is_logged_user;
+use crate::girep::repos::github::user::is_logged_user;
 
 #[derive(Deserialize)]
 struct Transpiler {

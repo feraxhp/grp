@@ -6,7 +6,7 @@ use crate::config::structure::Usettings;
 use crate::girep::repo::Repo;
 use crate::girep::repos::local::remote::add_remote;
 use crate::girep::repos::platform::get_platform;
-use crate::macros::validations::repo_structure::unfold_repo_structure;
+use crate::macros::validations::repo_command::unfold_repo_structure;
 use crate::show;
 use clap::ArgMatches;
 use std::path::PathBuf;

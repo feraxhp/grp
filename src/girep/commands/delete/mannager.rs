@@ -4,7 +4,7 @@
 use std::io;
 use std::process::exit;
 use crate::config::structure::Usettings;
-use crate::macros::validations::repo_structure::unfold_repo_structure;
+use crate::macros::validations::repo_command::unfold_repo_structure;
 use clap::ArgMatches;
 use color_print::cprintln;
 use crate::girep::repos::platform::get_platform;
