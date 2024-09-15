@@ -1,5 +1,5 @@
 use clap::{arg, command, Command};
-use crate::macros::validations::repo_structure::validate_repo_structure_with_pconf;
+use crate::macros::validations::repo_command::validate_repo_structure_with_pconf;
 
 pub(crate) fn delete_subcommand() -> Command {
     let value_parser = validate_repo_structure_with_pconf;

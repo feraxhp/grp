@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::macros::validations::repo_structure::validate_repo_structure;
+use crate::macros::validations::repo_command::validate_repo_structure;
 use clap::builder::ValueParser;
 use clap::{arg, command, Command};
 
