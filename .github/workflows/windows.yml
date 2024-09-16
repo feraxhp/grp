@@ -1,8 +1,6 @@
 on:
   workflow_dispatch:
-  release:
-    types:
-      - created
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always
@@ -22,14 +20,11 @@ jobs:
       - name: get version
         id: get_version
         shell: bash
-        run: echo "version=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name == \"grp\") | .version')" >> $GITHUB_ENV
-
-      - name: Rename the binary
-        run: mv target/release/grp.exe target/release/grp-${{ env.version }}.exe
+        run: echo "version=$(.\target\release\grp.exe -v)" >> $GITHUB_ENV
 
       - uses: AButler/upload-release-assets@v3.0
         name: Upload release assets
         with:
-          files: "target/release/grp-${{ env.version }}.exe"
+          files: "target/release/grp.exe"
           repo-token: ${{ github.token }}
           release-tag: "v${{ env.version }}"

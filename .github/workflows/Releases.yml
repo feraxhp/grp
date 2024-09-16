@@ -1,0 +1,21 @@
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - created
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux:
+    permissions:
+      contents: write
+    name: 🖥️ Linux Build
+    uses: .github/workflows/linux.yml
+
+  build-windows:
+    permissions:
+        contents: write
+    name: 💻 Windows Build
+    uses: .github/workflows/windows.yml
