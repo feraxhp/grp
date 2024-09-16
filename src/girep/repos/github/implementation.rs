@@ -17,7 +17,7 @@ use crate::animations::delition::Delete;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::comond::structs::{DebugData, Rtype};
-use crate::girep::repos::github::paggination::paggination_mannager;
+use crate::girep::repos::paggination::paggination_mannager;
 use crate::girep::repos::github::user::{get_user_type, is_logged_user};
 use crate::girep::repos::user_type::UserType;
 
@@ -103,12 +103,15 @@ impl Platform for Github {
                     continue;
                 }
             };
-            let repository: Vec<Transpiler> = match serde_json::from_str(&repo) {
+            let repository: Vec<Transpiler> = match serde_json::from_str(&repo.clone()) {
                 Ok(repos) => repos,
                 Err(e) => {
                     erros.push(Error::new(
                         ErrorType::Dezerialized,
-                        vec![e.to_string().as_str()]
+                        vec![
+                            e.to_string().as_str(),
+                            repo.as_str()
+                        ]
                     ));
                     continue;
                 }

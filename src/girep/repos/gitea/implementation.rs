@@ -11,9 +11,15 @@ use color_print::cprintln;
 use hyper::HeaderMap;
 use serde::Deserialize;
 use std::process::exit;
+use futures::future::join_all;
 use crate::animations::delition::Delete;
+use crate::girep::errors::error::Error;
+use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::comond::structs::{DebugData, Rtype};
 use crate::girep::repos::gitea::user::is_logged_user;
+use crate::girep::repos::gitea::user::get_user_type;
+use crate::girep::repos::paggination::paggination_mannager;
+use crate::girep::repos::user_type::UserType;
 
 #[derive(Deserialize)]
 struct Transpiler {
@@ -44,27 +50,30 @@ impl Platform for Gitea {
         headers
     }
     async fn list_repos(&self, owner: Option<String>) -> Vec<Repo> {
+
         let owner = owner.unwrap_or(self.config.user.clone());
-        let client = reqwest::Client::new();
 
         let load_animation = animations::fetch::Fetch::new("Fetching repositories ...");
 
-        let result = client
-            .get(format!("https://{}/api/v1/users/{}/repos", self.config.endpoint, owner))
-            .headers(self.header.clone())
-            .send()
-            .await
-            .unwrap_or_else(
-                |e| {
-                    load_animation.finish_with_error("Failed to fetch repositories");
-                    cprintln!("<r>*</> {}", e);
-                    cprintln!("<y>  Please verify your endpoint</>");
-                    exit(101);
-                }
-            );
+        let url = match get_user_type(owner.as_str(), self.config.clone()).await {
+            Ok(UserType::Logged) => format!("https://{}/api/v1/user/repos", self.config.endpoint),
+            Ok(UserType::Organization) => format!("https://{}/api/v1/orgs/{}/repos", self.config.endpoint, owner),
+            Ok(UserType::Free) => format!("https://{}/api/v1/users/{}/repos", self.config.endpoint, owner),
+            Err(e) => {
+                load_animation.finish_with_error(e.message.as_str());
+                e.show();
+                exit(101);
+            }
+        };
 
-        let response_text = error_mannager(
-                result,
+        let (responses,mut erros) = paggination_mannager(
+            url,
+            self.header.clone()
+        ).await;
+
+        let responses: Vec<_> = responses.into_iter().map(|response| {
+            error_mannager(
+                response,
                 DebugData{
                     rtype: Rtype::List,
                     owner: owner.clone(),
@@ -73,30 +82,52 @@ impl Platform for Gitea {
                 self.config.clone(),
                 "Failed to fetch repositories".to_string(),
             )
-            .await;
+        }).collect();
 
-        let response_text = match response_text {
-            Ok(text) => text,
-            Err(e) => {
-                load_animation.finish_with_error(e.message.as_str());
-                e.show();
-                exit(101);
+        let repos = join_all(responses).await;
+
+        let (repos, repos_erros): (Vec<_>, Vec<_>) = repos.into_iter().partition(Result::is_ok);
+
+        let repos_erros: Vec<Error> = repos_erros.into_iter().map(Result::unwrap_err).collect();
+
+        erros.extend(repos_erros);
+
+        let mut repositories_transpilet: Vec<Transpiler> = Vec::new();
+        for repo in repos {
+            let repo = match repo {
+                Ok(repo) => repo,
+                Err(e) => {
+                    erros.push(e);
+                    continue;
+                }
+            };
+            let repository: Vec<Transpiler> = match serde_json::from_str(&repo.clone()) {
+                Ok(repos) => repos,
+                Err(e) => {
+                    erros.push(Error::new(
+                        ErrorType::Dezerialized,
+                        vec![
+                            e.to_string().as_str(),
+                            repo.as_str()
+                        ]
+                    ));
+                    continue;
+                }
+            };
+            repositories_transpilet.extend(repository);
+        }
+
+        if erros.len() > 0 {
+            load_animation.finish_with_warning("Some repositories might be missing");
+            for error in erros {
+                error.show();
             }
-        };
-
-        let repositories: Vec<Transpiler> = serde_json::from_str(&response_text)
-            .unwrap_or_else(|e| {
-                load_animation.finish_with_error("Failed to fetch repositories");
-                eprintln!("* Failed to parse the response: {}", e);
-                eprintln!("  Response: {}", response_text);
-                cprintln!("<y>* Unknown error</>");
-                exit(101);
-            });
-
-        load_animation.finish_with_success("Done!");
+        } else {
+            load_animation.finish_with_success("Done!");
+        }
 
         // Return the list of repositories
-        repositories
+        repositories_transpilet
             .into_iter()
             .map(
                 |transpiler|
@@ -108,7 +139,7 @@ impl Platform for Gitea {
                         clone_url: transpiler.clone_url,
                     }
             )
-        .collect()
+            .collect()
     }
 
     async fn create_repo(&self, owner: String, repo: Repo) -> Repo {
@@ -120,9 +151,8 @@ impl Platform for Gitea {
             Ok(false) => format!("https://{}/api/v1/orgs/{}/repos", self.config.endpoint, owner.clone()),
             Ok(true) => format!("https://{}/api/v1/user/repos", self.config.endpoint),
             Err(e) => {
-                load_animation.finish_with_error("This user name exists in the platform?");
-                eprintln!("* Failed to verify the owner: {}\n  Error: {}", owner.clone(), e);
-                cprintln!("<y>* Unknown error</>");
+                load_animation.finish_with_error(e.message.as_str());
+                e.show();
                 exit(101);
             }
         };
