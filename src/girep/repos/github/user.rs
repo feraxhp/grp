@@ -1,12 +1,13 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
+use color_print::cformat;
 use crate::girep::base::Platform;
 use crate::girep::config::Config;
 use crate::girep::repos::github::implementation::Github;
 use serde::Deserialize;
-use std::io::{Error, ErrorKind};
-use std::os::linux::raw::stat;
+use crate::girep::errors::error::Error;
+use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::user_type::UserType;
 
 #[derive(Deserialize)]
@@ -39,22 +40,42 @@ pub(crate) async fn is_logged_user(name: &str, conf: Config) -> Result<bool, Err
         .await
         .map_err(
             |e| {
-                Error::new(ErrorKind::Other, e.to_string())
+                Error::new(
+                    ErrorType::Unknown,
+                    vec![
+                        cformat!("Failed while fetching user type").as_str(),
+                        e.to_string().as_str()
+                    ]
+                )
             }
         )?;
 
     match result.status().as_u16() {
         200 => {
-            let transpiler: Transpiler = result
-                .json().await
-                .map_err(|e| Error::new(ErrorKind::Other, e.to_string()))?;
+            let transpiler: Transpiler = result.json().await
+                .map_err(
+                    |e|
+                        Error::new(
+                            ErrorType::Dezerialized,
+                        vec![e.to_string().as_str()]
+                    )
+                )?;
             Ok(transpiler.login == name)
         },
         401 => {
-            Err(Error::new(ErrorKind::Other, "Unauthorized"))
+            Err(Error::new(ErrorType::Unauthorized, vec![
+                conf.pconf.as_str(),
+                name.clone()
+            ]))
         },
         _ => {
-            Err(Error::new(ErrorKind::Other, "Failed while fetching user type"))
+            Err(Error::new(
+                ErrorType::Unknown,
+                vec![
+                    cformat!("Failed while fetching user type").as_str(),
+                    result.status().as_u16().to_string().as_str()
+                ]
+            ))
         }
     }
 
@@ -64,13 +85,19 @@ async fn is_organization(name: &str, conf: Config) -> Result<bool, Error> {
     let client = reqwest::Client::new();
 
     let result = client
-        .get(format!("https://{}/users/{}/orgs", conf.endpoint, name))
+        .get(format!("https://{}/user/orgs", conf.endpoint))
         .headers(Github::get_auth_header(conf.token.clone()))
         .send()
         .await
         .map_err(
             |e| {
-                Error::new(ErrorKind::Other, e.to_string())
+                Error::new(
+                    ErrorType::Unknown,
+                    vec![
+                        cformat!("Failed while fetching user type").as_str(),
+                        e.to_string().as_str()
+                    ]
+                )
             }
         );
 
@@ -79,18 +106,29 @@ async fn is_organization(name: &str, conf: Config) -> Result<bool, Error> {
             let status = result.status().as_u16();
             match status.clone() {
                 200 => {
-                    let transpilers: Vec<Transpiler> = result
-                        .json().await
-                        .map_err(|e| Error::new(ErrorKind::Other, e.to_string()))?;
+                    let transpilers: Vec<Transpiler> = result.json().await
+                        .map_err(
+                            |e|
+                                Error::new(
+                                    ErrorType::Dezerialized,
+                                    vec![e.to_string().as_str()]
+                                )
+                        )?;
                     Ok(transpilers.iter().any(|t| t.login == name))
                 },
                 401 => {
-                    Err(Error::new(ErrorKind::PermissionDenied, "Unauthorized"))
+                    Err(Error::new(ErrorType::Unauthorized, vec![
+                        conf.pconf.as_str(),
+                        name.clone()
+                    ]))
                 },
                 _ => {
                     Err(Error::new(
-                        ErrorKind::Other,
-                        format!("Failed while fetching user type {}", status)
+                        ErrorType::Unknown,
+                        vec![
+                            cformat!("Failed while fetching user type").as_str(),
+                            status.to_string().as_str()
+                        ]
                     ))
                 }
             }

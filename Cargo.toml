@@ -17,6 +17,7 @@ dirs = "5.0.1"
 color-print = "0.3.6"
 async-trait = "0.1.82"
 indicatif = "0.17.8"
+futures = "0.3.30"
 
 [package.metadata.generate-rpm]
 url="https://github.com/feraxhp/grp"
