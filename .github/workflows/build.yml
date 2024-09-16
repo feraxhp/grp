@@ -1,6 +1,5 @@
 on:
   workflow_dispatch:
-  push:
   release:
     types:
       - created
@@ -9,7 +8,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     permissions:
@@ -40,5 +39,30 @@ jobs:
         name: Upload release assets
         with:
           files: "target/debian/grp*.deb;target/generate-rpm/grp*.rpm"
+          repo-token: ${{ github.token }}
+          release-tag: "v${{ env.version }}"
+
+  build-windows:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --release --verbose
+
+      - name: get version
+        id: get_version
+        run: echo "version=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name == "grp") | .version')" >> $GITHUB_ENV
+
+      - name: Rename the binary
+        run: mv target/release/grp.exe target/release/grp-${{ env.version }}.exe
+
+      - uses: AButler/upload-release-assets@v3.0
+        name: Upload release assets
+        with:
+          files: "target/release/grp-${{ env.version }}.exe"
           repo-token: ${{ github.token }}
           release-tag: "v${{ env.version }}"

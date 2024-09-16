@@ -16,6 +16,15 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 - [ ] Jetbrains Space
 - 
 
+## Installation
+
+- Windows: Download the latest .exe from the releases page. and add it to your PATH.
+- Ubuntu and fedora: See realeases page for the latest deb and rpm packages.
+- Arch Linux: See build instructions below.
+- Other Linux distributions: See build instructions below.
+- MacOS: See build instructions below.
+
+
 ## Build and Run
 
 ### Dependencies
