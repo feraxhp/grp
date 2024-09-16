@@ -1,0 +1,35 @@
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - created
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --release --verbose
+
+      - name: get version
+        id: get_version
+        shell: bash
+        run: echo "version=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name == \"grp\") | .version')" >> $GITHUB_ENV
+
+      - name: Rename the binary
+        run: mv target/release/grp.exe target/release/grp-${{ env.version }}.exe
+
+      - uses: AButler/upload-release-assets@v3.0
+        name: Upload release assets
+        with:
+          files: "target/release/grp-${{ env.version }}.exe"
+          repo-token: ${{ github.token }}
+          release-tag: "v${{ env.version }}"
