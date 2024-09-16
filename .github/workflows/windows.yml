@@ -20,7 +20,7 @@ jobs:
       - name: get version
         id: get_version
         shell: bash
-        run: echo "version=$(.\target\release\grp.exe -v)" >> $GITHUB_ENV
+        run: echo "version=$(.\\target\\release\\grp.exe -v)" >> $GITHUB_ENV
 
       - uses: AButler/upload-release-assets@v3.0
         name: Upload release assets

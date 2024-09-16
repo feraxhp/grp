@@ -12,10 +12,10 @@ jobs:
     permissions:
       contents: write
     name: 🖥️ Linux Build
-    uses: .github/workflows/linux.yml
+    uses: ./.github/workflows/linux.yml
 
   build-windows:
     permissions:
         contents: write
     name: 💻 Windows Build
-    uses: .github/workflows/windows.yml
+    uses: ./.github/workflows/windows.yml
