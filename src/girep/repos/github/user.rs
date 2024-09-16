@@ -52,12 +52,16 @@ pub(crate) async fn is_logged_user(name: &str, conf: Config) -> Result<bool, Err
 
     match result.status().as_u16() {
         200 => {
-            let transpiler: Transpiler = result.json().await
+            let text = result.text().await.unwrap();
+            let transpiler: Transpiler = serde_json::from_str(&text.clone())
                 .map_err(
                     |e|
                         Error::new(
                             ErrorType::Dezerialized,
-                        vec![e.to_string().as_str()]
+                        vec![
+                            e.to_string().as_str(),
+                            text.as_str()
+                        ]
                     )
                 )?;
             Ok(transpiler.login == name)
@@ -85,7 +89,7 @@ async fn is_organization(name: &str, conf: Config) -> Result<bool, Error> {
     let client = reqwest::Client::new();
 
     let result = client
-        .get(format!("https://{}/user/orgs", conf.endpoint))
+        .get(format!("https://{}/api/v1/user/orgs", conf.endpoint))
         .headers(Github::get_auth_header(conf.token.clone()))
         .send()
         .await
@@ -106,12 +110,16 @@ async fn is_organization(name: &str, conf: Config) -> Result<bool, Error> {
             let status = result.status().as_u16();
             match status.clone() {
                 200 => {
-                    let transpilers: Vec<Transpiler> = result.json().await
+                    let text = result.text().await.unwrap();
+                    let transpilers: Vec<Transpiler> = serde_json::from_str(&text.clone())
                         .map_err(
                             |e|
                                 Error::new(
                                     ErrorType::Dezerialized,
-                                    vec![e.to_string().as_str()]
+                                    vec![
+                                        e.to_string().as_str(),
+                                        text.as_str()
+                                    ]
                                 )
                         )?;
                     Ok(transpilers.iter().any(|t| t.login == name))

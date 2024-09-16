@@ -95,7 +95,7 @@ pub(crate) async fn error_mannager(
                     )
                 },
                 _ => {
-                    match serde_json::from_str::<ErrorDeserialize>(text.as_str()) {
+                    match serde_json::from_str::<ErrorDeserialize>(text.clone().as_str()) {
                         Ok(error) => {
                             Err(
                                 Error::new_custom(
@@ -115,6 +115,7 @@ pub(crate) async fn error_mannager(
                                     ErrorType::Dezerialized,
                                     vec![
                                         format!("{:?}", e).as_str(),
+                                        text.as_str()
                                     ]
                                 )
                             )

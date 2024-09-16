@@ -24,6 +24,7 @@ pub(crate) enum ErrorType {
     NotFound,
     /// Needs a vector of length 1
     /// - 0: Error message
+    /// - 1: Object
     Dezerialized,
 }
 
@@ -78,13 +79,14 @@ impl ErrorType {
                 local_vec
             },
             ErrorType::Dezerialized => {
-                assert_eq!(vec.len(), 1);
+                assert_eq!(vec.len(), 2);
                 vec![
                     "* Error deserializing".to_string(),
                     "  You must not see this!".to_string(),
                     "  Please report this issue".to_string(),
                     "  Thank you!".to_string(),
-                    cformat!("* Error message: <#e3750e>{}</>", vec[0])
+                    cformat!("* Error message: <#e3750e>{}</>", vec[0]),
+                    cformat!("* Object: <#e3750e>{}</>", vec[1])
                 ]
             },
         }
