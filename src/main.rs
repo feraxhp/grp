@@ -32,7 +32,6 @@ async fn main() {
         .subcommand(delete_subcommand())
         .get_matches();
 
-    let user_settings = config::loader::load_configurations();
 
     match commands.clone().args_present() {
         true => {
@@ -44,6 +43,9 @@ async fn main() {
         },
         _ => {}
     }
+
+    let user_settings = config::loader::load_configurations();
+
     match commands.subcommand() {
         Some(sub) => match sub {
             ("config", config) => config_manager(config),
