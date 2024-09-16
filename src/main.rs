@@ -38,6 +38,7 @@ async fn main() {
             if *commands.get_one::<bool>("vnumber").unwrap_or(&false) {
                 let version = crate_version!();
                 let _ = io::stdout().write(version.as_bytes());
+                println!();
                 exit(0);
             }
         },
