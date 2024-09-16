@@ -34,6 +34,11 @@ impl Fetch {
         cprintln!("<r>💻--X--🌎 {}</>", message.to_string());
     }
 
+    pub fn finish_with_warning(&self, message: &str) {
+        self.spinner.finish_and_clear();
+        cprintln!("<y>💻--!-🌎 {}</>", message.to_string());
+    }
+
     pub fn finish_with_success(&self, message: &str) {
         self.spinner.finish_and_clear();
         cprintln!("<g>💻--✓--🌎 {}</>", message.to_string());
