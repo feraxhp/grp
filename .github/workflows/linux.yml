@@ -1,0 +1,41 @@
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --release --verbose
+
+      - name: install cargo-deb
+        run: cargo install cargo-deb
+
+      - name: install cargo-generate-rpm
+        run: cargo install cargo-generate-rpm
+
+      - name: Generate DEB package
+        run: cargo deb
+
+      - name: Generate RPM package
+        run: cargo generate-rpm
+
+      - name: get version
+        id: get_version
+        run: echo "version=$(./target/release/grp -v)" >> $GITHUB_ENV
+
+      - uses: AButler/upload-release-assets@v3.0
+        name: Upload release assets
+        with:
+          files: "target/debian/grp*.deb;target/generate-rpm/grp*.rpm"
+          repo-token: ${{ github.token }}
+          release-tag: "v${{ env.version }}"
