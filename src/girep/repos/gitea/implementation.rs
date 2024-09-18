@@ -15,7 +15,7 @@ use futures::future::join_all;
 use crate::animations::delition::Delete;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
-use crate::girep::repos::comond::structs::{DebugData, Rtype};
+use crate::girep::repos::common::structs::{DebugData, Rtype};
 use crate::girep::repos::gitea::user::is_logged_user;
 use crate::girep::repos::gitea::user::get_user_type;
 use crate::girep::repos::paggination::paggination_mannager;
