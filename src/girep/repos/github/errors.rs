@@ -1,11 +1,10 @@
-use std::process::exit;
-use color_print::{cformat, cprintln};
-use reqwest::Response;
-use serde::{Deserialize, Serialize};
 use crate::girep::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::comond::structs::{DebugData, Rtype};
+use color_print::cformat;
+use reqwest::Response;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 struct ErrorDeserialize {

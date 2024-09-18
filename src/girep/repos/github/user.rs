@@ -69,7 +69,7 @@ pub(crate) async fn is_logged_user(name: &str, conf: Config) -> Result<bool, Err
         401 => {
             Err(Error::new(ErrorType::Unauthorized, vec![
                 conf.pconf.as_str(),
-                name.clone()
+                name
             ]))
         },
         _ => {
@@ -127,7 +127,7 @@ async fn is_organization(name: &str, conf: Config) -> Result<bool, Error> {
                 401 => {
                     Err(Error::new(ErrorType::Unauthorized, vec![
                         conf.pconf.as_str(),
-                        name.clone()
+                        name
                     ]))
                 },
                 _ => {
