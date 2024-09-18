@@ -8,7 +8,7 @@ use crate::girep::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::repo::Repo;
-use crate::girep::repos::comond::structs::{DebugData, Rtype};
+use crate::girep::repos::common::structs::{DebugData, Rtype};
 use crate::girep::repos::github::errors::error_mannager;
 use crate::girep::repos::github::user::{get_user_type, is_logged_user};
 use crate::girep::repos::paggination::paggination_mannager;
