@@ -2,7 +2,7 @@
 // Licensed under the MIT License;
 
 use crate::config::structure::Pconf;
-use girep::repos::supported::SUPPORTED_REPOS;
+use crate::girep::repos::common::supported::SUPPORTED_REPOS;
 use clap::{arg, command, ArgMatches, Command};
 use std::io;
 use crate::girep;

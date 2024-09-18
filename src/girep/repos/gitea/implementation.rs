@@ -18,8 +18,8 @@ use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::common::structs::{DebugData, Rtype};
 use crate::girep::repos::gitea::user::is_logged_user;
 use crate::girep::repos::gitea::user::get_user_type;
-use crate::girep::repos::paggination::paggination_mannager;
-use crate::girep::repos::user_type::UserType;
+use crate::girep::repos::common::paggination::paggination_mannager;
+use crate::girep::repos::common::user_type::UserType;
 
 #[derive(Deserialize)]
 struct Transpiler {

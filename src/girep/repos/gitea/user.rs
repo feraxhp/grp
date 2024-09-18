@@ -5,7 +5,7 @@ use serde::Deserialize;
 use color_print::cformat;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
-use crate::girep::repos::user_type::UserType;
+use crate::girep::repos::common::user_type::UserType;
 
 #[derive(Deserialize)]
 struct Transpiler {
