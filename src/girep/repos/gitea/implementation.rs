@@ -19,7 +19,7 @@ use crate::girep::repos::common::structs::{DebugData, Rtype};
 use crate::girep::repos::gitea::user::is_logged_user;
 use crate::girep::repos::gitea::user::get_user_type;
 use crate::girep::repos::common::paggination::paggination_mannager;
-use crate::girep::repos::common::user_type::UserType;
+use crate::girep::repos::common::utype::UserType;
 
 #[derive(Deserialize)]
 struct Transpiler {
@@ -48,98 +48,6 @@ impl Platform for Gitea {
         headers.insert("authorization", format!("Bearer {}", token).parse().unwrap());
 
         headers
-    }
-    async fn list_repos(&self, owner: Option<String>) -> Vec<Repo> {
-
-        let owner = owner.unwrap_or(self.config.user.clone());
-
-        let load_animation = animations::fetch::Fetch::new("Fetching repositories ...");
-
-        let url = match get_user_type(owner.as_str(), self.config.clone()).await {
-            Ok(UserType::Logged) => format!("https://{}/api/v1/user/repos", self.config.endpoint),
-            Ok(UserType::Organization) => format!("https://{}/api/v1/orgs/{}/repos", self.config.endpoint, owner),
-            Ok(UserType::Free) => format!("https://{}/api/v1/users/{}/repos", self.config.endpoint, owner),
-            Err(e) => {
-                load_animation.finish_with_error(e.message.as_str());
-                e.show();
-                exit(101);
-            }
-        };
-
-        let (responses,mut erros) = paggination_mannager(
-            url,
-            self.header.clone()
-        ).await;
-
-        let responses: Vec<_> = responses.into_iter().map(|response| {
-            error_mannager(
-                response,
-                DebugData{
-                    rtype: Rtype::List,
-                    owner: owner.clone(),
-                    repo: None,
-                },
-                self.config.clone(),
-                "Failed to fetch repositories".to_string(),
-            )
-        }).collect();
-
-        let repos = join_all(responses).await;
-
-        let (repos, repos_erros): (Vec<_>, Vec<_>) = repos.into_iter().partition(Result::is_ok);
-
-        let repos_erros: Vec<Error> = repos_erros.into_iter().map(Result::unwrap_err).collect();
-
-        erros.extend(repos_erros);
-
-        let mut repositories_transpilet: Vec<Transpiler> = Vec::new();
-        for repo in repos {
-            let repo = match repo {
-                Ok(repo) => repo,
-                Err(e) => {
-                    erros.push(e);
-                    continue;
-                }
-            };
-            let repository: Vec<Transpiler> = match serde_json::from_str(&repo.clone()) {
-                Ok(repos) => repos,
-                Err(e) => {
-                    erros.push(Error::new(
-                        ErrorType::Dezerialized,
-                        vec![
-                            e.to_string().as_str(),
-                            repo.as_str()
-                        ]
-                    ));
-                    continue;
-                }
-            };
-            repositories_transpilet.extend(repository);
-        }
-
-        if erros.len() > 0 {
-            load_animation.finish_with_warning("Some repositories might be missing");
-            for error in erros {
-                error.show();
-            }
-        } else {
-            load_animation.finish_with_success("Done!");
-        }
-
-        // Return the list of repositories
-        repositories_transpilet
-            .into_iter()
-            .map(
-                |transpiler|
-                    Repo {
-                        full_name: transpiler.full_name,
-                        description: transpiler.description,
-                        state: if transpiler.private { "private".to_string() } else { "public".to_string() },
-                        html_url: transpiler.html_url,
-                        clone_url: transpiler.clone_url,
-                    }
-            )
-            .collect()
     }
 
     async fn create_repo(&self, owner: String, repo: Repo) -> Repo {

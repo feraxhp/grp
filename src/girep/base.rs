@@ -10,7 +10,6 @@ use hyper::HeaderMap;
 pub(crate) trait Platform: Send + Sync {
     fn new(config: Config) -> Self where Self: Sized;
     fn get_auth_header(token: String) -> HeaderMap where Self: Sized;
-    async fn list_repos(&self, owner: Option<String>) -> Vec<Repo>;
     async fn create_repo(&self, owner: String, repo: Repo) -> Repo;
     async fn delete_repo(&self, owner: String, repo: String) -> bool;
 }
