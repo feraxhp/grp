@@ -2,6 +2,7 @@
 // Licensed under the MIT License;
 
 use color_print::cformat;
+use crate::girep::errors::error::Error;
 
 pub(crate) enum ErrorType {
     /// N number of strings
@@ -26,6 +27,9 @@ pub(crate) enum ErrorType {
     /// - 0: Error message
     /// - 1: Object
     Dezerialized,
+    /// Needs a vector of length 1
+    /// - 0: name of the unimplemented feature
+    Unimplemented,
 }
 
 impl ErrorType {
@@ -37,6 +41,7 @@ impl ErrorType {
             ErrorType::BadTokenScope => "Bad token scope".to_string(),
             ErrorType::NotFound => "User/org does not exist".to_string(),
             ErrorType::Dezerialized => "Error deserializing".to_string(),
+            ErrorType::Unimplemented => "Unimplemented".to_string(),
         }
     }
 
@@ -89,6 +94,16 @@ impl ErrorType {
                     cformat!("* Object: <#e3750e>{}</>", vec[1])
                 ]
             },
+            ErrorType::Unimplemented => {
+                vec![
+                    cformat!("* Error: <#e3750e>{}</>", self.get_message()),
+                    cformat!("  <y,i>{}</> is not implemented yet", vec[0]),
+                ]
+            },
         }
     }
+}
+
+pub(crate) fn unimplemented(feature: String) -> Error {
+    Error::new(ErrorType::Unimplemented, vec![feature.as_str()])
 }

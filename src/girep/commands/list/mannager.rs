@@ -1,7 +1,9 @@
-use clap::ArgMatches;
 use crate::config::structure::Usettings;
-use crate::girep::repos::platform::get_platform;
+use crate::girep::repos::common::supported::Platform;
 use crate::show;
+use clap::ArgMatches;
+use color_print::cprintln;
+use std::process::exit;
 
 pub(crate) async fn list_manager(clist: &ArgMatches, usettings: Usettings) {
 
@@ -22,12 +24,19 @@ pub(crate) async fn list_manager(clist: &ArgMatches, usettings: Usettings) {
         None => { usettings.get_default() }
     };
 
-    let platform = get_platform(pconf.clone()).await;
-
-    let repos = match clist.get_one::<String>("owner") {
-        Some(owner) => platform.list_repos(Some(owner.clone())).await,
-        None => platform.list_repos(None).await
+    let platform = match pconf.r#type.as_str() {
+        "github" => Platform::Github,
+        "gitea" => Platform::Gitea,
+        _ => {
+            cprintln!("* Error: <i>{}</> is not a valid platform", pconf.r#type.clone());
+            exit(1)
+        }
     };
 
-    show!(repos);
+    let repos = match clist.get_one::<String>("owner") {
+        Some(owner) => platform.list_repos(Some(owner.to_string()), pconf.to_conf()).await,
+        None => platform.list_repos(None, pconf.to_conf()).await
+    };
+
+    show!(repos.0);
 }

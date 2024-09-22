@@ -8,7 +8,7 @@ use crate::girep::repos::github::implementation::Github;
 use serde::Deserialize;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
-use crate::girep::repos::common::user_type::UserType;
+use crate::girep::repos::common::utype::UserType;
 
 #[derive(Deserialize)]
 struct Transpiler {

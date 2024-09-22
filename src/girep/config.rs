@@ -1,6 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
+use crate::config::structure::Pconf;
 
 pub(crate) struct Config {
     pub(crate) pconf: String,
@@ -31,5 +32,16 @@ impl Config {
             self.token.clone(),
             self.endpoint.clone()
         )
+    }
+}
+
+impl Pconf {
+    pub(crate) fn to_conf(&self) -> Config {
+        Config {
+            pconf: self.name.clone(),
+            user: self.owner.clone(),
+            token: self.token.clone(),
+            endpoint: self.endpoint.clone(),
+        }
     }
 }
