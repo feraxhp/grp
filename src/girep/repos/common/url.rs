@@ -1,4 +1,6 @@
-use crate::girep::config::Config;
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::girep::repos::common::supported::Platform;
 use crate::girep::repos::common::utype::UserType;
 
@@ -21,6 +23,18 @@ impl Platform {
         match self {
             Platform::Github |
             Platform::Gitea => format!("{}/repos/{}/{}", self.get_base_url(endpoint), owner, repo),
+            _ => todo!("Not implemented")
+        }
+    }
+    pub(crate) fn url_create_repo(&self, owner: String, user_type: UserType, endpoint: String) -> String {
+        match self {
+            Platform::Github |
+            Platform::Gitea => {
+                match user_type {
+                    UserType::Organization => format!("{}/orgs/{}/repos", self.get_base_url(endpoint), owner.clone()),
+                    _ => format!("{}/user/repos", self.get_base_url(endpoint)),
+                }
+            }
             _ => todo!("Not implemented")
         }
     }

@@ -5,3 +5,5 @@ pub(crate) mod utype;
 pub(crate) mod list;
 pub(crate) mod url;
 pub(crate) mod delete;
+pub(crate) mod create;
+pub(crate) mod platform;

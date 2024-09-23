@@ -1,14 +1,12 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use std::io;
-use std::process::exit;
 use crate::config::structure::Usettings;
+use crate::girep::repos::common::supported::Platform;
 use crate::macros::validations::repo_command::unfold_repo_structure;
 use clap::ArgMatches;
 use color_print::cprintln;
-use crate::girep::repos::common::supported::Platform;
-use crate::girep::repos::platform::get_platform;
+use std::io;
 
 pub(crate) async fn delete_manager(ccreate: &ArgMatches, usettings: Usettings) {
     let srepo = ccreate.get_one::<String>("repo").unwrap();
@@ -18,14 +16,7 @@ pub(crate) async fn delete_manager(ccreate: &ArgMatches, usettings: Usettings) {
 
     let pconf = usettings.get_pconf(pconf.unwrap()).unwrap();
 
-    let platform = match pconf.r#type.as_str() {
-        "github" => Platform::Github,
-        "gitea" => Platform::Gitea,
-        _ => {
-            cprintln!("* Error: <i>{}</> is not a valid platform", pconf.r#type.clone());
-            exit(1)
-        }
-    };
+    let platform = Platform::matches(pconf.r#type.as_str());
 
     if !confirmation {
         eprintln!(

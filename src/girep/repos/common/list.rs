@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::animations;
 use crate::girep::config::Config;
 use crate::girep::errors::error::Error;
@@ -12,12 +15,12 @@ use serde::Deserialize;
 use std::process::exit;
 
 #[derive(Deserialize)]
-struct Transpiler {
-    full_name: String,
-    description: Option<String>,
-    private: bool,
-    html_url: String,
-    clone_url: String,
+pub(crate) struct Transpiler {
+    pub(crate) full_name: String,
+    pub(crate) description: Option<String>,
+    pub(crate) private: bool,
+    pub(crate) html_url: String,
+    pub(crate) clone_url: String,
 }
 
 impl Platform {
