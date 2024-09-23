@@ -3,8 +3,7 @@ use crate::girep::repos::common::supported::Platform;
 use crate::girep::repos::common::utype::UserType;
 
 impl Platform {
-    pub(crate) fn url_list_repos(&self, owner: String, user_type: UserType, config: Config) -> String {
-        let endpoint = config.endpoint.clone();
+    pub(crate) fn url_list_repos(&self, owner: String, user_type: UserType, endpoint: String) -> String {
         match self {
             Platform::Github |
             Platform::Gitea => {
@@ -15,6 +14,13 @@ impl Platform {
 
                 }
             }
+            _ => todo!("Not implemented")
+        }
+    }
+    pub(crate) fn url_delete_repo(&self, owner: String, repo: String, endpoint: String) -> String {
+        match self {
+            Platform::Github |
+            Platform::Gitea => format!("{}/repos/{}/{}", self.get_base_url(endpoint), owner, repo),
             _ => todo!("Not implemented")
         }
     }

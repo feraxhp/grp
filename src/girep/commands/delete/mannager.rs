@@ -7,6 +7,7 @@ use crate::config::structure::Usettings;
 use crate::macros::validations::repo_command::unfold_repo_structure;
 use clap::ArgMatches;
 use color_print::cprintln;
+use crate::girep::repos::common::supported::Platform;
 use crate::girep::repos::platform::get_platform;
 
 pub(crate) async fn delete_manager(ccreate: &ArgMatches, usettings: Usettings) {
@@ -17,7 +18,14 @@ pub(crate) async fn delete_manager(ccreate: &ArgMatches, usettings: Usettings) {
 
     let pconf = usettings.get_pconf(pconf.unwrap()).unwrap();
 
-    let platform = get_platform(pconf.clone()).await;
+    let platform = match pconf.r#type.as_str() {
+        "github" => Platform::Github,
+        "gitea" => Platform::Gitea,
+        _ => {
+            cprintln!("* Error: <i>{}</> is not a valid platform", pconf.r#type.clone());
+            exit(1)
+        }
+    };
 
     if !confirmation {
         eprintln!(
@@ -40,10 +48,10 @@ pub(crate) async fn delete_manager(ccreate: &ArgMatches, usettings: Usettings) {
     }
 
     if confirmation {
-        match platform.delete_repo(owner, repo_name).await {
-            true => cprintln!("Repository deleted successfully"),
-            false => {
-                exit(101)
+        match platform.delete_repo(owner, repo_name, pconf.to_conf()).await {
+            Ok(_) => cprintln!("Repository deleted successfully"),
+            Err(e) => {
+                e.show();
             }
         };
     }
