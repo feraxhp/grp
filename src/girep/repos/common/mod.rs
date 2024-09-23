@@ -4,3 +4,4 @@ pub(crate) mod supported;
 pub(crate) mod utype;
 pub(crate) mod list;
 pub(crate) mod url;
+pub(crate) mod delete;

@@ -29,7 +29,7 @@ impl Platform {
 
 
         let url = match self.get_user_type(owner.as_str(), config.clone()).await {
-            Ok(user) => self.url_list_repos(owner.clone(), user, config.clone()),
+            Ok(user) => self.url_list_repos(owner.clone(), user, config.endpoint.clone()),
             Err(e) => {
                 load_animation.finish_with_error(e.message.as_str());
                 e.show();
