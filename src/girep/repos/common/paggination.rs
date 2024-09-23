@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use futures::future::join_all;

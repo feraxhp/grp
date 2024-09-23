@@ -1,9 +1,10 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::config::structure::Usettings;
 use crate::girep::repos::common::supported::Platform;
 use crate::show;
 use clap::ArgMatches;
-use color_print::cprintln;
-use std::process::exit;
 
 pub(crate) async fn list_manager(clist: &ArgMatches, usettings: Usettings) {
 
@@ -24,14 +25,7 @@ pub(crate) async fn list_manager(clist: &ArgMatches, usettings: Usettings) {
         None => { usettings.get_default() }
     };
 
-    let platform = match pconf.r#type.as_str() {
-        "github" => Platform::Github,
-        "gitea" => Platform::Gitea,
-        _ => {
-            cprintln!("* Error: <i>{}</> is not a valid platform", pconf.r#type.clone());
-            exit(1)
-        }
-    };
+    let platform = Platform::matches(pconf.r#type.as_str());
 
     let repos = match clist.get_one::<String>("owner") {
         Some(owner) => platform.list_repos(Some(owner.to_string()), pconf.to_conf()).await,

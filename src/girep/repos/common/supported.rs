@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use reqwest::header::HeaderMap;
 use reqwest::Response;
 use crate::girep::config::Config;

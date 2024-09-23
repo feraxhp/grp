@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use crate::animations::delition::Delete;
 use crate::girep::config::Config;
 use crate::girep::errors::error::Error;

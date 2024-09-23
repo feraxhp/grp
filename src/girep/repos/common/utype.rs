@@ -1,3 +1,6 @@
+// Copyright 2024 feraxhp
+// Licensed under the MIT License;
+
 use color_print::cformat;
 use serde::Deserialize;
 use crate::girep::config::Config;

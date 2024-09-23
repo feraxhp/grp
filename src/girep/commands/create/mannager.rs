@@ -5,12 +5,13 @@ use crate::animations::process::Process;
 use crate::config::structure::Usettings;
 use crate::girep::repo::Repo;
 use crate::girep::repos::local::remote::add_remote;
-use crate::girep::repos::platform::get_platform;
 use crate::macros::validations::repo_command::unfold_repo_structure;
 use crate::show;
 use clap::ArgMatches;
 use std::path::PathBuf;
+use std::process::exit;
 use color_print::cprintln;
+use crate::girep::repos::common::supported::Platform;
 
 pub(crate) async fn create_mannager(ccreate: &ArgMatches, usettings: Usettings) {
     let srepo = ccreate.get_one::<String> ("repo").unwrap();
@@ -34,15 +35,21 @@ pub(crate) async fn create_mannager(ccreate: &ArgMatches, usettings: Usettings) 
         value => value
     };
 
-    let platform = get_platform(pconf.clone()).await;
+    let platform = Platform::matches(pconf.r#type.as_str());
 
-    let repo: Repo = platform.create_repo(owner, Repo {
+    let repo = match platform.create_repo(owner, Repo {
         full_name: repo_name,
         description,
         state: if *public { "public".to_string() } else { "private".to_string() },
         html_url: "".to_string(),
         clone_url: "".to_string(),
-    }).await;
+    }, pconf.to_conf()).await {
+        Ok(repo) => { repo }
+        Err(e) => {
+            e.show();
+            exit(1)
+        }
+    };
 
     show!(vec![repo.clone()]);
 

@@ -6,19 +6,19 @@ mod config;
 mod macros;
 mod animations;
 
-use std::io;
-use std::io::Write;
-use std::process::exit;
 use crate::config::command::{config_command, config_manager};
 use crate::girep::commands::create::mannager::create_mannager;
 use crate::girep::commands::create::subcommand::create_subcommand;
+use crate::girep::commands::delete::mannager::delete_manager;
+use crate::girep::commands::delete::subcommand::delete_subcommand;
 use crate::girep::commands::list::mannager::list_manager;
 use crate::girep::commands::list::subcommand::list_subcommand;
 use crate::macros::macros::invalid;
-use clap::{arg, command, crate_version, ArgAction};
+use clap::{arg, command, crate_version};
 use color_print::cprintln;
-use crate::girep::commands::delete::mannager::delete_manager;
-use crate::girep::commands::delete::subcommand::delete_subcommand;
+use std::io;
+use std::io::Write;
+use std::process::exit;
 
 #[tokio::main]
 async fn main() {
