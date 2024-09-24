@@ -3,7 +3,7 @@
 
 use crate::config::structure::Usettings;
 use crate::girep::repos::common::supported::Platform;
-use crate::macros::validations::repo_command::unfold_repo_structure;
+use crate::macros::validations::repo::unfold_repo_structure;
 use clap::ArgMatches;
 use color_print::cprintln;
 use std::io;
