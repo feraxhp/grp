@@ -38,4 +38,12 @@ impl Platform {
             _ => todo!("Not implemented")
         }
     }
+
+    pub(crate) fn url_clone_repo(&self, owner: String, repo: String, endpoint: String) -> String {
+        match self {
+            Platform::Github |
+            Platform::Gitea => format!("{}/{}/{}", self.get_base_url(endpoint), owner, repo),
+            _ => todo!("Not implemented")
+        }
+    }
 }

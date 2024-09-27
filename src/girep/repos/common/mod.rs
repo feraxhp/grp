@@ -7,3 +7,4 @@ pub(crate) mod url;
 pub(crate) mod delete;
 pub(crate) mod create;
 pub(crate) mod platform;
+pub(crate) mod clone;

@@ -19,6 +19,8 @@ use color_print::cprintln;
 use std::io;
 use std::io::Write;
 use std::process::exit;
+use crate::girep::commands::clone::manager::clone_manager;
+use crate::girep::commands::clone::subcommand::clone_subcommand;
 
 #[tokio::main]
 async fn main() {
@@ -30,6 +32,7 @@ async fn main() {
         .subcommand(list_subcommand())
         .subcommand(create_subcommand())
         .subcommand(delete_subcommand())
+        .subcommand(clone_subcommand())
         .get_matches();
 
 
@@ -53,6 +56,7 @@ async fn main() {
             ("list", list) => list_manager(list, user_settings).await,
             ("create", create) => create_mannager(create, user_settings).await,
             ("delete", delete) => delete_manager(delete, user_settings).await,
+            ("clone", clone) => clone_manager(clone, user_settings),
             _ => invalid()
         },
         _ => {
