@@ -88,7 +88,7 @@ impl Platform {
             repositories_transpiler.extend(repository);
         }
 
-        if erros.is_empty() { load_animation.finish_with_success("Done!"); }
+        if erros.is_empty() { load_animation.finish_with_success("Repositories fetched successfully!"); }
         else {
             load_animation.finish_with_warning("Some repositories might be missing");
         }

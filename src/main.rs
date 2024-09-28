@@ -56,7 +56,7 @@ async fn main() {
             ("list", list) => list_manager(list, user_settings).await,
             ("create", create) => create_mannager(create, user_settings).await,
             ("delete", delete) => delete_manager(delete, user_settings).await,
-            ("clone", clone) => clone_manager(clone, user_settings),
+            ("clone", clone) => clone_manager(clone, user_settings).await,
             _ => invalid()
         },
         _ => {

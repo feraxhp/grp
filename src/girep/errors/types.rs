@@ -4,6 +4,7 @@
 use color_print::cformat;
 use crate::girep::errors::error::Error;
 
+#[derive(Clone)]
 pub(crate) enum ErrorType {
     /// N number of strings
     Unknown,
@@ -23,6 +24,10 @@ pub(crate) enum ErrorType {
     /// - 0: User|org
     /// - 1..N: Additional information
     NotFound,
+    /// Needs a vector of length N
+    /// - 0: owner/repo
+    /// - 1..N: Additional information
+    NotFoundRepo,
     /// Needs a vector of length 1
     /// - 0: Error message
     /// - 1: Object
@@ -40,6 +45,7 @@ impl ErrorType {
             ErrorType::AlreadyExists => "Repository already exists".to_string(),
             ErrorType::BadTokenScope => "Bad token scope".to_string(),
             ErrorType::NotFound => "User/org does not exist".to_string(),
+            ErrorType::NotFoundRepo => "Repository not found".to_string(),
             ErrorType::Dezerialized => "Error deserializing".to_string(),
             ErrorType::Unimplemented => "Unimplemented".to_string(),
         }
@@ -76,6 +82,16 @@ impl ErrorType {
             ErrorType::NotFound => {
                 let mut local_vec = vec![
                     cformat!("* User|org: <m>({})</>", vec[0]),
+                ];
+                if vec.len() > 1 {
+                    local_vec.append(&mut vec[1..].iter().map(|s| s.to_string()).collect());
+                }
+
+                local_vec
+            },
+            ErrorType::NotFoundRepo => {
+                let mut local_vec = vec![
+                    cformat!("* Repository: <m,i>{}</>", vec[0]),
                 ];
                 if vec.len() > 1 {
                     local_vec.append(&mut vec[1..].iter().map(|s| s.to_string()).collect());
