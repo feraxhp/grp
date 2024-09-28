@@ -4,9 +4,11 @@ girep is a command line tool that helps you manage your git repositories in the 
 It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotzenplotz/gcli).
 
 ## Features
-- [x] List repositories
+- [x] List repositories   
 - [x] Create repositories
+  - [x] Add remote to .. 
 - [x] Delete repositories
+- [x] Clone repository
 
 ## Supported Platforms
 
