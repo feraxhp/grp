@@ -5,7 +5,7 @@ use crate::girep::errors::types::ErrorType;
 
 pub(crate) struct Error {
     pub(crate) message: String,
-    content: Vec<String>,
+    pub(crate) content: Vec<String>,
 }
 
 impl Error {

@@ -9,7 +9,7 @@ use crate::girep::repos::common::supported::Platform;
 use crate::macros::validations::repo::unfold_repo_structure;
 use crate::show;
 
-pub(crate) fn clone_manager(ccreate: &ArgMatches, usettings: Usettings) {
+pub(crate) async fn clone_manager(ccreate: &ArgMatches, usettings: Usettings) {
     let srepo = ccreate.get_one::<String> ("repo").unwrap();
     let srepo = srepo.replace("\"", "");
 
@@ -43,7 +43,7 @@ pub(crate) fn clone_manager(ccreate: &ArgMatches, usettings: Usettings) {
 
     let repo = platform.clone_repo(owner, repo, path, branch, pconf.to_conf());
 
-    match repo {
+    match repo.await {
         Ok(r) => {
             show!(vec![r.clone()]);
         },
