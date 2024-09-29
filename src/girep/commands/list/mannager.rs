@@ -2,7 +2,7 @@
 // Licensed under the MIT License;
 
 use crate::config::structure::Usettings;
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 use crate::show;
 use clap::ArgMatches;
 

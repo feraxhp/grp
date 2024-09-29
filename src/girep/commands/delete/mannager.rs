@@ -2,7 +2,7 @@
 // Licensed under the MIT License;
 
 use crate::config::structure::Usettings;
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 use crate::macros::validations::repo::unfold_repo_structure;
 use clap::ArgMatches;
 use color_print::cprintln;

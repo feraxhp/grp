@@ -1,7 +1,9 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use reqwest::header::HeaderMap;
+use color_print::cprintln;
+use std::process::exit;
+use hyper::HeaderMap;
 use reqwest::Response;
 use crate::girep::config::Config;
 use crate::girep::errors::error::Error;
@@ -19,6 +21,19 @@ pub(crate) enum Platform {
 }
 
 impl Platform {
+    pub(crate) fn matches(name: &str) -> Platform {
+        let platform: Platform = match name {
+            "github" => Platform::Github,
+            "gitea" => Platform::Gitea,
+            name => {
+                cprintln!("* Error: <i>{}</> is not a valid platform", name);
+                exit(1)
+            }
+        };
+
+        platform
+    }
+
     pub fn get_auth_header(&self, token: String) -> HeaderMap {
         match self {
             Platform::Github => { crate::girep::repos::github::header::get_auth_header(token) }
@@ -34,10 +49,10 @@ impl Platform {
     }
 
     pub async fn error_mannager(&self,
-                                result: Response,
-                                debug_data: DebugData,
-                                config: Config,
-                                base_message: String
+        result: Response,
+        debug_data: DebugData,
+        config: Config,
+        base_message: String
     ) -> Result<String, Error> {
         match self {
             Platform::Github => { crate::girep::repos::github::errors::error_mannager(result, debug_data, config, base_message).await }

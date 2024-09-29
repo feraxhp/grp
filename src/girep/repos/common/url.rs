@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 use crate::girep::repos::common::utype::UserType;
 
 impl Platform {
