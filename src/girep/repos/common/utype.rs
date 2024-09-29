@@ -3,6 +3,7 @@
 
 use color_print::cformat;
 use serde::Deserialize;
+use serde_json::Value;
 use crate::girep::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
@@ -11,7 +12,7 @@ use crate::girep::repos::common::supported::Platform;
 
 pub(crate) enum UserType {
     Logged, // User that is logged in
-    Organization, // Organization that bellongs to the logged user
+    Organization, // Organization that belongs to the logged user
     Free, // User that is not logged in
 }
 
@@ -21,6 +22,13 @@ struct Transpiler {
 }
 
 impl Platform {
+    pub fn get_org_name(&self, json: Value) -> String {
+        match self {
+            Platform::Github => json["login"].as_str().unwrap().to_string(),
+            Platform::Gitea => json["name"].as_str().unwrap().to_string(),
+        }
+    }
+
     pub async fn get_user_type(&self, name: &str, conf: Config) -> Result<UserType, Error> {
         match self.is_logged_user(name, conf.clone()).await {
             Ok(true) => Ok(UserType::Logged),
@@ -113,7 +121,7 @@ impl Platform {
             "Failed while fetching user type".to_string()
         ).await?;
 
-        let transpilers: Vec<Transpiler> = serde_json::from_str(&text.clone())
+        let transpilers: Vec<Value> = serde_json::from_str(&text.clone())
             .map_err(
                 |e|
                     Error::new(
@@ -125,6 +133,6 @@ impl Platform {
                     )
             )?;
 
-        Ok(transpilers.iter().any(|t| t.login == name))
+        Ok(transpilers.iter().any(|t| self.get_org_name(t.clone()) == name))
     }
 }
