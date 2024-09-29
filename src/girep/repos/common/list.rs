@@ -8,7 +8,7 @@ use crate::girep::errors::types::ErrorType;
 use crate::girep::repo::Repo;
 use crate::girep::repos::common::paggination::paggination_mannager;
 use crate::girep::repos::common::structs::{DebugData, Rtype};
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 use crate::girep::repos::github::errors::error_mannager;
 use futures::future::join_all;
 use serde::Deserialize;

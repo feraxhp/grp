@@ -11,7 +11,7 @@ use clap::ArgMatches;
 use std::path::PathBuf;
 use std::process::exit;
 use color_print::cprintln;
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 
 pub(crate) async fn create_mannager(ccreate: &ArgMatches, usettings: Usettings) {
     let srepo = ccreate.get_one::<String> ("repo").unwrap();

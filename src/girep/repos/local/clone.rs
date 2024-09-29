@@ -9,7 +9,7 @@ use crate::girep::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::repo::Repo;
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 
 impl Platform {
     pub(crate) async fn clone_repo(&self,

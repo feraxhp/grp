@@ -8,7 +8,7 @@ use crate::girep::errors::types::ErrorType;
 use crate::girep::repo::Repo;
 use crate::girep::repos::common::list::Transpiler;
 use crate::girep::repos::common::structs::{DebugData, Rtype};
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 use crate::girep::repos::gitea::errors::error_mannager;
 use color_print::cformat;
 use std::process::exit;

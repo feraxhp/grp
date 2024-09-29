@@ -8,7 +8,7 @@ use crate::girep::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::repos::common::structs::{DebugData, Rtype};
-use crate::girep::repos::common::supported::Platform;
+use crate::girep::platform::Platform;
 
 pub(crate) enum UserType {
     Logged, // User that is logged in
