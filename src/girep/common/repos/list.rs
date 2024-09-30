@@ -3,28 +3,28 @@
 
 use crate::animations;
 use crate::girep::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
+use crate::errors::error::Error;
+use crate::errors::types::ErrorType;
 use crate::girep::repo::Repo;
-use crate::girep::repos::common::paggination::paggination_mannager;
-use crate::girep::repos::common::structs::{DebugData, Rtype};
+use crate::girep::common::repos::paggination::paggination_mannager;
+use crate::girep::common::repos::structs::{DebugData, Rtype};
+use crate::girep::github::errors::error_mannager;
 use crate::girep::platform::Platform;
-use crate::girep::repos::github::errors::error_mannager;
 use futures::future::join_all;
 use serde::Deserialize;
 use std::process::exit;
 
 #[derive(Deserialize)]
-pub(crate) struct Transpiler {
-    pub(crate) full_name: String,
-    pub(crate) description: Option<String>,
-    pub(crate) private: bool,
-    pub(crate) html_url: String,
-    pub(crate) clone_url: String,
+pub struct Transpiler {
+    pub full_name: String,
+    pub description: Option<String>,
+    pub private: bool,
+    pub html_url: String,
+    pub clone_url: String,
 }
 
 impl Platform {
-    pub(crate) async fn list_repos(&self, owner: Option<String>, config: Config) -> (Vec<Repo>, Vec<Error>) {
+    pub async fn list_repos(&self, owner: Option<String>, config: Config) -> (Vec<Repo>, Vec<Error>) {
         let header_map = self.get_auth_header(config.token.clone());
         let owner = owner.unwrap_or(config.user.clone());
 

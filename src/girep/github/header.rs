@@ -1,6 +1,6 @@
 use reqwest::header::HeaderMap;
 
-pub(crate) fn get_auth_header(token: String) -> HeaderMap {
+pub fn get_auth_header(token: String) -> HeaderMap {
     let mut headers = HeaderMap::new();
     headers.insert("User-Agent", "reqwest > rust > grp".parse().unwrap());
     headers.insert("Accept", "application/vnd.github+json".parse().unwrap());

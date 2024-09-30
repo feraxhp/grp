@@ -1,7 +1,7 @@
 use crate::girep::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
-use crate::girep::repos::common::structs::{DebugData, Rtype};
+use crate::errors::error::Error;
+use crate::errors::types::ErrorType;
+use crate::girep::common::repos::structs::{DebugData, Rtype};
 use color_print::cformat;
 use reqwest::Response;
 use serde::Deserialize;
@@ -11,7 +11,7 @@ struct ErrorDeserialize {
     message: String,
 }
 
-pub(crate) async fn error_mannager(
+pub async fn error_mannager(
     result: Response,
     debug_data: DebugData,
     config: Config,

@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::girep::errors::types::ErrorType;
+use crate::errors::types::ErrorType;
 
 pub(crate) struct Error {
     pub(crate) message: String,

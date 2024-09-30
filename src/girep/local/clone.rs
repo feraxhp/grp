@@ -6,18 +6,18 @@ use git2::build::RepoBuilder;
 use git2::{Cred, RemoteCallbacks};
 use crate::animations::process::Process;
 use crate::girep::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
+use crate::errors::error::Error;
+use crate::errors::types::ErrorType;
 use crate::girep::repo::Repo;
 use crate::girep::platform::Platform;
 
 impl Platform {
-    pub(crate) async fn clone_repo(&self,
-        owner: String,
-        repo: String,
-        path: PathBuf,
-        branch: Option<String>,
-        conf: Config
+    pub async fn clone_repo(&self,
+                            owner: String,
+                            repo: String,
+                            path: PathBuf,
+                            branch: Option<String>,
+                            conf: Config
     ) -> Result<Repo, Error> {
 
         let (repos, erros) = self.list_repos(Some(owner.clone()), conf.clone()).await;
@@ -85,7 +85,7 @@ impl Platform {
                         ErrorType::Unknown,
                         vec![
                             e.to_string().as_str(),
-                            e.message().clone()
+                            e.message()
                         ]
                     )
                 )

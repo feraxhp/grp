@@ -3,18 +3,18 @@
 
 use crate::animations;
 use crate::girep::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
+use crate::errors::error::Error;
+use crate::errors::types::ErrorType;
 use crate::girep::repo::Repo;
-use crate::girep::repos::common::list::Transpiler;
-use crate::girep::repos::common::structs::{DebugData, Rtype};
+use crate::girep::common::repos::list::Transpiler;
+use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::platform::Platform;
-use crate::girep::repos::gitea::errors::error_mannager;
+use crate::girep::gitea::errors::error_mannager;
 use color_print::cformat;
 use std::process::exit;
 
 impl Platform {
-    pub(crate) async fn create_repo(&self, owner: String, repo: Repo, config: Config) -> Result<Repo, Error> {
+    pub async fn create_repo(&self, owner: String, repo: Repo, config: Config) -> Result<Repo, Error> {
         let client = reqwest::Client::new();
 
         let load_animation = animations::creation::Create::new("Creating repository ...");

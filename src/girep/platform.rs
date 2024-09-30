@@ -6,8 +6,8 @@ use std::process::exit;
 use hyper::HeaderMap;
 use reqwest::Response;
 use crate::girep::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::repos::common::structs::DebugData;
+use crate::errors::error::Error;
+use crate::girep::common::repos::structs::DebugData;
 
 pub(crate) const SUPPORTED_REPOS: [(&str, &str, &str); 2] = [
     ("0", "gh", "github"),
@@ -36,8 +36,8 @@ impl Platform {
 
     pub fn get_auth_header(&self, token: String) -> HeaderMap {
         match self {
-            Platform::Github => { crate::girep::repos::github::header::get_auth_header(token) }
-            Platform::Gitea => { crate::girep::repos::gitea::header::get_auth_header(token) }
+            Platform::Github => { crate::girep::github::header::get_auth_header(token) }
+            Platform::Gitea => { crate::girep::gitea::header::get_auth_header(token) }
         }
     }
 
@@ -55,8 +55,8 @@ impl Platform {
         base_message: String
     ) -> Result<String, Error> {
         match self {
-            Platform::Github => { crate::girep::repos::github::errors::error_mannager(result, debug_data, config, base_message).await }
-            Platform::Gitea => { crate::girep::repos::gitea::errors::error_mannager(result, debug_data, config, base_message).await }
+            Platform::Github => { crate::girep::github::errors::error_mannager(result, debug_data, config, base_message).await }
+            Platform::Gitea => { crate::girep::gitea::errors::error_mannager(result, debug_data, config, base_message).await }
         }
     }
 }
