@@ -11,7 +11,7 @@ struct ErrorDeserialize {
     message: String,
 }
 
-pub async fn error_mannager(
+pub async fn error_manager(
     result: Response,
     debug_data: DebugData,
     config: Config,

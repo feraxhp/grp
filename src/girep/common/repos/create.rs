@@ -9,9 +9,10 @@ use crate::girep::repo::Repo;
 use crate::girep::common::repos::list::Transpiler;
 use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::platform::Platform;
-use crate::girep::gitea::errors::error_mannager;
+use crate::girep::gitea::errors::error_manager;
 use color_print::cformat;
 use std::process::exit;
+use crate::animations::animation::Animation;
 
 impl Platform {
     pub async fn create_repo(&self, owner: String, repo: Repo, config: Config) -> Result<Repo, Error> {
@@ -50,7 +51,7 @@ impl Platform {
                 }
             };
 
-        let response_text = error_mannager(
+        let response_text = self.error_mannager(
             result,
             DebugData{
                 rtype: Rtype::Create,

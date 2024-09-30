@@ -55,8 +55,8 @@ impl Platform {
         base_message: String
     ) -> Result<String, Error> {
         match self {
-            Platform::Github => { crate::girep::github::errors::error_mannager(result, debug_data, config, base_message).await }
-            Platform::Gitea => { crate::girep::gitea::errors::error_mannager(result, debug_data, config, base_message).await }
+            Platform::Github => { crate::girep::github::errors::error_manager(result, debug_data, config, base_message).await }
+            Platform::Gitea => { crate::girep::gitea::errors::error_manager(result, debug_data, config, base_message).await }
         }
     }
 }

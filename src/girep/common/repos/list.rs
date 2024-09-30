@@ -8,11 +8,12 @@ use crate::errors::types::ErrorType;
 use crate::girep::repo::Repo;
 use crate::girep::common::repos::paggination::paggination_mannager;
 use crate::girep::common::repos::structs::{DebugData, Rtype};
-use crate::girep::github::errors::error_mannager;
+use crate::girep::github::errors::error_manager;
 use crate::girep::platform::Platform;
 use futures::future::join_all;
 use serde::Deserialize;
 use std::process::exit;
+use crate::animations::animation::Animation;
 
 #[derive(Deserialize)]
 pub struct Transpiler {
@@ -43,7 +44,7 @@ impl Platform {
         let (responses,mut erros) = paggination_mannager(url, header_map).await;
 
         let responses: Vec<_> = responses.into_iter().map(|response| {
-            error_mannager(
+            error_manager(
                 response,
                 DebugData{
                     rtype: Rtype::List,
