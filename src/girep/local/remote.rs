@@ -7,7 +7,7 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process::Command;
 
-pub(crate) fn add_remote(remote_url: &str, remote_name: &str, path_buf: PathBuf) -> Result<(), Error> {
+pub fn add_remote(remote_url: &str, remote_name: &str, path_buf: PathBuf) -> Result<(), Error> {
     let current_dir = std::env::current_dir()?;
     let _ = std::env::set_current_dir(path_buf);
     let has_git_installed = match Command::new("git")

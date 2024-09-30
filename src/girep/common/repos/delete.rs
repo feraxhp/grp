@@ -3,13 +3,13 @@
 
 use crate::animations::delition::Delete;
 use crate::girep::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
-use crate::girep::repos::common::structs::{DebugData, Rtype};
+use crate::errors::error::Error;
+use crate::errors::types::ErrorType;
+use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::platform::Platform;
 
 impl Platform {
-    pub(crate) async fn delete_repo(&self, owner: String, repo: String, config: Config) -> Result<(), Error> {
+    pub async fn delete_repo(&self, owner: String, repo: String, config: Config) -> Result<(), Error> {
         let client = reqwest::Client::new();
 
         let load_animation = Delete::new("Deleting repository ...");

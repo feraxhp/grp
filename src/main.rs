@@ -5,22 +5,23 @@ mod girep;
 mod config;
 mod macros;
 mod animations;
+pub(crate) mod errors;
 
 use crate::config::command::{config_command, config_manager};
-use crate::girep::commands::create::mannager::create_mannager;
-use crate::girep::commands::create::subcommand::create_subcommand;
-use crate::girep::commands::delete::mannager::delete_manager;
-use crate::girep::commands::delete::subcommand::delete_subcommand;
-use crate::girep::commands::list::mannager::list_manager;
-use crate::girep::commands::list::subcommand::list_subcommand;
+use girep::common::repos::commands::create::mannager::create_mannager;
+use girep::common::repos::commands::create::subcommand::create_subcommand;
+use girep::common::repos::commands::delete::mannager::delete_manager;
+use girep::common::repos::commands::delete::subcommand::delete_subcommand;
+use girep::common::repos::commands::list::mannager::list_manager;
+use girep::common::repos::commands::list::subcommand::list_subcommand;
 use crate::macros::macros::invalid;
 use clap::{arg, command, crate_version};
 use color_print::cprintln;
 use std::io;
 use std::io::Write;
 use std::process::exit;
-use crate::girep::commands::clone::manager::clone_manager;
-use crate::girep::commands::clone::subcommand::clone_subcommand;
+use girep::common::repos::commands::clone::manager::clone_manager;
+use girep::common::repos::commands::clone::subcommand::clone_subcommand;
 
 #[tokio::main]
 async fn main() {

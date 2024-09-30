@@ -5,12 +5,12 @@ use color_print::cformat;
 use serde::Deserialize;
 use serde_json::Value;
 use crate::girep::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
-use crate::girep::repos::common::structs::{DebugData, Rtype};
+use crate::errors::error::Error;
+use crate::errors::types::ErrorType;
+use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::platform::Platform;
 
-pub(crate) enum UserType {
+pub enum UserType {
     Logged, // User that is logged in
     Organization, // Organization that belongs to the logged user
     Free, // User that is not logged in
@@ -44,7 +44,7 @@ impl Platform {
     }
 
 
-    pub(crate) async fn is_logged_user(&self, name: &str, conf: Config) -> Result<bool, Error> {
+    pub async fn is_logged_user(&self, name: &str, conf: Config) -> Result<bool, Error> {
         let client = reqwest::Client::new();
 
         let result = client
@@ -90,7 +90,7 @@ impl Platform {
 
     }
 
-    pub(crate) async fn is_organization(&self, name: &str, conf: Config) -> Result<bool, Error> {
+    pub async fn is_organization(&self, name: &str, conf: Config) -> Result<bool, Error> {
         let client = reqwest::Client::new();
 
         let result = client

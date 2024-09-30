@@ -1,14 +1,14 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
+use crate::errors::error::Error;
+use crate::errors::types::ErrorType;
 use futures::future::join_all;
 use hyper::header::HeaderValue;
 use reqwest::header::HeaderMap;
 use reqwest::{Client, Response};
 
-pub(crate) async fn paggination_mannager(
+pub async fn paggination_mannager(
     url: String,
     header_map: HeaderMap
 ) -> (Vec<Response>, Vec<Error>){
