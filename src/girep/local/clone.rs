@@ -4,6 +4,7 @@
 use std::path::PathBuf;
 use git2::build::RepoBuilder;
 use git2::{Cred, RemoteCallbacks};
+use crate::animations::animation::Animation;
 use crate::animations::process::Process;
 use crate::girep::config::Config;
 use crate::errors::error::Error;

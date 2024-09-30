@@ -1,13 +1,14 @@
 use std::time::Duration;
 use color_print::{cformat, cprintln};
 use indicatif::{ProgressBar, ProgressStyle};
+use crate::animations::animation::Animation;
 
 pub(crate) struct Create {
     spinner: ProgressBar,
 }
 
-impl Create {
-    pub fn new(message: &str) -> Self {
+impl Animation for Create  {
+    fn new(message: &str) -> Box<Create> {
         let spinner = ProgressBar::new_spinner();
         let style = ProgressStyle::default_spinner()
             .tick_strings(
@@ -26,15 +27,20 @@ impl Create {
         spinner.set_message(cformat!("<y>{}</>", message.to_string()).to_string());
         spinner.enable_steady_tick(Duration::from_millis(200));
 
-        Create { spinner }
+        Box::from(Create { spinner })
     }
 
-    pub fn finish_with_error(&self, message: &str) {
+    fn finish_with_error(&self, message: &str) {
         self.spinner.finish_and_clear();
         cprintln!("<r>💻--X--🌎 {}</>", message.to_string());
     }
 
-    pub fn finish_with_success(&self, message: &str) {
+    fn finish_with_warning(&self, message: &str) {
+        self.spinner.finish_and_clear();
+        cprintln!("<y>💻--!--🌎 {}</>", message.to_string());
+    }
+
+    fn finish_with_success(&self, message: &str) {
         self.spinner.finish_and_clear();
         cprintln!("<g>💻--✓--🌎 {}</>", message.to_string());
     }

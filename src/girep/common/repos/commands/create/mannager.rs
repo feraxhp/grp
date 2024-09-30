@@ -11,6 +11,7 @@ use clap::ArgMatches;
 use std::path::PathBuf;
 use std::process::exit;
 use color_print::cprintln;
+use crate::animations::animation::Animation;
 use crate::girep::platform::Platform;
 
 pub(crate) async fn create_mannager(ccreate: &ArgMatches, usettings: Usettings) {
