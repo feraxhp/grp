@@ -1,13 +1,12 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use std::path::PathBuf;
-use clap::ArgMatches;
-use color_print::cprintln;
 use crate::config::structure::Usettings;
 use crate::girep::platform::Platform;
 use crate::macros::validations::repo::unfold_repo_structure;
 use crate::show;
+use clap::ArgMatches;
+use std::path::PathBuf;
 
 pub(crate) async fn clone_manager(ccreate: &ArgMatches, usettings: Usettings) {
     let srepo = ccreate.get_one::<String> ("repo").unwrap();
