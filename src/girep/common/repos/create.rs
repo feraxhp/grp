@@ -9,7 +9,6 @@ use crate::girep::repo::Repo;
 use crate::girep::common::repos::list::Transpiler;
 use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::platform::Platform;
-use crate::girep::gitea::errors::error_manager;
 use color_print::cformat;
 use std::process::exit;
 use crate::animations::animation::Animation;
