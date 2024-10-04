@@ -67,9 +67,7 @@ impl Platform {
         }
 
         if erros.is_empty() { load_animation.finish_with_success("Organizations fetched successfully!"); }
-        else {
-            load_animation.finish_with_warning("Some repositories might be missing");
-        }
+        else { load_animation.finish_with_warning("Some Organizations might be missing"); }
 
         (orgs, erros)
     }

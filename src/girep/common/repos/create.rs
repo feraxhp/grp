@@ -50,7 +50,7 @@ impl Platform {
                 }
             };
 
-        let response_text = self.error_mannager(
+        let response_text = self.error_manager(
             result,
             DebugData{
                 rtype: Rtype::Create,

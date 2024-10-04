@@ -111,7 +111,7 @@ pub async fn error_manager(
                                     base_message,
                                     vec![
                                         cformat!("<y>* Something went wrong: </>",),
-                                        cformat!("  <r,i>{}</>", status.as_u16()),
+                                        cformat!("  Code: <r,i>{}</>", status.as_u16()),
                                         cformat!("  Error: {}", error.message)
                                     ]
                                 )

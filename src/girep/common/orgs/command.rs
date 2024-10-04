@@ -2,6 +2,7 @@
 // Licensed under the MIT License;
 
 use clap::{command, Command};
+use crate::girep::common::orgs::subcommands::create::command::create_subcommand;
 use crate::girep::common::orgs::subcommands::list::command::list_subcommand;
 
 pub(crate) fn orgs_command() -> Command {
@@ -9,5 +10,5 @@ pub(crate) fn orgs_command() -> Command {
         .aliases(["organizations", "org", "o"])
         .about("Interface command to manage organizations")
         .subcommand(list_subcommand())
-        // .subcommand(...())
+        .subcommand(create_subcommand())
 }

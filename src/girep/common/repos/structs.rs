@@ -14,15 +14,3 @@ pub enum Rtype {
     UserList,
     ListOrg,
 }
-
-impl Rtype {
-    pub fn to_string(&self) -> String {
-        match self {
-            Rtype::List => "List".to_string(),
-            Rtype::Create => "Create".to_string(),
-            Rtype::Delete => "Delete".to_string(),
-            Rtype::UserList => "UserList".to_string(),
-            Rtype::ListOrg => "ListOrg".to_string(),
-        }
-    }
-}

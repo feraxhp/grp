@@ -39,7 +39,7 @@ impl Platform {
         }
 
         Err(
-            self.error_mannager(
+            self.error_manager(
                 result,
                 DebugData{
                     rtype: Rtype::Delete,

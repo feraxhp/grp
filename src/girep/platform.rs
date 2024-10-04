@@ -48,11 +48,11 @@ impl Platform {
         }
     }
 
-    pub async fn error_mannager(&self,
-        result: Response,
-        debug_data: DebugData,
-        config: Config,
-        base_message: String
+    pub async fn error_manager(&self,
+       result: Response,
+       debug_data: DebugData,
+       config: Config,
+       base_message: String
     ) -> Result<String, Error> {
         match self {
             Platform::Github => { crate::girep::github::errors::error_manager(result, debug_data, config, base_message).await }
