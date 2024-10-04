@@ -13,12 +13,10 @@ impl Animation for Process {
         let style = ProgressStyle::default_spinner()
             .tick_strings(
                 &[
-                    cformat!("<y>⬪</>").as_str(),
-                    cformat!("<y>⬨</>").as_str(),
-                    cformat!("<y>⬦</>").as_str(),
-                    cformat!("<y>⬥</>").as_str(),
-                    cformat!("<y>⬧</>").as_str(),
-                    cformat!("<y>⬪</>").as_str(),
+                    cformat!("<y>◶ </>").as_str(),
+                    cformat!("<y>◵ </>").as_str(),
+                    cformat!("<y>◷ </>").as_str(),
+                    cformat!("<y>◴ </>").as_str(),
                 ]
             )
             ;
@@ -31,12 +29,12 @@ impl Animation for Process {
 
     fn finish_with_error(&self, message: &str) {
         self.spinner.finish_and_clear();
-        cprintln!("<r>X {}</>", message.to_string());
+        cprintln!("<r>◉ {}</>", message.to_string());
     }
 
     fn finish_with_warning(&self, message: &str) {
         self.spinner.finish_and_clear();
-        cprintln!("<y>💻--!--🌎 {}</>", message.to_string());
+        cprintln!("<y>◎ {}</>", message.to_string());
     }
 
     fn finish_with_success(&self, message: &str) {

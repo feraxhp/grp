@@ -8,46 +8,21 @@ use crate::animations::animation::Animation;
 use crate::animations::process::Process;
 use crate::girep::config::Config;
 use crate::errors::error::Error;
-use crate::errors::types::ErrorType;
 use crate::girep::repo::Repo;
 use crate::girep::platform::Platform;
 
 impl Platform {
     pub async fn clone_repo(&self,
-                            owner: String,
-                            repo: String,
-                            path: PathBuf,
-                            branch: Option<String>,
-                            conf: Config
+        owner: String,
+        repo: String,
+        path: PathBuf,
+        branch: Option<String>,
+        conf: Config
     ) -> Result<Repo, Error> {
-
-        let (repos, erros) = self.list_repos(Some(owner.clone()), conf.clone()).await;
 
         let animation = Process::new("Cloning repository ...");
 
-        let full_name = format!("{}/{}", owner.clone(), repo.clone());
-        let url = match repos.iter().find(|r| { r.full_name == full_name.clone() }).clone() {
-            Some(repo) => repo.clone_url.clone(),
-            None => {
-                let additional_info: Vec<Vec<String>> = erros.iter().map(|e| {
-                    e.content.clone()
-                }).collect();
-
-                let mut additional_info: Vec<&str> = additional_info.iter()
-                    .flat_map(|inner_vec| inner_vec.iter().map(|s| s.as_str()))
-                    .collect();
-
-                let mut full_name = vec![full_name.as_str()];
-
-                full_name.append(&mut additional_info.clone());
-
-                let error = Error::new(ErrorType::NotFoundRepo, full_name);
-
-                animation.finish_with_error(error.message.as_str());
-
-                return Err(error)
-            }
-        };
+        let url = self.generate_clone_url(conf.endpoint.clone(), owner.clone(), repo.clone());
 
         let mut callbacks = RemoteCallbacks::new();
         callbacks.credentials(|_, _, _| {
@@ -64,7 +39,6 @@ impl Platform {
             None => { }
         };
 
-        eprintln!("{}", url.as_str());
         match builder.clone(url.as_str(), path.as_path()) {
             Ok(repostory) => {
                 animation.finish_with_success("Repository cloned successfully");
@@ -79,18 +53,23 @@ impl Platform {
                 )
             },
             Err(e) => {
-                animation.finish_with_error("Failed to clone the repository");
+                let e = Error::git_to_local(e,
+                    format!("{}/{}", owner, repo),
+                    conf.pconf.clone()
+                );
 
-                Err(
-                    Error::new(
-                        ErrorType::Unknown,
-                        vec![
-                            e.to_string().as_str(),
-                            e.message()
-                        ]
-                    )
-                )
+                animation.finish_with_error(e.message.as_str());
+
+                Err(e)
             }
         }
     }
+
+    fn generate_clone_url(&self, endpoint: String, owner: String, repo: String) -> String {
+        match self {
+            Platform::Github => format!("https://github.com/{}/{}.git", owner, repo),
+            Platform::Gitea => format!("https://{}/{}/{}.git", endpoint, owner, repo),
+        }
+    }
+
 }
