@@ -1,2 +1,3 @@
-pub mod remote;
-pub mod clone;
+pub(crate) mod remote;
+pub(crate) mod clone;
+pub(crate) mod errors;
