@@ -22,6 +22,8 @@ use std::io::Write;
 use std::process::exit;
 use girep::common::repos::commands::clone::manager::clone_manager;
 use girep::common::repos::commands::clone::subcommand::clone_subcommand;
+use crate::girep::common::orgs::command::orgs_command;
+use crate::girep::common::orgs::manager::orgs_manager;
 
 #[tokio::main]
 async fn main() {
@@ -34,6 +36,7 @@ async fn main() {
         .subcommand(create_subcommand())
         .subcommand(delete_subcommand())
         .subcommand(clone_subcommand())
+        .subcommand(orgs_command())
         .get_matches();
 
 
@@ -58,6 +61,7 @@ async fn main() {
             ("create", create) => create_mannager(create, user_settings).await,
             ("delete", delete) => delete_manager(delete, user_settings).await,
             ("clone", clone) => clone_manager(clone, user_settings).await,
+            ("orgs", orgs) => orgs_manager(orgs, user_settings).await,
             _ => invalid()
         },
         _ => {

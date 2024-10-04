@@ -2,3 +2,4 @@
 // Licensed under the MIT License;
 
 pub(crate) mod repos;
+pub(crate) mod orgs;
