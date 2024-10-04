@@ -12,6 +12,7 @@ pub enum Rtype {
     Create,
     Delete,
     UserList,
+    ListOrg,
 }
 
 impl Rtype {
@@ -21,6 +22,7 @@ impl Rtype {
             Rtype::Create => "Create".to_string(),
             Rtype::Delete => "Delete".to_string(),
             Rtype::UserList => "UserList".to_string(),
+            Rtype::ListOrg => "ListOrg".to_string(),
         }
     }
 }
