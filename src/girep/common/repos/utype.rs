@@ -43,8 +43,7 @@ impl Platform {
         }
     }
 
-
-    pub async fn is_logged_user(&self, name: &str, conf: Config) -> Result<bool, Error> {
+    pub async fn get_logged_user(&self, conf: Config) -> Result<String, Error> {
         let client = reqwest::Client::new();
 
         let result = client
@@ -64,11 +63,11 @@ impl Platform {
                 }
             )?;
 
-        let text = self.error_mannager(
+        let text = self.error_manager(
             result,
             DebugData {
                 rtype: Rtype::UserList,
-                owner: name.to_string(),
+                owner: "".to_string(),
                 repo: None,
             },
             conf.clone(),
@@ -86,8 +85,14 @@ impl Platform {
                         ]
                     )
             )?;
-        Ok(transpiler.login == name)
 
+        Ok(transpiler.login)
+    }
+
+    pub async fn is_logged_user(&self, name: &str, conf: Config) -> Result<bool, Error> {
+        let user = self.get_logged_user(conf).await?;
+
+        Ok(user == name)
     }
 
     pub async fn is_organization(&self, name: &str, conf: Config) -> Result<bool, Error> {
@@ -110,7 +115,7 @@ impl Platform {
                 }
             )?;
 
-        let text = self.error_mannager(
+        let text = self.error_manager(
             result,
             DebugData {
                 rtype: Rtype::UserList,

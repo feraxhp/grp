@@ -118,4 +118,23 @@ impl Usettings {
             }
         }
     }
+
+    pub(crate) fn matches_pconf(&self, pconf: Option<&String>) -> Pconf{
+        match pconf {
+            Some(clist) => {
+                match self.get_pconf(clist.clone()) {
+                    Some(pconf) => pconf,
+                    None => {
+                        let pconf = self.get_default();
+                        if !clist.eq("-") {
+                            eprintln!("{} is not a valid pconf name", clist);
+                            eprintln!("using default pconf: {}", pconf.name.clone());
+                        }
+                        pconf.clone()
+                    },
+                }
+            },
+            None => { self.get_default() }
+        }
+    }
 }
