@@ -3,6 +3,6 @@
 
 pub(crate) mod command;
 pub(crate) mod manager;
-pub(crate) mod metods;
+pub(crate) mod methods;
 pub(crate) mod subcommands;
 pub(crate) mod org;

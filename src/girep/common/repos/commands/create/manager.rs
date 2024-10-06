@@ -14,7 +14,7 @@ use color_print::cprintln;
 use crate::animations::animation::Animation;
 use crate::girep::platform::Platform;
 
-pub(crate) async fn create_mannager(ccreate: &ArgMatches, usettings: Usettings) {
+pub(crate) async fn create_manager(ccreate: &ArgMatches, usettings: Usettings) {
     let srepo = ccreate.get_one::<String> ("repo").unwrap();
     let srepo = srepo.replace("\"", "");
 

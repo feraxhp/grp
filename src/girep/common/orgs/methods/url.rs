@@ -10,8 +10,15 @@ impl Platform {
 
     pub(crate) fn url_create_org(&self, endpoint: String) -> String {
         match self {
-            Platform::Github | /*=> { panic!("Not valid for GitHub") }*/
+            Platform::Github => { panic!("Not valid for GitHub") }
             Platform::Gitea => { format!("{}/orgs", self.get_base_url(endpoint)) }
+        }
+    }
+
+    pub(crate) fn url_delete_org(&self, endpoint: String, name: String) -> String {
+        match self {
+            Platform::Github |
+            Platform::Gitea => { format!("{}/orgs/{}", self.get_base_url(endpoint), name) }
         }
     }
 }

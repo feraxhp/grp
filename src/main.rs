@@ -5,14 +5,15 @@ mod girep;
 mod config;
 mod macros;
 mod animations;
-pub(crate) mod errors;
+mod errors;
+mod cmdcore;
 
 use crate::config::command::{config_command, config_manager};
-use girep::common::repos::commands::create::mannager::create_mannager;
+use girep::common::repos::commands::create::manager::create_manager;
 use girep::common::repos::commands::create::subcommand::create_subcommand;
-use girep::common::repos::commands::delete::mannager::delete_manager;
+use girep::common::repos::commands::delete::manager::delete_manager;
 use girep::common::repos::commands::delete::subcommand::delete_subcommand;
-use girep::common::repos::commands::list::mannager::list_manager;
+use girep::common::repos::commands::list::manager::list_manager;
 use girep::common::repos::commands::list::subcommand::list_subcommand;
 use crate::macros::macros::invalid;
 use clap::{arg, command, crate_version};
@@ -58,7 +59,7 @@ async fn main() {
         Some(sub) => match sub {
             ("config", config) => config_manager(config),
             ("list", list) => list_manager(list, user_settings).await,
-            ("create", create) => create_mannager(create, user_settings).await,
+            ("create", create) => create_manager(create, user_settings).await,
             ("delete", delete) => delete_manager(delete, user_settings).await,
             ("clone", clone) => clone_manager(clone, user_settings).await,
             ("orgs", orgs) => orgs_manager(orgs, user_settings).await,

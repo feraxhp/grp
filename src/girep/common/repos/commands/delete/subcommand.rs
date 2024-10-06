@@ -1,17 +1,12 @@
-use clap::{arg, command, Command};
-use crate::macros::validations::repo::validate_repo_structure_with_pconf;
+use crate::cmdcore::args::Arguments;
+use crate::cmdcore::commands::Commands;
+use clap::{arg, Command};
 
 pub(crate) fn delete_subcommand() -> Command {
-    let value_parser = validate_repo_structure_with_pconf;
-    command!("delete")
-        .aliases(&["del", "rm"])
-        .about("Delete a repository")
-        .arg(
-            arg!(<repo> "The name of the repository to delete: <pconf>:<owner>/<repo>")
-                .value_parser(value_parser)
-        )
-        .arg(
+    Commands::delete("Delete a repository")
+        .args([
+            Arguments::repo_structure(true, true),
             arg!(-y --yes "Skip the confirmation prompt")
                 .required(false)
-        )
+        ])
 }

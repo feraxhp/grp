@@ -2,4 +2,4 @@
 // Licensed under the MIT License;
 
 pub(crate) mod subcommand;
-pub(crate) mod mannager;
+pub(crate) mod manager;
