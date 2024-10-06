@@ -4,11 +4,18 @@ girep is a command line tool that helps you manage your git repositories in the 
 It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotzenplotz/gcli).
 
 ## Features
-- [x] List repositories   
-- [x] Create repositories
+
+### Repositories
+- [x] List   
+- [x] Create
   - [x] Add remote to .. 
-- [x] Delete repositories
-- [x] Clone repository
+- [x] Delete
+- [x] Clone
+
+### Organizations
+- [x] List
+- [x] Create (GitHub Api limitations)
+- [x] Delete
 
 ## Supported Platforms
 
@@ -40,8 +47,8 @@ Make sure you have the following dependencies installed on your system:
 ```bash
 
 # clone the repository
-git clone https://github.com/feraxhp/cim.git
-cd cim
+git clone https://github.com/feraxhp/grp.git
+cd grp
 
 # if you want to install it on your system
 cargo install --path .
