@@ -7,10 +7,14 @@ pub struct DebugData {
     pub repo: Option<String>,
 }
 
+
+#[derive(Clone)]
 pub enum Rtype {
     List,
     Create,
     Delete,
     UserList,
     ListOrg,
+    CreateOrg,
+    DeleteOrg,
 }

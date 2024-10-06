@@ -57,8 +57,8 @@ impl Platform {
         let response_text = self.error_manager(
             result,
             DebugData {
-                rtype: Rtype::Create,
-                owner: "".to_string(),
+                rtype: Rtype::CreateOrg,
+                owner: name.clone(),
                 repo: None,
             },
             config.clone(),
@@ -90,7 +90,7 @@ impl Platform {
             }
         };
 
-        load_animation.finish_with_success("Done!");
+        load_animation.finish_with_success("Organization created successfully!");
 
         Ok(response)
     }

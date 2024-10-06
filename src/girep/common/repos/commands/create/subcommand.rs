@@ -1,20 +1,18 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
+use crate::cmdcore::args::Arguments;
+use crate::cmdcore::commands::Commands;
 use crate::macros::validations::repo::validate_repo_structure;
 use clap::builder::ValueParser;
-use clap::{arg, command, Command};
+use clap::{arg, Command};
 
 pub(crate) fn create_subcommand() -> Command {
     let repo_validation = validate_repo_structure;
-    command!("create")
-        .aliases(["+", "cr"])
-        .about("Create a new repository in a configured platform")
+
+    Commands::create("Create a new repository in a configured platform")
         .args([
-            arg!(<repo> "The repository data as [pconf]:<owner>/<repo>")
-                .value_parser(repo_validation)
-                .required(true)
-            ,
+            Arguments::repo_structure(false, true),
             arg!([description] "The description for the repository")
                 .default_value("")
                 .hide_default_value(true)

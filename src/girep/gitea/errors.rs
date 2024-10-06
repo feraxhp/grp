@@ -25,10 +25,10 @@ pub async fn error_manager(
 
     match text {
         Ok(text) => {
-            match status.clone().as_u16() {
-                200 => { Ok(text) },
-                201 if matches!(debug_data.rtype, Rtype::Create) => { Ok(text) },
-                404 if matches!(debug_data.rtype, Rtype::Delete) => {
+            match (status.clone().as_u16(), debug_data.rtype.clone()) {
+                (200, _) => { Ok(text) },
+                (201, Rtype::Create | Rtype::CreateOrg) => { Ok(text) },
+                (404, Rtype::Delete) => {
                     Err(
                         Error::new(
                             ErrorType::NotFound,
@@ -39,7 +39,17 @@ pub async fn error_manager(
                         )
                     )
                 },
-                409 if matches!(debug_data.rtype, Rtype::Create) => {
+                (404, Rtype::DeleteOrg) => {
+                    Err(
+                        Error::new_custom(
+                            ErrorType::NotFound.get_message(),
+                            vec![
+                                cformat!("* Organization <y,i>{}</> does not exist", debug_data.owner.clone())
+                            ]
+                        )
+                    )
+                }
+                (409, Rtype::Create) => {
                     Err(
                         Error::new(
                             ErrorType::AlreadyExists,
@@ -50,6 +60,18 @@ pub async fn error_manager(
                         )
                     )
                 },
+                (422, Rtype::CreateOrg) => {
+                    Err(
+                        Error::new_custom(
+                            ErrorType::AlreadyExists.get_message(),
+                            vec![
+                                cformat!("* The organization name is <i,b>invalid</>"),
+                                "  There is another user/org this this name".to_string(),
+                                cformat!("  - Name: <m,i>{}</>", debug_data.owner)
+                            ]
+                        )
+                    )
+                }
                 _ => {
                     let error: ErrorDeserialize = serde_json::from_str(&text)
                         .unwrap_or_else(|_| {

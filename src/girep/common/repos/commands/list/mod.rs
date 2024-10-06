@@ -1,2 +1,2 @@
 pub(crate) mod subcommand;
-pub(crate) mod mannager;
+pub(crate) mod manager;
