@@ -7,31 +7,34 @@ mod macros;
 mod animations;
 mod errors;
 mod cmdcore;
+mod update;
 
 use crate::config::command::{config_command, config_manager};
+use crate::girep::common::orgs::command::orgs_command;
+use crate::girep::common::orgs::manager::orgs_manager;
+use crate::macros::macros::invalid;
+use crate::update::check::validate_version;
+use crate::update::os::base::Updater;
+use clap::{arg, command, crate_version};
+use color_print::cprintln;
+use girep::common::repos::commands::clone::manager::clone_manager;
+use girep::common::repos::commands::clone::subcommand::clone_subcommand;
 use girep::common::repos::commands::create::manager::create_manager;
 use girep::common::repos::commands::create::subcommand::create_subcommand;
 use girep::common::repos::commands::delete::manager::delete_manager;
 use girep::common::repos::commands::delete::subcommand::delete_subcommand;
 use girep::common::repos::commands::list::manager::list_manager;
 use girep::common::repos::commands::list::subcommand::list_subcommand;
-use crate::macros::macros::invalid;
-use clap::{arg, command, crate_version};
-use color_print::cprintln;
 use std::io;
 use std::io::Write;
 use std::process::exit;
-use girep::common::repos::commands::clone::manager::clone_manager;
-use girep::common::repos::commands::clone::subcommand::clone_subcommand;
-use crate::girep::common::orgs::command::orgs_command;
-use crate::girep::common::orgs::manager::orgs_manager;
 
 #[tokio::main]
 async fn main() {
     let commands = command!()
         .name("grp")
         .about("A simple CLI to manage platforms for git repositories")
-        .arg(arg!(-v --vnumber "Prints the version number to the standar output").exclusive(true))
+        .arg(arg!(-v --vnumber "Prints the version number to the standard output").exclusive(true))
         .subcommand(config_command())
         .subcommand(list_subcommand())
         .subcommand(create_subcommand())
@@ -52,6 +55,22 @@ async fn main() {
         },
         _ => {}
     }
+
+    match validate_version().await {
+        Ok((true, version)) => { }
+        Ok((false, version)) => {
+            eprintln!("🎉 New version available!!");
+            cprintln!("   → Latest  version: <g>{}</>", version.name.clone());
+            cprintln!("   → Current version: <g>v{}</>", crate_version!());
+            eprintln!();
+            cprintln!("📥 Download it from: <b,u>{}</>", version.get_os_url());
+            eprintln!();
+        }
+        Err(e) => {
+            println!("{}", e.message);
+            e.show();
+        }
+    };
 
     let user_settings = config::loader::load_configurations();
 
