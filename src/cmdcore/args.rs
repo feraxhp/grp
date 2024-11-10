@@ -2,6 +2,7 @@
 // Licensed under the MIT License;
 
 use clap::{arg, Arg};
+use clap::builder::ValueParser;
 use crate::macros::validations::pconfs::{valid_pconfs, valid_pconfs_and_plus};
 use crate::macros::validations::repo::{validate_repo_structure, validate_repo_structure_with_pconf};
 
@@ -28,5 +29,13 @@ impl Arguments {
         arg!(<repo> "The repository data as [pconf]:<owner>/<repo>")
             .value_parser(repo_validation)
             .required(required)
+    }
+
+    pub(crate) fn path(required: bool, about: &str) -> Arg {
+        Arg::new("path")
+            .help(about.to_owned())
+            .required(required)
+            .value_hint(clap::ValueHint::DirPath)
+            .value_parser(ValueParser::path_buf())
     }
 }

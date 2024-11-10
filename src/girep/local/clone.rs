@@ -8,6 +8,7 @@ use crate::animations::animation::Animation;
 use crate::animations::process::Process;
 use crate::girep::config::Config;
 use crate::errors::error::Error;
+use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::repo::Repo;
 use crate::girep::platform::Platform;
 
@@ -24,13 +25,8 @@ impl Platform {
 
         let url = self.generate_clone_url(conf.endpoint.clone(), owner.clone(), repo.clone());
 
-        let mut callbacks = RemoteCallbacks::new();
-        callbacks.credentials(|_, _, _| {
-            Cred::userpass_plaintext("oauth2", conf.token.as_str())
-        });
-
         let mut fo = git2::FetchOptions::new();
-        fo.remote_callbacks(callbacks);
+        fo.remote_callbacks(GitUtils::get_credential_callbacks(conf.clone()));
 
         let mut builder = RepoBuilder::new();
         builder.fetch_options(fo);
