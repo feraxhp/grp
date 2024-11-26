@@ -36,6 +36,6 @@ jobs:
       - uses: AButler/upload-release-assets@v3.0
         name: Upload release assets
         with:
-          files: "target/debian/grp*.deb;target/generate-rpm/grp*.rpm"
+          files: "target/debian/grp*.deb;target/generate-rpm/grp*.rpm;target/release/grp"
           repo-token: ${{ github.token }}
           release-tag: "v${{ env.version }}"
