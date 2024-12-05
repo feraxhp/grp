@@ -14,6 +14,8 @@
     - `-` for removed features or code.
     - `*` for modified features or code. 
     - `>` for renames or moves. 
+    - `++` for improvement. 
+    - `!` for bug solve. 
 - if the change is too tiny to have a title you can just add de change syntax.
   - considere open an issue to discuss the change. instead of a pull-request.
 

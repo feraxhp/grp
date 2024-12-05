@@ -3,15 +3,16 @@
 ## fedora:
 - openssl-devel
 
+```bash
+sudo dnf update -y
+sudo dnf install -y @development-tools openssl-devel
+```
+
 ## ubuntu:
 - libssl-dev
 - build-essential (pack)
 
 ```bash
 sudo apt update
-sudo apt install build-essential
-sudo apt install libssl-dev 
-sudo apt install pkg-config libssl-dev
+sudo apt install -y build-essential pkg-config libssl-dev
 ```
-
-

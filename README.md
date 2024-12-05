@@ -4,27 +4,31 @@ girep is a command line tool that helps you manage your git repositories in the 
 It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotzenplotz/gcli).
 
 ## Features
+- New: 🎉
+- Supported: ✅
+- Planed support: 🟥
+- On development: 🔶
 
 ### Repositories
-- [x] List   
-- [x] Create
-  - [x] Add remote to .. 
-- [x] Delete
-- [x] Clone
+
+| Feature | GitHub | Gitea | GitLab | Jetbrains Space |
+|:-------:|:------:|:-----:|:------:|:---------------:|
+| List    |   ✅   |   ✅  |   🟥   |       🟥        |
+| Create  |   ✅   |   ✅  |   🟥   |       🟥        |
+| Delete  |   ✅   |   ✅  |   🟥   |       🟥        |
+|  Clone  |   ✅   |   ✅  |   🟥   |       🟥        |
+|  Push   |   🎉   |  🎉   |   🟥   |       🟥        |
+|  Pull   |   🔶   |  🔶   |   🟥   |       🟥        |
 
 ### Organizations
-- [x] List
-- [x] Create (GitHub Api limitations)
-- [x] Delete
+| Feature | GitHub | Gitea | GitLab | Jetbrains Space |
+|:-------:|:------:|:-----:|:------:|:---------------:|
+| List    |   ✅   |   ✅  |   🟥   |       🟥        |
+| Create  |   ✅   |   ✅  |   🟥   |       🟥        |
+| Delete  |   ✅   |   ✅  |   🟥   |       🟥        |
 
-## Supported Platforms
 
-- [x] Github
-- [x] Gitea
-- [ ] Gitlab
-- [ ] Jetbrains Space
-- 
-
+---
 ## Configuration
 
 The grp configurations are store in json. the first time you run
@@ -82,15 +86,25 @@ here is an example for a complete config file:
 }
 ```
 
+---
 ## Installation
 
 - Windows: Download the latest .exe from the releases page. and add it to your PATH.
-- Ubuntu and fedora: See releases page for the latest deb and rpm packages.
+- Ubuntu: See releases page for the latest deb package.
+```bash
+wget -O paquete.deb <URL_DEL_PAQUETE> 
+dpkg sudo dpkg -i paquete.deb 
+sudo apt-get install -f
+```
+- fedora: See releases page for the latest rpm package.
+```bash
+sudo dnf install <URL_DEL_PAQUETE>
+```
 - Arch Linux: See build instructions below.
 - Other Linux distributions: See build instructions below.
 - MacOS: See build instructions below.
 
-
+---
 ## Build and Run
 
 ### Dependencies
@@ -111,6 +125,7 @@ cd grp
 cargo install --path .
 ```
 
+---
 ## Need more Functionality?
 
 If you need more functionality, feel free to open an issue or a pull request.
