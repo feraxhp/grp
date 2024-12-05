@@ -49,9 +49,10 @@ impl Platform {
                 )
             },
             Err(e) => {
-                let e = Error::git_to_local(e,
-                    format!("{}/{}", owner, repo),
-                    conf.pconf.clone()
+                let e = Error::git_to_local(
+                    e,
+                    path.clone(),
+                    conf.clone()
                 );
 
                 animation.finish_with_error(e.message.as_str());

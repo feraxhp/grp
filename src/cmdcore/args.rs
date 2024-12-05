@@ -38,4 +38,14 @@ impl Arguments {
             .value_hint(clap::ValueHint::DirPath)
             .value_parser(ValueParser::path_buf())
     }
+
+    pub(crate) fn path_flag(required: bool, about: &str) -> Arg {
+        Arg::new("path")
+            .short('p')
+            .long("path")
+            .help(about.to_owned())
+            .required(required)
+            .value_hint(clap::ValueHint::DirPath)
+            .value_parser(ValueParser::path_buf())
+    }
 }

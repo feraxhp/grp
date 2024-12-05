@@ -19,6 +19,8 @@ use clap::{arg, command, crate_version};
 use color_print::cprintln;
 use girep::local::commands::clone::manager::clone_manager;
 use girep::local::commands::clone::subcommand::clone_subcommand;
+use girep::local::commands::push::subcommand::push_subcommand;
+use girep::local::commands::push::manager::push_manager;
 use girep::common::repos::commands::create::manager::create_manager;
 use girep::common::repos::commands::create::subcommand::create_subcommand;
 use girep::common::repos::commands::delete::manager::delete_manager;
@@ -40,6 +42,7 @@ async fn main() {
         .subcommand(create_subcommand())
         .subcommand(delete_subcommand())
         .subcommand(clone_subcommand())
+        .subcommand(push_subcommand())
         .subcommand(orgs_command())
         .get_matches();
 
@@ -81,6 +84,7 @@ async fn main() {
             ("create", create) => create_manager(create, user_settings).await,
             ("delete", delete) => delete_manager(delete, user_settings).await,
             ("clone", clone) => clone_manager(clone, user_settings).await,
+            ("push", push) => push_manager(push, user_settings).await,
             ("orgs", orgs) => orgs_manager(orgs, user_settings).await,
             _ => invalid()
         },
