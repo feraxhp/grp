@@ -91,7 +91,7 @@ impl ErrorType {
             },
             ErrorType::NotFoundRepo => {
                 let mut local_vec = vec![
-                    cformat!("<y>» Repo: <m>({}/{})</>", vec[0]),
+                    cformat!("<y>» Repo: <m>({})</>", vec[0]),
                 ];
                 if vec.len() > 1 {
                     local_vec.append(&mut vec[1..].iter().map(|s| s.to_string()).collect());
