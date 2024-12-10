@@ -57,31 +57,31 @@ impl ErrorType {
             ErrorType::Unauthorized => {
                 assert_eq!(vec.len(), 2);
                 vec![
-                    "* Please check your token.".to_string(),
-                    format!("  Pconf name: {}", vec[0]),
-                    format!("  User: {}", vec[1]),
+                    cformat!("<y>* Please check your token.</>"),
+                    cformat!("  <g>» Pconf : <m>{}</>", vec[0]),
+                    cformat!("  <g>» User  : <m>{}</>", vec[1]),
                 ]
             },
             ErrorType::AlreadyExists => {
                 assert_eq!(vec.len(), 2);
                 vec![
-                    "* Repository already exists".to_string(),
-                    cformat!("* Repository: <m>({}/{})</>", vec[0], vec[1]),
+                    cformat!("<y>* Repository already exists!</>"),
+                    cformat!("  <g>» Repo: <m>({}/{})</>", vec[0], vec[1]),
                 ]
             },
             ErrorType::BadTokenScope => {
                 let mut local_vec: Vec<String> = Vec::new();
-                local_vec.push("* Please check your token.".to_string());
-                local_vec.push("  You must add the following scopes: ".to_string());
+                local_vec.push(cformat!("<y>* Please check your token.</>"));
+                local_vec.push(cformat!("  <g>» You must add the following scopes: </>"));
                 vec[1..].iter().enumerate().for_each(|(i, s)| {
                     local_vec.push(cformat!("    <#e3750e>{}. <m>{}</>", i + 1, s));
                 });
-                local_vec.push(cformat!("* Pconf name: {}", vec[0]));
+                local_vec.push(cformat!("  <g>» Pconf : <m>{}</>", vec[0]));
                 local_vec
             },
             ErrorType::NotFound => {
                 let mut local_vec = vec![
-                    cformat!("* User|org: <m>({})</>", vec[0]),
+                    cformat!("<y>* User|org: <m>({})</>", vec[0]),
                 ];
                 if vec.len() > 1 {
                     local_vec.append(&mut vec[1..].iter().map(|s| s.to_string()).collect());
@@ -91,7 +91,7 @@ impl ErrorType {
             },
             ErrorType::NotFoundRepo => {
                 let mut local_vec = vec![
-                    cformat!("* Repository: <m,i>{}</>", vec[0]),
+                    cformat!("<y>» Repo: <m>({}/{})</>", vec[0]),
                 ];
                 if vec.len() > 1 {
                     local_vec.append(&mut vec[1..].iter().map(|s| s.to_string()).collect());
@@ -102,10 +102,10 @@ impl ErrorType {
             ErrorType::Dezerialized => {
                 assert_eq!(vec.len(), 2);
                 vec![
-                    "* Error deserializing".to_string(),
-                    "  You must not see this!".to_string(),
-                    "  Please report this issue".to_string(),
-                    "  Thank you!".to_string(),
+                    cformat!("<y>* Error deserializing</>"),
+                    cformat!("  You must not see this!"),
+                    cformat!("  Please report this issue"),
+                    cformat!("  Thank you!"),
                     cformat!("* Error message: <#e3750e>{}</>", vec[0]),
                     cformat!("* Object: <#e3750e>{}</>", vec[1])
                 ]

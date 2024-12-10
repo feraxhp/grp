@@ -25,7 +25,7 @@ impl Error {
                     ErrorType::NotFoundRepo,
                     vec![
                         path_str,
-                        cformat!("* Repository at: <m,i>{}</>", path_str).as_str(),
+                        cformat!("<y>* Repository at: <m,i>{}</>", path_str).as_str(),
                         cformat!("  You may need to start a new repo: ").as_str(),
                         cformat!("  •<g> git init </>").as_str(),
                     ]
@@ -35,7 +35,7 @@ impl Error {
                 Error::new_custom(
                     "No remote found".to_string(),
                     vec![
-                        cformat!("* Repository at: <m,i>{}</>", path_str),
+                        cformat!("<y>* Repository at: <m,i>{}</>", path_str),
                         cformat!("  You can add a remote by running the command: "),
                         cformat!("  •<g> git remote add origin <<url> </>"),
                         cformat!("  Or you can create a new remote with: "),
@@ -59,7 +59,7 @@ impl Error {
                     let path = path.replace(" exists and is not an empty directory", "");
                     content.append(
                         &mut vec![
-                            cformat!("* The given directory is not <i>empty</>"),
+                            cformat!("<y>* The given directory is not <m,i>empty</>"),
                             "  Given path:".to_string(),
                             cformat!("    - <b,i,u>{}</>", path)
                         ]
@@ -96,12 +96,12 @@ impl Error {
                         Error::new_custom(
                             "Remote not found!".to_string(),
                             vec![
-                                cformat!("* <y>The remote provided exist?</>"),
+                                cformat!("<y>* The remote provided exist?</>"),
                                 cformat!("  Verify the url of the remote you provide"),
                                 cformat!("  You can do so by running the command: "),
                                 cformat!("  •<g> git remote -v</>"),
                                 cformat!("  And visiting the web page"),
-                                cformat!("* <y>Push error response</>"),
+                                cformat!("<y>* Push error response</>"),
                                 cformat!("  - <m>{}</>", message),
                             ]
                         )
@@ -112,7 +112,7 @@ impl Error {
                 Error::new_custom(
                     "Empty branch!".to_string(),
                     vec![
-                        cformat!("* Repository at: <m,i>({})</>", path_str),
+                        cformat!("<y>* Repository at: <m,i>({})</>", path_str),
                         cformat!("  <r>The current branch has no commits</>")
                     ]
                 )
@@ -121,7 +121,7 @@ impl Error {
                 Error::new_custom(
                     "The branch conflicts with the remote!".to_string(),
                     vec![
-                        cformat!("* Repository at: <m,i>({})</>", path_str),
+                        cformat!("<y>* Repository at: <m,i>({})</>", path_str),
                         cformat!("  <r>{}</>", error.message())
                     ]
                 )
@@ -130,9 +130,9 @@ impl Error {
                 Error::new(
                     ErrorType::Unknown,
                     vec![
-                        cformat!("Repository: <m,i>({})</>", path_str).as_str(),
-                        cformat!("  * Class: <m,i>({:?})</>", class_).as_str(),
-                        cformat!("  * Code: <m,i>({:?})</>", code).as_str(),
+                        cformat!("<y>* Repository: <m,i>({})</>", path_str).as_str(),
+                        cformat!("  <g>» Class: <m,i>({:?})</>", class_).as_str(),
+                        cformat!("  <g>» Code : <m,i>({:?})</>", code).as_str(),
                         error.message(),
                     ]
                 )
