@@ -1,6 +1,6 @@
 [package]
 name = "grp"
-version = "0.5.0-alpha"
+version = "0.5.1-alpha"
 edition = "2021"
 license = "MIT"
 authors = ["feraxhp"]
@@ -15,11 +15,9 @@ serde_json = "1.0.127"
 clap = { version = "4.5.17" , features = ["cargo"]}
 dirs = "5.0.1"
 color-print = "0.3.6"
-async-trait = "0.1.82"
 indicatif = "0.17.8"
 futures = "0.3.30"
 git2 = "0.19.0"
-log = "0.4.22"
 
 [package.metadata.generate-rpm]
 url="https://github.com/feraxhp/grp"

@@ -81,16 +81,32 @@ impl Error {
                 )
             }
             (ErrorCode::GenericError, ErrorClass::Http) => {
-                Error::new_custom(
-                    "Remote not found!".to_string(),
-                    vec![
-                        cformat!("* <m>The remote provided exist?</>"),
-                        cformat!("  Verify the url of the remote you provide"),
-                        cformat!("  You can do so by running the command: "),
-                        cformat!("  •<g> git remote -v</>"),
-                        cformat!("  And visiting the web page"),
-                    ]
-                )
+                match error.message() {
+                    "too many redirects or authentication replays" => {
+                        Error::new_custom(
+                            ErrorType::Unauthorized.get_message(),
+                            vec![
+                                cformat!("<y>* The pconf may not be correct for the remote</>"),
+                                cformat!("  <g>» Pconf : <m>{}</>", pconf.pconf),
+                                cformat!("  <g>» Target: <m>{}</>", pconf.endpoint)
+                            ]
+                        )
+                    }
+                    message => {
+                        Error::new_custom(
+                            "Remote not found!".to_string(),
+                            vec![
+                                cformat!("* <y>The remote provided exist?</>"),
+                                cformat!("  Verify the url of the remote you provide"),
+                                cformat!("  You can do so by running the command: "),
+                                cformat!("  •<g> git remote -v</>"),
+                                cformat!("  And visiting the web page"),
+                                cformat!("* <y>Push error response</>"),
+                                cformat!("  - <m>{}</>", message),
+                            ]
+                        )
+                    }
+                }
             }
             (ErrorCode::UnbornBranch, _) => {
                 Error::new_custom(

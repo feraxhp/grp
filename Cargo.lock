@@ -67,17 +67,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-trait"
-version = "0.1.82"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a27b8a3a6e1a44fa4c8baf1f653e4172e81486d4941f2237e20dc2d0cf4ddff1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "atomic-waker"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -439,9 +428,8 @@ dependencies = [
 
 [[package]]
 name = "grp"
-version = "0.5.0-alpha"
+version = "0.5.1-alpha"
 dependencies = [
- "async-trait",
  "clap",
  "color-print",
  "dirs",
@@ -449,7 +437,6 @@ dependencies = [
  "git2",
  "hyper",
  "indicatif",
- "log",
  "reqwest",
  "serde",
  "serde_json",
