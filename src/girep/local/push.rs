@@ -3,11 +3,11 @@ use crate::girep::config::Config;
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::platform::Platform;
 use color_print::cformat;
-use git2::{BranchType, ErrorClass, ErrorCode, PushOptions, Repository};
+use git2::{BranchType, PushOptions, Repository};
 use std::cmp::PartialEq;
-use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+
 #[derive(PartialEq, Clone)]
 pub(crate) enum Methods {
     DEFAULT,
@@ -52,7 +52,7 @@ impl Platform {
             )
         )};
 
-        let mut branch = repo
+        let branch = repo
             .find_branch(branch_name.as_str(), BranchType::Local)
             .map_err(error_mapper)?;
 
@@ -178,7 +178,7 @@ impl Platform {
             });
 
             let transfer2progress = Arc::clone(&transfer);
-            callbacks.push_transfer_progress(move |current, total, bytes| {
+            callbacks.push_transfer_progress(move |_current, total, _bytes| {
                 let mut transfer_value = transfer2progress.lock().unwrap();
                 *transfer_value = total;
             });

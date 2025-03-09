@@ -7,17 +7,17 @@ authors = ["feraxhp"]
 description = "A simple CLI tool to mannage platforms for git repositories"
 
 [dependencies]
-hyper = "1.4.1"
-tokio = { version = "1.40.0", features = ["rt", "rt-multi-thread", "macros"] }
-reqwest = { version = "0.12.7", features = ["json"] }
-serde = { version = "1.0.209", features = ["derive"] }
-serde_json = "1.0.127"
+hyper = "1.6.0"
+tokio = { version = "1.44.0", features = ["rt", "rt-multi-thread", "macros"] }
+reqwest = { version = "0.12.12", features = ["json"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
 clap = { version = "4.5.17" , features = ["cargo"]}
-dirs = "5.0.1"
-color-print = "0.3.6"
-indicatif = "0.17.8"
-futures = "0.3.30"
-git2 = "0.19.0"
+dirs = "6.0.0"
+color-print = "0.3.7"
+indicatif = "0.17.11"
+futures = "0.3.31"
+git2 = "0.20.0"
 
 [package.metadata.generate-rpm]
 url="https://github.com/feraxhp/grp"
