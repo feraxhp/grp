@@ -7,6 +7,8 @@ use git2::{BranchType, PushOptions, Repository};
 use std::cmp::PartialEq;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use crate::girep::local::git_utils::branch::get_branch_name;
+use crate::girep::local::git_utils::remote::get_remote_from_branch;
 
 #[derive(PartialEq, Clone)]
 pub(crate) enum Methods {
@@ -36,11 +38,9 @@ impl Platform {
 
         let repo = Repository::open(path.clone()).map_err(error_mapper)?;
 
-        let head = repo.head().map_err(error_mapper)?;
-
         let branch_name = match options.branch {
             Some(name) => name,
-            None => head.shorthand().unwrap_or("").to_string()
+            None => get_branch_name(&repo).map_err(error_mapper)?
         };
 
         if branch_name.clone() == "" { return Err(
@@ -73,67 +73,9 @@ impl Platform {
         };
 
         let remote_name: String = match options.remote.clone() {
-            None => {
-                let upstream = match branch.upstream(){
-                    Ok(s) => s,
-                    Err(e) => {
-                        println!("{}", e.message());
-                        let remotes = repo.remotes().map_err(error_mapper)?;
-                        return if remotes.len() == 0 {
-                            Err(
-                                error_mapper(
-                                    git2::Error::new(
-                                        git2::ErrorCode::NotFound,
-                                        git2::ErrorClass::Config,
-                                        ""
-                                    )
-                                )
-                            )
-                        } else {
-                            let remote = remotes.get(0).unwrap_or("[remote]");
-                            Err(
-                                Error::new_custom(
-                                    "No upstream set".to_string(),
-                                    vec![
-                                        cformat!("* The current branch has no Upstream set"),
-                                        cformat!("  You can do it by running the command:"),
-                                        cformat!("  •<g> grp push -u {} {}</>", remote, branch_name),
-                                    ]
-                                )
-                            )
-                        }
-                    }
-                };
-
-                let remote = upstream.get()
-                    .name()
-                    .ok_or_else(
-                        || Error::new_custom(
-                        "Invalid upstream reference".to_string(),
-                        vec![
-                            cformat!("<r>* Something went wrong while getting the remote</>"),
-                            cformat!("  Try by adding the remote by hand!"),
-                        ]
-                    )
-                )?;
-
-                let remote_name = repo.branch_remote_name(remote).map_err(error_mapper)?;
-                let remote_name = remote_name
-                    .as_str()
-                    .map(|s| s.to_string())
-                    .ok_or_else(|| Error::new_custom(
-                        "Invalid upstream reference".to_string(),
-                        vec![
-                            cformat!("<r>* Something went wrong while getting the remote</>"),
-                            cformat!("  Try by adding the remote by hand!"),
-                        ]
-                    )
-                )?;
-
-                Ok(remote_name.to_string())
-            }
+            None => { get_remote_from_branch(&repo, &branch) }
             Some(name) => { Ok(name) }
-        }?;
+        }.map_err(error_mapper)?;
 
         let force = if options.force.clone() { "+" } else { "" };
         let mut ref_specs2push: Vec<&str> = vec![];
@@ -178,7 +120,7 @@ impl Platform {
             });
 
             let transfer2progress = Arc::clone(&transfer);
-            callbacks.push_transfer_progress(move |_current, total, _bytes| {
+            callbacks.push_transfer_progress(move |_, total, _| {
                 let mut transfer_value = transfer2progress.lock().unwrap();
                 *transfer_value = total;
             });

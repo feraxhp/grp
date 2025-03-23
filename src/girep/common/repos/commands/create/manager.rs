@@ -57,10 +57,10 @@ pub(crate) async fn create_manager(ccreate: &ArgMatches, usettings: Usettings) {
     let _ = match remote {
         Some(value) => {
             let process_animation = Process::new("Adding remote to local repository");
-            match add_remote(repo.clone_url.as_str(), pconf.r#type.as_str(),value.clone()) {
+            match add_remote(repo.clone_url.as_str(), pconf.name.as_str(), value.clone()) {
                 Ok(_) => {
                     process_animation.finish_with_success("Remote added successfully");
-                    cprintln!("  <m>* {}</>", pconf.r#type.clone());
+                    cprintln!("  <m>* {}</>", pconf.name.clone());
                 },
                 Err(error) => {
                     process_animation.finish_with_error("Error adding remote");
