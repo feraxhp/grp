@@ -36,7 +36,7 @@ async fn main() {
     let commands = command!()
         .name("grp")
         .about("A simple CLI to manage platforms for git repositories")
-        .arg(arg!(-v --vnumber "Prints the version number to the standard output").exclusive(true))
+        .arg(arg!( -v --"number" "Prints the version number to the standard output").exclusive(true))
         .subcommand(config_command())
         .subcommand(list_subcommand())
         .subcommand(create_subcommand())
@@ -49,7 +49,7 @@ async fn main() {
 
     match commands.clone().args_present() {
         true => {
-            if *commands.get_one::<bool>("vnumber").unwrap_or(&false) {
+            if *commands.get_one::<bool>("number").unwrap_or(&false) {
                 let version = crate_version!();
                 let _ = io::stdout().write(version.as_bytes());
                 println!();

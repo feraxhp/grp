@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use color_print::{cformat, cprintln};
+use color_print::cformat;
 use git2::{ErrorClass, ErrorCode};
 use crate::errors::error::Error;
 use crate::errors::types::ErrorType;
