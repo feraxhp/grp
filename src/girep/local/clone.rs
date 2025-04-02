@@ -7,6 +7,7 @@ use crate::animations::animation::Animation;
 use crate::animations::process::Process;
 use crate::girep::config::Config;
 use crate::errors::error::Error;
+use crate::girep::local::errors::Action;
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::repo::Repo;
 use crate::girep::platform::Platform;
@@ -51,7 +52,8 @@ impl Platform {
                 let e = Error::git_to_local(
                     e,
                     path.clone(),
-                    conf.clone()
+                    conf.clone(),
+                    Action::CLONE
                 );
 
                 animation.finish_with_error(e.message.as_str());

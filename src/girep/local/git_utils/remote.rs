@@ -1,4 +1,3 @@
-use color_print::cformat;
 use git2::{Branch, BranchType, Error, Repository};
 
 pub(crate) fn get_remote(repo: &Repository, branch_name: &str) -> Result<String, Error> {
@@ -11,7 +10,6 @@ pub(crate) fn get_remote_from_branch(repo: &Repository, branch: &Branch) -> Resu
     let upstream = match branch.upstream(){
         Ok(s) => s,
         Err(e) => {
-            println!("{}", e.message());
             let remotes = repo.remotes()?;
             return if remotes.len() == 0 {
                 Err(
@@ -28,30 +26,29 @@ pub(crate) fn get_remote_from_branch(repo: &Repository, branch: &Branch) -> Resu
                     Error::new(
                         git2::ErrorCode::NotFound,
                         git2::ErrorClass::Config,
-                        cformat!("  •<g> grp push -u {} {}</>", remote, branch_),
+                        format!("-u {} {}", remote, branch_),
                     )
                 )
             }
         }
     };
 
-    let remote = upstream.get().name()
-        .ok_or_else(
-            || Error::new(
-                git2::ErrorCode::NotFound,
-                git2::ErrorClass::Config,
-                "Error getting remote name"
-            )
-        )?;
-
-    let remote_name = repo.branch_remote_name(remote)?;
-    let remote_name = remote_name.as_str()
-        .map(|s| s.to_string())
-        .ok_or_else(|| Error::new(
+    let remote = upstream.get().name().ok_or_else(
+        || Error::new(
             git2::ErrorCode::NotFound,
             git2::ErrorClass::Config,
-            "Invalid upstream reference"
-        ))?;
+            "The repository has a remote configured\nwith a inaccesible name.",
+        )
+    )?;
+
+    let remote_name = repo.branch_remote_name(remote)?;
+    let remote_name = remote_name.as_str().map(|s| s.to_owned()).ok_or_else(
+        || Error::new(
+            git2::ErrorCode::NotFound,
+            git2::ErrorClass::Config,
+            "The repository has a remote configured\nwith an inaccesible name.",
+        )
+    )?;
 
     Ok(remote_name.to_string())
 }

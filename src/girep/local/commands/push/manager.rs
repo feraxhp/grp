@@ -4,6 +4,8 @@ use crate::animations;
 use clap::ArgMatches;
 use std::path::PathBuf;
 use crate::animations::animation::Animation;
+use crate::errors::error::Error;
+use crate::girep::local::errors::Action;
 use crate::girep::local::push::{Methods, Options};
 
 pub(crate) async fn push_manager(cpush: &ArgMatches, usettings: Usettings) {
@@ -27,49 +29,50 @@ pub(crate) async fn push_manager(cpush: &ArgMatches, usettings: Usettings) {
         Some(e) => Some(e.to_owned())
     };
 
-    // let mut branch = match cpush.get_one::<String>("branch") {
-    //     None => None,
-    //     Some(e) => Some(e.to_owned())
-    // };
-    //
-    // let up_stream = if let Some(values) = cpush.get_many::<String>("set-upstream") {
-    //     let mut values_iter = values.clone();
-    //     remote = Some(values_iter.next().unwrap().to_owned());
-    //     branch = Some(values_iter.next().unwrap().to_owned());
-    //     true
-    // } else { false };
-    //
-    // let platform = Platform::matches(pconf.r#type.as_str());
-    //
-    // let method = match "" {
-    //     _ if *all => Methods::ALL,
-    //     _ if *branches => Methods::BRANCHES,
-    //     _ if *tags => Methods::TAGS,
-    //     _ if up_stream => Methods::UPSTREAM,
-    //     _ => Methods::DEFAULT
-    // };
-    //
-    // let options = Options{
-    //     method,
-    //     remote,
-    //     branch,
-    //     force: *force,
-    //     dry_run: *dry_run
-    // };
-    //
-    // let result = platform.push_repo(path, options, pconf.to_conf());
-    //
-    // match result {
-    //     Ok(messages) => {
-    //         load_animation.finish_with_success(messages.last().unwrap().as_str());
-    //         for (i, e) in messages.iter().enumerate() {
-    //             if i == messages.len() - 1 { break; }
-    //             eprintln!("{}", e);
-    //         }
-    //     }
-    //     Err(e) => {
-    //         load_animation.finish_with_error(e.message.as_str());
-    //         e.show();
-    //     }
-    // }
+    let mut branch = match cpush.get_one::<String>("branch") {
+        None => None,
+        Some(e) => Some(e.to_owned())
+    };
+
+    let up_stream = if let Some(values) = cpush.get_many::<String>("set-upstream") {
+        let mut values_iter = values.clone();
+        remote = Some(values_iter.next().unwrap().to_owned());
+        branch = Some(values_iter.next().unwrap().to_owned());
+        true
+    } else { false };
+
+    let platform = Platform::matches(pconf.r#type.as_str());
+
+    let method = match "" {
+        _ if *all => Methods::ALL,
+        _ if *branches => Methods::BRANCHES,
+        _ if *tags => Methods::TAGS,
+        _ if up_stream => Methods::UPSTREAM,
+        _ => Methods::DEFAULT
+    };
+
+    let options = Options{
+        method,
+        remote,
+        branch,
+        force: *force,
+        dry_run: *dry_run
+    };
+
+    let result = platform.push_repo(&path, options, &usettings);
+
+    match result {
+        Ok(messages) => {
+            load_animation.finish_with_success(messages.last().unwrap().as_str());
+            for (i, e) in messages.iter().enumerate() {
+                if i == messages.len() - 1 { break; }
+                eprintln!("{}", e);
+            }
+        }
+        Err(e) => {
+            let error = Error::git_to_local(e, path, usettings.get_default().to_conf(), Action::PUSH);
+            load_animation.finish_with_error(error.message.as_str());
+            error.show();
+        }
+    }
 }

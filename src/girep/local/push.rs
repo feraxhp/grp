@@ -1,12 +1,11 @@
-use crate::errors::error::Error;
-use crate::girep::config::Config;
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::platform::Platform;
 use color_print::cformat;
-use git2::{BranchType, PushOptions, Repository};
+use git2::{BranchType, Error, ErrorClass, ErrorCode, PushOptions, Repository};
 use std::cmp::PartialEq;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use crate::config::structure::{Pconf, Usettings};
 use crate::girep::local::git_utils::branch::get_branch_name;
 use crate::girep::local::git_utils::remote::get_remote_from_branch;
 
@@ -29,67 +28,59 @@ pub(crate) struct Options {
 
 impl Platform {
     pub(crate) fn push_repo(&self,
-        path: PathBuf,
+        path: &PathBuf,
         options: Options,
-        conf: Config
+        usettings: &Usettings
     ) -> Result<Vec<String>, Error> {
-        let error_mapper = Error::git_to_local_mapper(path.clone(), conf.clone());
-        let error_mapper = error_mapper.as_ref();
-
-        let repo = Repository::open(path.clone()).map_err(error_mapper)?;
+        let repo = Repository::open(path.clone())?;
 
         let branch_name = match options.branch {
             Some(name) => name,
-            None => get_branch_name(&repo).map_err(error_mapper)?
+            None => get_branch_name(&repo)?
         };
 
-        if branch_name.clone() == "" { return Err(
-            Error::new_custom(
-                "No branch found".to_string(),
-                vec![
-                    cformat!("* <m>Is this a git repository?</>"),
-                ]
+        if branch_name == "" { return Err(
+            Error::new(
+                ErrorCode::UnbornBranch,
+                ErrorClass::Callback,
+                "Imposible to auto-detect branch"
             )
         )};
 
-        let branch = repo
-            .find_branch(branch_name.as_str(), BranchType::Local)
-            .map_err(error_mapper)?;
+        let branch = repo.find_branch(branch_name.as_str(), BranchType::Local)?;
 
-        if options.method.clone() == Methods::UPSTREAM && !options.dry_run.clone() {
-            let mut conf = repo.config().map_err(error_mapper)?;
-
-            let merge_ref = format!("refs/heads/{}", branch_name.clone());
-
-            conf.set_str(
-                &format!("branch.{}.remote", branch_name.clone()),
-                options.remote.clone().unwrap().as_str()
-            ).map_err(error_mapper)?;
-
-            conf.set_str(
-                &format!("branch.{}.merge",branch_name.clone()),
-                &merge_ref
-            ).map_err(error_mapper)?;
+        let remote_name = match options.remote {
+            None => { get_remote_from_branch(&repo, &branch)? }
+            Some(name) => { name }
         };
 
-        let remote_name: String = match options.remote.clone() {
-            None => { get_remote_from_branch(&repo, &branch) }
-            Some(name) => { Ok(name) }
-        }.map_err(error_mapper)?;
+        if options.method == Methods::UPSTREAM && !options.dry_run.clone() {
+            let mut conf = repo.config()?;
 
-        let force = if options.force.clone() { "+" } else { "" };
+            let merge_ref = format!("refs/heads/{}", &branch_name);
+
+            conf.set_str(&format!("branch.{}.remote", &branch_name), &remote_name)?;
+            conf.set_str(&format!("branch.{}.merge", &branch_name), &merge_ref)?;
+        };
+
+        let force = if options.force { "+" } else { "" };
         let mut ref_specs2push: Vec<&str> = vec![];
 
         let refs = options.method.get_refs(branch_name.as_str(), force);
         let refs = refs.as_str();
-
         ref_specs2push.push(refs);
 
-        let mut remote = repo.find_remote(remote_name.as_str()).map_err(error_mapper)?;
+        let mut remote = repo.find_remote(remote_name.as_str())?;
 
         let messages = Arc::new(Mutex::new(Vec::<String>::new()));
+
+        let conf = match usettings.get_pconf(remote_name.clone()) {
+            None => { usettings.get_default().to_conf() },
+            Some(pconf) => { pconf.to_conf() }
+        };
+
         if !options.dry_run {
-            let mut callbacks = GitUtils::get_credential_callbacks(conf.clone());
+            let mut callbacks = GitUtils::get_credential_callbacks(conf);
 
             let mut push_options = PushOptions::new();
             let transfer = Arc::new(Mutex::new(0));
@@ -101,7 +92,7 @@ impl Platform {
                 let mut messages = messages2update.lock().unwrap();
                 if let Some(error) = status {
                     return Err(
-                        git2::Error::from_str(
+                        Error::from_str(
                             format!("Error pushing reference {}: {}", refs, error)
                                 .as_str()
                         )
@@ -127,7 +118,7 @@ impl Platform {
 
             push_options.remote_callbacks(callbacks);
 
-            remote.push(&ref_specs2push, Some(&mut push_options)).map_err(error_mapper)?;
+            remote.push(&ref_specs2push, Some(&mut push_options))?;
             let mut finish = messages.lock().unwrap().clone();
             finish.push(cformat!("Successfully Pushed!"));
             Ok(finish)
