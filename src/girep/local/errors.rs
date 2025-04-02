@@ -144,6 +144,16 @@ impl Error {
                     ]
                 )
             }
+            (ErrorCode::NotFastForward, ErrorClass::Reference, _, Action::PUSH) => {
+                Error::new_custom(
+                    "No fast-forward push".to_string(),
+                    vec![
+                        cformat!("<y>* The branch conflicts with the remote"),
+                        cformat!("  you have to solved it fist"),
+                        cformat!("  or <i,m>add the <r>--force</r> tag</>"),
+                    ]
+                )
+            }
             (ErrorCode::NotFastForward, ErrorClass::Reference, _, _) => {
                 Error::new_custom(
                     "The branch conflicts with the remote!".to_string(),

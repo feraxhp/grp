@@ -102,9 +102,12 @@ impl Platform {
                 if *transfer2update.lock().unwrap() == 0 && !*forced.lock().unwrap() {
                     messages.push(cformat!("<g>Up-to-date! <y>» {}</>", refs));
                 } else {
-                    messages.push(
-                        cformat!("<g>Pushed: <r>{}<y>{}</>", if *forced.lock().unwrap() { "+"} else {""}, refs)
-                    )
+                    let forced = *forced.lock().unwrap();
+                    if forced {
+                        messages.push(cformat!("<g>→ <r>Force</r> pushed: <r>+<y>{}</>", refs))
+                    } else {
+                        messages.push(cformat!("<g>→ Pushed: <y>{}</>", refs))
+                    }
                 };
 
                 Ok(())
