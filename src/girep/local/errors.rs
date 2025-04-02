@@ -5,22 +5,39 @@ use crate::errors::error::Error;
 use crate::errors::types::ErrorType;
 use crate::girep::config::Config;
 
-impl Error {
-    pub(crate) fn git_to_local_mapper(
-        repo: PathBuf,
-        pconf: Config,
-    ) -> Box<dyn Fn(git2::Error) -> Error> {
-        Box::new(move |e: git2::Error| {
-            Self::git_to_local(e, repo.clone(), pconf.clone())
-        })
-    }
+pub(crate) enum Action {
+    PUSH,
+    PULL,
+    CLONE,
+}
 
-    pub(crate) fn git_to_local(error: git2::Error, repo: PathBuf, pconf: Config) -> Error {
+impl Action {
+    pub(crate) fn to_str(&self) -> &'static str {
+        match self {
+            Action::PUSH => "push",
+            Action::PULL => "pull",
+            Action::CLONE => "clone",
+        }
+    }
+}
+
+impl Error {
+    // pub(crate) fn git_to_local_mapper(
+    //     repo: PathBuf,
+    //     pconf: Config,
+    // ) -> Box<dyn Fn(git2::Error) -> Error> {
+    //     Box::new(move |e: git2::Error| {
+    //         Self::git_to_local(e, repo.clone(), pconf.clone())
+    //     })
+    // }
+
+    pub(crate) fn git_to_local(error: git2::Error, repo: PathBuf, pconf: Config, action: Action) -> Error {
         let code = error.code();
         let class_ = error.class();
+        let message = error.message().to_string();
         let path_str = repo.as_os_str().to_str().unwrap_or("{{ Break path }}");
-        match (code, class_) {
-            (ErrorCode::NotFound, ErrorClass::Repository) => {
+        match (code, class_, message.as_str(), action) {
+            (ErrorCode::NotFound, ErrorClass::Repository, _, _) => {
                 Error::new(
                     ErrorType::NotFoundRepo,
                     vec![
@@ -31,7 +48,17 @@ impl Error {
                     ]
                 )
             }
-            (ErrorCode::NotFound, ErrorClass::Config) => {
+            (ErrorCode::NotFound, ErrorClass::Config, msg, action) if msg.starts_with("-u ") => {
+                Error::new_custom(
+                    "No upstream set".to_string(),
+                    vec![
+                        cformat!("<y>* The current branch has no <i>Upstream</> set"),
+                        cformat!("  You can set it by running the command:"),
+                        cformat!("  •<g> grp {} {}</>", action.to_str(), msg),
+                    ]
+                )
+            }
+            (ErrorCode::NotFound, ErrorClass::Config, _, _) => {
                 Error::new_custom(
                     "No remote found".to_string(),
                     vec![
@@ -43,7 +70,7 @@ impl Error {
                     ]
                 )
             }
-            (ErrorCode::Auth, _) => {
+            (ErrorCode::Auth, _, _, _) => {
                 Error::new(
                     ErrorType::BadTokenScope,
                     vec![
@@ -52,7 +79,7 @@ impl Error {
                     ]
                 )
             }
-            (ErrorCode::Exists, _) => {
+            (ErrorCode::Exists, _, _, _) => {
                 let mut content: Vec<String> = Vec::new();
                 if error.message().contains(" exists and is not an empty directory") {
                     let path = error.message().replace("'", "");
@@ -72,7 +99,7 @@ impl Error {
                     content
                 )
             }
-            (ErrorCode::GenericError, ErrorClass::Reference) => {
+            (ErrorCode::GenericError, ErrorClass::Reference, _, _) => {
                 Error::new(
                     ErrorType::NotFoundRepo,
                     vec![
@@ -80,7 +107,7 @@ impl Error {
                     ]
                 )
             }
-            (ErrorCode::GenericError, ErrorClass::Http) => {
+            (ErrorCode::GenericError, ErrorClass::Http, _, _) => {
                 match error.message() {
                     "too many redirects or authentication replays" => {
                         Error::new_custom(
@@ -108,7 +135,7 @@ impl Error {
                     }
                 }
             }
-            (ErrorCode::UnbornBranch, _) => {
+            (ErrorCode::UnbornBranch, _, _, _) => {
                 Error::new_custom(
                     "Empty branch!".to_string(),
                     vec![
@@ -117,7 +144,7 @@ impl Error {
                     ]
                 )
             }
-            (ErrorCode::NotFastForward, ErrorClass::Reference) => {
+            (ErrorCode::NotFastForward, ErrorClass::Reference, _, _) => {
                 Error::new_custom(
                     "The branch conflicts with the remote!".to_string(),
                     vec![
