@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use crate::animations::animation::Animation;
 use crate::errors::error::Error;
 use crate::girep::local::errors::Action;
-use crate::girep::local::push::{Methods, Options};
+use crate::girep::local::git_utils::options::{Methods, Options};
 
 pub(crate) async fn push_manager(cpush: &ArgMatches, usettings: Usettings) {
 
@@ -51,7 +51,7 @@ pub(crate) async fn push_manager(cpush: &ArgMatches, usettings: Usettings) {
         _ => Methods::DEFAULT
     };
 
-    let options = Options{
+    let options = Options {
         method,
         remote,
         branch,

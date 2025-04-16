@@ -1,30 +1,11 @@
+use crate::config::structure::Usettings;
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::platform::Platform;
 use color_print::cformat;
 use git2::{BranchType, Error, ErrorClass, ErrorCode, PushOptions, Repository};
-use std::cmp::PartialEq;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
-use crate::config::structure::{Pconf, Usettings};
-use crate::girep::local::git_utils::branch::get_branch_name;
-use crate::girep::local::git_utils::remote::get_remote_from_branch;
-
-#[derive(PartialEq, Clone)]
-pub(crate) enum Methods {
-    DEFAULT,
-    ALL,
-    BRANCHES,
-    TAGS,
-    UPSTREAM
-}
-
-pub(crate) struct Options {
-    pub(crate) method: Methods,
-    pub(crate) remote: Option<String>,
-    pub(crate) branch: Option<String>,
-    pub(crate) force: bool,
-    pub(crate) dry_run: bool
-}
+use crate::girep::local::git_utils::options::{Methods, Options};
 
 impl Platform {
     pub(crate) fn push_repo(&self,
@@ -32,52 +13,24 @@ impl Platform {
         options: Options,
         usettings: &Usettings
     ) -> Result<Vec<String>, Error> {
-        let repo = Repository::open(path.clone())?;
-
-        let branch_name = match options.branch {
-            Some(name) => name,
-            None => get_branch_name(&repo)?
-        };
-
-        if branch_name == "" { return Err(
-            Error::new(
-                ErrorCode::UnbornBranch,
-                ErrorClass::Callback,
-                "Imposible to auto-detect branch"
-            )
-        )};
-
-        let branch = repo.find_branch(branch_name.as_str(), BranchType::Local)?;
-
-        let remote_name = match options.remote {
-            None => { get_remote_from_branch(&repo, &branch)? }
-            Some(name) => { name }
-        };
+        let (
+            repo,
+            branch_name,
+            remote_name
+        ) = GitUtils::get_repo_branch_and_remote(path, &options)?;
+        let branch = repo.find_branch(&branch_name, BranchType::Local)?;
 
         if options.method == Methods::UPSTREAM && !options.dry_run.clone() {
-            let mut conf = repo.config()?;
-
-            let merge_ref = format!("refs/heads/{}", &branch_name);
-
-            conf.set_str(&format!("branch.{}.remote", &branch_name), &remote_name)?;
-            conf.set_str(&format!("branch.{}.merge", &branch_name), &merge_ref)?;
+            let _ = options.method.set_upstream(&repo, &branch_name, &remote_name)?;
         };
-
-        let force = if options.force { "+" } else { "" };
-        let mut ref_specs2push: Vec<&str> = vec![];
-
-        let refs = options.method.get_refs(branch_name.as_str(), force);
-        let refs = refs.as_str();
-        ref_specs2push.push(refs);
 
         let mut remote = repo.find_remote(remote_name.as_str())?;
+        let mut ref_specs2push= options.method
+            .get_ref_specs(&branch_name, options.force.clone(), None);
+
+        let conf = usettings.get_pconf_from_remote(remote_name.as_str()).to_conf();
 
         let messages = Arc::new(Mutex::new(Vec::<String>::new()));
-
-        let conf = match usettings.get_pconf(remote_name.clone()) {
-            None => { usettings.get_default().to_conf() },
-            Some(pconf) => { pconf.to_conf() }
-        };
 
         if !options.dry_run {
             let mut callbacks = GitUtils::get_credential_callbacks(conf);
@@ -129,14 +82,14 @@ impl Platform {
             let mut step_count = 1;
             let mut finish = messages.lock().unwrap().clone();
             if options.method == Methods::UPSTREAM {
-                finish.push(cformat!("{}. Add remote:", step_count));
-                finish.push(cformat!("<y>  ⁕ {}</> to branch: <y>{}</>", remote_name.clone(), branch_name));
+                finish.push(cformat!("{}. Set upstream:", step_count));
+                finish.push(cformat!("<y>  ⁕ {}</> to branch: <y>{}</>", &remote_name, branch_name));
                 step_count += 1;
             }
 
             finish.push(cformat!("{}. Push refs:", step_count));
             for reff in ref_specs2push {
-                finish.push(cformat!("<y>  » {}</> <m>→ {}</>", reff, remote_name.clone()));
+                finish.push(cformat!("<y>  » {}</> <m>→ {}</>", reff, &remote_name));
             }
             finish.push(cformat!("Process run without errors!"));
             Ok(finish)
@@ -144,15 +97,4 @@ impl Platform {
     }
 }
 
-impl Methods {
-    fn get_refs(&self, branch: &str, force: &str) -> String {
-        match self {
-            Methods::DEFAULT |
-            Methods::UPSTREAM => format!("{}refs/heads/{branch}:refs/heads/{branch}", force, branch = branch),
-            Methods::ALL => format!("{}refs/*:refs/*", force),
-            Methods::BRANCHES => format!("{}refs/heads/*:refs/heads/*", force),
-            Methods::TAGS => format!("{}refs/tags/*:refs/tags/*", force)
-        }
-    }
-}
 

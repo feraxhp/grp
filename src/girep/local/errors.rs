@@ -22,15 +22,6 @@ impl Action {
 }
 
 impl Error {
-    // pub(crate) fn git_to_local_mapper(
-    //     repo: PathBuf,
-    //     pconf: Config,
-    // ) -> Box<dyn Fn(git2::Error) -> Error> {
-    //     Box::new(move |e: git2::Error| {
-    //         Self::git_to_local(e, repo.clone(), pconf.clone())
-    //     })
-    // }
-
     pub(crate) fn git_to_local(error: git2::Error, repo: PathBuf, pconf: Config, action: Action) -> Error {
         let code = error.code();
         let class_ = error.class();
@@ -119,6 +110,19 @@ impl Error {
                             ]
                         )
                     }
+                    "request failed with status code: 404" => {
+                        Error::new_custom(
+                            "Target remote URL does not exist!".to_string(),
+                            vec![
+                                cformat!("<y>* The remote URL provided is unreachable.</>"),
+                                cformat!("  Please verify the URL of the remote by running:"),
+                                cformat!("  • <g>git remote -v</>"),
+                                cformat!("  Visit the web page of the remote repository to confirm."),
+                                cformat!("  <g>Tip</>: If the repository doesn't exist at the <m,i>remote URL</>,"),
+                                cformat!("       you may need to create it first."),
+                            ]
+                        )
+                    }
                     message => {
                         Error::new_custom(
                             "Remote not found!".to_string(),
@@ -128,7 +132,7 @@ impl Error {
                                 cformat!("  You can do so by running the command: "),
                                 cformat!("  •<g> git remote -v</>"),
                                 cformat!("  And visiting the web page"),
-                                cformat!("<y>* Push error response</>"),
+                                cformat!("<y>* Error message</>"),
                                 cformat!("  - <m>{}</>", message),
                             ]
                         )

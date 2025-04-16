@@ -30,6 +30,8 @@ use girep::common::repos::commands::list::subcommand::list_subcommand;
 use std::io;
 use std::io::Write;
 use std::process::exit;
+use crate::girep::local::commands::pull::manager::pull_manager;
+use crate::girep::local::commands::pull::subcommand::pull_subcommand;
 
 #[tokio::main]
 async fn main() {
@@ -43,6 +45,7 @@ async fn main() {
         .subcommand(delete_subcommand())
         .subcommand(clone_subcommand())
         .subcommand(push_subcommand())
+        .subcommand(pull_subcommand())
         .subcommand(orgs_command())
         .get_matches();
 
@@ -85,6 +88,7 @@ async fn main() {
             ("delete", delete) => delete_manager(delete, user_settings).await,
             ("clone", clone) => clone_manager(clone, user_settings).await,
             ("push", push) => push_manager(push, user_settings).await,
+            ("pull", pull) => pull_manager(pull, user_settings).await,
             ("orgs", orgs) => orgs_manager(orgs, user_settings).await,
             _ => invalid()
         },

@@ -44,4 +44,8 @@ impl Animation for Fetch {
         self.spinner.finish_and_clear();
         cprintln!("<g>💻--✓--🌎 {}</>", message.to_string());
     }
+
+    fn change_message(&self, message: String) {
+        self.spinner.set_message(cformat!("<y>{}</>", message));
+    }
 }
