@@ -6,7 +6,7 @@ use crate::girep::local::git_utils::structure::GitUtils;
 
 impl GitUtils {
     pub(crate) fn get_repo_branch_and_remote(path: &PathBuf, options: &Options) -> Result<(Repository, String, String), Error> {
-        let repo = Repository::open(path.clone())?;
+        let repo = Repository::discover(path.clone())?;
 
         let branch_name = match &options.branch {
             Some(name) => name.clone(),
