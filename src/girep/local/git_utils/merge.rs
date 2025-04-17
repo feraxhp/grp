@@ -23,7 +23,7 @@ impl GitUtils {
 
         let result_tree = repo.find_tree(merge_state.write_tree_to(repo)?)?;
 
-        let msg = format!("Merge: {} into {}", remote.refname(), local.refname());
+        let msg = format!("Merge: {} into {}", remote.refname().unwrap_or("remote"), local.refname().unwrap_or("local"));
 
         let sig = repo.signature()?;
         let local_commit = repo.find_commit(local.id())?;
@@ -37,6 +37,6 @@ impl GitUtils {
 
         repo.checkout_head(None)?;
 
-        Ok(cformat!("<m, i>Merge:</> <y>{}</> <g>into</> <y>{}</>", remote.refname(), local.refname()))
+        Ok(cformat!("<m, i>Merge:</> <y>{}</> <g>into</> <y>{}</>", remote.refname().unwrap_or("remote"), local.refname().unwrap_or("local")))
     }
 }
