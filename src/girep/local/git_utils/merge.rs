@@ -5,7 +5,7 @@ use crate::girep::local::git_utils::structure::GitUtils;
 use crate::update::metadata::Version;
 
 impl GitUtils {
-    fn merge(
+    pub(crate) fn merge(
         repo: &Repository,
         local: &AnnotatedCommit,
         remote: &AnnotatedCommit,
@@ -50,7 +50,7 @@ impl GitUtils {
         Ok(cformat!("<m>Merge:</> <y>{}</> <g>into</> <y>{}</>", from, to))
     }
 
-    fn fast_forward(
+    pub(crate) fn fast_forward(
         repo: &Repository,
         reference: &mut Reference,
         remote: &AnnotatedCommit,
