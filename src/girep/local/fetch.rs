@@ -79,17 +79,20 @@ impl Platform {
 
             let fetch_head = repo.find_reference("FETCH_HEAD")?;
             let annotated_commit = repo.reference_to_annotated_commit(&fetch_head)?;
-            let commit_hash = annotated_commit.id();
-            finish.push(format!("FETCH_HEAD: {}", commit_hash));
 
-            // if do_merge {
-            //     let messages = GitUtils::do_merge(&repo, &branch_name, annotated_commit, options.force.clone())?;
-            //
-            //     Ok((finish, true))
-            // } else {
-            finish.push(cformat!("Successfully fetch!"));
-            Ok((finish, true))
-            // }
+            if do_merge {
+                let message = self.merge_fetch(
+                    &repo, &branch_name,
+                    annotated_commit, options.force.clone()
+                )?;
+                finish.push(message);
+
+                finish.push(cformat!("Successfully fetch!"));
+                Ok((finish, true))
+            } else {
+                finish.push(cformat!("Successfully fetch!"));
+                Ok((finish, true))
+            }
         } else {
             let mut step_count = 1;
             let mut finish = messages.lock().unwrap().clone();
@@ -110,7 +113,7 @@ impl Platform {
 
     }
 
-    pub(crate) fn merge_fetch<'a>(
+    fn merge_fetch<'a>(&self,
         repo: &'a Repository,
         remote_branch: &str,
         fetch_commit: git2::AnnotatedCommit<'a>,
