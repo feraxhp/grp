@@ -13,12 +13,12 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 | Feature | GitHub | Gitea | GitLab | Jetbrains Space |
 |:-------:|:------:|:-----:|:------:|:---------------:|
-| List    |   ✅   |   ✅  |   🟥   |       🟥        |
-| Create  |   ✅   |   ✅  |   🟥   |       🟥        |
-| Delete  |   ✅   |   ✅  |   🟥   |       🟥        |
-|  Clone  |   ✅   |   ✅  |   🟥   |       🟥        |
-|  Push   |   🎉   |  🎉   |   🟥   |       🟥        |
-|  Pull   |   🔶   |  🔶   |   🟥   |       🟥        |
+| List    |   ✅   |   ✅   |   🟥   |       🟥        |
+| Create  |   ✅   |   ✅   |   🟥   |       🟥        |
+| Delete  |   ✅   |   ✅   |   🟥   |       🟥        |
+|  Clone  |   ✅   |   ✅   |   🟥   |       🟥        |
+|  Push   |   ✅   |   ✅   |   🟥   |       🟥        |
+|  Pull   |   🎉   |   🎉   |   🟥   |       🟥        |
 
 ### Organizations
 | Feature | GitHub | Gitea | GitLab | Jetbrains Space |
