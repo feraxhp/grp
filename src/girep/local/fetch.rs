@@ -3,9 +3,10 @@ use crate::girep::local::git_utils::options::{Methods, Options};
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::platform::Platform;
 use color_print::cformat;
-use git2::{AutotagOption, BranchType, Error, FetchOptions, FetchPrune};
+use git2::{AutotagOption, BranchType, Error, ErrorClass, ErrorCode, FetchOptions, FetchPrune, Repository};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use git2::build::CheckoutBuilder;
 
 impl Platform {
     pub(crate) fn fetch_repo<F>(&self,
@@ -107,6 +108,81 @@ impl Platform {
             Ok((finish, true))
         }
 
+    }
+
+    pub(crate) fn merge_fetch<'a>(
+        repo: &'a Repository,
+        remote_branch: &str,
+        fetch_commit: git2::AnnotatedCommit<'a>,
+        force: bool,
+    ) -> Result<String, Error> {
+
+        let analysis = repo.merge_analysis(&[&fetch_commit])?;
+
+        match analysis.0 {
+
+            a if a.is_fast_forward() => {
+                let refname = format!("refs/heads/{}", remote_branch);
+
+
+                match repo.find_reference(&refname) {
+                    Ok(mut r) => Ok(GitUtils::fast_forward(repo, &mut r, &fetch_commit, force)?),
+
+                    Err(_) => {
+                        repo.reference(&refname, fetch_commit.id(), true, "")?;
+
+                        repo.set_head(&refname)?;
+
+                        let mut builder = CheckoutBuilder::default();
+
+                        builder.allow_conflicts(true);
+                        builder.conflict_style_merge(true);
+                        builder.force();
+
+                        repo.checkout_head(Some(&mut builder))?;
+
+                        Ok(cformat!(
+                            "<m>Setting:</> <y>{}</> to <m>{}</>",
+                            remote_branch, fetch_commit.id()
+                        ))
+                    }
+                }
+            },
+
+            a if a.is_normal() => {
+                let head_commit = repo.reference_to_annotated_commit(&repo.head()?)?;
+                Ok(GitUtils::merge(&repo, &head_commit, &fetch_commit)?)
+            },
+
+            a if a.is_unborn() => {
+                let refname = format!("refs/heads/{}", remote_branch);
+
+                repo.reference(&refname, fetch_commit.id(), true, "")?;
+                repo.set_head(&refname)?;
+
+
+                repo.checkout_head(Some(CheckoutBuilder::default().force(),))?;
+
+                Ok(cformat!(
+                    "<m>Initialized repository with:</> <y>{}</> at <m>{}</>",
+                    remote_branch, fetch_commit.id()
+                ))
+            },
+
+            a if a.is_up_to_date() => {
+                Ok(cformat!("<g>Already up-to-date: <y>{}</>", remote_branch))
+            },
+
+            a => {
+                // For debugging or logging purposes
+                let analysis_description = format!(
+                    "fast_forward: {}, normal: {}, up_to_date: {}, unborn: {}",
+                    a.is_fast_forward(), a.is_normal(), a.is_up_to_date(), a.is_unborn()
+                );
+
+                Ok(cformat!("No action taken. Merge analysis: {}", analysis_description))
+            }
+        }
     }
 }
 
