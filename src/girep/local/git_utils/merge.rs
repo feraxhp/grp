@@ -45,7 +45,10 @@ impl GitUtils {
             &[&local_commit, &remote_commit],
         )?;
 
-        repo.checkout_head(None)?;
+        let mut checkout_builder = git2::build::CheckoutBuilder::default();
+        checkout_builder.force();
+
+        repo.checkout_head(Some(&mut checkout_builder))?;
 
         Ok(cformat!("<m>Merge:</> <y>{}</> <g>into</> <y>{}</>", from, to))
     }
