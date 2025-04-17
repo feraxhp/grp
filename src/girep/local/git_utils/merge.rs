@@ -1,8 +1,7 @@
-use color_print::cformat;
-use git2::{AnnotatedCommit, Repository, Error, Reference, StatusOptions, ErrorCode, ErrorClass};
-use crate::errors::types::ErrorType;
 use crate::girep::local::git_utils::structure::GitUtils;
-use crate::update::metadata::Version;
+use color_print::cformat;
+use git2::{AnnotatedCommit, Error, ErrorClass, ErrorCode, Reference, Repository, StatusOptions};
+use std::io::Write;
 
 impl GitUtils {
     pub(crate) fn merge(
@@ -19,19 +18,26 @@ impl GitUtils {
 
         if merge_state.has_conflicts() {
             repo.checkout_index(Some(&mut merge_state), None)?;
+
+            let their_head = repo.find_reference("FETCH_HEAD")?.target().unwrap();
+            repo.reference("MERGE_HEAD", their_head, false, "merge: recording MERGE_HEAD")?;
+
+            let merge_msg = repo.path().join("MERGE_MSG");
+            let mut file = std::fs::File::create(merge_msg).unwrap();
+            let message = format!("Merge branch '{}' into {}", remote.id(), local.id());
+            file.write_all(message.as_bytes()).unwrap();
+
             return Err(Error::new(
                 ErrorCode::Conflict,
                 ErrorClass::Merge,
-                "Merge conflict detected",
+                cformat!("Merge conflict detected:{},{}", remote.id(), local.id()),
             ))
         }
 
         let result_tree = repo.find_tree(merge_state.write_tree_to(repo)?)?;
 
-        let binding = remote.id().to_string();
-        let from = remote.refname().unwrap_or(&binding);
-        let binding = local.id().to_string();
-        let to = local.refname().unwrap_or(&binding);
+        let from = remote.id();
+        let to = local.id();
 
         let msg = format!("Merge: {} into {}", &from, &to);
 
@@ -101,8 +107,7 @@ impl GitUtils {
         checkout_builder.force();
 
         repo.checkout_head(Some(&mut checkout_builder))?;
-        let binding = remote.id().to_string();
-        let to = remote.refname().unwrap_or(&binding);
+        let to = remote.id();
 
         Ok(cformat!("<m>Fast-Forward:</> <y>{}</> to id: <y>{}</>", name, to))
     }
