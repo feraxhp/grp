@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use crate::config::structure::Usettings;
 use crate::girep::local::git_utils::options::{Methods, Options};
 use crate::girep::local::git_utils::structure::GitUtils;
@@ -74,8 +75,17 @@ impl Platform {
             fetch_options.remote_callbacks(callbacks);
             fetch_options.download_tags(AutotagOption::All);
 
+            let branches_before = GitUtils::get_branches_by_remote(&repo, &remote_name)?;
+
             remote.fetch(&ref_specs, Some(&mut fetch_options), None)?;
             let mut finish = messages.lock().unwrap().clone();
+
+            let branches_after = GitUtils::get_branches_by_remote(&repo, &remote_name)?;
+            let new_branches = branches_after.iter()
+                .filter(|(name, _)| !branches_before.contains_key(name.clone()))
+                .for_each(|(name, _)| {
+                    finish.push(cformat!("<g>+ branch:</> <y>{}/{}</>", &remote_name, name));
+                });
 
             let fetch_head = repo.find_reference("FETCH_HEAD")?;
             let annotated_commit = repo.reference_to_annotated_commit(&fetch_head)?;
@@ -173,7 +183,7 @@ impl Platform {
             },
 
             a if a.is_up_to_date() => {
-                Ok(cformat!("<g>Already up-to-date: <y>{}</>", remote_branch))
+                Ok(cformat!("<g>up-to-date: <y>{}</>", remote_branch))
             },
 
             a => {
