@@ -428,7 +428,7 @@ dependencies = [
 
 [[package]]
 name = "grp"
-version = "0.5.3-alpha"
+version = "0.5.4-alpha"
 dependencies = [
  "clap",
  "color-print",
