@@ -95,7 +95,7 @@ impl GitUtils {
         repo.set_head(&name)?;
 
         let mut checkout_builder = git2::build::CheckoutBuilder::default();
-        if force { checkout_builder.force(); }
+        checkout_builder.force();
 
         repo.checkout_head(Some(&mut checkout_builder))?;
         let binding = remote.id().to_string();
