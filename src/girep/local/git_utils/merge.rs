@@ -1,5 +1,6 @@
 use color_print::cformat;
-use git2::{AnnotatedCommit, Repository, Error};
+use git2::{AnnotatedCommit, Repository, Error, Reference, StatusOptions, ErrorCode, ErrorClass};
+use crate::errors::types::ErrorType;
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::update::metadata::Version;
 
@@ -18,12 +19,19 @@ impl GitUtils {
 
         if merge_state.has_conflicts() {
             repo.checkout_index(Some(&mut merge_state), None)?;
-            return Ok(cformat!("Merge conflicts detected..."));
+            return Err(Error::new(
+                ErrorCode::Conflict,
+                ErrorClass::Merge,
+                "Merge conflict detected",
+            ))
         }
 
         let result_tree = repo.find_tree(merge_state.write_tree_to(repo)?)?;
 
-        let msg = format!("Merge: {} into {}", remote.refname().unwrap_or("remote"), local.refname().unwrap_or("local"));
+        let from = remote.refname().unwrap_or(&remote.id().to_string());
+        let to = local.refname().unwrap_or(&local.id().to_string());
+
+        let msg = format!("Merge: {} into {}", &from, &to);
 
         let sig = repo.signature()?;
         let local_commit = repo.find_commit(local.id())?;
@@ -37,6 +45,55 @@ impl GitUtils {
 
         repo.checkout_head(None)?;
 
-        Ok(cformat!("<m, i>Merge:</> <y>{}</> <g>into</> <y>{}</>", remote.refname().unwrap_or("remote"), local.refname().unwrap_or("local")))
+        Ok(cformat!("<m>Merge:</> <y>{}</> <g>into</> <y>{}</>", from, to))
+    }
+
+    fn fast_forward(
+        repo: &Repository,
+        reference: &mut Reference,
+        remote: &AnnotatedCommit,
+        force: bool,
+    ) -> Result<String, Error> {
+
+        if !force {
+            let status_option = StatusOptions::new().include_ignored(false).include_untracked(true);
+            let statuses = repo.statuses(Some(status_option))?;
+
+            if !statuses.is_empty() {
+
+                let mut changed_files = Vec::new();
+                for entry in statuses.iter() {
+                    if let Some(path) = entry.path() {
+                        changed_files.push(path.to_string());
+                    }
+                }
+
+                return Err(
+                    Error::new(
+                        ErrorCode::Locked,
+                        ErrorClass::Merge,
+                        format!("Uncommitted changes:{}", changed_files.join(",")),
+                    )
+                )
+            }
+        }
+
+        let name = reference.name()
+            .map(ToString::to_string).unwrap_or_else(
+                || String::from_utf8_lossy(reference.name_bytes()).to_string()
+        );
+
+        let msg = format!("Fast-Forward: Setting {} to id: {}", name, remote.id());
+
+        reference.set_target(remote.id(), &msg)?;
+        repo.set_head(&name)?;
+
+        let mut checkout_builder = git2::build::CheckoutBuilder::default();
+        if force { checkout_builder.force(); }
+
+        repo.checkout_head(Some(&mut checkout_builder))?;
+        let to = remote.refname().unwrap_or(&remote.id().to_string());
+
+        Ok(cformat!("<m>Fast-Forward:</> <y>{}</> to id: <y>{}</>", name, to))
     }
 }
