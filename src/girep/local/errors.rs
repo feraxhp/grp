@@ -33,7 +33,6 @@ impl Error {
                     ErrorType::NotFoundRepo,
                     vec![
                         path_str,
-                        cformat!("<y>* Repository at: <m,i>{}</>", path_str).as_str(),
                         cformat!("  You may need to start a new repo: ").as_str(),
                         cformat!("  •<g> git init </>").as_str(),
                     ]
@@ -98,7 +97,7 @@ impl Error {
                     ]
                 )
             }
-            (ErrorCode::GenericError, ErrorClass::Http, _, _) => {
+            (ErrorCode::GenericError, ErrorClass::Http, _, action) => {
                 match error.message() {
                     "too many redirects or authentication replays" => {
                         Error::new_custom(
@@ -110,7 +109,7 @@ impl Error {
                             ]
                         )
                     }
-                    "request failed with status code: 404" => {
+                    "request failed with status code: 404" if matches!(action, Action::PUSH) => {
                         Error::new_custom(
                             "Target remote URL does not exist!".to_string(),
                             vec![
@@ -120,6 +119,14 @@ impl Error {
                                 cformat!("  Visit the web page of the remote repository to confirm."),
                                 cformat!("  <g>Tip</>: If the repository doesn't exist at the <m,i>remote URL</>,"),
                                 cformat!("       you may need to create it first."),
+                            ]
+                        )
+                    }
+                    "request failed with status code: 404" if matches!(action, Action::CLONE) => {
+                        Error::new_custom(
+                            "The repository does not exist!".to_string(),
+                            vec![
+                                cformat!("<y>* The URL provided is unreachable.</>")
                             ]
                         )
                     }
@@ -167,6 +174,25 @@ impl Error {
                     ]
                 )
             }
+            (ErrorCode::Conflict, ErrorClass::Merge, msg, Action::PULL) => {
+                let msg = msg.split(",").collect::<Vec<&str>>();
+                Error::new_custom(
+                    "The remote conflicts with the branch!".to_string(),
+                    vec![
+                        cformat!("<g>* Tip:</>  <Y>You can fix this with normal git commands</>")
+                    ]
+                )
+            }
+            (ErrorCode::Locked, ErrorClass::Merge, msg, Action::PULL) => {
+                let msg = msg.split(",").collect::<Vec<&str>>();
+                Error::new_custom(
+                    "Uncommitted changes".to_string(),
+                    vec![
+                        cformat!("* There are <y>{}</> modified files", msg.len()),
+                        cformat!("  You have to commit or stash them"),
+                    ]
+                )
+            }
             _ => {
                 Error::new(
                     ErrorType::Unknown,
@@ -184,7 +210,6 @@ impl Error {
             // ErrorCode::BareRepo |
             // ErrorCode::Unmerged |
             // ErrorCode::InvalidSpec |
-            // ErrorCode::Conflict |
             // ErrorCode::Locked |
             // ErrorCode::Modified |
             // ErrorCode::Certificate |

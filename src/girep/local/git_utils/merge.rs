@@ -30,7 +30,7 @@ impl GitUtils {
             return Err(Error::new(
                 ErrorCode::Conflict,
                 ErrorClass::Merge,
-                cformat!("Merge conflict detected:{},{}", remote.id(), local.id()),
+                cformat!("{},{}", remote.id(), local.id()),
             ))
         }
 
@@ -87,7 +87,7 @@ impl GitUtils {
                     Error::new(
                         ErrorCode::Locked,
                         ErrorClass::Merge,
-                        format!("Uncommitted changes:{}", changed_files.join(",")),
+                        format!("{}", changed_files.join(",")),
                     )
                 )
             }
