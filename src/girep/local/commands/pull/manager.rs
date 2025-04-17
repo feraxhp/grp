@@ -56,7 +56,7 @@ pub(crate) async fn pull_manager(cpull: &ArgMatches, usettings: Usettings) {
             }
         }
         Err(e) => {
-            let error = Error::git_to_local(e, path, usettings.get_default().to_conf(), Action::PUSH);
+            let error = Error::git_to_local(e, path, usettings.get_default().to_conf(), Action::PULL);
             load_animation.finish_with_error(error.message.as_str());
             error.show();
         }
