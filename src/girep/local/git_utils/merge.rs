@@ -28,8 +28,10 @@ impl GitUtils {
 
         let result_tree = repo.find_tree(merge_state.write_tree_to(repo)?)?;
 
-        let from = remote.refname().unwrap_or(&remote.id().to_string());
-        let to = local.refname().unwrap_or(&local.id().to_string());
+        let binding = remote.id().to_string();
+        let from = remote.refname().unwrap_or(&binding);
+        let binding = local.id().to_string();
+        let to = local.refname().unwrap_or(&binding);
 
         let msg = format!("Merge: {} into {}", &from, &to);
 
@@ -56,8 +58,12 @@ impl GitUtils {
     ) -> Result<String, Error> {
 
         if !force {
-            let status_option = StatusOptions::new().include_ignored(false).include_untracked(true);
-            let statuses = repo.statuses(Some(status_option))?;
+            let mut status_option = StatusOptions::new();
+
+            status_option.include_ignored(false);
+            status_option.include_untracked(true);
+
+            let statuses = repo.statuses(Some(&mut status_option))?;
 
             if !statuses.is_empty() {
 
@@ -92,7 +98,8 @@ impl GitUtils {
         if force { checkout_builder.force(); }
 
         repo.checkout_head(Some(&mut checkout_builder))?;
-        let to = remote.refname().unwrap_or(&remote.id().to_string());
+        let binding = remote.id().to_string();
+        let to = remote.refname().unwrap_or(&binding);
 
         Ok(cformat!("<m>Fast-Forward:</> <y>{}</> to id: <y>{}</>", name, to))
     }
