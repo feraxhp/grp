@@ -36,8 +36,8 @@ impl GitUtils {
 
         let result_tree = repo.find_tree(merge_state.write_tree_to(repo)?)?;
 
-        let from = remote.id();
-        let to = local.id();
+        let from = remote.id().to_string();
+        let to = local.id().to_string();
 
         let msg = format!("Merge: {} into {}", &from, &to);
 
@@ -56,7 +56,7 @@ impl GitUtils {
 
         repo.checkout_head(Some(&mut checkout_builder))?;
 
-        Ok(cformat!("<m>Merge:</> <y>{}</> <g>into</> <y>{}</>", from, to))
+        Ok(cformat!("<m>Merge:</> <y>{}</> <g>into</> <y>{}</>",  &from[0..6], &to[0..6]))
     }
 
     pub(crate) fn fast_forward(
@@ -107,8 +107,8 @@ impl GitUtils {
         checkout_builder.force();
 
         repo.checkout_head(Some(&mut checkout_builder))?;
-        let to = remote.id();
+        let to = remote.id().to_string();
 
-        Ok(cformat!("<m>Fast-Forward:</> <y>{}</> to id: <y>{}</>", name, to))
+        Ok(cformat!("<m>Fast-Forward:</> <y>{}</> to id: <y>{}</>", name, &to[0..6]))
     }
 }
