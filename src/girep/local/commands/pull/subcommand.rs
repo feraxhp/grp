@@ -7,16 +7,16 @@ pub(crate) fn pull_subcommand() -> Command {
         .about(cformat!("Interface to <b,i>git pull</> using the given pconf"))
         .args([
             Arguments::pconf(false, true),
-            arg!(    --all "Push all branches")
-                .conflicts_with_all(["branches", "tags", "set-upstream", "branch"])
-            ,
-            arg!(    --branches "Push all branches")
+            // arg!(    --all "Push all branches")
+            //     .conflicts_with_all(["branches", "tags", "set-upstream", "branch"])
+            // ,
+            arg!(    --branches "Pull all branches")
                 .conflicts_with_all(["all", "tags", "set-upstream", "branch"])
             ,
-            arg!(    --tags "Push all tags")
-                .conflicts_with_all(["all", "branches", "set-upstream", "branch"])
-            ,
-            arg!( -f --force "Do a force push"),
+            // arg!(    --tags "Push all tags")
+            //     .conflicts_with_all(["all", "branches", "set-upstream", "branch"])
+            // ,
+            arg!( -f --force "Do a force pull"),
             arg!( -n --"dry-run" "Do everything except actually send the updates."),
             Arg::new("set-upstream").short('u').long("set-upstream")
                 .num_args(2)
