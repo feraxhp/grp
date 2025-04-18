@@ -1,6 +1,6 @@
 use crate::girep::local::git_utils::structure::GitUtils;
 use color_print::cformat;
-use git2::{AnnotatedCommit, Error, ErrorClass, ErrorCode, Reference, Repository, StatusOptions};
+use git2::{AnnotatedCommit, Error, ErrorClass, ErrorCode, Oid, Reference, Repository, StatusOptions};
 use std::io::Write;
 
 impl GitUtils {
@@ -12,7 +12,24 @@ impl GitUtils {
         let local_tree = repo.find_commit(local.id())?.tree()?;
         let remote_tree = repo.find_commit(remote.id())?.tree()?;
 
-        let merge_base = repo.merge_base(local.id(), remote.id())?;
+        let from = remote.id().to_string();
+        let to = local.id().to_string();
+
+        let merge_base = match repo.merge_base(local.id(), remote.id()) {
+            Ok(mb) => mb,
+            Err(e) => {
+                return match (e.code(), e.class()) {
+                    (ErrorCode::NotFound, ErrorClass::Merge) => {
+                        Err(Error::new(
+                            ErrorCode::NotFound,
+                            ErrorClass::Merge,
+                            format!("r:{} l:{}", &from, &to)
+                        ))
+                    }
+                    _ => Err(e)
+                }
+            }
+        };
         let ancestor = repo.find_commit(merge_base)?.tree()?;
         let mut merge_state = repo.merge_trees(&ancestor, &local_tree, &remote_tree, None)?;
 
@@ -35,9 +52,6 @@ impl GitUtils {
         }
 
         let result_tree = repo.find_tree(merge_state.write_tree_to(repo)?)?;
-
-        let from = remote.id().to_string();
-        let to = local.id().to_string();
 
         let msg = format!("Merge: {} into {}", &from, &to);
 
