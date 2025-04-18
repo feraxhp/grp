@@ -73,7 +73,7 @@ impl Platform {
             });
 
             fetch_options.remote_callbacks(callbacks);
-            fetch_options.download_tags(AutotagOption::All);
+            fetch_options.download_tags(AutotagOption::Auto);
 
             let branches_before = GitUtils::get_branches_by_remote(&repo, &remote_name)?;
 
