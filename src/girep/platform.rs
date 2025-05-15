@@ -9,15 +9,17 @@ use crate::girep::config::Config;
 use crate::errors::error::Error;
 use crate::girep::common::repos::structs::DebugData;
 
-pub(crate) const SUPPORTED_REPOS: [(&str, &str, &str); 2] = [
+pub(crate) const SUPPORTED_REPOS: [(&str, &str, &str); 3] = [
     ("0", "gh", "github"),
     ("1", "gt", "gitea"),
+    ("2", "gl", "gitlab"),
 ];
 
 #[derive(PartialEq, Clone)]
 pub(crate) enum Platform {
     Github,
     Gitea,
+    Gitlab,
 }
 
 impl Platform {
@@ -25,6 +27,7 @@ impl Platform {
         let platform: Platform = match name {
             "github" => Platform::Github,
             "gitea" => Platform::Gitea,
+            "gitlab" => Platform::Gitlab,
             name => {
                 cprintln!("* Error: <i>{}</> is not a valid platform", name);
                 exit(1)
@@ -38,6 +41,7 @@ impl Platform {
         match self {
             Platform::Github => { crate::girep::github::header::get_auth_header(token) }
             Platform::Gitea => { crate::girep::gitea::header::get_auth_header(token) }
+            Platform::Gitlab => { crate::girep::gitlab::header::get_auth_header(token) }
         }
     }
 
@@ -45,6 +49,7 @@ impl Platform {
         match self {
             Platform::Github => { format!("https://{}", endpoint) }
             Platform::Gitea => { format!("https://{}/api/v1", endpoint) }
+            Platform::Gitlab => { format!("https://{}/api/v4", endpoint) }
         }
     }
 
@@ -57,6 +62,7 @@ impl Platform {
         match self {
             Platform::Github => { crate::girep::github::errors::error_manager(result, debug_data, config, base_message).await }
             Platform::Gitea => { crate::girep::gitea::errors::error_manager(result, debug_data, config, base_message).await }
+            Platform::Gitlab => { crate::girep::gitlab::errors::error_manager(result, debug_data, config, base_message).await }
         }
     }
 }

@@ -5,6 +5,7 @@ impl Platform {
         match self {
             Platform::Github |
             Platform::Gitea => { format!("{}/user/orgs", self.get_base_url(endpoint)) }
+            Platform::Gitlab => { todo!() }
         }
     }
 
@@ -12,6 +13,7 @@ impl Platform {
         match self {
             Platform::Github => { panic!("Not valid for GitHub") }
             Platform::Gitea => { format!("{}/orgs", self.get_base_url(endpoint)) }
+            Platform::Gitlab => { todo!() }
         }
     }
 
@@ -19,6 +21,7 @@ impl Platform {
         match self {
             Platform::Github |
             Platform::Gitea => { format!("{}/orgs/{}", self.get_base_url(endpoint), name) }
+            Platform::Gitlab => { todo!() }
         }
     }
 }

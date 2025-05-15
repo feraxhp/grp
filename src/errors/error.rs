@@ -3,6 +3,7 @@
 
 use crate::errors::types::ErrorType;
 
+#[derive(Debug)]
 pub(crate) struct Error {
     pub(crate) message: String,
     pub(crate) content: Vec<String>,

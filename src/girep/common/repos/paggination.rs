@@ -6,7 +6,7 @@ use crate::errors::types::ErrorType;
 use futures::future::join_all;
 use hyper::header::HeaderValue;
 use reqwest::header::HeaderMap;
-use reqwest::{Client, Response};
+use reqwest::{Client, Response, Url};
 
 pub async fn paggination_mannager(
     url: String,
@@ -18,9 +18,12 @@ pub async fn paggination_mannager(
 
     let client = Client::new();
 
-    let url = format!("{}?page=1", url);
+    let mut url = Url::parse(&url).unwrap();
+    url.query_pairs_mut()
+        .append_pair("per_page", "100")
+        .append_pair("page", "1");
 
-    let response = match client.get(&url).headers(header_map.clone()).send().await {
+    let response = match client.get(url).headers(header_map.clone()).send().await {
         Ok(response) => response,
         Err(e) => {
             errors.push(Error::new(ErrorType::Unknown, vec![e.to_string().as_str()]));
@@ -61,12 +64,16 @@ fn extract_links(link_header: Option<&HeaderValue>) -> Vec<String> {
 
             links.iter().map(|link| {
                 let parts: Vec<&str> = link.split(';').collect();
+
                 if parts.len() == 2 {
                     let url = parts[0].trim().trim_start_matches('<').trim_end_matches('>');
-                    url.to_string()
-                } else {
-                    "".to_string()
-                }
+                    let label = parts[1].trim().trim_start_matches('<').trim_end_matches('>');
+
+                    match label {
+                        "rel=\"next\"" => url.to_string(),
+                        _ => "".to_string()
+                    }
+                } else { "".to_string() }
             }).collect::<Vec<String>>().into_iter().filter(|link| link != "").collect()
         }
     }

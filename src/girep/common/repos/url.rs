@@ -13,9 +13,9 @@ impl Platform {
                     UserType::Free => format!("{}/users/{}/repos", self.get_base_url(endpoint), owner),
                     UserType::Organization => format!("{}/orgs/{}/repos", self.get_base_url(endpoint), owner),
                     UserType::Logged => format!("{}/user/repos", self.get_base_url(endpoint))
-
                 }
             }
+            Platform::Gitlab => format!("{}/projects?membership=true", self.get_base_url(endpoint)),
             _ => todo!("Not implemented")
         }
     }

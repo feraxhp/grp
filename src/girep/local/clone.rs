@@ -67,6 +67,7 @@ impl Platform {
         match self {
             Platform::Github => format!("https://github.com/{}/{}.git", owner, repo),
             Platform::Gitea => format!("https://{}/{}/{}.git", endpoint, owner, repo),
+            Platform::Gitlab => { todo!() }
         }
     }
 

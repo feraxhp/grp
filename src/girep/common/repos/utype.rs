@@ -18,7 +18,8 @@ pub enum UserType {
 
 #[derive(Deserialize)]
 struct Transpiler {
-    login: String,
+    login: Option<String>,
+    name: Option<String>,
 }
 
 impl Platform {
@@ -26,6 +27,7 @@ impl Platform {
         match self {
             Platform::Github => json["login"].as_str().unwrap().to_string(),
             Platform::Gitea => json["name"].as_str().unwrap().to_string(),
+            Platform::Gitlab => { todo!() }
         }
     }
 
@@ -86,7 +88,10 @@ impl Platform {
                     )
             )?;
 
-        Ok(transpiler.login)
+        match &self {
+            Platform::Github | Platform::Gitea => get_value_or_error(&transpiler.login, &text, "login"),
+            Platform::Gitlab => get_value_or_error(&transpiler.name, &text, "name"),
+        }
     }
 
     pub async fn is_logged_user(&self, name: &str, conf: Config) -> Result<bool, Error> {
@@ -140,4 +145,17 @@ impl Platform {
 
         Ok(transpilers.iter().any(|t| self.get_org_name(t.clone()) == name))
     }
+}
+
+fn get_value_or_error(option: &Option<String>, text: &String, att: &str) -> Result<String, Error> {
+    option
+        .as_ref()
+        .map(|string| string.to_string())
+        .ok_or_else(|| Error::new(
+            ErrorType::Dezerialized,
+            vec![
+                format!("{} not found at:", att).as_str(),
+                text
+            ],
+        ))
 }

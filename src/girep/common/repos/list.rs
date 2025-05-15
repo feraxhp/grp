@@ -8,7 +8,6 @@ use crate::errors::types::ErrorType;
 use crate::girep::repo::Repo;
 use crate::girep::common::repos::paggination::paggination_mannager;
 use crate::girep::common::repos::structs::{DebugData, Rtype};
-use crate::girep::github::errors::error_manager;
 use crate::girep::platform::Platform;
 use futures::future::join_all;
 use serde::Deserialize;
@@ -17,11 +16,20 @@ use crate::animations::animation::Animation;
 
 #[derive(Deserialize)]
 pub struct Transpiler {
-    pub full_name: String,
+    // Common
     pub description: Option<String>,
-    pub private: bool,
-    pub html_url: String,
-    pub clone_url: String,
+
+    // Github - Gitea
+    pub full_name: Option<String>,
+    pub private: Option<bool>,
+    pub html_url: Option<String>,
+    pub clone_url: Option<String>,
+
+    // Gitlab
+    pub path_with_namespace: Option<String>,
+    pub http_url_to_repo: Option<String>,
+    pub visibility: Option<String>,
+    pub web_url: Option<String>,
 }
 
 impl Platform {
@@ -44,7 +52,7 @@ impl Platform {
         let (responses,mut erros) = paggination_mannager(url, header_map).await;
 
         let responses: Vec<_> = responses.into_iter().map(|response| {
-            error_manager(
+            self.error_manager(
                 response,
                 DebugData{
                     rtype: Rtype::List,
@@ -99,12 +107,26 @@ impl Platform {
             .into_iter()
             .map(
                 |transpiler|
-                    Repo {
-                        full_name: transpiler.full_name,
-                        description: transpiler.description.unwrap_or("".to_string()),
-                        state: if transpiler.private { "private".to_string() } else { "public".to_string() },
-                        html_url: transpiler.html_url,
-                        clone_url: transpiler.clone_url,
+                    match self {
+                        Platform::Github |
+                        Platform::Gitea => {
+                            Repo {
+                                full_name: transpiler.full_name.unwrap(),
+                                description: transpiler.description.unwrap_or("".to_string()),
+                                state: if transpiler.private.unwrap() { "private".to_string() } else { "public".to_string() },
+                                html_url: transpiler.html_url.unwrap(),
+                                clone_url: transpiler.clone_url.unwrap(),
+                            }
+                        }
+                        Platform::Gitlab => {
+                            Repo {
+                                full_name: transpiler.path_with_namespace.unwrap(),
+                                description: transpiler.description.unwrap_or("".to_string()),
+                                state: transpiler.visibility.unwrap(),
+                                html_url: transpiler.web_url.unwrap(),
+                                clone_url: transpiler.http_url_to_repo.unwrap(),
+                            }
+                        }
                     }
             )
             .collect();

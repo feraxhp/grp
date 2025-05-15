@@ -88,14 +88,20 @@ impl Platform {
 
         load_animation.finish_with_success("Done!");
 
-        Ok(
-            Repo {
-                full_name: transpiler.full_name,
-                description: transpiler.description.unwrap_or_default(),
-                state: if transpiler.private { "private".to_string() } else { "public".to_string() },
-                html_url: transpiler.html_url,
-                clone_url: transpiler.clone_url,
+        match self {
+            Platform::Github |
+            Platform::Gitea => {
+                Ok(
+                    Repo {
+                        full_name: transpiler.full_name.unwrap(),
+                        description: transpiler.description.unwrap_or_default(),
+                        state: if transpiler.private.unwrap() { "private".to_string() } else { "public".to_string() },
+                        html_url: transpiler.html_url.unwrap(),
+                        clone_url: transpiler.clone_url.unwrap(),
+                    }
+                )
             }
-        )
+            Platform::Gitlab => { todo!() }
+        }
     }
 }
