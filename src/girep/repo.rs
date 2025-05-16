@@ -27,6 +27,8 @@ impl Repo {
 macro_rules! show {
     ($r:expr) => {
         use std::cmp::max;
+        use std::io;
+        use std::io::Write;
 
         if $r.is_empty() {
             eprintln!("No repositories found");
@@ -40,21 +42,21 @@ macro_rules! show {
         let max_name = max(4, max_name);
         let max_state = max(5, max_state);
 
-        eprintln!(
-            " {0:#^dig$} | {1: <width$} | {2: <state$} | {3}",
+        let _ = io::stdout().write(format!(
+            " {0:#^dig$} | {1: <width$} | {2: <state$} | {3}\n",
             "#", "Name", "State", "git clone",
             width = max_name,
             state = max_state,
             dig = length,
-        );
+        ).as_bytes());
         for (index, repo) in $r.iter().enumerate() {
-            eprintln!(
-                " {0: ^dig$} | {1: <width$} | {2: <state$} | {3}",
+            let _ = io::stdout().write(format!(
+                " {0: ^dig$} | {1: <width$} | {2: <state$} | {3}\n",
                 index + 1, repo.full_name, repo.state, repo.clone_url,
                 width = max_name,
                 state = max_state,
                 dig = length,
-            );
+            ).as_bytes());
         }
     };
 }
