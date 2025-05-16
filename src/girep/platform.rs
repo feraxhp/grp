@@ -65,4 +65,12 @@ impl Platform {
             Platform::Gitlab => { crate::girep::gitlab::errors::error_manager(result, debug_data, config, base_message).await }
         }
     }
+
+    pub async fn get_user_id(&self, owner: &str) -> Result<String, Error> {
+        match self {
+            Platform::Github |
+            Platform::Gitea => { panic!("No supported") }
+            Platform::Gitlab => { Ok("1984945".to_owned()) }
+        }
+    }
 }

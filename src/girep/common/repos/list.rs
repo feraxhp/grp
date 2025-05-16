@@ -49,7 +49,7 @@ impl Platform {
             }
         };
 
-        let (responses,mut erros) = paggination_mannager(url, header_map).await;
+        let (responses,mut erros) = paggination_mannager(url.await, header_map).await;
 
         let responses: Vec<_> = responses.into_iter().map(|response| {
             self.error_manager(

@@ -27,21 +27,23 @@ impl Platform {
         match self {
             Platform::Github => json["login"].as_str().unwrap().to_string(),
             Platform::Gitea => json["name"].as_str().unwrap().to_string(),
-            Platform::Gitlab => { todo!() }
+            Platform::Gitlab => { panic!("GitLab doesn't support organizations"); }
         }
     }
 
     pub async fn get_user_type(&self, name: &str, conf: Config) -> Result<UserType, Error> {
-        match self.is_logged_user(name, conf.clone()).await {
-            Ok(true) => Ok(UserType::Logged),
-            Ok(false) => {
+        match (self.is_logged_user(name, conf.clone()).await, self) {
+            (Ok(true), _) => Ok(UserType::Logged),
+            (Ok(false), Platform::Github) |
+            (Ok(false), Platform::Gitea) => {
                 match self.is_organization(name, conf).await {
                     Ok(true) => Ok(UserType::Organization),
                     Ok(false) => Ok(UserType::Free),
                     Err(e) => Err(e),
                 }
             }
-            Err(e) => Err(e),
+            (Ok(false), Platform::Gitlab) => Ok(UserType::Free),
+            (Err(e), _) => Err(e),
         }
     }
 

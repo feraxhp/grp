@@ -5,7 +5,7 @@ use crate::girep::platform::Platform;
 use crate::girep::common::repos::utype::UserType;
 
 impl Platform {
-    pub fn url_list_repos(&self, owner: String, user_type: UserType, endpoint: String) -> String {
+    pub async fn url_list_repos(&self, owner: String, user_type: UserType, endpoint: String) -> String {
         match self {
             Platform::Github |
             Platform::Gitea => {
@@ -15,7 +15,18 @@ impl Platform {
                     UserType::Logged => format!("{}/user/repos", self.get_base_url(endpoint))
                 }
             }
-            Platform::Gitlab => format!("{}/projects?membership=true", self.get_base_url(endpoint)),
+            Platform::Gitlab => {
+                match user_type {
+                    UserType::Logged =>
+                        format!("{}/projects?membership=true", self.get_base_url(endpoint)),
+                    UserType::Free => format!(
+                        "{}/groups/{}/projects?membership=true",
+                        self.get_base_url(endpoint),
+                        self.get_user_id(&owner).await.unwrap()
+                    ),
+                    UserType::Organization => { panic!("Gitlab organizations are not supported"); }
+                }
+            },
             _ => todo!("Not implemented")
         }
     }
