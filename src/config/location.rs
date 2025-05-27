@@ -7,7 +7,7 @@ pub fn get_location() -> String {
     let home_dir = dirs::home_dir().expect("Could not find home directory");
     let location = match std::env::consts::OS {
         "linux" => home_dir.join(".config/girep/config.json"),
-        "windows" => PathBuf::from(std::env::var("APPDATA").unwrap()).join("girep/config.json"),
+        "windows" => PathBuf::from(std::env::var("APPDATA").unwrap()).join("girep\\config.json"),
         "macos" => home_dir.join("Library/Application Support/girep/config.json"),
         _ => home_dir.join(".config/girep/config.json"),
     };
