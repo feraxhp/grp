@@ -3,8 +3,8 @@
 
 use clap::{arg, Command};
 use clap::builder::ValueParser;
-use crate::cmdcore::args::Arguments;
-use crate::cmdcore::commands::Commands;
+use crate::commands::cmdcore::args::Arguments;
+use crate::commands::cmdcore::commands::Commands;
 
 pub(crate) fn delete_subcommand() -> Command {
     Commands::delete("Delete a organization")

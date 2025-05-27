@@ -1,6 +1,6 @@
 use clap::{arg, command, Arg, Command};
 use color_print::cformat;
-use crate::cmdcore::args::Arguments;
+use crate::commands::cmdcore::args::Arguments;
 
 pub(crate) fn pull_subcommand() -> Command {
     command!("pull").aliases(["j"])

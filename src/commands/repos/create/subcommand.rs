@@ -1,8 +1,8 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::cmdcore::args::Arguments;
-use crate::cmdcore::commands::Commands;
+use crate::commands::cmdcore::args::Arguments;
+use crate::commands::cmdcore::commands::Commands;
 use crate::macros::validations::repo::validate_repo_structure;
 use clap::builder::ValueParser;
 use clap::{arg, Command};

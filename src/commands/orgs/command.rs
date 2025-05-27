@@ -2,9 +2,9 @@
 // Licensed under the MIT License;
 
 use clap::{command, Command};
-use crate::girep::common::orgs::subcommands::create::command::create_subcommand;
-use crate::girep::common::orgs::subcommands::list::command::list_subcommand;
-use crate::girep::common::orgs::subcommands::delete::command::delete_subcommand;
+use crate::commands::orgs::create::command::create_subcommand;
+use crate::commands::orgs::delete::command::delete_subcommand;
+use crate::commands::orgs::list::command::list_subcommand;
 
 pub(crate) fn orgs_command() -> Command {
     command!("orgs")

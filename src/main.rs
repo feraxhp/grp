@@ -6,32 +6,34 @@ mod config;
 mod macros;
 mod animations;
 mod errors;
-mod cmdcore;
 mod update;
+mod commands;
 
-use crate::config::command::{config_command, config_manager};
-use crate::girep::common::orgs::command::orgs_command;
-use crate::girep::common::orgs::manager::orgs_manager;
-use crate::macros::macros::invalid;
-use crate::update::check::validate_version;
-use crate::update::os::base::Updater;
-use clap::{arg, command, crate_version};
-use color_print::cprintln;
-use girep::local::commands::clone::manager::clone_manager;
-use girep::local::commands::clone::subcommand::clone_subcommand;
-use girep::local::commands::push::subcommand::push_subcommand;
-use girep::local::commands::push::manager::push_manager;
-use girep::common::repos::commands::create::manager::create_manager;
-use girep::common::repos::commands::create::subcommand::create_subcommand;
-use girep::common::repos::commands::delete::manager::delete_manager;
-use girep::common::repos::commands::delete::subcommand::delete_subcommand;
-use girep::common::repos::commands::list::manager::list_manager;
-use girep::common::repos::commands::list::subcommand::list_subcommand;
 use std::io;
 use std::io::Write;
 use std::process::exit;
-use crate::girep::local::commands::pull::manager::pull_manager;
-use crate::girep::local::commands::pull::subcommand::pull_subcommand;
+use color_print::cprintln;
+use clap::{arg, command, crate_version};
+
+use crate::macros::macros::invalid;
+use crate::update::os::base::Updater;
+use crate::update::check::validate_version;
+use crate::config::command::{config_command, config_manager};
+
+use commands::local::clone::manager::clone_manager;
+use commands::local::clone::subcommand::clone_subcommand;
+use commands::local::push::subcommand::push_subcommand;
+use commands::local::push::manager::push_manager;
+use commands::local::pull::manager::pull_manager;
+use commands::local::pull::subcommand::pull_subcommand;
+use commands::repos::create::manager::create_manager;
+use commands::repos::create::subcommand::create_subcommand;
+use commands::repos::delete::manager::delete_manager;
+use commands::repos::delete::subcommand::delete_subcommand;
+use commands::repos::list::manager::list_manager;
+use commands::repos::list::subcommand::list_subcommand;
+use commands::orgs::command::orgs_command;
+use commands::orgs::manager::orgs_manager;
 
 #[tokio::main]
 async fn main() {

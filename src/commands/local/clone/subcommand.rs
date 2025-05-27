@@ -3,7 +3,7 @@
 
 use clap::{arg, command, Command};
 use clap::builder::ValueParser;
-use crate::cmdcore::args::Arguments;
+use crate::commands::cmdcore::args::Arguments;
 
 pub(crate) fn clone_subcommand() -> Command {
     command!("clone").aliases(["cl"])

@@ -8,4 +8,3 @@ pub mod list;
 pub mod url;
 pub mod delete;
 pub mod create;
-pub(crate) mod commands;

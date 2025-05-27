@@ -2,11 +2,11 @@
 // Licensed under the MIT License;
 
 use clap::ArgMatches;
-use crate::config::structure::Usettings;
-use crate::girep::common::orgs::subcommands::create::manager::create_manager;
-use crate::girep::common::orgs::subcommands::delete::manager::delete_manager;
-use crate::girep::common::orgs::subcommands::list::manager::list_manager;
 use crate::macros::macros::invalid;
+use crate::config::structure::Usettings;
+use crate::commands::orgs::list::manager::list_manager;
+use crate::commands::orgs::create::manager::create_manager;
+use crate::commands::orgs::delete::manager::delete_manager;
 
 pub(crate) async fn orgs_manager(orgs: &ArgMatches, usettings: Usettings){
     match orgs.subcommand() {

@@ -1,5 +1,5 @@
-use crate::cmdcore::args::Arguments;
-use crate::cmdcore::commands::Commands;
+use crate::commands::cmdcore::args::Arguments;
+use crate::commands::cmdcore::commands::Commands;
 use clap::{arg, Command};
 
 pub(crate) fn delete_subcommand() -> Command {
