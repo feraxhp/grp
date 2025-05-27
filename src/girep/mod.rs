@@ -9,3 +9,4 @@ pub(crate) mod common;
 pub(crate) mod gitea;
 pub(crate) mod github;
 pub(crate) mod local;
+pub mod errors;

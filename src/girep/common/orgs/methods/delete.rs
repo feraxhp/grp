@@ -1,7 +1,7 @@
 use crate::animations;
 use crate::animations::animation::Animation;
-use crate::errors::error::Error;
-use crate::errors::types::ErrorType;
+use crate::girep::errors::error::Error;
+use crate::girep::errors::types::ErrorType;
 use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::config::Config;
 use crate::girep::platform::Platform;

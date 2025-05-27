@@ -2,7 +2,7 @@
 // Licensed under the MIT License;
 
 use color_print::cformat;
-use crate::errors::error::Error;
+use crate::girep::errors::error::Error;
 
 #[derive(Clone)]
 pub(crate) enum ErrorType {

@@ -5,7 +5,6 @@ mod girep;
 mod config;
 mod macros;
 mod animations;
-mod errors;
 mod update;
 mod commands;
 

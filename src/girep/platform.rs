@@ -6,7 +6,7 @@ use std::process::exit;
 use hyper::HeaderMap;
 use reqwest::Response;
 use crate::girep::config::Config;
-use crate::errors::error::Error;
+use crate::girep::errors::error::Error;
 use crate::girep::common::repos::structs::DebugData;
 
 pub(crate) const SUPPORTED_REPOS: [(&str, &str, &str); 2] = [

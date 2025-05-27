@@ -4,7 +4,7 @@ use crate::animations;
 use clap::ArgMatches;
 use std::path::PathBuf;
 use crate::animations::animation::Animation;
-use crate::errors::error::Error;
+use crate::girep::errors::error::Error;
 use crate::girep::local::errors::Action;
 use crate::girep::local::git_utils::options::{Methods, Options};
 
