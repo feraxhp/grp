@@ -7,3 +7,4 @@ pub(crate) mod location;
 pub(crate) mod save;
 pub(crate) mod command;
 pub(crate) mod subcommands;
+pub(crate) mod config;

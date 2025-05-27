@@ -2,11 +2,12 @@
 // Licensed under the MIT License;
 
 use color_print::cprintln;
-use crate::config::save::save_config;
-use crate::config::structure::Usettings;
+use crate::girep::config::location;
+use crate::girep::config::save::save_config;
+use crate::girep::config::structure::Usettings;
 
 pub(crate) fn load_configurations() -> Usettings {
-    let file_location = crate::config::location::get_location();
+    let file_location = location::get_location();
     let file_location = file_location.as_str();
 
     let file = match std::fs::read_to_string(file_location) {

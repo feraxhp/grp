@@ -5,9 +5,9 @@ use std::io;
 use std::process::exit;
 use clap::ArgMatches;
 use color_print::cprintln;
-use crate::config::structure::Usettings;
+use crate::girep::config::structure::Usettings;
 use crate::girep::platform::Platform;
-use crate::macros::validations::repo::unfold_repo_structure;
+use crate::girep::macros::validations::repo::unfold_repo_structure;
 
 pub(crate) async fn delete_manager(ccreate: &ArgMatches, usettings: Usettings) {
 

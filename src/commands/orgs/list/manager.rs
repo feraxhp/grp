@@ -1,6 +1,6 @@
 use clap::ArgMatches;
 use hyper::Error;
-use crate::config::structure::{Pconf, Usettings};
+use crate::girep::config::structure::{Pconf, Usettings};
 use crate::girep::common::orgs::org::Org;
 use crate::girep::platform::Platform;
 

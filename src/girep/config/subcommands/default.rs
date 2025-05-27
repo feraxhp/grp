@@ -1,12 +1,13 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::macros::validations::pconfs::valid_pconfs;
-use crate::config::loader::load_configurations;
-use crate::config::structure::Pconf;
+
+use crate::girep::config::loader::load_configurations;
+use crate::girep::config::structure::Pconf;
 use clap::{arg, command, Command};
 use std::process::exit;
 use color_print::cprintln;
+use crate::girep::macros::validations::pconfs::valid_pconfs;
 
 pub(crate) fn default_manager(default: &clap::ArgMatches) {
     let mut config = load_configurations();

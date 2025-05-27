@@ -3,7 +3,7 @@ use color_print::cformat;
 use git2::{ErrorClass, ErrorCode};
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
-use crate::girep::config::Config;
+use crate::girep::config::config::Config;
 
 pub(crate) enum Action {
     PUSH,

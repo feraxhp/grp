@@ -1,4 +1,4 @@
-use crate::config::structure::Usettings;
+use crate::girep::config::structure::Usettings;
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::platform::Platform;
 use color_print::cformat;

@@ -1,9 +1,9 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::config::structure::Usettings;
+use crate::girep::config::structure::Usettings;
 use crate::girep::platform::Platform;
-use crate::macros::validations::repo::unfold_repo_structure;
+use crate::girep::macros::validations::repo::unfold_repo_structure;
 use crate::show;
 use clap::ArgMatches;
 use std::path::PathBuf;

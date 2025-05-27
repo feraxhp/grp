@@ -1,8 +1,8 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::config::subcommands::add::{add_manager, add_subcommand};
-use crate::config::subcommands::default::{default_manager, default_subcommand};
+use crate::girep::config::subcommands::add::{add_manager, add_subcommand};
+use crate::girep::config::subcommands::default::{default_manager, default_subcommand};
 use clap::{command, Command};
 use crate::invalid;
 

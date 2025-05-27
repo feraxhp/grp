@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::config::structure::Pconf;
+use crate::girep::config::structure::Pconf;
 use crate::girep::platform::SUPPORTED_REPOS;
 use clap::{arg, command, ArgMatches, Command};
 use std::io;

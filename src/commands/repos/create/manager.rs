@@ -1,17 +1,17 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::animations::process::Process;
-use crate::config::structure::Usettings;
+use crate::girep::animations::process::Process;
+use crate::girep::config::structure::Usettings;
 use crate::girep::repo::Repo;
 use crate::girep::local::remote::add_remote;
-use crate::macros::validations::repo::unfold_repo_structure;
+use crate::girep::macros::validations::repo::unfold_repo_structure;
 use crate::show;
 use clap::ArgMatches;
 use std::path::PathBuf;
 use std::process::exit;
 use color_print::cprintln;
-use crate::animations::animation::Animation;
+use crate::girep::animations::animation::Animation;
 use crate::girep::platform::Platform;
 
 pub(crate) async fn create_manager(ccreate: &ArgMatches, usettings: Usettings) {

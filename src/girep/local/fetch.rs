@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use crate::config::structure::Usettings;
+use crate::girep::config::structure::Usettings;
 use crate::girep::local::git_utils::options::{Methods, Options};
 use crate::girep::local::git_utils::structure::GitUtils;
 use crate::girep::platform::Platform;

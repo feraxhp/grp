@@ -18,8 +18,8 @@
  */
 use color_print::cprintln;
 use serde::{Deserialize, Serialize};
-use crate::config::loader::load_configurations;
-use crate::config::save::save_config;
+use crate::girep::config::loader::load_configurations;
+use crate::girep::config::save::save_config;
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct Pconf {

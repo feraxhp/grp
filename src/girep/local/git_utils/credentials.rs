@@ -1,5 +1,5 @@
 use git2::{Cred, RemoteCallbacks};
-use crate::girep::config::Config;
+use crate::girep::config::config::Config;
 use crate::girep::local::git_utils::structure::GitUtils;
 
 impl GitUtils{

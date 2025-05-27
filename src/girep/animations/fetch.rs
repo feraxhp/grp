@@ -1,7 +1,7 @@
 use std::time::Duration;
 use color_print::{cformat, cprintln};
 use indicatif::{ProgressBar, ProgressStyle};
-use crate::animations::animation::Animation;
+use crate::girep::animations::animation::Animation;
 
 pub(crate) struct Fetch{
     spinner: ProgressBar,

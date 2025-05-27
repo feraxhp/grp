@@ -1,9 +1,9 @@
-use crate::config::structure::Usettings;
+use crate::girep::config::structure::Usettings;
 use crate::girep::platform::Platform;
-use crate::animations;
+use crate::girep::animations;
 use clap::ArgMatches;
 use std::path::PathBuf;
-use crate::animations::animation::Animation;
+use crate::girep::animations::animation::Animation;
 use crate::girep::errors::error::Error;
 use crate::girep::local::errors::Action;
 use crate::girep::local::git_utils::options::{Methods, Options};

@@ -3,8 +3,8 @@
 
 use clap::{arg, Arg};
 use clap::builder::ValueParser;
-use crate::macros::validations::pconfs::{valid_pconfs, valid_pconfs_and_plus};
-use crate::macros::validations::repo::{validate_repo_structure, validate_repo_structure_with_pconf};
+use crate::girep::macros::validations::pconfs::{valid_pconfs, valid_pconfs_and_plus};
+use crate::girep::macros::validations::repo::{validate_repo_structure, validate_repo_structure_with_pconf};
 
 pub(crate) struct Arguments;
 

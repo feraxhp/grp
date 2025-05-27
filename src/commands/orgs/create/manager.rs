@@ -1,6 +1,6 @@
 use std::process::exit;
 use clap::ArgMatches;
-use crate::config::structure::Usettings;
+use crate::girep::config::structure::Usettings;
 use crate::girep::common::orgs::org::Org;
 use crate::girep::platform::Platform;
 

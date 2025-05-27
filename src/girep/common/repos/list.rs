@@ -1,8 +1,8 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::animations;
-use crate::girep::config::Config;
+use crate::girep::animations;
+use crate::girep::config::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::repo::Repo;
@@ -13,7 +13,7 @@ use crate::girep::platform::Platform;
 use futures::future::join_all;
 use serde::Deserialize;
 use std::process::exit;
-use crate::animations::animation::Animation;
+use crate::girep::animations::animation::Animation;
 
 #[derive(Deserialize)]
 pub struct Transpiler {

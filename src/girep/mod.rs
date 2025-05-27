@@ -1,12 +1,14 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-pub(crate) mod repo;
-pub(crate) mod config;
-pub(crate) mod supported;
-pub(crate) mod platform;
-pub(crate) mod common;
-pub(crate) mod gitea;
-pub(crate) mod github;
-pub(crate) mod local;
+pub mod repo;
+pub mod supported;
+pub mod platform;
+pub mod common;
+pub mod gitea;
+pub mod github;
+pub mod local;
 pub mod errors;
+pub mod animations;
+pub mod macros;
+pub mod config;

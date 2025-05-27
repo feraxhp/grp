@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::config::structure::Pconf;
+use crate::girep::config::structure::Pconf;
 
 pub(crate) struct Config {
     pub(crate) pconf: String,

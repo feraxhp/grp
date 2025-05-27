@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::config::structure::{Pconf, Usettings};
+use crate::girep::config::structure::{Pconf, Usettings};
 use crate::girep::platform::Platform;
 use crate::show;
 use clap::ArgMatches;

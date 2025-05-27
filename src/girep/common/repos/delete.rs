@@ -1,9 +1,9 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::animations::animation::Animation;
-use crate::animations::delition::Delete;
-use crate::girep::config::Config;
+use crate::girep::animations::animation::Animation;
+use crate::girep::animations::delition::Delete;
+use crate::girep::config::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::common::repos::structs::{DebugData, Rtype};

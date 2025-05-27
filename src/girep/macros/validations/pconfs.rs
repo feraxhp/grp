@@ -1,7 +1,7 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::config::loader::load_configurations;
+use crate::girep::config::loader::load_configurations;
 
 fn internal(value: &str, vec: Vec<&str>) -> Result<String, String> {
     let config = load_configurations();

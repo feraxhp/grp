@@ -2,9 +2,6 @@
 // Licensed under the MIT License;
 
 mod girep;
-mod config;
-mod macros;
-mod animations;
 mod update;
 mod commands;
 
@@ -14,10 +11,10 @@ use std::process::exit;
 use color_print::cprintln;
 use clap::{arg, command, crate_version};
 
-use crate::macros::macros::invalid;
+use girep::macros::macros::invalid;
 use crate::update::os::base::Updater;
 use crate::update::check::validate_version;
-use crate::config::command::{config_command, config_manager};
+use crate::girep::config::command::{config_command, config_manager};
 
 use commands::local::clone::manager::clone_manager;
 use commands::local::clone::subcommand::clone_subcommand;
@@ -33,6 +30,7 @@ use commands::repos::list::manager::list_manager;
 use commands::repos::list::subcommand::list_subcommand;
 use commands::orgs::command::orgs_command;
 use commands::orgs::manager::orgs_manager;
+use crate::girep::config::loader;
 
 #[tokio::main]
 async fn main() {
@@ -79,7 +77,7 @@ async fn main() {
         }
     };
 
-    let user_settings = config::loader::load_configurations();
+    let user_settings = loader::load_configurations();
 
     match commands.subcommand() {
         Some(sub) => match sub {

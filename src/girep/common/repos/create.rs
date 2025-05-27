@@ -1,8 +1,8 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::animations;
-use crate::girep::config::Config;
+use crate::girep::animations;
+use crate::girep::config::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::errors::types::ErrorType;
 use crate::girep::repo::Repo;
@@ -11,7 +11,7 @@ use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::platform::Platform;
 use color_print::cformat;
 use std::process::exit;
-use crate::animations::animation::Animation;
+use crate::girep::animations::animation::Animation;
 
 impl Platform {
     pub async fn create_repo(&self, owner: String, repo: Repo, config: Config) -> Result<Repo, Error> {

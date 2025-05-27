@@ -5,7 +5,7 @@ use color_print::cprintln;
 use std::process::exit;
 use hyper::HeaderMap;
 use reqwest::Response;
-use crate::girep::config::Config;
+use crate::girep::config::config::Config;
 use crate::girep::errors::error::Error;
 use crate::girep::common::repos::structs::DebugData;
 

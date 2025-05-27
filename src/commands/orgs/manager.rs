@@ -2,8 +2,8 @@
 // Licensed under the MIT License;
 
 use clap::ArgMatches;
-use crate::macros::macros::invalid;
-use crate::config::structure::Usettings;
+use crate::girep::macros::macros::invalid;
+use crate::girep::config::structure::Usettings;
 use crate::commands::orgs::list::manager::list_manager;
 use crate::commands::orgs::create::manager::create_manager;
 use crate::commands::orgs::delete::manager::delete_manager;

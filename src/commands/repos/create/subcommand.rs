@@ -3,7 +3,7 @@
 
 use crate::commands::cmdcore::args::Arguments;
 use crate::commands::cmdcore::commands::Commands;
-use crate::macros::validations::repo::validate_repo_structure;
+use crate::girep::macros::validations::repo::validate_repo_structure;
 use clap::builder::ValueParser;
 use clap::{arg, Command};
 

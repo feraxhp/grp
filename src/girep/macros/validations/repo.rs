@@ -2,7 +2,7 @@
 // Licensed under the MIT License;
 
 use color_print::cformat;
-use crate::macros::validations::pconfs;
+use crate::girep::macros::validations::pconfs;
 
 pub(crate) fn validate_repo_structure(value: &str) -> Result<String, String> {
     let (pconf, owner, repo_name) = match unfold_repo_structure(value, false) {
