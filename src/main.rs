@@ -14,8 +14,8 @@ use clap::{arg, command, crate_version};
 use girep::macros::macros::invalid;
 use crate::update::os::base::Updater;
 use crate::update::check::validate_version;
-use crate::girep::config::command::{config_command, config_manager};
 
+use commands::config::command::{config_command, config_manager};
 use commands::local::clone::manager::clone_manager;
 use commands::local::clone::subcommand::clone_subcommand;
 use commands::local::push::subcommand::push_subcommand;
