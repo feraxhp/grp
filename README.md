@@ -11,7 +11,7 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 ### Repositories
 
-| Feature | GitHub | Gitea | GitLab | Jetbrains Space |
+| Feature | GitHub | Gitea | GitLab | Jetbrains Space* |
 |:-------:|:------:|:-----:|:------:|:---------------:|
 | List    |   ✅   |   ✅   |   🔶   |       🟥        |
 | Create  |   ✅   |   ✅   |   🟥   |       🟥        |
@@ -124,6 +124,9 @@ cd grp
 # if you want to install it on your system
 cargo install --path .
 ```
+
+---
+`*` Jetbrains has been planed to remove access from the `Jetbrains space` So, probably i dont get in time.
 
 ---
 ## Need more Functionality?
