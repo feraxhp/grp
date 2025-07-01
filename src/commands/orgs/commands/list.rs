@@ -1,5 +1,5 @@
 use clap::{arg, ArgMatches, Command};
-use color_print::cprintln;
+use color_print::{cformat, cprintln};
 
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
@@ -38,18 +38,18 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     match (orgs, _pag_error, _errors) {
         (o, None, e) if e.is_empty() && !o.is_empty() => {
-            animation.finish_with_success("Organizations listed successfully");
+            animation.finish_with_success(cformat!("<y,i>list orgs</y,i> <g>succeeded!</>"));
             o.print_pretty();
         },
         (o, None, e) if e.is_empty() && o.is_empty() => {
-            animation.finish_with_success("No organizations found");
+            animation.finish_with_success("<i>No orgs found</>");
         },
         (_, Some(e), _) => {
             animation.finish_with_error(format!("{}", e.message));
             e.show();
         },
         (o, None, e) if !o.is_empty() && !e.is_empty() => {
-            animation.finish_with_warning("Organizations listed with errors");
+            animation.finish_with_warning(cformat!("<m,i>list orgs</m,i> <y>finish with errors!</>"));
             o.print_pretty();
             if show_errors { e.print_pretty(); } 
             else {

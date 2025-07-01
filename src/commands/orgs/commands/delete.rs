@@ -27,6 +27,8 @@ pub fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
+    let animation = Delete::new("Initializing organization deletion...");
+    
     let pconf = match args.get_one::<String>("pconf") {
         Some(e) if e == "-" => usettings.get_default_pconf().unwrap(),
         Some(e) => usettings.get_pconf_by_name(e).unwrap(),
@@ -53,8 +55,6 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
 
         confirmation = input == format!("{}", name);
     }
-    
-    let animation = Delete::new("Initializing organization deletion...");
     
     let platform = Platform::matches(pconf.r#type.as_str());
     let config = pconf.to_config();

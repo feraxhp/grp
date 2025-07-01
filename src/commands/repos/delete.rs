@@ -25,6 +25,8 @@ pub fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
+    let animation = Delete::new("Initializing repository deletion...");
+    
     let srepo = args.get_one::<String>("repo").unwrap();
     let (pconf, owner, repo) = unfold_repo_structure(srepo.as_str(), false, &usettings).unwrap();
 
@@ -58,8 +60,6 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
 
         confirmation = input == format!("{}/{}", owner, repo);
     }
-    
-    let animation = Delete::new("Initializing repository deletion...");
     
     let platform = Platform::matches(pconf.r#type.as_str());
     let config = pconf.to_config();

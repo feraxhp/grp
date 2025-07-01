@@ -44,6 +44,7 @@ pub fn command() -> Command {
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Create::new("Initializing repository creation...");
+    
     let srepo = args.get_one::<String> ("repo").unwrap();
     let srepo = srepo.replace("\"", "");
 
@@ -102,7 +103,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 animation.change_message("Adding the remote");
                 match platform.add_remote(&pconf.name, &repo.git, &path) {
                     Ok(_) => {
-                        animation.finish_with_success("Accions succed!");
+                        animation.finish_with_success(cformat!("<y,i>repo creation</y,i> <g>succeeded!</>"));
                         let name = match repo.private {
                             Some(true)  => cformat!("{} <r>priv</>", &repo.name),
                             Some(false) => cformat!("{} <g>pub </>", &repo.name),
@@ -130,7 +131,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 }
             }
             else {
-                animation.finish_with_success("Repository created succesfully");
+                animation.finish_with_success(cformat!("<y,i>repo creation</y,i> <g>succeeded!</>"));
                 vec![repo].print_pretty();
             }
         },
