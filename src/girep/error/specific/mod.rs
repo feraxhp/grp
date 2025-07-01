@@ -1,0 +1,16 @@
+pub mod not_organization_found;
+pub mod local_repo_not_found;
+pub mod pagination_errors;
+pub mod usettings_parsing;
+pub mod response_parsing;
+pub mod bad_token_scope;
+pub mod not_owner_found;
+pub mod not_repo_found;
+pub mod already_exist;
+pub mod fetch_failed;
+pub mod unauthorized;
+pub mod unsupported;
+pub mod incomplete;
+pub mod path404;
+pub mod unknown;
+pub mod obj404;

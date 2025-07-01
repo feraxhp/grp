@@ -1,14 +1,12 @@
 use std::time::Duration;
 use color_print::{cformat, cprintln};
 use indicatif::{ProgressBar, ProgressStyle};
-use crate::animations::animation::Animation;
+use crate::animations::animation::Create;
+use crate::girep::animation::Animation;
 
-pub(crate) struct Create {
-    spinner: ProgressBar,
-}
 
 impl Animation for Create  {
-    fn new(message: &str) -> Box<Create> {
+    fn new<T: Into<String>>(message: T) -> Box<Create> {
         let spinner = ProgressBar::new_spinner();
         let style = ProgressStyle::default_spinner()
             .tick_strings(
@@ -24,28 +22,28 @@ impl Animation for Create  {
             )
             ;
         spinner.set_style(style);
-        spinner.set_message(cformat!("<y>{}</>", message.to_string()).to_string());
+        spinner.set_message(cformat!("<y>{}</>", message.into()));
         spinner.enable_steady_tick(Duration::from_millis(200));
 
         Box::from(Create { spinner })
     }
 
-    fn finish_with_error(&self, message: &str) {
+    fn finish_with_error<T: Into<String>>(&self, message: T) {
         self.spinner.finish_and_clear();
-        cprintln!("<r>💻--X--🌎 {}</>", message.to_string());
+        cprintln!("<r>💻--X--🌎 {}</>", message.into());
     }
 
-    fn finish_with_warning(&self, message: &str) {
+    fn finish_with_warning<T: Into<String>>(&self, message: T) {
         self.spinner.finish_and_clear();
-        cprintln!("<y>💻--!--🌎 {}</>", message.to_string());
+        cprintln!("<y>💻--!--🌎 {}</>", message.into());
     }
 
-    fn finish_with_success(&self, message: &str) {
+    fn finish_with_success<T: Into<String>>(&self, message: T) {
         self.spinner.finish_and_clear();
-        cprintln!("<g>💻--✓--🌎 {}</>", message.to_string());
+        cprintln!("<g>💻--✓--🌎 {}</>", message.into());
     }
 
-    fn change_message(&self, message: String) {
-        self.spinner.set_message(cformat!("<y>{}</>", message));
+    fn change_message<T: Into<String>>(&self, message: T) {
+        self.spinner.set_message(cformat!("<y>{}</>", message.into()));
     }
 }

@@ -1,114 +1,75 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use crate::animations;
-use crate::girep::config::Config;
-use crate::errors::error::Error;
-use crate::errors::types::ErrorType;
-use crate::girep::repo::Repo;
-use crate::girep::common::repos::paggination::paggination_mannager;
-use crate::girep::common::repos::structs::{DebugData, Rtype};
-use crate::girep::github::errors::error_manager;
-use crate::girep::platform::Platform;
 use futures::future::join_all;
-use serde::Deserialize;
-use std::process::exit;
-use crate::animations::animation::Animation;
-
-#[derive(Deserialize)]
-pub struct Transpiler {
-    pub full_name: String,
-    pub description: Option<String>,
-    pub private: bool,
-    pub html_url: String,
-    pub clone_url: String,
-}
+use crate::girep::animation::Animation;
+use crate::girep::config::Config;
+use crate::girep::platform::Platform;
+use crate::girep::error::structs::Error;
+use crate::girep::common::pagination::pagination;
+use crate::girep::common::structs::{Context, Repo, RequestType};
 
 impl Platform {
-    pub async fn list_repos(&self, owner: Option<String>, config: Config) -> (Vec<Repo>, Vec<Error>) {
-        let header_map = self.get_auth_header(config.token.clone());
+    #[allow(dead_code)]
+    pub async fn list_repos<T: Into<String>, A: Animation + ?Sized>(&self,
+        owner: Option<T>, 
+        config: &Config,
+        animation: Option<&Box<A>>
+    ) -> (Vec<Repo>, Option<Error>, Vec<Error>) {
+        let header_map = self.get_auth_header(&config.token);
+        let owner = owner.map(|o| o.into());
         let owner = owner.unwrap_or(config.user.clone());
-
-        let load_animation = animations::fetch::Fetch::new("Fetching repositories ...");
-
-
-        let url = match self.get_user_type(owner.as_str(), config.clone()).await {
-            Ok(user) => self.url_list_repos(owner.clone(), user, config.endpoint.clone()),
-            Err(e) => {
-                load_animation.finish_with_error(e.message.as_str());
-                e.show();
-                exit(101);
-            }
+        
+        if let Some(an) = animation { an.change_message("getting user type"); }
+        
+        let user_type = match self.get_user_type(&owner, &config).await {
+            Ok(ut) => ut,
+            Err(e) => return (Vec::new(), Some(e), vec![])
         };
-
-        let (responses,mut erros) = paggination_mannager(url, header_map).await;
-
-        let responses: Vec<_> = responses.into_iter().map(|response| {
-            error_manager(
-                response,
-                DebugData{
-                    rtype: Rtype::List,
-                    owner: owner.clone(),
+        
+        if let Some(an) = animation { an.change_message("fetching repositories..."); }
+        
+        let url = self.url_list_repos(&user_type, &config.endpoint).await;
+        let (responses, error) = pagination(url, header_map).await;
+        
+        let responses: Vec<_> = responses.into_iter()
+            .map(|response| {
+                let context = Context {
+                    request_type: RequestType::List,
+                    owner: Some(user_type.get_user().name),
                     repo: None,
-                },
-                config.clone(),
-                "Failed to fetch repositories".to_string(),
-            )
-        }).collect();
-
-        let repos = join_all(responses).await;
-
-        let (repos, repos_erros): (Vec<_>, Vec<_>) = repos.into_iter().partition(Result::is_ok);
-
-        let repos_erros: Vec<Error> = repos_erros.into_iter().map(Result::unwrap_err).collect();
-
-        erros.extend(repos_erros);
-
-        let mut repositories_transpiler: Vec<Transpiler> = Vec::new();
-        for repo in repos {
-            let repo = match repo {
-                Ok(repo) => repo,
-                Err(e) => {
-                    erros.push(e);
-                    continue;
-                }
-            };
-            let repository: Vec<Transpiler> = match serde_json::from_str(&repo.clone()) {
-                Ok(repos) => repos,
-                Err(e) => {
-                    erros.push(Error::new(
-                        ErrorType::Dezerialized,
-                        vec![
-                            e.to_string().as_str(),
-                            repo.as_str()
-                        ]
-                    ));
-                    continue;
-                }
-            };
-            repositories_transpiler.extend(repository);
+                    additional: None,
+                };
+                
+                self.unwrap(
+                    response, "Failed to fetch repositories",
+                    &config, context
+                )
+            }).collect();
+        
+        let responses = join_all(responses).await;
+        
+        let (responses, response_erros): (Vec<_>, Vec<_>) = responses.into_iter().partition(Result::is_ok);
+        
+        let mut repos_erros: Vec<Error> = response_erros.into_iter().map(Result::unwrap_err).collect();
+        let mut repos: Vec<Repo> = Vec::new();
+        
+        if let Some(an) = animation { an.change_message("formating repositories"); }
+        
+        for response in responses {
+            match self.get_repo(response) {
+                Ok(r) => repos.extend(r),
+                Err(e) => repos_erros.push(e),
+            }
         }
-
-        if erros.is_empty() { load_animation.finish_with_success("Repositories fetched successfully!"); }
-        else {
-            load_animation.finish_with_warning("Some repositories might be missing");
+        
+        (repos, error, repos_erros)
+    }
+    
+    pub fn get_repo(&self, response: Result<String, Error>) -> Result<Vec<Repo>, Error> {
+        match response {
+            Ok(rs) => Repo::from_text_array(&rs, &self),
+            Err(_) => { unreachable!() }
         }
-
-        // Return the list of repositories
-        let repos = repositories_transpiler
-            .into_iter()
-            .map(
-                |transpiler|
-                    Repo {
-                        full_name: transpiler.full_name,
-                        description: transpiler.description.unwrap_or("".to_string()),
-                        state: if transpiler.private { "private".to_string() } else { "public".to_string() },
-                        html_url: transpiler.html_url,
-                        clone_url: transpiler.clone_url,
-                    }
-            )
-            .collect();
-
-        (repos, erros)
     }
 }

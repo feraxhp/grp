@@ -1,54 +1,54 @@
-// Copyright 2024 feraxhp
-// Licensed under the MIT License;
-
-use crate::animations::animation::Animation;
-use crate::animations::delition::Delete;
-use crate::girep::config::Config;
-use crate::errors::error::Error;
-use crate::errors::types::ErrorType;
-use crate::girep::common::repos::structs::{DebugData, Rtype};
 use crate::girep::platform::Platform;
+use crate::girep::error::structs::Error;
+use crate::girep::config::Config;
+use crate::girep::common::structs::{Context, RequestType};
+use crate::girep::animation::Animation;
+use crate::girep::specific::gitlab;
+
 
 impl Platform {
-    pub async fn delete_repo(&self, owner: String, repo: String, config: Config) -> Result<(), Error> {
-        let client = reqwest::Client::new();
-
-        let load_animation = Delete::new("Deleting repository ...");
-
-        let url = self.url_delete_repo(owner.clone(), repo.clone(), config.endpoint.clone());
-
-        let result = match client.delete(url)
-            .headers(self.get_auth_header(config.token.clone())).send().await {
-            Ok(response) => response,
-            Err(e) => {
-                load_animation.finish_with_error("Failed to contact the platform");
-                return Err(
-                    Error::new(
-                        ErrorType::Unknown,
-                        vec![
-                            e.to_string().as_str(),
-                        ]
-                    )
-                )
-            }
-        };
-
-        if result.status().as_u16() == 204 {
-            load_animation.finish_with_success("Done!");
-            return Ok(());
+    pub async fn delete_repo<T: Into<String>, A: Animation + ?Sized>(&self,
+        owner: T, repo: T,
+        config: &Config,
+        permanent: bool,
+        animation: Option<&Box<A>>
+    ) -> Result<(), Error> {
+        let mut owner = owner.into(); let repo = repo.into();
+        let owner_copy = owner.clone();
+        
+        if matches!(self, Platform::Gitlab) {
+            if let Some(an) = animation { an.change_message("getting project id"); }
+            let project = gitlab::projects::get::get_project_with_path(&self, &owner, &repo, config).await?;
+            owner = project.id.to_string();
         }
-
-        Err(
-            self.error_manager(
-                result,
-                DebugData{
-                    rtype: Rtype::Delete,
-                    owner: owner.clone(),
-                    repo: Some(repo.clone()),
-                },
-                config.clone(),
-                "Failed to delete repository".to_string(),
-            ).await.unwrap_err()
-        )
+        
+        if let Some(an) = animation { an.change_message("generating url ..."); }
+        let url = self.url_delete_repo(&owner, &repo, &config.endpoint).await;
+        
+        if let Some(an) = animation { an.change_message("Deleting repository ..."); }
+        let result = self.delete(&url, config).await?;
+        
+        match (self, result.status().as_u16()) {
+            (Platform::Gitea, 204) | 
+            (Platform::Github, 204) => Ok(()),
+            (Platform::Gitlab, 202 | 400) if permanent => {
+                if let Some(an) = animation { an.change_message("Permamently deleting gitlab project ..."); }
+                let project = gitlab::projects::get::get_project_with_id(&self, &owner, config).await?;
+                let _ = gitlab::projects::delete::premanently_remove(&self, &project, config).await?;
+                Ok(())
+            },
+            (Platform::Gitlab, 202) => Ok(()),
+            (_, _) => {
+                let context = Context {
+                    request_type: RequestType::Delete,
+                    owner: Some(owner_copy),
+                    repo: Some(repo),
+                    additional: None
+                };
+                
+                let base_message = "Error deleting repository";
+                Err(self.unwrap(result, base_message, &config, context).await.unwrap_err())
+            }
+        }
     }
 }
