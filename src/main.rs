@@ -4,6 +4,7 @@
 mod girep;
 mod local;
 mod system;
+mod update;
 mod commands;
 mod usettings;
 mod animations;
@@ -14,7 +15,7 @@ use std::process::exit;
 use color_print::cprintln;
 use clap::{arg, command, crate_version};
 
-use crate::{commands::{config::config, core::common::invalid, local::{clone, pull, push}, orgs::orgs, repos::{create, delete, list}}, usettings::structs::Usettings};
+use crate::{commands::{config::config, core::common::invalid, local::{clone, pull, push}, orgs::orgs, repos::{create, delete, list}}, update::structs::Version, usettings::structs::Usettings};
 
 #[tokio::main]
 async fn main() {
@@ -45,21 +46,21 @@ async fn main() {
         _ => {}
     }
 
-    // match validate_version().await {
-    //     Ok((true, version)) => { }
-    //     Ok((false, version)) => {
-    //         eprintln!("🎉 New version available!!");
-    //         cprintln!("   → Latest  version: <g>{}</>", version.name.clone());
-    //         cprintln!("   → Current version: <g>v{}</>", crate_version!());
-    //         eprintln!();
-    //         cprintln!("📥 Download it from: <b,u>{}</>", version.get_os_url());
-    //         eprintln!();
-    //     }
-    //     Err(e) => {
-    //         println!("{}", e.message);
-    //         e.show();
-    //     }
-    // };
+    match Version::validate_version().await {
+        Ok((true, _)) => (),
+        Ok((false, version)) => {
+            eprintln!("🎉 New version available!!");
+            cprintln!("   → Latest  version: <g>{}</>", version.name.clone());
+            cprintln!("   → Current version: <g>v{}</>", crate_version!());
+            eprintln!();
+            cprintln!("📥 Download it from: <b,u>{}</>", version.get_os_url());
+            eprintln!();
+        }
+        Err(_e) => {
+            // cprintln!("<r>✕ {}</>", _e.message);
+            // _e.show();
+        }
+    };
 
     let usettings = Usettings::read().unwrap_or_else(|e| {
         e.show();

@@ -13,13 +13,19 @@ impl Platform {
             vec![e.to_string(), "Please check you ethernet conection".to_string()]
         ))
     }
-    pub async fn get<U: IntoUrl>(&self, url: U, header: bool, config: &Config) -> Result<Response, Error> {
+    pub async fn get<U: IntoUrl>(&self, url: U, auth: bool, config: &Config) -> Result<Response, Error> {
         let client = Client::new();
+        let mut header = self.get_auth_header(&config.token);
         
-        let mut req = client.get(url);
-        if header {
-            req = req.headers(self.get_auth_header(&config.token));
-        };
+        if !auth {
+            match self {
+                Platform::Github => header.remove("Authorization"),
+                Platform::Gitea |
+                Platform::Gitlab => header.remove("authorization"),
+            };
+        }
+        
+        let req = client.get(url).headers(header);
         
         Platform::send(req).await
     }
