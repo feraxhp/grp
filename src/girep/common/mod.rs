@@ -1,5 +1,8 @@
-// Copyright 2024 feraxhp
-// Licensed under the MIT License;
-
-pub(crate) mod repos;
-pub(crate) mod orgs;
+pub mod pagination;
+pub mod platform;
+pub mod structs;
+pub mod repos;
+pub mod users;
+pub mod repo;
+pub mod show;
+pub mod orgs;

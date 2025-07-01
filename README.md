@@ -11,21 +11,21 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 ### Repositories
 
-| Feature | GitHub | Gitea | GitLab | Jetbrains Space* |
-|:-------:|:------:|:-----:|:------:|:---------------:|
-| List    |   ✅   |   ✅   |   🔶   |       🟥        |
-| Create  |   ✅   |   ✅   |   🟥   |       🟥        |
-| Delete  |   ✅   |   ✅   |   🟥   |       🟥        |
-|  Clone  |   ✅   |   ✅   |   🟥   |       🟥        |
-|  Push   |   ✅   |   ✅   |   🟥   |       🟥        |
-|  Pull   |   🎉   |   🎉   |   🟥   |       🟥        |
+| Feature | GitHub | Gitea | GitLab |
+|:-------:|:------:|:-----:|:------:|
+| List    |   ✅   |   ✅   |   🎉   |
+| Create  |   ✅   |   ✅   |   🎉   |
+| Delete  |   ✅   |   ✅   |   🎉   |
+|  Clone  |   ✅   |   ✅   |   🎉   |
+|  Push   |   ✅   |   ✅   |   🎉   |
+|  Pull   |   ✅   |   ✅   |   🎉   |
 
 ### Organizations
-| Feature | GitHub | Gitea | GitLab | Jetbrains Space |
-|:-------:|:------:|:-----:|:------:|:---------------:|
-| List    |   ✅   |   ✅  |   🟥   |       🟥        |
-| Create  |   ✅   |   ✅  |   🟥   |       🟥        |
-| Delete  |   ✅   |   ✅  |   🟥   |       🟥        |
+| Feature | GitHub | Gitea | GitLab |
+|:-------:|:------:|:-----:|:------:|
+| List    |   ✅   |   ✅  |   🎉   |
+| Create  |   ✅`1`|   ✅  |   🎉`2`|
+| Delete  |   ✅   |   ✅  |   🎉`3`|
 
 
 ---
@@ -54,7 +54,7 @@ grp manage the platforms in objets called pcofs. in every pconf you have to add
 - **name**: Is the name for the pconf, it is used to determine the platform. 
 - **owner**: Is the username that will use by default to request in the platform.
 - **token**: Is a user generated token used to authenticate the request.
-- **type**: type of the platform. currently allows `github`, `gitea`.
+- **type**: type of the platform. currently allows `github`, `gitea` and `gitlab`.
 - **endpoint**: the endpoint to make the request 
   - examples:
     - `"api.github.com"`: for GitHub.
@@ -81,6 +81,13 @@ here is an example for a complete config file:
       "token": "<token generated>",
       "type": "gitea",
       "endpoint": "tea.example.com"
+    },
+    {
+      "name": "glab",
+      "owner": "feraxhp",
+      "token": "<token generated>",
+      "type": "gitlab",
+      "endpoint": "gitlab.example.com"
     }
   ]
 }
@@ -126,7 +133,13 @@ cargo install --path .
 ```
 
 ---
-`*` Jetbrains has been planed to remove access from the `Jetbrains space` So, probably i dont get in time.
+`*` Jetbrains has removed access for `Jetbrains space` So, is removed for the planed support.
+
+`1` Github does not allow create orgs by the API for security reasons
+
+`2` Some GitLab admins not allow create groups by the API for security reasons, however for sub-groups yes.
+
+`3` Delete for GitLab has an aditional step, so if you whant to just mark for delition something you have to add the flag `--soft`
 
 ---
 ## Need more Functionality?

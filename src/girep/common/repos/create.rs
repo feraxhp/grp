@@ -1,101 +1,39 @@
-// Copyright 2024 feraxhp
-// Licensed under the MIT License;
-
-use crate::girep::animations;
-use crate::girep::config::config::Config;
-use crate::girep::errors::error::Error;
-use crate::girep::errors::types::ErrorType;
-use crate::girep::repo::Repo;
-use crate::girep::common::repos::list::Transpiler;
-use crate::girep::common::repos::structs::{DebugData, Rtype};
+use crate::girep::animation::Animation;
+use crate::girep::common::structs::{Context, Repo, RequestType};
+use crate::girep::config::Config;
+use crate::girep::error::structs::Error;
 use crate::girep::platform::Platform;
-use color_print::cformat;
-use std::process::exit;
-use crate::girep::animations::animation::Animation;
+
 
 impl Platform {
-    pub async fn create_repo(&self, owner: String, repo: Repo, config: Config) -> Result<Repo, Error> {
-        let client = reqwest::Client::new();
-
-        let load_animation = animations::creation::Create::new("Creating repository ...");
-
-        let url = match self.get_user_type(owner.as_str(), config.clone()).await {
-            Ok(user) => self.url_create_repo(owner.clone(), user, config.endpoint.clone()),
-            Err(e) => {
-                load_animation.finish_with_error(e.message.as_str());
-                e.show();
-                exit(101);
-            }
+    pub async fn create_repo<T: Into<String>, A: Animation + ?Sized>(&self,
+        owner: Option<T>, 
+        repo: Repo,
+        config: &Config,
+        animation: Option<&Box<A>>
+    ) -> Result<Repo, Error> {
+        let owner = owner.map(|o| o.into());
+        let owner = owner.unwrap_or(config.user.clone());
+        
+        if let Some(an) = animation { an.change_message("getting user type"); }
+        let user_type = self.get_user_type(&owner, &config).await?;
+        
+        if let Some(an) = animation { an.change_message("Serializing repository..."); }
+        let json = repo.as_json(&self);
+        
+        if let Some(an) = animation { an.change_message("creating repository..."); }
+        let url = self.url_create_repo(&user_type, &config.endpoint).await;
+        let result = self.post(url, true, config, &json).await?;
+        
+        let context = Context {
+            request_type: RequestType::Create,
+            owner: Some(user_type.get_user().name),
+            repo: Some(repo.name), additional: None,
         };
-
-        let json = serde_json::json!({
-            "name": repo.full_name,
-            "description": repo.description,
-            "private": repo.state == "private",
-        });
-
-        let result = match client.post(url).headers(self.get_auth_header(config.token.clone()))
-            .header("content-type", "application/json").json(&json).send().await {
-                Ok(response) => response,
-                Err(e) => {
-                    load_animation.finish_with_error("Failed to contact the platform");
-                    return Err(
-                        Error::new(
-                            ErrorType::Unknown,
-                            vec![
-                                e.to_string().as_str(),
-                            ]
-                        )
-                    )
-                }
-            };
-
-        let response_text = self.error_manager(
-            result,
-            DebugData{
-                rtype: Rtype::Create,
-                owner: owner.clone(),
-                repo: Some(repo.full_name.clone()),
-            },
-            config.clone(),
-            "Failed to create repository".to_string(),
-        ).await;
-
-        let response_text = match response_text {
-            Ok(text) => text,
-            Err(e) => {
-                load_animation.finish_with_error(e.message.as_str());
-                return Err(e);
-            }
-        };
-
-        let transpiler: Transpiler = match serde_json::from_str(&response_text.clone()) {
-            Ok(repos) => repos,
-            Err(e) => {
-                load_animation.finish_with_error("Failed to create repository");
-                return Err(
-                    Error::new(
-                        ErrorType::Unknown,
-                        vec![
-                            format!("* Failed to parse the response: {}", e).as_str(),
-                            format!("  Response: {}", response_text).as_str(),
-                            cformat!("<y>* Unknown error</>").as_str(),
-                        ]
-                    )
-                )
-            }
-        };
-
-        load_animation.finish_with_success("Done!");
-
-        Ok(
-            Repo {
-                full_name: transpiler.full_name,
-                description: transpiler.description.unwrap_or_default(),
-                state: if transpiler.private { "private".to_string() } else { "public".to_string() },
-                html_url: transpiler.html_url,
-                clone_url: transpiler.clone_url,
-            }
-        )
+        
+        let base_message = "Failed to create repository";
+        let reponse = self.unwrap(result, base_message, &config, context).await?;
+        
+        Repo::from_text(&reponse, &self)
     }
 }

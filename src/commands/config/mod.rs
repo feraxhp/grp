@@ -1,2 +1,3 @@
-pub mod command;
-pub mod subcommands;
+pub mod config;
+pub mod commands;
+

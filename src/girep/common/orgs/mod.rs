@@ -1,5 +1,4 @@
-// Copyright 2024 feraxhp
-// Licensed under the MIT License;
-
-pub(crate) mod methods;
-pub(crate) mod org;
+pub mod create;
+pub mod delete;
+pub mod list;
+pub mod urls;
