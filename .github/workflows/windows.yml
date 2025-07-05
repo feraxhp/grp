@@ -14,17 +14,36 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
       - name: Build
         run: cargo build --release --verbose
-
+        
       - name: get version
-        id: get_version
+        id: version
         shell: bash
         run: echo "version=$(.\\target\\release\\grp.exe -v)" >> $GITHUB_ENV
-
+        
+      - name: get numeric version
+        id: numeric_version
+        shell: bash
+        run: echo "nversion=$(echo "${{ env.version }}" | cut -d'-' -f1)" >> $GITHUB_ENV
+        
+      - name: Install Wix Toolset wix314
+        run: |
+            Invoke-WebRequest -Uri https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip -OutFile wix.zip
+            Expand-Archive .\wix.zip -DestinationPath 'C:\WixToolset'
+            $env:PATH = "C:\WixToolset;" + $env:PATH
+        shell: pwsh
+        
+      - name: Installing cargo-wix
+        run: cargo install cargo-wix
+        
+      - name: Generating MSI installer
+        run: cargo wix --no-build -i ${{ env.nversion }}
+        
       - uses: AButler/upload-release-assets@v3.0
         name: Upload release assets
         with:
-          files: "target/release/grp.exe"
+          files: "target/release/grp.exe;target/wix/grp*.msi"
           repo-token: ${{ github.token }}
           release-tag: "v${{ env.version }}"
