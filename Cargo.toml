@@ -1,10 +1,11 @@
 [package]
 name = "grp"
-version = "0.7.0-beta"
+version = "0.7.1-beta"
 edition = "2024"
 license = "MIT"
-authors = ["feraxhp"]
+authors = ["feraxhp <feraxhp+gh@gmail.com>"]
 description = "A simple CLI tool to mannage platforms for git repositories"
+homepage = "https://github.com/feraxhp/grp"
 
 [dependencies]
 hyper = "1.6.0"
@@ -19,6 +20,9 @@ indicatif = "0.17.11"
 futures = "0.3.31"
 git2 = "0.20.2"
 urlencoding = "2.1.3"
+
+[build-dependencies]
+winres = "0.1"
 
 [package.metadata.generate-rpm]
 url="https://github.com/feraxhp/grp"
