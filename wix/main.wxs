@@ -196,7 +196,7 @@
 
           The banner BMP dimensions are 493 x 58 pixels.
         -->
-        <!--<WixVariable Id='WixUIBannerBmp' Value='wix\Banner.bmp'/>-->
+        <WixVariable Id='WixUIBannerBmp' Value='wix\Banner.bmp'/>
 
         
         <!--
@@ -207,7 +207,7 @@
 
           The dialog BMP dimensions are 493 x 312 pixels.
         -->
-        <!--<WixVariable Id='WixUIDialogBmp' Value='wix\Dialog.bmp'/>-->
+        <WixVariable Id='WixUIDialogBmp' Value='wix\Dialog.bmp'/>
 
     </Product>
 
