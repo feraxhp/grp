@@ -8,7 +8,6 @@ use crate::local::git::structs::Action;
 
 
 impl Error {
-    #[allow(unused_variables)]
     pub fn from_git2<T: AsRef<str>>(ge: git2::Error, action: Action, repo: &T, config: Option<&Config>) -> Self {
         let code = ge.code();
         let class_ = ge.class();
