@@ -78,10 +78,9 @@ impl Error {
                 Error::new_custom(
                     message.to_string(),
                     vec![
-                        cformat!("<y>* Repository: <m,i>({})</>", repo),
-                        cformat!("  <g>» Code   : <m,i>({:?})</>", code),
-                        cformat!("  <g>» Class  : <m,i>({:?})</>", class_),
-                        cformat!("  <g>» Action : <m,i>({})</>", action.as_str()),
+                        cformat!("<y>* repo: <c>{}</>", repo),
+                        cformat!("<y>* code: <g,i>{:?}</> : <m,i>{:?}</>", code, class_),
+                        cformat!("<y>* actn: <g,i>{}</>", action.as_str()),
                     ]
                 )
             }
