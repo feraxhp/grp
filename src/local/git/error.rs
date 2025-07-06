@@ -28,7 +28,7 @@ impl Error {
                     ]
                 )
             }
-            (ErrorCode::Exists, ErrorClass::Config, message,Action::SetRemote(name, url)) => {
+            (ErrorCode::Exists, ErrorClass::Config, _,Action::SetRemote(name, url)) => {
                 let command = cformat!("    <g>•</g> <i>git remote set-url {} {}</>", &name, &url);
                 Error::new(
                     ErrorType::AlreadyExists, 
