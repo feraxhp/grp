@@ -118,7 +118,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             logs
         },
         Ok((logs, false)) => {
-            animation.finish_with_warning("Remote push with errors");
+            animation.finish_with_warning(cformat!("<m,i>push</m,i> <y>finish with errors!</>"));
             logs
         },
         Err(e) => {

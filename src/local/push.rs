@@ -95,10 +95,11 @@ impl Platform {
             let transfer = transfer_clone.lock().unwrap();
             
             if let Some(error) = status {
-                let message = cformat!("<r>* <m>{}</><w> got <r>Error: {}</>", refs, &error);
+                let message = cformat!("<r>* <m>{}</><w> got <r>Error:</> <i>{}</>", refs, &error);
                 // if let Some(an) = animation { an.change_message(&message); }
                 logs.push(message);
                 *perfect = false;
+                return Ok(());
             }
             
             let message = match (*transfer, options.force) {
