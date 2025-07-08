@@ -39,7 +39,7 @@ jobs:
         run: cargo install cargo-wix
         
       - name: Generating MSI installer
-        run: cargo wix --no-build -i ${{ env.nversion }}
+        run: cargo wix --no-build -i ${{ env.nversion }} --nocapture
         
       - uses: AButler/upload-release-assets@v3.0
         name: Upload release assets
