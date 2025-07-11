@@ -32,7 +32,7 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 - Windows: Download the latest .exe from the releases page.
     - `grp.exe` is the portable version
-    - `grp-0.7.1-x86_64.msi` is the portable version
+    - `grp-0.7.1-x86_64.msi` is the installer
     - Or use winget.
     ~~~bash
     winget install --id feraxhp.grp
