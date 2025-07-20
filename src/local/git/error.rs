@@ -73,6 +73,21 @@ impl Error {
                     ]
                 )
             }
+            (ErrorCode::Locked, ErrorClass::Merge, m, Action::Pull) => {
+                let mut messages = vec![
+                    cformat!("<y>* The merge was locked by: </>"),
+                ];
+                
+                let files = m.split(",")
+                    .map(|f| cformat!("  <g>→</g> <m,i>{}</>", f.trim()))
+                    .collect::<Vec<_>>();
+                
+                messages.extend(files);
+                messages.push(cformat!("<y>* Please <m,i>commit</m,i> or <m,i>stash</m,i> them</>"));
+                messages.push(cformat!("<y>  or <m,i>add the <r>--force</r> tag</m,i> to override them</>"));
+                
+                Error::new_custom("No fast-forward merge".to_string(), messages)
+            }
             (code, class_, message,action) => {
                 Error::new_custom(
                     message.to_string(),

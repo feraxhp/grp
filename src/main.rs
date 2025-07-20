@@ -38,6 +38,7 @@ async fn main() {
 
     match commands.clone().args_present() {
         true => {
+            an.spinner.finish_and_clear();
             if *commands.get_one::<bool>("number").unwrap_or(&false) {
                 let version = crate_version!();
                 let _ = io::stdout().write(version.as_bytes());
