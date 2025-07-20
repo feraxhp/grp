@@ -7,7 +7,7 @@ use color_print::cformat;
 pub(crate) fn content(vec: Vec<String>) -> Vec<String> {
     debug_assert!(vec.len() >= 2);
     let mut vect = vec![
-        cformat!("<r>* Error:</> {}", vec[0]),
+        cformat!("<r>* Error:</> <i>{}</>", vec[0]),
         cformat!("  Please check the config file at <i,u,b>{}</>", vec[1]),
     ];
     
