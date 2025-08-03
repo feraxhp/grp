@@ -16,7 +16,14 @@ use color_print::{cprintln,cformat};
 use clap::{arg, command, crate_version};
 
 use crate::girep::animation::Animation;
-use crate::{commands::{config::config, core::common::invalid, local::{clone, pull, push}, orgs::orgs, repos::{create, delete, list}}, update::structs::Version, usettings::structs::Usettings};
+use crate::girep::error::structs::Error;
+use crate::update::structs::Version;
+use crate::usettings::structs::Usettings;
+use crate::commands::repos::{create, delete, list};
+use crate::commands::orgs::orgs;
+use crate::commands::local::{clone, pull, push};
+use crate::commands::core::common::invalid;
+use crate::commands::config::config;
 
 #[tokio::main]
 async fn main() {
@@ -57,6 +64,7 @@ async fn main() {
                 e.show();
                 exit(1);
             });
+            let version = Version::validate_version();
             an.spinner.finish_and_clear();
             match sub {
                 ("config", args) => config::manager(args),
@@ -68,23 +76,31 @@ async fn main() {
                 ("push", args) => push::manager(args, usettings).await,
                 ("pull", args) => pull::manager(args, usettings).await,
                 _ => invalid(),
-            }
+            };
+            let version = version.await;
+            print_version(version, true);
         },
         _ => {
-            an.change_message("Verifing new version");
-            match Version::validate_version().await {
-                Ok((true, _)) => (),
-                Ok((false, version)) => {
-                    eprintln!("🎉 New version available!!");
-                    cprintln!("   → Latest  version: <g>{}</>", version.name.clone());
-                    cprintln!("   → Current version: <g>v{}</>", crate_version!());
-                    eprintln!();
-                    cprintln!("📥 Download it from: <b,u>{}</>", version.get_os_url());
-                    eprintln!();
-                }
-                Err(_e) => { }
-            };
+            an.change_message("Verifing version");
+            let version = Version::validate_version().await;
             an.finish_with_warning(cformat!("No command was provided try using <g,i>'--help'</>"));
+            print_version(version, false);
         }
     }
+}
+
+fn print_version(v:  Result<(bool, Version), Error>, new_line: bool) {
+    match v {
+        Ok((true, _)) => (),
+        Ok((false, version)) => {
+            if new_line { eprintln!(""); }
+            eprintln!("🎉 New version available!!");
+            cprintln!("   → Latest  version: <g>{}</>", version.name.clone());
+            cprintln!("   → Current version: <g>v{}</>", crate_version!());
+            eprintln!();
+            cprintln!("📥 Download it from: <b,u>{}</>", version.get_os_url());
+            eprintln!();
+        }
+        Err(_e) => { }
+    };
 }
