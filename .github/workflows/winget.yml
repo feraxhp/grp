@@ -6,7 +6,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-windows:
+  publish-winget:
     runs-on: windows-latest
 
     permissions:
