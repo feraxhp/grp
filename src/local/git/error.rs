@@ -102,6 +102,16 @@ impl Error {
                     cformat!("     and then copying your local changes into it.")
                 ])
             }
+            (ErrorCode::NotFastForward, ErrorClass::Reference, _, Action::Push) => {
+                Error::new_custom(
+                    "No fast-forward push".to_string(),
+                    vec![
+                        cformat!("<y>* The branch conflicts with the remote"),
+                        cformat!("  you have to solved it fist"),
+                        cformat!("  or <i,m>add the <r>--force</r> tag</>"),
+                    ]
+                )
+            }
             (code, class_, message,action) => {
                 Error::new_custom(
                     message.to_string(),
