@@ -10,7 +10,7 @@ jobs:
     runs-on: windows-latest
 
     permissions:
-      repository-projects: write
+      contents: read
 
     steps:
       - name: Get version name
@@ -33,4 +33,4 @@ jobs:
           package: "grp"
           version: ${{ env.nversion }}
           url: "https://github.com/feraxhp/grp/releases/download/${{ env.version_name }}/grp-${{ env.nversion }}-x86_64.msi"
-          token: ${{ github.token }}
+          token: ${{ secrets.TOKEN }}
