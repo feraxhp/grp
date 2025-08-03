@@ -88,8 +88,20 @@ impl Error {
                 
                 Error::new_custom("No fast-forward merge".to_string(), messages)
             }
-            (ErrorCode::NotFound, ErrorClass::Config, m, _) => Error::new_custom(m, vec![]),
-            (ErrorCode::NotFound, ErrorClass::Reference, m, _) => Error::new_custom(m, vec![]),
+            (ErrorCode::NotFound, ErrorClass::Config, m, _) |
+            (ErrorCode::NotFound, ErrorClass::Reference, m, _) => { 
+                Error::new_custom(m, vec![])
+            }
+            (ErrorCode::NotFound, ErrorClass::Merge, m, Action::Pull) if m.contains("r:") => {
+                
+                Error::new_custom("No base found to merge".to_string(), vec![
+                    cformat!("<y>* This happens when the <m,i>local</m,i> and <m,i>remote</>"),
+                    cformat!("<y>  banches don't share a common ancestor.</>"),
+                    cformat!(""),
+                    cformat!("<g>Tip:</g> Manually resolve this by cloning the remote repository"),
+                    cformat!("     and then copying your local changes into it.")
+                ])
+            }
             (code, class_, message,action) => {
                 Error::new_custom(
                     message.to_string(),
