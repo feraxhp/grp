@@ -1,5 +1,8 @@
 # grp (git repository)
 
+[![.github/workflows/Releases.yml](https://github.com/feraxhp/grp/actions/workflows/Releases.yml/badge.svg)](https://github.com/feraxhp/grp/actions/workflows/Releases.yml)
+![WinGet Package Version](https://img.shields.io/winget/v/feraxhp.grp?style=flat&color=green)
+
 girep is a command line tool that helps you manage your git repositories in the cloud, for difrent platforms. 
 It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotzenplotz/gcli).
 
