@@ -30,6 +30,7 @@ pub async fn unwrap(
         201 if matches!(context.request_type, RequestType::Create) |
                matches!(context.request_type, RequestType::CreateOrg) 
                 => { return Ok(text) },
+        202 if matches!(context.request_type, RequestType::DeleteOrg) => { return Ok(text) },
         403 if matches!(context.request_type, RequestType::Create) => {
             Error::new(
                 ErrorType::BadTokenScope, 

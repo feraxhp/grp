@@ -29,6 +29,7 @@ pub async fn unwrap(
     let error = match status.as_u16() {
         200 => { return Ok(text) },
         201 if matches!(context.request_type, RequestType::Create) => { return Ok(text) },
+        202 if matches!(context.request_type, RequestType::DeleteOrg) => { return Ok(text) },
         401 => Error::new(
             ErrorType::Unauthorized,
             vec![

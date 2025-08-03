@@ -73,6 +73,45 @@ impl Error {
                     ]
                 )
             }
+            (ErrorCode::Locked, ErrorClass::Merge, m, Action::Pull) => {
+                let mut messages = vec![
+                    cformat!("<y>* The merge was locked by: </>"),
+                ];
+                
+                let files = m.split(",")
+                    .map(|f| cformat!("  <g>→</g> <m,i>{}</>", f.trim()))
+                    .collect::<Vec<_>>();
+                
+                messages.extend(files);
+                messages.push(cformat!("<y>* Please <m,i>commit</m,i> or <m,i>stash</m,i> them</>"));
+                messages.push(cformat!("<y>  or <m,i>add the <r>--force</r> tag</m,i> to override them</>"));
+                
+                Error::new_custom("No fast-forward merge".to_string(), messages)
+            }
+            (ErrorCode::NotFound, ErrorClass::Config, m, _) |
+            (ErrorCode::NotFound, ErrorClass::Reference, m, _) => { 
+                Error::new_custom(m, vec![])
+            }
+            (ErrorCode::NotFound, ErrorClass::Merge, m, Action::Pull) if m.contains("r:") => {
+                
+                Error::new_custom("No base found to merge".to_string(), vec![
+                    cformat!("<y>* This happens when the <m,i>local</m,i> and <m,i>remote</>"),
+                    cformat!("<y>  banches don't share a common ancestor.</>"),
+                    cformat!(""),
+                    cformat!("<g>Tip:</g> Manually resolve this by cloning the remote repository"),
+                    cformat!("     and then copying your local changes into it.")
+                ])
+            }
+            (ErrorCode::NotFastForward, ErrorClass::Reference, _, Action::Push) => {
+                Error::new_custom(
+                    "No fast-forward push".to_string(),
+                    vec![
+                        cformat!("<y>* The branch conflicts with the remote"),
+                        cformat!("  you have to solved it fist"),
+                        cformat!("  or <i,m>add the <r>--force</r> tag</>"),
+                    ]
+                )
+            }
             (code, class_, message,action) => {
                 Error::new_custom(
                     message.to_string(),
