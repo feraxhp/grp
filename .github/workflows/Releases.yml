@@ -1,6 +1,26 @@
 on:
   workflow_dispatch:
+    inputs:
+      linux:
+        description: "Run linux build?"
+        required: true
+        type: boolean
+      windows:
+        description: "Run windows build?"
+        required: true
+        type: boolean
   release:
+    inputs:
+      linux:
+        description: "Run linux build?"
+        required: false
+        default: true
+        type: boolean
+      windows:
+        description: "Run windows build?"
+        required: false
+        default: true
+        type: boolean
     types:
       - created
 
@@ -9,13 +29,23 @@ env:
 
 jobs:
   build-linux:
+    if: ${{ inputs.linux }}
     permissions:
       contents: write
     name: 🖥️ Linux Build
     uses: ./.github/workflows/linux.yml
 
   build-windows:
+    if: ${{ inputs.windows }}
     permissions:
-        contents: write
+      contents: write
     name: 💻 Windows Build
     uses: ./.github/workflows/windows.yml
+  
+  publish-winget:
+    if: ${{ inputs.windows }}
+    permissions:
+      repository-projects: write
+    name: 🔥 Publish on windows
+    needs: build-windows
+    uses: ./.github/workflows/winget.yml

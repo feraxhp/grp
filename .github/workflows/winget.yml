@@ -1,0 +1,36 @@
+on:
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    permissions:
+      repository-projects: write
+
+    steps:
+      - name: Get version name
+        id: get_version
+        run: |
+          $response = Invoke-RestMethod -Uri "https://api.github.com/repos/feraxhp/grp/releases/latest" -Method Get
+          $version_name = $response.name
+          echo "version_name=$version_name" >> $env:GITHUB_ENV
+      
+      - name: get numeric version
+        id: numeric_version
+        shell: bash
+        run: echo "nversion=$(echo "${{ env.version_name }}" | cut -d'-' -f1 | cut -d'v' -f2)" >> $GITHUB_ENV
+      
+      - name: Winget Publish
+        uses: isaacrlevin/winget-publish-action@v.5
+        with:
+          publish-type: "Update"
+          user: "feraxhp"
+          package: "grp"
+          version: ${{ env.nversion }}
+          url: "https://github.com/feraxhp/grp/releases/download/${{ env.version_name }}/grp-${{ env.nversion }}-x86_64.msi"
+          token: ${{ github.token }}
