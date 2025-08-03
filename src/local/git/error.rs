@@ -88,6 +88,8 @@ impl Error {
                 
                 Error::new_custom("No fast-forward merge".to_string(), messages)
             }
+            (ErrorCode::NotFound, ErrorClass::Config, m, _) => Error::new_custom(m, vec![]),
+            (ErrorCode::NotFound, ErrorClass::Reference, m, _) => Error::new_custom(m, vec![]),
             (code, class_, message,action) => {
                 Error::new_custom(
                     message.to_string(),
