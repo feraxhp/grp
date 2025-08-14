@@ -1,4 +1,4 @@
-use git2::Error;
+use git2::{Error,Repository};
 use std::path::PathBuf;
 use git2::build::RepoBuilder;
 
@@ -10,7 +10,7 @@ use crate::local::git::structs::GitUtils;
 
 
 impl Platform {
-    pub async fn clone<A: Animation + ?Sized>(&self,
+    pub async fn clone_repo<A: Animation + ?Sized>(&self,
         owner: &String, repo: &String,
         path: &PathBuf, 
         branch: Option<String>,
@@ -21,6 +21,23 @@ impl Platform {
         if let Some(an) = animation { an.change_message("Preparing clone ..."); }
         let url = self.generate_clone_url(&config.endpoint, &owner, &repo);
         
+        Self::clone_by_url(&url, path, branch, config, animation).await.map(|_| Repo {
+            path: format!("{}/{}", owner, &repo),
+            name: repo.clone(),
+            private: None,
+            url: path.as_os_str().to_str().unwrap_or("{{ Broken path }}").to_string(),
+            git: url,
+            description: None,
+        })
+    }
+    
+    pub async fn clone_by_url<A: Animation + ?Sized>(
+        url: &String, 
+        path: &PathBuf, 
+        branch: Option<String>,
+        config: &Config,
+        animation: Option<&Box<A>>
+    ) -> Result<Repository, Error> {        
         if let Some(an) = animation { an.change_message("Setting up credentials ..."); }
         let mut callbacks = GitUtils::get_credential_callbacks(config);
         
@@ -61,14 +78,7 @@ impl Platform {
         };
         
         if let Some(an) = animation { an.change_message("Cloning repository ..."); }
-        builder.clone(url.as_str(), path.as_path()).map(|_| Repo {
-            path: format!("{}/{}", owner, &repo),
-            name: repo.clone(),
-            private: None,
-            url: path.as_os_str().to_str().unwrap_or("{{ Broken path }}").to_string(),
-            git: url,
-            description: None,
-        })
+        builder.clone(url.as_str(), path.as_path())
     }
 
     fn generate_clone_url<S: AsRef<str>>(&self, endpoint: &S, owner: &S, repo: &S) -> String {
