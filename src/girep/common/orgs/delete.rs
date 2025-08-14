@@ -29,18 +29,16 @@ impl Platform {
         let result = self.delete(&url, config).await?;
         
         match (self, result.status().as_u16()) {
-            (Platform::Gitea, 204) | 
-            (Platform::Github, 204) => Ok(()),
             (Platform::Gitlab, 202 | 400) if permanent => {
                 if let Some(an) = animation { an.change_message("Permamently deleting gitlab group ..."); }
                 let user = gitlab::groups::get::get_group_by_id(self, &name, config).await?;
                 let _ = gitlab::groups::delete::premanently_remove(&self, &user, config).await?;
                 Ok(())
             },
-            (Platform::Gitlab, 202) => Ok(()),
+            (_, 202) => Ok(()),
             (_, _) => {
                 let context = Context {
-                    request_type: RequestType::Delete,
+                    request_type: RequestType::DeleteOrg,
                     owner: Some(name_copy),
                     repo: None,
                     additional: None
