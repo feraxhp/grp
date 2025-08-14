@@ -16,19 +16,19 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 | Feature | GitHub | Gitea | GitLab |
 |:-------:|:------:|:-----:|:------:|
-| List    |   ✅   |   ✅   |   🎉   |
-| Create  |   ✅   |   ✅   |   🎉   |
-| Delete  |   ✅   |   ✅   |   🎉   |
-|  Clone  |   ✅   |   ✅   |   🎉   |
-|  Push   |   ✅   |   ✅   |   🎉   |
-|  Pull   |   ✅   |   ✅   |   🎉   |
+| List    |   ✅   |   ✅   |   ✅   |
+| Create  |   ✅   |   ✅   |   ✅   |
+| Delete  |   ✅   |   ✅   |   ✅   |
+|  Clone  |   ✅   |   ✅   |   ✅   |
+|  Push   |   ✅   |   ✅   |   ✅   |
+|  Pull   |   ✅   |   ✅   |   ✅   |
 
 ### Organizations
 | Feature | GitHub | Gitea | GitLab |
-|:-------:|:------:|:-----:|:------:|
-| List    |   ✅   |   ✅  |   🎉   |
-| Create  |   ✅`1`|   ✅  |   🎉`2`|
-| Delete  |   ✅   |   ✅  |   🎉`3`|
+|:-------:|:------:|:------:|:------:|
+| List    |   ✅   |   ✅  |   ✅   |
+| Create  |   ✅`1`|   ✅  |   ✅`2`|
+| Delete  |   ✅   |   ✅  |   ✅`3`|
 
 ---
 ## Installation
