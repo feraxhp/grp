@@ -144,7 +144,7 @@ async fn by_url<A: Animation + ?Sized>(url: Url,
             vec![repo].print_pretty();
         },
         Err(e) => {
-            let action =  Action::Clone("No platform".to_string());
+            let action =  Action::Clone(url.host_str().unwrap().to_string());
             let repo = format!("{}", url);
             let error = Error::from_git2(e, action, &repo, Some(&config));
             
