@@ -25,7 +25,7 @@ jobs:
   publish-winget:
     if: ${{ inputs.windows || inputs.windows == null }}
     permissions:
-      repository-projects: write
+      contents: read
     name: 🔥 Publish on windows
     needs: build-windows
     uses: ./.github/workflows/winget.yml
