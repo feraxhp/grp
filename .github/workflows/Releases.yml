@@ -1,5 +1,14 @@
 on:
   workflow_dispatch:
+    inputs:
+      linux:
+        description: "Run linux build?"
+        required: true
+        type: boolean
+      windows:
+          description: "Run windows build?"
+          required: true
+          type: boolean
   release:
     types:
       - created
