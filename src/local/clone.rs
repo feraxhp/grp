@@ -1,4 +1,4 @@
-use git2::{Error,Repository};
+use git2::{Error, Repository};
 use std::path::PathBuf;
 use git2::build::RepoBuilder;
 
@@ -6,6 +6,7 @@ use crate::girep::animation::Animation;
 use crate::girep::platform::Platform;
 use crate::girep::config::Config;
 use crate::girep::common::structs::Repo;
+use crate::local::git::options::Methods;
 use crate::local::git::structs::GitUtils;
 
 
@@ -77,8 +78,19 @@ impl Platform {
             None => { }
         };
         
+        builder.remote_create(
+            |r, _, url| r.remote(config.pconf.as_str(), url)
+        );
+        
         if let Some(an) = animation { an.change_message("Cloning repository ..."); }
-        builder.clone(url.as_str(), path.as_path())
+        match builder.clone(url.as_str(), path.as_path()) {
+            Ok(r) => {
+                let branch = GitUtils::get_branch_name(&r)?;
+                let _ = Methods::UPSTREAM.set_upstream(&r, &branch, config.pconf.as_str());
+                Ok(r)
+            },
+            Err(e) => Err(e),
+        }
     }
 
     fn generate_clone_url<S: AsRef<str>>(&self, endpoint: &S, owner: &S, repo: &S) -> String {
