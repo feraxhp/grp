@@ -1,6 +1,9 @@
 on:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      TOKEN:
+        required: true
 
 env:
   CARGO_TERM_COLOR: always

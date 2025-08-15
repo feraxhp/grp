@@ -38,3 +38,5 @@ jobs:
     name: 🔥 Publish on windows
     needs: build-windows
     uses: ./.github/workflows/winget.yml
+    secrets:
+      TOKEN: ${{ secrets.TOKEN }}
