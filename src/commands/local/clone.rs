@@ -4,6 +4,7 @@ use color_print::cformat;
 use reqwest::Url;
 
 use crate::girep::common::structs::Repo;
+use crate::local::clone::CloneOptions;
 use crate::usettings::structs::Usettings;
 use crate::local::git::structs::Action;
 use crate::girep::{animation::Animation, common::show::Show, error::structs::Error, platform::Platform};
@@ -23,7 +24,8 @@ pub fn command() -> Command {
                 .conflicts_with("repo")
             ,
             Arguments::path(false, "The path to clone the repository"),
-            arg!(-b --branch [name] "The name of the branch")
+            arg!(-b --branch [name] "The name of the branch"),
+            arg!(-B --bare "Clone as bare repo")
         ])
 }
 
@@ -37,8 +39,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         None => None
     };
     
+    let bare = args.get_flag("bare");
+    
     match (args.get_one::<String>("repo"), args.get_many::<String>("url"))  {
-        (Some(srepo), None) => by_repostructure(srepo, path, branch, &animation, usettings).await,
+        (Some(srepo), None) => by_repostructure(srepo, bare, path, branch, &animation, usettings).await,
         (None, Some(values)) => {
             let mut values_iter = values.clone();
             let pconf = values_iter.next().unwrap().to_owned();
@@ -60,13 +64,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 },
             };
             
-            by_url(url, path, pconf, branch, &animation, usettings).await;
+            by_url(url, bare, path, pconf, branch, &animation, usettings).await;
         }
         _ => unreachable!()
     }
 }
 
 async fn by_repostructure<A: Animation + ?Sized>(srepo: &String, 
+    bare: bool,
     path: Option<&PathBuf>, 
     branch: Option<String>, 
     animation: &Box<A>, 
@@ -90,7 +95,13 @@ async fn by_repostructure<A: Animation + ?Sized>(srepo: &String,
     let platform = Platform::matches(pconf.r#type.as_str());
     let config = pconf.to_config();
     
-    match platform.clone_repo(&owner, &repo, &path, branch, &config, Some(animation)).await {
+    let options = CloneOptions {
+        path: path,
+        branch: branch,
+        bare: bare,
+    };
+    
+    match platform.clone_repo(&owner, &repo, &options, &config, Some(animation)).await {
         Ok(r) => {
             animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
             vec![r].print_pretty();
@@ -107,6 +118,7 @@ async fn by_repostructure<A: Animation + ?Sized>(srepo: &String,
 }
 
 async fn by_url<A: Animation + ?Sized>(url: Url, 
+    bare: bool,
     path: Option<&PathBuf>, pconf: String,
     branch: Option<String>, 
     animation: &Box<A>, 
@@ -129,14 +141,20 @@ async fn by_url<A: Animation + ?Sized>(url: Url,
     let config = pconf.to_config();
     let url_string = url.to_string();
     
-    match Platform::clone_by_url(&url_string, &path, branch, &config,  Some(animation)).await {
+    let options = CloneOptions {
+        path: path.clone(),
+        branch: branch,
+        bare: bare,
+    };
+    
+    match Platform::clone_by_url(&url_string, &options, &config,  Some(animation)).await {
         Ok(_) => {
             animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
             let repo = Repo {
                 name: "".to_string(),
-                path: path.as_os_str().to_str().unwrap().to_string(),
+                path: repo_,
                 private: None,
-                url: url_string.clone(),
+                url: path.as_os_str().to_str().unwrap().to_string(),
                 git: url_string,
                 description: None,
             };

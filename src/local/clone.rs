@@ -9,12 +9,17 @@ use crate::girep::common::structs::Repo;
 use crate::local::git::options::Methods;
 use crate::local::git::structs::GitUtils;
 
+#[derive(Clone, Debug)]
+pub struct CloneOptions {
+    pub path: PathBuf,
+    pub branch: Option<String>,
+    pub bare: bool,
+}
 
 impl Platform {
     pub async fn clone_repo<A: Animation + ?Sized>(&self,
         owner: &String, repo: &String,
-        path: &PathBuf, 
-        branch: Option<String>,
+        options: &CloneOptions,
         config: &Config,
         animation: Option<&Box<A>>
     ) -> Result<Repo, Error> {
@@ -22,11 +27,11 @@ impl Platform {
         if let Some(an) = animation { an.change_message("Preparing clone ..."); }
         let url = self.generate_clone_url(&config.endpoint, &owner, &repo);
         
-        Self::clone_by_url(&url, path, branch, config, animation).await.map(|_| Repo {
+        Self::clone_by_url(&url, options, config, animation).await.map(|_| Repo {
             path: format!("{}/{}", owner, &repo),
             name: repo.clone(),
             private: None,
-            url: path.as_os_str().to_str().unwrap_or("{{ Broken path }}").to_string(),
+            url: options.path.as_os_str().to_str().unwrap_or("{{ Broken path }}").to_string(),
             git: url,
             description: None,
         })
@@ -34,8 +39,7 @@ impl Platform {
     
     pub async fn clone_by_url<A: Animation + ?Sized>(
         url: &String, 
-        path: &PathBuf, 
-        branch: Option<String>,
+        options: &CloneOptions,
         config: &Config,
         animation: Option<&Box<A>>
     ) -> Result<Repository, Error> {        
@@ -73,7 +77,7 @@ impl Platform {
         let mut builder = RepoBuilder::new();
         builder.fetch_options(fo);
 
-        match branch {
+        match options.branch.clone() {
             Some(value) => { builder.branch(value.as_str()); },
             None => { }
         };
@@ -82,11 +86,19 @@ impl Platform {
             |r, _, url| r.remote(config.pconf.as_str(), url)
         );
         
+        builder.bare(options.bare.clone());
+        
         if let Some(an) = animation { an.change_message("Cloning repository ..."); }
-        match builder.clone(url.as_str(), path.as_path()) {
+        match builder.clone(url.as_str(), options.path.as_path()) {
             Ok(r) => {
-                let branch = GitUtils::get_branch_name(&r)?;
-                let _ = Methods::UPSTREAM.set_upstream(&r, &branch, config.pconf.as_str());
+                match GitUtils::get_branch_name(&r) {
+                    Ok(b) => {
+                        let _ = Methods::UPSTREAM
+                            .set_upstream(&r, &b, config.pconf.as_str());
+                    }
+                    Err(_) => todo!(),
+                };
+                
                 Ok(r)
             },
             Err(e) => Err(e),
