@@ -21,7 +21,6 @@ pub fn command() -> Command {
             Arg::new("url").short('u').long("url")
                 .num_args(2)
                 .value_names(["pconf", "url"])
-                .conflicts_with("repo")
             ,
             Arguments::path(false, "The path to clone the repository"),
             arg!(-b --branch [name] "The name of the branch"),
