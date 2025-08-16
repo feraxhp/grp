@@ -9,13 +9,12 @@ mod commands;
 mod usettings;
 mod animations;
 
+use std::io;
+use std::io::Write;
 use std::process::exit;
-use clap::builder::IntoResettable;
 use color_print::{cprintln,cformat};
-use clap::{arg, command, crate_version, ArgAction};
+use clap::{arg, command, crate_version};
 
-use crate::animations::animation::Process;
-use crate::commands::core::utils::actions::ShowVersion;
 use crate::girep::animation::Animation;
 use crate::girep::error::structs::Error;
 use crate::update::structs::Version;
@@ -32,10 +31,7 @@ async fn main() {
     let commands = command!()
         .name("grp")
         .about("A simple CLI to manage platforms for git repositories")
-        .arg(arg!( -v --"number" "Prints the version number to the standard output")
-            .exclusive(true)
-            .action(show_version(&an))
-        )
+        .arg(arg!( -v --"number" "Prints the version number to the standard output").exclusive(true))
         .subcommand(config::command())
         .subcommand(list::command())
         .subcommand(create::command())
@@ -45,6 +41,20 @@ async fn main() {
         .subcommand(push::command())
         .subcommand(pull::command())
         .get_matches();
+
+
+    match commands.clone().args_present() {
+        true => {
+            an.spinner.finish_and_clear();
+            if *commands.get_one::<bool>("number").unwrap_or(&false) {
+                let version = crate_version!();
+                let _ = io::stdout().write(version.as_bytes());
+                println!();
+                exit(0);
+            }
+        },
+        _ => {}
+    }
     
     match commands.subcommand() {
         Some(sub) => {
@@ -93,9 +103,4 @@ fn print_version(v:  Result<(bool, Version), Error>, new_line: bool) {
         }
         Err(_e) => { }
     };
-}
-
-fn show_version(an: &Box<Process>) -> impl IntoResettable<ArgAction> {
-    an.spinner.finish_and_clear();
-    ShowVersion
 }
