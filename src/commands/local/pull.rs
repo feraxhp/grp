@@ -8,6 +8,7 @@ use crate::girep::error::structs::Error;
 use crate::girep::platform::Platform;
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
+use crate::local::pull::PullAction;
 use crate::usettings::structs::Usettings;
 use crate::animations::animation::Fetch;
 use crate::girep::animation::Animation;
@@ -19,6 +20,7 @@ pub(crate) fn command() -> Command {
         .args([
             Arguments::pconf(false, true),
             arg!( -f --force "Do a force pull"),
+            arg!( -r --rebase).help(cformat!("Do a <i>pull --rebase</>")),
             arg!( -n --"dry-run" "Do everything except actually fetch the updates."),
             Arg::new("set-upstream").short('u').long("set-upstream")
                 .num_args(2)
@@ -72,7 +74,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         force, dry_run
     };
     
-    let result = Platform::pull_repo(&path, options, pconf.clone(), &usettings, Some(&animation));
+    let action = match args.get_flag("rebase") {
+        true => PullAction::REBASE,
+        false => PullAction::MERGE,
+    };
+    
+    let result = Platform::pull_repo(&path, options, pconf.clone(), action, &usettings, Some(&animation));
     
     let logs = match result {
         Ok((logs, true)) => {

@@ -14,6 +14,7 @@ impl Platform {
         remote_branch_name: &str,
         fetch_commit: AnnotatedCommit<'repo>,
         force: bool,
+        rebase: bool,
         animation: Option<&Box<A>>
     ) -> Result<(String, bool), Error> {
         
@@ -55,7 +56,8 @@ impl Platform {
             a if a.is_normal() => {
                 if let Some(an) = animation { an.change_message("Performing normal merge ..."); }
                 let head_commit = repo.reference_to_annotated_commit(&repo.head()?)?;
-                Ok((GitUtils::merge(&repo, &head_commit, &fetch_commit)?, true))
+                if !rebase { Ok((GitUtils::merge(&repo, &head_commit, &fetch_commit)?, true)) }
+                else { Ok((GitUtils::rebase(&repo, &head_commit, &fetch_commit)?, true)) } 
             },
 
             a if a.is_unborn() => {
