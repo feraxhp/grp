@@ -8,12 +8,19 @@ use crate::girep::platform::Platform;
 use crate::girep::animation::Animation;
 
 
+pub enum PullAction {
+    MERGE,
+    REBASE
+}
+
+
 #[allow(dead_code)]
 impl Platform {
     pub(crate) fn pull_repo<A: Animation + ?Sized>(
         path: &PathBuf, 
         options: Options,
         pconf: Option<Pconf>, 
+        action: PullAction,
         usettings: &Usettings, 
         animation: Option<&Box<A>>
     ) -> Result<(Vec<String>, bool), Error> {
@@ -22,10 +29,15 @@ impl Platform {
         
         let result = Platform::fetch_repo(&repo, pconf, options.clone(), usettings, animation)?;
         
+        let rebase = match action {
+            PullAction::MERGE => false,
+            PullAction::REBASE => true,
+        };
+        
         let mut logs = result.logs;
         match result.id {
             Some(commit) => {
-                let result = Platform::merge_fetch(&repo, &result.branch, commit, options.force, animation)?;
+                let result = Platform::merge_fetch(&repo, &result.branch, commit, options.force, rebase, animation)?;
                 logs.push(result.0);
                 Ok((logs, result.1))
             },

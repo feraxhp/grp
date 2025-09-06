@@ -73,6 +73,19 @@ impl Error {
                     ]
                 )
             }
+            (ErrorCode::Unmerged, ErrorClass::Rebase, "unstaged changes exist in workdir", Action::Pull) => {
+                Error::new_custom(
+                    "Rebase operation conflict".to_string(),
+                    vec![
+                        cformat!("<y>* The branch conflicts with the remote"),
+                        cformat!("  you can finish the rebase as you"),
+                        cformat!("  normaly does"),
+                        cformat!(""),
+                        cformat!("<g>Tip:</g> You can abort it by runing the command:"),
+                        cformat!("     •<g> git rebase --abort</>")
+                    ]
+                )
+            }
             (ErrorCode::Locked, ErrorClass::Merge, m, Action::Pull) => {
                 let mut messages = vec![
                     cformat!("<y>* The merge was locked by: </>"),
