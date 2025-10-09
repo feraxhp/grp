@@ -1,0 +1,17 @@
+<!-- markdownlint-disable first-line-h1 -->
+
+![logo](_media/icon.svg)
+
+# docsify <small>5.0.0-rc.1</small>
+
+> A magical documentation site generator
+
+- Simple and lightweight
+- No statically built HTML files
+- Multiple themes
+
+[Get Started](#docsify)
+[GitHub](https://github.com/docsifyjs/docsify/)
+
+<!-- ![color](#1e1e2e) -->
+<!-- ![](/_media/icon.svg) -->
