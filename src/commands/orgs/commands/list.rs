@@ -23,9 +23,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Fetch::new("Incializing list organizations");
     
     let pconf = match args.get_one::<String>("pconf") {
-        Some(e) if e == "-" => usettings.get_default_pconf().unwrap(),
+        Some(e) if e == "-" => usettings.default_or_exit(&animation),
         Some(e) => usettings.get_pconf_by_name(e).unwrap(),
-        None => usettings.get_default_pconf().unwrap(),
+        None => usettings.default_or_exit(&animation),
     };
     
     
