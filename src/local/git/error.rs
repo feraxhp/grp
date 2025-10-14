@@ -73,6 +73,16 @@ impl Error {
                     ]
                 )
             }
+            (ErrorCode::Conflict, ErrorClass::Merge, _, Action::Pull) => {
+                Error::new_custom(
+                    "No fast-forward pull".to_string(),
+                    vec![
+                        cformat!("<y>* The branch conflicts with local changes"),
+                        cformat!("  you have to solved the conflicts fist"),
+                        cformat!("  or <i,m>add the <r>--force</r> tag</>"),
+                    ]
+                )
+            }
             (ErrorCode::Unmerged, ErrorClass::Rebase, "unstaged changes exist in workdir", Action::Pull) => {
                 Error::new_custom(
                     "Rebase operation conflict".to_string(),
