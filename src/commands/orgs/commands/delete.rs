@@ -2,7 +2,7 @@
 use std::io;
 
 use clap::{arg, ArgMatches, Command};
-use color_print::cformat;
+use color_print::{cformat, cprintln};
 
 use crate::girep::platform::Platform;
 use crate::girep::animation::Animation;
@@ -30,9 +30,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Delete::new("Initializing organization deletion...");
     
     let pconf = match args.get_one::<String>("pconf") {
-        Some(e) if e == "-" => usettings.get_default_pconf().unwrap(),
-        Some(e) => usettings.get_pconf_by_name(e).unwrap(),
-        None => usettings.get_default_pconf().unwrap(),
+        Some(e) => usettings.get_pconf_by_name(e)
+            .expect(
+                cformat!("<y>For security reasons you have to proviede explicitly the <m>pconf name</>")
+                        .as_str()
+            ),
+        None => {
+            cprintln!("<y>For security reasons you have to proviede explicitly the <m>pconf name</>");
+            return;
+        },
     };
     
     let name = args.get_one::<String>("name").unwrap();

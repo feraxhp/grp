@@ -88,7 +88,7 @@ async fn by_repostructure<A: Animation + ?Sized>(srepo: &String,
     
     let pconf = match pconf {
         Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        None => usettings.get_default_pconf().unwrap(),
+        None => usettings.default_or_exit(&animation),
     };
     
     let platform = Platform::matches(pconf.r#type.as_str());

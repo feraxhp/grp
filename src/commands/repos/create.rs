@@ -73,7 +73,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let pconf = match pconf {
         Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        None => usettings.get_default_pconf().unwrap(),
+        None => usettings.default_or_exit(&animation),
     };
 
     let owner = match owner {

@@ -38,7 +38,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Fetch::new("Fetching the repository ...");
     
     let pconf = match args.get_one::<String>("pconf") {
-        Some(e) if e == "-" => Some(usettings.get_default_pconf().unwrap()),
+        Some(e) if e == "-" => Some(usettings.default_or_exit(&animation)),
         Some(e) => Some(usettings.get_pconf_by_name(e).unwrap()),
         None => None,
     };
