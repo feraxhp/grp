@@ -12,6 +12,7 @@ use crate::commands::core::{args::Arguments, utils::repo_struct::unfold_repo_str
 use crate::usettings::validate::valid_pconfs;
 use crate::animations::animation::Process;
 
+const DEFNAME: &'static str = "defname";
 
 pub fn command() -> Command {
     command!("clone").aliases(["cl"])
@@ -122,10 +123,13 @@ async fn by_url<A: Animation + ?Sized>(url: Url,
     branch: Option<String>, 
     animation: &Box<A>, 
     usettings: Usettings
-) {    
-    let repo_ = match url.path_segments().iter().last() {
-        Some(u) => u.clone().collect::<String>(),
-        None => "defname".to_string(),
+) {
+    let repo_ = match url.path_segments() {
+        Some(segments) => {
+            let segments_vec: Vec<&str> = segments.collect();
+            segments_vec.last().unwrap_or(&DEFNAME).to_string()
+        }
+        None => DEFNAME.to_string(),
     };
     
     let path = match path {
