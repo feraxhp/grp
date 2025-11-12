@@ -42,6 +42,15 @@ impl Error {
             (ErrorCode::GenericError, ErrorClass::Http, message, Action::Clone(platform)) if message == "request failed with status code: 404" => {
                 Error::new(ErrorType::NotRepoFound, vec!["", repo, &platform])
             }
+            (ErrorCode::GenericError, ErrorClass::Os, message, _) if message == "failed to send request: The server name or address could not be resolved" => {
+                Error::new_custom(
+                    "Network error".to_string(),
+                    vec![
+                        cformat!("<y>* Please check your internet connection </>"),
+                        cformat!("<y>  or your DNS configuration and try again </>"),
+                    ]
+                )
+            }
             (ErrorCode::NotFound, ErrorClass::Config, "no pconf", _) if message == "request failed with status code: 404" => {
                 Error::new(
                     ErrorType::Obj404,
