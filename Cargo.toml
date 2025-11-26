@@ -1,6 +1,6 @@
 [package]
 name = "grp"
-version = "0.7.5-beta"
+version = "0.7.6-beta"
 edition = "2024"
 license = "MIT"
 authors = ["feraxhp <feraxhp+gh@gmail.com>"]
