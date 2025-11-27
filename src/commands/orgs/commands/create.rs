@@ -6,7 +6,7 @@ use crate::commands::core::commands::Commands;
 use crate::girep::animation::Animation;
 use crate::girep::common::show::Show;
 use crate::girep::platform::Platform;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 
 pub fn command() -> Command {
     Commands::create("Create a new organization in the configured platform")

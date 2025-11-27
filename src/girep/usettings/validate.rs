@@ -1,6 +1,6 @@
 use color_print::cformat;
 
-use crate::usettings::structs::Usettings;
+use super::structs::Usettings;
 
 fn validate(value: &str, vec: Vec<&str>) -> Result<String, String> {
     let config = Usettings::read()

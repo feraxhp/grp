@@ -1,6 +1,8 @@
 use clap::{command, ArgMatches, Command};
 
-use crate::{commands::{core::common::invalid, orgs::commands::{create, delete, list}}, usettings::structs::Usettings};
+use crate::commands::core::common::invalid;
+use crate::girep::usettings::structs::Usettings;
+use crate::commands::orgs::commands::{create, delete, list};
 
 
 pub fn command() -> Command {

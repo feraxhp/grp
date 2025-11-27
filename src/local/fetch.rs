@@ -1,7 +1,7 @@
 use color_print::cformat;
 use git2::{AnnotatedCommit, AutotagOption, Error, ErrorClass, ErrorCode, FetchOptions, Repository};
 
-use crate::usettings::structs::{Pconf, Usettings};
+use crate::girep::usettings::structs::{Pconf, Usettings};
 use super::git::structs::GitUtils;
 use super::git::options::{Methods, Options};
 use crate::girep::platform::Platform;

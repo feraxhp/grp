@@ -4,8 +4,8 @@ use std::path::PathBuf;
 use color_print::cformat;
 use git2::{Error, ErrorClass, ErrorCode, PushOptions, Repository};
 
-use crate::usettings::structs::Pconf;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Pconf;
+use crate::girep::usettings::structs::Usettings;
 use crate::girep::animation::Animation;
 use crate::girep::platform::Platform;
 

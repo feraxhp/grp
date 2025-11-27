@@ -25,7 +25,7 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 ### Organizations
 | Feature | GitHub | Gitea | GitLab |
-|:-------:|:------:|:------:|:------:|
+|:-------:|:------:|:-----:|:------:|
 | List    |   ✅   |   ✅  |   ✅   |
 | Create  |   ✅`1`|   ✅  |   ✅`2`|
 | Delete  |   ✅   |   ✅  |   ✅`3`|
@@ -53,6 +53,24 @@ sudo dnf install <URL_DEL_PAQUETE>
 - Arch Linux: See build instructions below.
 - Other Linux distributions: See build instructions below.
 - MacOS: See build instructions below.
+
+---
+## Completions
+
+### bash
+~~~bash
+source <(COMPLETE=bash grp)
+~~~
+
+### zsh
+~~~zsh
+source <(COMPLETE=zsh grp)
+~~~
+
+### fish
+~~~fish
+COMPLETE=fish ./target/debug/grp | source
+~~~
 
 ---
 ## Configuration

@@ -4,7 +4,7 @@ use color_print::cformat;
 
 use crate::girep::animation::Animation;
 use crate::girep::config::Config;
-use crate::usettings::structs::{Pconf, Usettings};
+use super::structs::{Pconf, Usettings};
 
 impl Pconf {
     pub fn to_config(&self) -> Config {

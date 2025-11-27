@@ -9,7 +9,7 @@ use crate::commands::core::commands::Commands;
 use crate::commands::core::utils::repo_struct::unfold_repo_structure;
 use crate::girep::animation::Animation;
 use crate::girep::platform::Platform;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 
 pub fn command() -> Command {
     Commands::delete("Delete a repository")

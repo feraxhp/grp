@@ -1,3 +1,4 @@
+pub mod usettings;
 pub mod animation;
 pub mod specific;
 pub mod platform;

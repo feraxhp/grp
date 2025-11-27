@@ -6,7 +6,7 @@ use std::{io, process::exit};
 use color_print::cprintln;
 use clap::{arg, command, ArgMatches, Command};
 use crate::{girep::platform::SUPPORTED_REPOS};
-use crate::usettings::structs::{Pconf, Usettings};
+use crate::girep::usettings::structs::{Pconf, Usettings};
 
 
 pub(crate) fn command() -> Command {

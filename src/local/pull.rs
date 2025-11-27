@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use git2::{Error, Repository};
 
-use crate::usettings::structs::{Pconf, Usettings};
+use crate::girep::usettings::structs::{Pconf, Usettings};
 use crate::local::git::options::Options;
 use crate::girep::platform::Platform;
 use crate::girep::animation::Animation;

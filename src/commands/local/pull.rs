@@ -9,7 +9,7 @@ use crate::girep::platform::Platform;
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
 use crate::local::pull::PullAction;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 use crate::animations::animation::Fetch;
 use crate::girep::animation::Animation;
 

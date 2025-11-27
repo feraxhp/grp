@@ -1,7 +1,6 @@
-// use color_print::cformat;
-// use crate::{commands::core::utils::repo_struct::unfold_repo_structure, usettings::{structs::Usettings, validate::valid_pconfs}};
 
-use crate::{commands::core::utils::repo_struct::unfold_repo_structure, usettings::structs::Usettings};
+use crate::girep::usettings::structs::Usettings;
+use crate::commands::core::utils::repo_struct::unfold_repo_structure;
 
 
 pub(crate) fn validate_repo_structure(value: &str) -> Result<String, String> {
