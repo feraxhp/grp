@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use crate::usettings::structs::{Pconf, Usettings};
+    use crate::girep::usettings::structs::{Pconf, Usettings};
     use crate::commands::core::utils::repo_struct::unfold_repo_structure;
     
     fn get_test_usettings() -> Usettings {

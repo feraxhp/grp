@@ -3,7 +3,7 @@ use crate::girep::error::structs::Error;
 use crate::girep::json::JSON;
 use crate::girep::platform::Platform;
 use crate::update::structs::Version;
-use crate::usettings::structs::Pconf;
+use crate::girep::usettings::structs::Pconf;
 
 pub(crate) async fn get_latest_version() -> Result<Version, Error>{
     let pconf = Pconf {

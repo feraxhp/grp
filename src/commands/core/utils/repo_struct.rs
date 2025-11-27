@@ -1,5 +1,5 @@
 use color_print::cformat;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 
 const SHORT_PATHS: [&str; 2] = [
     "gitea",

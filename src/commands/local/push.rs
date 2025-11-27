@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::{arg, command, Arg, ArgMatches, Command};
 use color_print::cformat;
 
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 use crate::local::git::{structs::Action};
 use crate::local::git::options::{Methods, Options};
 use crate::girep::platform::Platform;

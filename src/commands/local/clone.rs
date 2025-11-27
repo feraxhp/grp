@@ -1,15 +1,17 @@
 use std::path::PathBuf;
-use clap::{arg, command, ArgMatches, Command, Arg};
+use clap::{Arg, ArgMatches, Command, arg, command};
 use color_print::cformat;
 use reqwest::Url;
 
+use super::super::completions::core::Completer;
+
 use crate::girep::common::structs::Repo;
 use crate::local::clone::CloneOptions;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 use crate::local::git::structs::Action;
 use crate::girep::{animation::Animation, common::show::Show, error::structs::Error, platform::Platform};
 use crate::commands::core::{args::Arguments, utils::repo_struct::unfold_repo_structure};
-use crate::usettings::validate::valid_pconfs;
+use crate::girep::usettings::validate::valid_pconfs;
 use crate::animations::animation::Process;
 
 const DEFNAME: &'static str = "defname";
@@ -22,6 +24,7 @@ pub fn command() -> Command {
             Arg::new("url").short('u').long("url")
                 .num_args(2)
                 .value_names(["pconf", "url"])
+                .add(Usettings::complete())
             ,
             Arguments::path(false, "The path to clone the repository"),
             arg!(-b --branch [name] "The name of the branch"),

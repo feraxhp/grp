@@ -4,8 +4,11 @@
 use clap::{arg, Arg};
 use clap::builder::ValueParser;
 
+use crate::girep::usettings::structs::Usettings;
+use crate::commands::completions::core::Completer;
+use crate::girep::usettings::validate::{valid_pconfs, valid_pconfs_and_plus};
 use crate::commands::core::utils::valitate::{validate_repo_structure, validate_repo_structure_with_pconf};
-use crate::usettings::validate::{valid_pconfs, valid_pconfs_and_plus};
+
 
 pub(crate) struct Arguments;
 
@@ -20,6 +23,7 @@ impl Arguments {
         arg!([pconf] "Platform configuration to be use")
             .value_parser(possible_values)
             .required(required)
+            .add(Usettings::complete())
     }
 
     pub(crate) fn repo_structure(pconf: bool, required: bool) -> Arg {

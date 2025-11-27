@@ -7,7 +7,7 @@ use color_print::{cformat, cprintln};
 use crate::girep::platform::Platform;
 use crate::girep::animation::Animation;
 use crate::animations::animation::Delete;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 

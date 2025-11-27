@@ -2,7 +2,7 @@ use color_print::cformat;
 
 use crate::girep::error::structs::Error;
 use crate::system::directories::Directories;
-use crate::usettings::structs::Usettings;
+use super::structs::Usettings;
 
 
 impl Usettings {

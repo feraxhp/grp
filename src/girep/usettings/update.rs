@@ -1,4 +1,4 @@
-use crate::usettings::structs::{Pconf, Usettings};
+use super::structs::{Pconf, Usettings};
 use crate::girep::error::structs::Error;
 
 impl Usettings {

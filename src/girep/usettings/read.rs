@@ -2,7 +2,7 @@ use color_print::{cformat, cprintln};
 
 use crate::girep::error::structs::Error;
 use crate::girep::error::types::ErrorType;
-use crate::usettings::structs::{Pconf, Usettings};
+use super::structs::{Pconf, Usettings};
 use crate::system::directories::Directories;
 
 

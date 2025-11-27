@@ -14,7 +14,7 @@ use crate::girep::error::structs::Error;
 use crate::girep::platform::Platform;
 use crate::local::git::structs::Action;
 use crate::system::directories::Directories;
-use crate::usettings::structs::Usettings;
+use crate::girep::usettings::structs::Usettings;
 
 pub fn command() -> Command {
     Commands::create("Create a new repository in a configured platform")
