@@ -3,10 +3,11 @@ use color_print::{cformat, cprintln};
 use crate::animations::animation::Create;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
+use crate::commands::validations::or_exit::structure::OrExit;
 use crate::girep::animation::Animation;
 use crate::girep::common::show::Show;
 use crate::girep::platform::Platform;
-use crate::girep::usettings::structs::Usettings;
+use crate::girep::usettings::structs::{Pconf, Usettings};
 
 pub fn command() -> Command {
     Commands::create("Create a new organization in the configured platform")
@@ -29,10 +30,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let recursive = args.get_flag("recursive");
     let show_errors = args.get_flag("show-errors");
     
-    let pconf = match args.get_one::<String>("pconf") {
-        Some(e) if e == "-" => usettings.default_or_exit(&animation),
-        Some(e) => usettings.get_pconf_by_name(e).unwrap(),
-        None => usettings.default_or_exit(&animation),
+    let pconf = match args.get_one::<Pconf>("pconf") {
+        Some(e) => e.clone(),
+        None => usettings.get_default_pconf().or_exit(&animation),
     };
     
     let name = args.get_one::<String>("name").unwrap();

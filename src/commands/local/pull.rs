@@ -9,7 +9,7 @@ use crate::girep::platform::Platform;
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
 use crate::local::pull::PullAction;
-use crate::girep::usettings::structs::Usettings;
+use crate::girep::usettings::structs::{Pconf, Usettings};
 use crate::animations::animation::Fetch;
 use crate::girep::animation::Animation;
 
@@ -37,11 +37,7 @@ pub(crate) fn command() -> Command {
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Fetch::new("Fetching the repository ...");
     
-    let pconf = match args.get_one::<String>("pconf") {
-        Some(e) if e == "-" => Some(usettings.default_or_exit(&animation)),
-        Some(e) => Some(usettings.get_pconf_by_name(e).unwrap()),
-        None => None,
-    };
+    let pconf = args.get_one::<Pconf>("pconf").map(| p| p.clone());
     
     let force = args.get_flag("force");
     let dry_run = args.get_flag("dry-run");

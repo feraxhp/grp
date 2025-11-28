@@ -7,6 +7,7 @@ use color_print::{cformat, cprintln};
 use crate::animations::animation::Create;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
+use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 // use crate::commands::core::utils::repo_struct::unfold_repo_structure;
 use crate::girep::animation::Animation;
@@ -69,7 +70,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let pconf = match repo.pconf.clone() {
         Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        None => usettings.default_or_exit(&animation),
+        None => usettings.get_default_pconf().or_exit(&animation),
     };
 
     let owner = match repo.owner.clone() {
