@@ -9,7 +9,6 @@ use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
-// use crate::commands::core::utils::repo_struct::unfold_repo_structure;
 use crate::girep::animation::Animation;
 use crate::girep::common::show::Show;
 use crate::girep::common::structs::Repo;
