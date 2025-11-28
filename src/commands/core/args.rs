@@ -1,13 +1,13 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use clap::{arg, Arg};
+use clap::{Arg, arg};
 use clap::builder::ValueParser;
 
-use crate::girep::usettings::structs::Usettings;
-use crate::commands::completions::core::Completer;
-use crate::girep::usettings::validate::{valid_pconfs, valid_pconfs_and_plus};
-use crate::commands::core::utils::valitate::{validate_repo_structure, validate_repo_structure_with_pconf};
+use crate::commands::validations::repo::RepoStructure;
+use crate::commands::validations::structure::Validations;
+use crate::girep::usettings::structs::{Pconf, Usettings};
+use super::super::completions::structure::Completer;
 
 
 pub(crate) struct Arguments;
@@ -15,25 +15,21 @@ pub(crate) struct Arguments;
 #[allow(dead_code)]
 impl Arguments {
     pub(crate) fn pconf(required: bool, plus: bool) -> Arg {
-        let possible_values = match plus {
-            true => valid_pconfs_and_plus,
-            false => valid_pconfs
-        };
-
+        let value_parser = if plus { Pconf::value_parcer }
+        else { Pconf::strict_value_parcer };
+        
         arg!([pconf] "Platform configuration to be use")
-            .value_parser(possible_values)
+            .value_parser(value_parser)
             .required(required)
             .add(Usettings::complete())
     }
 
     pub(crate) fn repo_structure(pconf: bool, required: bool) -> Arg {
-        let repo_validation = match pconf {
-            false => validate_repo_structure,
-            true => validate_repo_structure_with_pconf
-        };
-
+        let parcer = if pconf { RepoStructure::value_parcer } 
+        else { RepoStructure::strict_value_parcer };
+        
         arg!(<repo> "The repository data as [pconf]:<owner>/<repo>")
-            .value_parser(repo_validation)
+            .value_parser(parcer)
             .required(required)
     }
 

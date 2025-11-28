@@ -1,12 +1,13 @@
 
 use std::io;
+use std::process::exit;
 
 use clap::{arg, ArgMatches, Command};
 use color_print::{cformat, cprintln};
 use crate::animations::animation::Delete;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
-use crate::commands::core::utils::repo_struct::unfold_repo_structure;
+use crate::commands::validations::repo::RepoStructure;
 use crate::girep::animation::Animation;
 use crate::girep::platform::Platform;
 use crate::girep::usettings::structs::Usettings;
@@ -27,11 +28,13 @@ pub fn command() -> Command {
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Delete::new("Initializing repository deletion...");
     
-    let srepo = args.get_one::<String>("repo").unwrap();
-    let (pconf, owner, repo) = unfold_repo_structure(srepo.as_str(), false, &usettings).unwrap();
-
-    let pconf = match pconf {
-        Some(e) if e != "*" => usettings.get_pconf_by_name(e.as_str()).unwrap(),
+    let repo = args.get_one::<RepoStructure>("repo").unwrap();
+    
+    let pconf = match repo.pconf.clone() {
+        Some(e) 
+        if !matches!(usettings.get_pconf_by_name(e.as_str()), None) 
+        => usettings.get_pconf_by_name(e.as_str()).unwrap(),
+        
         _ => {
             cprintln!("<y>For security reasons you have to proviede explicitly the <m>pconf name</>");
             return;
@@ -44,27 +47,33 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     if !confirmation {
         eprintln!(
             "Do you realy whant to delete {}:{}/{}?",
-            pconf.name, owner, repo
+            pconf.name, &repo.owner, &repo.path
         );
     }
     
     while !confirmation {
         eprint!(
             "Type '{}/{}' to confirm: ",
-            owner, repo
+            &repo.owner, &repo.path
         );
         let mut input = String::new();
         io::stdin().read_line(&mut input)
             .expect("Something went wrong while reading the input");
         let input = input.trim();
 
-        confirmation = input == format!("{}/{}", owner, repo);
+        confirmation = input == format!("{}/{}", &repo.owner, &repo.path);
     }
     
     let platform = Platform::matches(pconf.r#type.as_str());
+    if let Err(e) = repo.is_unsupported(&platform) {
+        animation.finish_with_error(&e.message);
+        e.show();
+        exit(1)
+    }
+    
     let config = pconf.to_config();
     
-    match platform.delete_repo(owner, repo, &config, !soft, Some(&animation)).await {
+    match platform.delete_repo(&repo.owner, &repo.path, &config, !soft, Some(&animation)).await {
         Ok(_) => {
             let message = match (soft, platform) {
                 (true, Platform::Gitlab) => cformat!("repo <m,i>mark</> <g>for delition!</>"),

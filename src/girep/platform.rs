@@ -5,7 +5,7 @@ pub(crate) const SUPPORTED_REPOS: [(&str, &str, &str); 3] = [
 ];
 
 #[derive(PartialEq, Clone)]
-pub(crate) enum Platform {
+pub enum Platform {
     Github,
     Gitea,
     Gitlab,
@@ -17,6 +17,14 @@ impl Platform {
             Platform::Github => "github",
             Platform::Gitea => "gitea",
             Platform::Gitlab => "gitlab",
+        }
+    }
+    
+    pub fn max_repo_depth(&self) -> usize {
+        match self {
+            Platform::Github => 1,
+            Platform::Gitea => 1,
+            Platform::Gitlab => usize::MAX,
         }
     }
 }
