@@ -7,13 +7,13 @@ use reqwest::Url;
 use super::super::completions::structure::Completer;
 
 use crate::commands::validations::repo::RepoStructure;
+use crate::commands::validations::structure::Validations;
 use crate::girep::common::structs::Repo;
 use crate::local::clone::CloneOptions;
-use crate::girep::usettings::structs::Usettings;
+use crate::girep::usettings::structs::{Pconf, Usettings};
 use crate::local::git::structs::Action;
 use crate::girep::{animation::Animation, common::show::Show, error::structs::Error, platform::Platform};
 use crate::commands::core::args::Arguments;
-use crate::girep::usettings::validate::valid_pconfs;
 use crate::animations::animation::Process;
 
 const DEFNAME: &'static str = "defname";
@@ -53,7 +53,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             let pconf = values_iter.next().unwrap().to_owned();
             let url = values_iter.next().unwrap().to_owned();
             
-            match valid_pconfs(&pconf) {
+            match Pconf::value_parcer(&pconf) {
                 Ok(_) => {},
                 Err(e) => {
                     animation.finish_with_error(e);
