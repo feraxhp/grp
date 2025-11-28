@@ -18,6 +18,7 @@ pub enum ParseError {
     MultipleConsecutiveSlashes,
     StartWithDobleDots,
     MultipleDobleDots,
+    EmptyStructure,
     BadSpace,
     NoSlash,
     NoOwner,
@@ -30,6 +31,7 @@ impl Display for ParseError {
             ParseError::MultipleConsecutiveSlashes => cformat!("* <g><<pconf>:<<owner>/<<repo>[/..]</> can not contain multiple consecutive <y>'/'</>"),
             ParseError::StartWithDobleDots =>  cformat!("* <g><<pconf><r>:</r><<owner>/<<repo>[/..]</> can not start with <y>':'</>"),
             ParseError::MultipleDobleDots =>  cformat!("* <g><<pconf><r>:</r><<owner>/<<repo>[/..]</> can not contain multiple <y>':'</>"),
+            ParseError::EmptyStructure => cformat!("* <g><<pconf>:<r><<owner>/<<repo>[/..]</> the repo path can not be empty"),
             ParseError::BadSpace => cformat!("* <g><<pconf>:<<owner>/<<repo>[/..]</> can not contain any <y>space ' '</>"),
             ParseError::NoSlash => cformat!("* <g><<pconf>:<<owner><r>/<<repo>[/..]</> is missing the <m>repo</>"),
             ParseError::NoOwner => cformat!("* <g><<pconf>:<r><<owner></r>/<<repo>[/..]</> is missing the <m>owner</>"),
@@ -64,6 +66,7 @@ impl RepoStructure {
             intermediate = parts[1].clone();
         }
         
+        if intermediate.is_empty() { return Err(ParseError::EmptyStructure) }
         if ! intermediate.contains("/") { return Err(ParseError::NoSlash) }
         
         let parts: Vec<String> = intermediate.split("/").map(|s| s.to_string()).collect();

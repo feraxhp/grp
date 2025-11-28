@@ -3,7 +3,7 @@ use std::io;
 use std::process::exit;
 
 use clap::{arg, ArgMatches, Command};
-use color_print::{cformat, cprintln};
+use color_print::cformat;
 use crate::animations::animation::Delete;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
@@ -36,7 +36,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         => usettings.get_pconf_by_name(e.as_str()).unwrap(),
         
         _ => {
-            cprintln!("<y>For security reasons you have to proviede explicitly the <m>pconf name</>");
+            animation.finish_with_error(cformat!("For security reasons you have to proviede explicitly the <m>pconf name</>"));
             return;
         },
     };

@@ -24,7 +24,7 @@ impl Validations for RepoStructure {
     fn strict_value_parcer(value: &str) -> Result<Self::Output, String> {
         match Self::parse(value) {
             Ok(repo) => {
-                if None == repo.pconf { Err(cformat!("\n * The <m>pconf</> is <i,r>obligatory</>: <g><r><<pconf></r>:<<owner>/<r><<repo>[/..]</> ")) }
+                if None == repo.pconf { Err(cformat!("\n * The <m>pconf</> is <i,r>obligatory</> for <b>security reasons</>: <g><r><<pconf></r>:<<owner>/<<repo>[/..]</> ")) }
                 else { Ok(repo) }
             }
             Err(e) => Err(format!("\n{}", e)),
