@@ -25,7 +25,7 @@ impl Arguments {
     }
 
     pub(crate) fn repo_structure(pconf: bool, required: bool) -> Arg {
-        let parcer = if pconf { RepoStructure::value_parcer } 
+        let parcer = if !pconf { RepoStructure::value_parcer } 
         else { RepoStructure::strict_value_parcer };
         
         arg!(<repo> "The repository data as [pconf]:<owner>/<repo>")
