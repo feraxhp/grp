@@ -1,1 +1,2 @@
-pub mod core;
+pub mod structure;
+pub mod usettings;

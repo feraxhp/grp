@@ -1,16 +1,18 @@
 use std::path::PathBuf;
+use std::process::exit;
 use clap::{Arg, ArgMatches, Command, arg, command};
 use color_print::cformat;
 use reqwest::Url;
 
-use super::super::completions::core::Completer;
+use super::super::completions::structure::Completer;
 
+use crate::commands::validations::repo::RepoStructure;
 use crate::girep::common::structs::Repo;
 use crate::local::clone::CloneOptions;
 use crate::girep::usettings::structs::Usettings;
 use crate::local::git::structs::Action;
 use crate::girep::{animation::Animation, common::show::Show, error::structs::Error, platform::Platform};
-use crate::commands::core::{args::Arguments, utils::repo_struct::unfold_repo_structure};
+use crate::commands::core::args::Arguments;
 use crate::girep::usettings::validate::valid_pconfs;
 use crate::animations::animation::Process;
 
@@ -44,8 +46,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let bare = args.get_flag("bare");
     
-    match (args.get_one::<String>("repo"), args.get_many::<String>("url"))  {
-        (Some(srepo), None) => by_repostructure(srepo, bare, path, branch, &animation, usettings).await,
+    match (args.get_one::<RepoStructure>("repo"), args.get_many::<String>("url"))  {
+        (Some(repo), None) => by_repostructure(repo, bare, path, branch, &animation, usettings).await,
         (None, Some(values)) => {
             let mut values_iter = values.clone();
             let pconf = values_iter.next().unwrap().to_owned();
@@ -73,29 +75,29 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     }
 }
 
-async fn by_repostructure<A: Animation + ?Sized>(srepo: &String, 
+async fn by_repostructure<A: Animation + ?Sized>(repo: &RepoStructure, 
     bare: bool,
     path: Option<&PathBuf>, 
     branch: Option<String>, 
     animation: &Box<A>, 
     usettings: Usettings
 ) {
-    let srepo = srepo.replace("\"", "");
-    
-    let (pconf, owner, repo) = 
-        unfold_repo_structure(srepo.as_str(), false, &usettings).unwrap();
-    
-    let path = match path {
-        Some(value) => value.clone(),
-        None => std::env::current_dir().unwrap().join(repo.clone())
-    };
-    
-    let pconf = match pconf {
+    let pconf = match &repo.pconf {
         Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
         None => usettings.default_or_exit(&animation),
     };
     
+    let path = match path {
+        Some(value) => value.clone(),
+        None => std::env::current_dir().unwrap().join(&repo.path)
+    };
+    
     let platform = Platform::matches(pconf.r#type.as_str());
+    if let Err(e) = repo.is_unsupported(&platform) {
+        animation.finish_with_error(&e.message);
+        e.show();
+        exit(1)
+    }
     let config = pconf.to_config();
     
     let options = CloneOptions {
@@ -104,14 +106,14 @@ async fn by_repostructure<A: Animation + ?Sized>(srepo: &String,
         bare: bare,
     };
     
-    match platform.clone_repo(&owner, &repo, &options, &config, Some(animation)).await {
+    match platform.clone_repo(&repo.owner, &repo.path, &options, &config, Some(animation)).await {
         Ok(r) => {
             animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
             vec![r].print_pretty();
         },
         Err(e) => {
             let action =  Action::Clone(platform.name().to_string());
-            let repo = format!("{}/{}", owner, repo);
+            let repo = format!("{}/{}", &repo.owner, &repo.path);
             let error = Error::from_git2(e, action, &repo, Some(&config));
             
             animation.finish_with_error(&error.message);
