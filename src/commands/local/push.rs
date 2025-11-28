@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::{arg, command, Arg, ArgMatches, Command};
 use color_print::cformat;
 
-use crate::girep::usettings::structs::Usettings;
+use crate::girep::usettings::structs::{Pconf, Usettings};
 use crate::local::git::{structs::Action};
 use crate::local::git::options::{Methods, Options};
 use crate::girep::platform::Platform;
@@ -50,11 +50,7 @@ pub(crate) fn command() -> Command {
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Create::new("Preparing to push ...");
 
-    let pconf = match args.get_one::<String>("pconf") {
-        Some(e) if e == "-" => Some(usettings.default_or_exit(&animation)),
-        Some(e) => Some(usettings.get_pconf_by_name(e).unwrap()),
-        None => None,
-    };
+    let pconf = args.get_one::<Pconf>("pconf").map(| p| p.clone());
     
     let (tag, tag_) = match args.get_one::<String>("tag") {
         Some(t) => (t.clone(), true),

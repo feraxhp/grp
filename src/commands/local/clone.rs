@@ -6,6 +6,7 @@ use reqwest::Url;
 
 use super::super::completions::structure::Completer;
 
+use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 use crate::commands::validations::structure::Validations;
 use crate::girep::common::structs::Repo;
@@ -84,7 +85,7 @@ async fn by_repostructure<A: Animation + ?Sized>(repo: &RepoStructure,
 ) {
     let pconf = match &repo.pconf {
         Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        None => usettings.default_or_exit(&animation),
+        None => usettings.get_default_pconf().or_exit(&animation),
     };
     
     let path = match path {

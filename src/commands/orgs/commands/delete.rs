@@ -2,12 +2,12 @@
 use std::io;
 
 use clap::{arg, ArgMatches, Command};
-use color_print::{cformat, cprintln};
+use color_print::cformat;
 
 use crate::girep::platform::Platform;
 use crate::girep::animation::Animation;
 use crate::animations::animation::Delete;
-use crate::girep::usettings::structs::Usettings;
+use crate::girep::usettings::structs::{Pconf, Usettings};
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 
@@ -26,17 +26,13 @@ pub fn command() -> Command {
         ])
 }
 
-pub async fn manager(args: &ArgMatches, usettings: Usettings) {
+pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
     let animation = Delete::new("Initializing organization deletion...");
     
-    let pconf = match args.get_one::<String>("pconf") {
-        Some(e) => usettings.get_pconf_by_name(e)
-            .expect(
-                cformat!("<y>For security reasons you have to proviede explicitly the <m>pconf name</>")
-                        .as_str()
-            ),
+    let pconf = match args.get_one::<Pconf>("pconf") {
+        Some(e) => e.clone(),
         None => {
-            cprintln!("<y>For security reasons you have to proviede explicitly the <m>pconf name</>");
+            animation.finish_with_error(cformat!("For security reasons you have to proviede explicitly the <m>pconf name</>"));
             return;
         },
     };
