@@ -11,24 +11,47 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 - Supported: ✅
 - Planed support: 🟥
 - On development: 🔶
+- Not available on the platform: ⭕
 
 ### Repositories
 
-| Feature | GitHub | Gitea | GitLab |
-|:-------:|:------:|:-----:|:------:|
-| List    |   ✅   |   ✅   |   ✅   |
-| Create  |   ✅   |   ✅   |   ✅   |
-| Delete  |   ✅   |   ✅   |   ✅   |
-|  Clone  |   ✅   |   ✅   |   ✅   |
-|  Push   |   ✅   |   ✅   |   ✅   |
-|  Pull   |   ✅   |   ✅   |   ✅   |
+| Feature | GitHub | Gitea | GitLab | Azure DevOps |
+|:-------:|:------:|:-----:|:------:|:-----------:|
+| List    |   ✅   |   ✅   |   ✅   | 🟥            |       
+| Create  |   ✅   |   ✅   |   ✅   | 🟥            |
+| Delete  |   ✅   |   ✅   |   ✅   | 🟥            |
 
 ### Organizations
-| Feature | GitHub | Gitea | GitLab |
-|:-------:|:------:|:-----:|:------:|
-| List    |   ✅   |   ✅  |   ✅   |
-| Create  |   ✅`1`|   ✅  |   ✅`2`|
-| Delete  |   ✅   |   ✅  |   ✅`3`|
+| Feature | GitHub | Gitea | GitLab | Azure DevOps |
+|:-------:|:------:|:-----:|:------:|:-----------:|
+| List    |   ✅   |   ✅  |   ✅   | ⭕            |
+| Create  |   ✅`1`|   ✅  |   ✅`2`| ⭕            |
+| Delete  |   ✅   |   ✅  |   ✅`3`| ⭕            |
+
+### git integrations
+
+> [!TIP]
+> The git integrations supports __any platform__ 
+> that allows you to send oAuth credentials
+
+- ✅ Clone
+    - [x] bare
+    - [x] branch
+    - [x] __url clone__ This is how to clone __any platform__
+    - [x] **repo_structure** base clone example `gh:feraxhp/grp` 
+- ✅ Push
+    - [x] tags
+    - [x] branches
+    - [x] force
+    - [x] all
+    - [x] dry-run
+    - [x] set-upstream 
+- ✅ Pull
+    - [x] force: **Overrides any local code**
+    - [x] rebase: Do a `git pull rebase` 
+    - [x] dry-run
+    - [x] set-upstream
+- 🔶 Fetch 
 
 ---
 ## Installation
