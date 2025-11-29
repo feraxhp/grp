@@ -3,13 +3,16 @@ use std::path::PathBuf;
 use clap::{arg, command, Arg, ArgMatches, Command};
 use color_print::cformat;
 
+use crate::commands::completions::git::branch::Branch;
+use crate::commands::completions::git::remote::Remote;
+use crate::commands::completions::structure::Completer;
+use crate::commands::core::args::Arguments;
 use crate::girep::usettings::structs::{Pconf, Usettings};
 use crate::local::git::{structs::Action};
 use crate::local::git::options::{Methods, Options};
 use crate::girep::platform::Platform;
 use crate::girep::error::structs::Error;
 use crate::girep::animation::Animation;
-use crate::commands::core::args::Arguments;
 use crate::animations::animation::Create;
 
 pub(crate) fn command() -> Command {
@@ -39,9 +42,11 @@ pub(crate) fn command() -> Command {
                 .help("Sets the name of the remote as default upstream for a branch"),
             arg!([remote] "The name of the remote to push to")
                 .conflicts_with("set-upstream")
+                .add(Remote::complete())
             ,
             arg!([branch] "The name of the branch to push")
                 .conflicts_with_all(["set-upstream", "tag"])
+                .add(Branch::complete())
             ,
             Arguments::path_flag(false, "Path to the repository"),
         ])

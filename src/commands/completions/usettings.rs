@@ -1,13 +1,11 @@
 use std::ffi::OsStr;
-use clap_complete::engine::{ArgValueCompleter, CompletionCandidate};
+use clap_complete::engine::CompletionCandidate;
 
 use crate::girep::usettings::structs::Usettings;
 use super::structure::Completer;
 
 
 impl Completer for Usettings {
-    fn complete() -> ArgValueCompleter { ArgValueCompleter::new(Self::canditates) }
-    
     fn canditates(current: &OsStr) -> Vec<CompletionCandidate> {
         let prefix = current.to_string_lossy(); // convertir a &str (fallar con cadena vacía si no es UTF-8)
         
