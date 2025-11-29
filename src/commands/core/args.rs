@@ -31,6 +31,7 @@ impl Arguments {
         arg!(<repo> "The repository data as [pconf]:<owner>/<repo>")
             .value_parser(parcer)
             .required(required)
+            .add(RepoStructure::complete())
     }
 
     pub(crate) fn path(required: bool, about: &str) -> Arg {
