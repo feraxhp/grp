@@ -92,7 +92,7 @@ source <(COMPLETE=zsh grp)
 
 ### fish
 ~~~fish
-COMPLETE=fish ./target/debug/grp | source
+COMPLETE=fish grp | source
 ~~~
 
 ---
