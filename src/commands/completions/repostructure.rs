@@ -1,6 +1,6 @@
 use std::ffi::OsStr;
 
-use clap_complete::{ArgValueCompleter, CompletionCandidate};
+use clap_complete::CompletionCandidate;
 
 use crate::girep::usettings::structs::Usettings;
 
@@ -8,8 +8,6 @@ use super::structure::Completer;
 use super::super::validations::repo::RepoStructure;
 
 impl Completer for RepoStructure {
-    fn complete() -> ArgValueCompleter { ArgValueCompleter::new(Self::canditates) }
-
     fn canditates(current: &OsStr) -> Vec<CompletionCandidate> {
         let prefix = current.to_string_lossy();
         let is_simple = prefix.starts_with(".");

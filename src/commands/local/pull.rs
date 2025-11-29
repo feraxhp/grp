@@ -3,6 +3,9 @@ use std::path::PathBuf;
 use clap::{arg, Arg, ArgMatches, Command, command};
 use color_print::cformat;
 
+use crate::commands::completions::git::branch::Branch;
+use crate::commands::completions::git::remote::Remote;
+use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
 use crate::girep::error::structs::Error;
 use crate::girep::platform::Platform;
@@ -27,9 +30,11 @@ pub(crate) fn command() -> Command {
                 .value_names(["remote", "branch"])
                 .help("Sets the name of the remote as default upstream for a branch"),
             arg!([remote] "The name of the remote to pull from")
-                .conflicts_with("set-upstream"),
+                .conflicts_with("set-upstream")
+                .add(Remote::complete()),
             arg!([branch] "The name of the branch to pull from")
-                .conflicts_with("set-upstream"),
+                .conflicts_with("set-upstream")
+                .add(Branch::complete()),
             Arguments::path_flag(false, "Path to the repository"),
         ])
 }
