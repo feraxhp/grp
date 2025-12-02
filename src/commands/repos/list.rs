@@ -55,6 +55,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");
             }
         },
-        _ => unreachable!()
+        (_, None, e) => { // e must not be empty
+            animation.finish_with_error(cformat!("<m,i>list repos</m,i> <r>finish with errors!</>"));
+            e.print_pretty();
+        }
     }
 }
