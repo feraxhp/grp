@@ -3,6 +3,8 @@ use std::process::exit;
 use color_print::{cprintln,cformat};
 use clap::{ArgMatches, arg, command, crate_version};
 
+use crate::commands::local::fetch;
+
 use super::super::animations;
 use super::super::commands::core::utils::version::show_version;
 use super::super::girep::animation::Animation;
@@ -32,6 +34,7 @@ pub fn command() -> Command {
         .subcommand(clone::command())
         .subcommand(push::command())
         .subcommand(pull::command())
+        .subcommand(fetch::command())
 }
 
 pub async fn mannager(matches: &ArgMatches) {
@@ -52,6 +55,7 @@ pub async fn mannager(matches: &ArgMatches) {
                 ("clone", args) => clone::manager(args, usettings).await,
                 ("push", args) => push::manager(args, usettings).await,
                 ("pull", args) => pull::manager(args, usettings).await,
+                ("fetch", args) => fetch::manager(args, usettings).await,
                 _ => invalid(),
             };
             let version = version.await;

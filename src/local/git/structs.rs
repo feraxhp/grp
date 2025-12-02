@@ -5,6 +5,7 @@ pub struct GitUtils;
 pub enum Action {
     Push,
     Pull,
+    Fetch,
     /// platform
     Clone(String),
     /// Name, Url

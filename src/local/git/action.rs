@@ -6,6 +6,7 @@ impl Action {
         match self {
             Action::Push =>  "push",
             Action::Pull =>  "pull",
+            Action::Fetch => "fetch",
             Action::Clone(_) => "clone",
             Action::SetRemote(_, _) => "set remote"
         }
