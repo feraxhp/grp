@@ -51,7 +51,7 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
     - [x] rebase: Do a `git pull rebase` 
     - [x] dry-run
     - [x] set-upstream
-- 🔶 Fetch 
+- ✅ Fetch 
 
 ---
 ## Installation
