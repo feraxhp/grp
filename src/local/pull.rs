@@ -27,7 +27,7 @@ impl Platform {
         if let Some(an) = animation { an.change_message("Getting the local repository ..."); }
         let repo = Repository::discover(path)?;
         
-        let result = Platform::fetch_repo(&repo, pconf, options.clone(), usettings, animation)?;
+        let result = Platform::fetch(&repo, pconf, options.clone(), usettings, animation)?;
         
         let rebase = match action {
             PullAction::MERGE => false,

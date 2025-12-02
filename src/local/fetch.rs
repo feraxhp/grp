@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use color_print::cformat;
 use git2::{AnnotatedCommit, AutotagOption, Error, ErrorClass, ErrorCode, FetchOptions, Repository};
 
@@ -14,7 +16,7 @@ pub struct FetchResult<'repo> {
 } 
 
 impl Platform {
-    pub(crate) fn fetch_repo<'repo, A: Animation + ?Sized>(
+    pub(crate) fn fetch<'repo, A: Animation + ?Sized>(
         repo: &'repo Repository,
         pconf: Option<Pconf>, 
         options: Options,
@@ -151,5 +153,18 @@ impl Platform {
         
         return Ok(result);
     }
+    
+    pub async fn fetch_repo<A: Animation + ?Sized>(
+        path: &PathBuf, 
+        pconf: Option<Pconf>, 
+        options: Options, 
+        usettings: &Usettings, 
+        animation: Option<&Box<A>>
+    ) -> Result<Vec<String>, git2::Error> {
+        let repo = Repository::discover(path)?;
+        
+        let result = Platform::fetch(&repo, pconf, options, usettings, animation)?;
+        
+        Ok(result.logs)
+    }
 }
-
