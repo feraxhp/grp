@@ -18,7 +18,7 @@ impl Arguments {
         let value_parser = if plus { Pconf::value_parcer }
         else { Pconf::strict_value_parcer };
         
-        arg!([pconf] "Platform configuration to be use")
+        arg!([pconf] "Platform configuration to be use (use the default with '.')")
             .value_parser(value_parser)
             .required(required)
             .add(Usettings::complete())
