@@ -1,0 +1,51 @@
+name: Create release from TAG
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers with any: v1.0, v1.2.3, v2.0-beta
+
+jobs:
+  create-release:
+    name: Crear Release
+    runs-on: ubuntu-latest
+
+    if: github.event.pusher.name != 'web-flow'
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # get all the tags and metadata
+
+      - name: Get tag message
+        id: get_tag_message
+        run: echo "tag_body=$(git tag -l --format='%(contents)' ${{ github.ref_name }})" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: generate_changelog
+        run: |
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | sed -n '2p')
+          
+          if [ -z "$PREVIOUS_TAG" ]; then echo "changelog_body=### Primer lanzamiento" >> $GITHUB_OUTPUT;
+          else
+            CHANGELOG_URL="https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${{ github.ref_name }}"
+            echo "changelog_body=$(echo -e '\n\n---\n**Full Changelog**: ${CHANGELOG_URL}')" >> $GITHUB_OUTPUT
+          fi
+
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          body: |
+            ${{ steps.get_tag_message.outputs.tag_body }}
+            ${{ steps.generate_changelog.outputs.changelog_body }}
+          draft: false # Set to true to review before publish
+          prerelease: false
