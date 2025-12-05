@@ -29,11 +29,17 @@ jobs:
         id: generate_changelog
         run: |
           PREVIOUS_TAG=$(git tag --sort=-v:refname | sed -n '2p')
-          
-          if [ -z "$PREVIOUS_TAG" ]; then echo "changelog_body=### Primer lanzamiento" >> $GITHUB_OUTPUT;
+          if [ -z "$PREVIOUS_TAG" ]; then
+            echo "changelog_body=### Primer lanzamiento" >> $GITHUB_OUTPUT
           else
             CHANGELOG_URL="https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${{ github.ref_name }}"
-            echo "changelog_body=$(echo -e '\n\n---\n**Full Changelog**: ${CHANGELOG_URL}')" >> $GITHUB_OUTPUT
+            {
+              echo "changelog_body<<EOF"
+              echo ""
+              echo "---"
+              echo "**Full Changelog**: ${CHANGELOG_URL}"
+              echo "EOF"
+            } >> $GITHUB_OUTPUT
           fi
 
 
