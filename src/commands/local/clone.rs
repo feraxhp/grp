@@ -107,7 +107,7 @@ async fn by_repostructure<A: Animation + ?Sized>(repo: &RepoStructure,
         bare: bare,
     };
     
-    match platform.clone_repo(&repo.owner, &repo.path, &options, &config, Some(animation)).await {
+    match platform.clone_repo(&repo.owner, &repo.path, &options, &config, &animation).await {
         Ok(r) => {
             animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
             vec![r].print_pretty();
@@ -156,7 +156,7 @@ async fn by_url<A: Animation + ?Sized>(url: Url,
         bare: bare,
     };
     
-    match Platform::clone_by_url(&url_string, &options, &config,  Some(animation)).await {
+    match Platform::clone_by_url(&url_string, &options, &config,  animation).await {
         Ok(_) => {
             animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
             let repo = Repo {

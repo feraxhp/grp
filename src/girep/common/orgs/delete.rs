@@ -11,26 +11,26 @@ impl Platform {
         name: T,
         config: &Config,
         permanent: bool,
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> Result<(), Error> {
         let mut name = name.into();
         let name_copy = name.clone();
         
         if matches!(self, Platform::Gitlab) {
-            if let Some(an) = animation { an.change_message("getting group id"); }
+            animation.change_message("getting group id");
             let user = gitlab::groups::get::get_group_with_path(self, &name, config).await?;
             name = user.id;
         }
         
-        if let Some(an) = animation { an.change_message("generating url ..."); }
+        animation.change_message("generating url ...");
         let url = self.url_delete_org(&name, &config.endpoint);
         
-        if let Some(an) = animation { an.change_message("Deleting repository ..."); }
+        animation.change_message("Deleting repository ...");
         let result = self.delete(&url, config).await?;
         
         match (self, result.status().as_u16()) {
             (Platform::Gitlab, 202 | 400) if permanent => {
-                if let Some(an) = animation { an.change_message("Permamently deleting gitlab group ..."); }
+                animation.change_message("Permamently deleting gitlab group ...");
                 let user = gitlab::groups::get::get_group_by_id(self, &name, config).await?;
                 let _ = gitlab::groups::delete::premanently_remove(&self, &user, config).await?;
                 Ok(())

@@ -21,10 +21,10 @@ impl Platform {
         owner: &String, repo: &String,
         options: &CloneOptions,
         config: &Config,
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> Result<Repo, Error> {
         
-        if let Some(an) = animation { an.change_message("Preparing clone ..."); }
+        animation.change_message("Preparing clone ...");
         let url = self.generate_clone_url(&config.endpoint, &owner, &repo);
         
         Self::clone_by_url(&url, options, config, animation).await.map(|_| Repo {
@@ -41,35 +41,34 @@ impl Platform {
         url: &String, 
         options: &CloneOptions,
         config: &Config,
-        animation: Option<&Box<A>>
-    ) -> Result<Repository, Error> {        
-        if let Some(an) = animation { an.change_message("Setting up credentials ..."); }
+        animation: &Box<A>
+    ) -> Result<Repository, Error> { 
+        animation.change_message("Setting up credentials ...");
         let mut callbacks = GitUtils::get_credential_callbacks(config);
         
-        if let Some(an) = animation {
-            callbacks.transfer_progress(|stats| {
-                let message = if stats.total_objects() == 0 { return true; } 
-                else if stats.received_objects() == stats.total_objects() {
-                    format!(
-                        "Resolving deltas {}/{}",
-                        stats.indexed_deltas(),
-                        stats.total_deltas()
-                    )
-                } 
-                else {
-                    format!(
-                        "Received {}/{} objects ({}) in {} bytes",
-                        stats.received_objects(),
-                        stats.total_objects(),
-                        stats.indexed_objects(),
-                        stats.received_bytes()
-                    )
-                };
-                
-                an.change_message(message);
-                true
-            });
-        }
+        callbacks.transfer_progress(|stats| {
+            let message = if stats.total_objects() == 0 { return true; } 
+            else if stats.received_objects() == stats.total_objects() {
+                format!(
+                    "Resolving deltas {}/{}",
+                    stats.indexed_deltas(),
+                    stats.total_deltas()
+                )
+            } 
+            else {
+                format!(
+                    "Received {}/{} objects ({}) in {} bytes",
+                    stats.received_objects(),
+                    stats.total_objects(),
+                    stats.indexed_objects(),
+                    stats.received_bytes()
+                )
+            };
+            
+            animation.change_message(message);
+            true
+        });
+        
         
         let mut fo = git2::FetchOptions::new();
         fo.remote_callbacks(callbacks);
@@ -88,7 +87,7 @@ impl Platform {
         
         builder.bare(options.bare.clone());
         
-        if let Some(an) = animation { an.change_message("Cloning repository ..."); }
+        animation.change_message("Cloning repository ...");
         match builder.clone(url.as_str(), options.path.as_path()) {
             Ok(r) => {
                 match GitUtils::get_branch_name(&r) {

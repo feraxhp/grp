@@ -33,7 +33,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let platform = Platform::matches(pconf.r#type.as_str());
     let config = pconf.to_config();
     
-    let (repos, _pag_error, _errors) = platform.list_repos(args.get_one::<String>("owner"), &config, Some(&animation)).await;
+    let (repos, _pag_error, _errors) = platform.list_repos(args.get_one::<String>("owner"), &config, &animation).await;
     
     match (repos, _pag_error, _errors) {
         (r, None, e) if e.is_empty() && !r.is_empty() => {

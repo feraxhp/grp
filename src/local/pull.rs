@@ -22,9 +22,9 @@ impl Platform {
         pconf: Option<Pconf>, 
         action: PullAction,
         usettings: &Usettings, 
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> Result<(Vec<String>, bool), Error> {
-        if let Some(an) = animation { an.change_message("Getting the local repository ..."); }
+        animation.change_message("Getting the local repository ...");
         let repo = Repository::discover(path)?;
         
         let result = Platform::fetch(&repo, pconf, options.clone(), usettings, animation)?;

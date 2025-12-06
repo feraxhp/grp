@@ -15,27 +15,25 @@ impl Platform {
         fetch_commit: AnnotatedCommit<'repo>,
         force: bool,
         rebase: bool,
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> Result<(String, bool), Error> {
         
-        if let Some(an) = animation { an.change_message("Performing merge analysis ..."); }
+        animation.change_message("Performing merge analysis ...");
         let analysis = repo.merge_analysis(&[&fetch_commit])?;
 
         match analysis.0 {
             a if a.is_fast_forward() => {
-                if let Some(an) = animation { an.change_message("Fast-forward operation detected ..."); }
+                animation.change_message("Fast-forward operation detected ...");
                 let refname = format!("refs/heads/{}", remote_branch_name);
 
                 match repo.find_reference(&refname) {
                     Ok(mut r) => {
-                        if let Some(an) = animation { an.change_message("Performing fast-forward merge ..."); }
+                        animation.change_message("Performing fast-forward merge ...");
                         Ok((GitUtils::fast_forward(repo, &mut r, &fetch_commit, force)?, true))
                     }
                     Err(_) => {
-                        if let Some(an) = animation { 
-                            let m = cformat!("<m>Setting:</> <y>{}</> to <m>{}</>", remote_branch_name, fetch_commit.id());
-                            an.change_message(m); 
-                        }
+                        let m = cformat!("<m>Setting:</> <y>{}</> to <m>{}</>", remote_branch_name, fetch_commit.id());
+                        animation.change_message(m);
                         
                         repo.reference(&refname, fetch_commit.id(), true, "")?;
                         repo.set_head(&refname)?;
@@ -54,14 +52,14 @@ impl Platform {
             },
 
             a if a.is_normal() => {
-                if let Some(an) = animation { an.change_message("Performing normal merge ..."); }
+                animation.change_message("Performing normal merge ...");
                 let head_commit = repo.reference_to_annotated_commit(&repo.head()?)?;
                 if !rebase { Ok((GitUtils::merge(&repo, &head_commit, &fetch_commit)?, true)) }
                 else { Ok((GitUtils::rebase(&repo, &head_commit, &fetch_commit)?, true)) } 
             },
 
             a if a.is_unborn() => {
-                if let Some(an) = animation { an.change_message("Empty repoistory detected ..."); }
+                animation.change_message("Empty repoistory detected ...");
                 let refname = format!("refs/heads/{}", remote_branch_name);
 
                 repo.reference(&refname, fetch_commit.id(), true, "")?;

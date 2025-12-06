@@ -106,7 +106,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         dry_run
     };
 
-    let result = Platform::push_repo(&path, pconf.clone(), options, &usettings, Some(&animation));
+    let result = Platform::push_repo(&path, pconf.clone(), options, &usettings, &animation);
     
     let logs = match result {
         Ok((logs, true)) => {

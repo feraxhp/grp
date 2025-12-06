@@ -20,23 +20,23 @@ impl Platform {
         pconf: Option<Pconf>,
         options: Options,
         usettings: &Usettings,
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> Result<(Vec<String>, bool), Error> {
-        if let Some(an) = animation { an.change_message("Getting the local repository ..."); }
+        animation.change_message("Getting the local repository ...");
         let repo = Repository::discover(path)?;
         
-        if let Some(an) = animation { an.change_message("Getting the branch and remote ..."); }
+        animation.change_message("Getting the branch and remote ...");
         let (
             branch_name,
             remote_name
         ) = GitUtils::get_repo_branch_and_remote(&repo, &options)?;
         
         if options.method == Methods::UPSTREAM && !options.dry_run.clone() {
-            if let Some(an) = animation { an.change_message("Setting upstream ..."); }
+            animation.change_message("Setting upstream ...");
             let _ = options.method.set_upstream(&repo, &branch_name, &remote_name)?;
         };
         
-        if let Some(an) = animation { an.change_message("Preparing ref_specs ..."); }
+        animation.change_message("Preparing ref_specs ...");
         let ref_specs= options.method
             .get_push_refs(&repo, Some(&branch_name), &options.force)?;
         
@@ -78,7 +78,7 @@ impl Platform {
             return Ok((logs, true))
         }
         
-        if let Some(an) = animation { an.change_message("Setting up credentials ..."); }
+        animation.change_message("Setting up credentials ...");
         let mut callbacks = GitUtils::get_credential_callbacks(&config);
         
         let logs = Arc::new(Mutex::new(Vec::new()));
@@ -96,7 +96,7 @@ impl Platform {
             
             if let Some(error) = status {
                 let message = cformat!("<r>* <m>{}</><w> got <r>Error:</> <i>{}</>", refs, &error);
-                // if let Some(an) = animation { an.change_message(&message); }
+                // animation.change_message(&message);
                 logs.push(message);
                 *perfect = false;
                 return Ok(());
@@ -108,7 +108,7 @@ impl Platform {
                 _          => cformat!("<g>* <m>{}</><w> was <g>pushed</>", refs)
             };
             
-            // if let Some(an) = animation { an.change_message(&message); }
+            // animation.change_message(&message);
             logs.push(message);
             
             Ok(())
@@ -119,16 +119,15 @@ impl Platform {
         callbacks.push_transfer_progress(move |current, total, bytes| {
             let mut transfer = transfer_clone.lock().unwrap(); 
             *transfer = total;
-            if let Some(an) = animation {
-               let message = cformat!("Progress: {}/{} objects transferred ({} bytes)", current, total, bytes); 
-                an.change_message(&message); 
-            }
+            
+            let message = cformat!("Progress: {}/{} objects transferred ({} bytes)", current, total, bytes); 
+            animation.change_message(&message); 
         });
         
         let mut push_options = PushOptions::new();
         push_options.remote_callbacks(callbacks);
         
-        if let Some(an) = animation { an.change_message("Pushing repository ..."); }
+        animation.change_message("Pushing repository ...");
         let mut remote = repo.find_remote(&remote_name)?;
         remote.push(&ref_specs, Some(&mut push_options))?;
         

@@ -11,28 +11,28 @@ impl Platform {
         owner: T, repo: T,
         config: &Config,
         permanent: bool,
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> Result<(), Error> {
         let mut owner = owner.into(); let repo = repo.into();
         let owner_copy = owner.clone();
         
         if matches!(self, Platform::Gitlab) {
-            if let Some(an) = animation { an.change_message("getting project id"); }
+            animation.change_message("getting project id");
             let project = gitlab::projects::get::get_project_with_path(&self, &owner, &repo, config).await?;
             owner = project.id.to_string();
         }
         
-        if let Some(an) = animation { an.change_message("generating url ..."); }
+        animation.change_message("generating url ...");
         let url = self.url_delete_repo(&owner, &repo, &config.endpoint).await;
         
-        if let Some(an) = animation { an.change_message("Deleting repository ..."); }
+        animation.change_message("Deleting repository ...");
         let result = self.delete(&url, config).await?;
         
         match (self, result.status().as_u16()) {
             (Platform::Gitea, 204) | 
             (Platform::Github, 204) => Ok(()),
             (Platform::Gitlab, 202 | 400) if permanent => {
-                if let Some(an) = animation { an.change_message("Permamently deleting gitlab project ..."); }
+                animation.change_message("Permamently deleting gitlab project ...");
                 let project = gitlab::projects::get::get_project_with_id(&self, &owner, config).await?;
                 let _ = gitlab::projects::delete::premanently_remove(&self, &project, config).await?;
                 Ok(())

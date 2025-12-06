@@ -10,20 +10,20 @@ pub(crate) async fn create<A: Animation + ?Sized>(
     platform: &Platform, 
     name: &String, 
     config: &Config,
-    animation: Option<&Box<A>>
+    animation: &Box<A>
 ) -> Result<User, Error> {
     assert!(matches!(platform, Platform::Gitea));
     
-    if let Some(an) = animation { an.change_message("generating url ..."); }
+    animation.change_message("generating url ...");
     let url = format!("{}/orgs", platform.get_base_url(&config.endpoint));
     let json = serde_json::json!({
         "username": name,
     });
     
-    if let Some(an) = animation { an.change_message("creating org ..."); }
+    animation.change_message("creating org ...");
     let result = platform.post(url, true, config, &json).await?;
     
-    if let Some(an) = animation { an.change_message("unwraping response ..."); }
+    animation.change_message("unwraping response ...");
     let context = Context {
         request_type: RequestType::CreateOrg,
         owner: None, repo: None,

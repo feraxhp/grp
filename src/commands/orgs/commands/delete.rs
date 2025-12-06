@@ -61,7 +61,7 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
     let platform = Platform::matches(pconf.r#type.as_str());
     let config = pconf.to_config();
     
-    match platform.delete_org(name, &config, !soft, Some(&animation)).await {
+    match platform.delete_org(name, &config, !soft, &animation).await {
         Ok(_) => {
             let message = match (soft, platform) {
                 (true, Platform::Gitlab) => cformat!("group <m,i>marked</> <g>for delition!</>"),

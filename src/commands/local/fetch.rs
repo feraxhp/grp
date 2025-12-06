@@ -49,7 +49,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         force: false, dry_run
     };
     
-    let result = Platform::fetch_repo(&path, pconf.clone(), options, &usettings, Some(&animation)).await;
+    let result = Platform::fetch_repo(&path, pconf.clone(), options, &usettings, &animation).await;
     
     match result {
         Ok(logs) => {

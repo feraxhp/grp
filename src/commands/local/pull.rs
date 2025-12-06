@@ -80,7 +80,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         false => PullAction::MERGE,
     };
     
-    let result = Platform::pull_repo(&path, options, pconf.clone(), action, &usettings, Some(&animation));
+    let result = Platform::pull_repo(&path, options, pconf.clone(), action, &usettings, &animation);
     
     let logs = match result {
         Ok((logs, true)) => {
