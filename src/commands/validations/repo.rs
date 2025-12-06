@@ -69,13 +69,13 @@ impl RepoStructure {
         if intermediate.is_empty() { return Err(ParseError::EmptyStructure) }
         if ! intermediate.contains("/") { return Err(ParseError::NoSlash) }
         
-        let parts: Vec<String> = intermediate.split("/").map(|s| s.to_string()).collect();
+        let mut parts: Vec<String> = intermediate.split("/").map(|s| s.to_string()).collect();
         
         let len: usize = parts.len();
-        let owner: String = parts[0].clone();
-        let repo: String = parts[1..].join("/");
+        let repo: String = parts.pop().unwrap_or(String::new());
+        let owner: String = parts.join("/");
         
-        if owner.is_empty() { return Err(ParseError::NoOwner); }
+        if owner.is_empty() || owner.starts_with("/") { return Err(ParseError::NoOwner); }
         if repo.is_empty() { return Err(ParseError::NoRepo); }
         
         Ok(Self {
@@ -117,8 +117,8 @@ mod tests {
     fn perfect_structure_multiple() {
         let r = RepoStructure::parse("pconf:owner/repo_name/nested/on_another").unwrap();
         assert_eq!(r.pconf, Some("pconf".to_string()));
-        assert_eq!(r.owner, "owner".to_string());
-        assert_eq!(r.path, "repo_name/nested/on_another".to_string());
+        assert_eq!(r.owner, "owner/repo_name/nested".to_string());
+        assert_eq!(r.path, "on_another".to_string());
         assert_eq!(r.len, 3)
     }
     
