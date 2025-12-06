@@ -23,6 +23,7 @@ impl Platform {
                     vec![self.name(), "Create Orgs"]
                 )]
             ),
+            Platform::Codeberg |
             Platform::Gitea => {
                 let result = gitea::orgs::create::create(self, &name, config, animation).await;
                 match result {

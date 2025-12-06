@@ -8,7 +8,9 @@ use crate::girep::specific::{gitea, github, gitlab};
 impl Repo {
     pub fn as_json(&self, platform: &Platform) -> serde_json::Value {
         match platform {
-            Platform::Github | Platform::Gitea => {
+            Platform::Github |
+            Platform::Codeberg |
+            Platform::Gitea => {
                 serde_json::json!({
                     "name": self.name,
                     "description": self.description,
@@ -39,6 +41,7 @@ impl Repo {
                     description: repo.description.clone(),
                 }
             },
+            Platform::Codeberg |
             Platform::Gitea => { 
                 let repo: gitea::parser::Repository = JSON::from_str(text)?;
                 
@@ -86,6 +89,7 @@ impl Repo {
                 
                 repos
             },
+            Platform::Codeberg |
             Platform::Gitea => {
                 let tmp: Vec<gitea::parser::Repository> = JSON::from_str(text)?;
                 

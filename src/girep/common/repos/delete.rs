@@ -30,6 +30,7 @@ impl Platform {
         
         match (self, result.status().as_u16()) {
             (Platform::Gitea, 204) | 
+            (Platform::Codeberg, 204) | 
             (Platform::Github, 204) => Ok(()),
             (Platform::Gitlab, 202 | 400) if permanent => {
                 if let Some(an) = animation { an.change_message("Permamently deleting gitlab project ..."); }

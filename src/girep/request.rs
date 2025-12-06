@@ -21,6 +21,7 @@ impl Platform {
             match self {
                 Platform::Github => header.remove("Authorization"),
                 Platform::Gitea |
+                Platform::Codeberg |
                 Platform::Gitlab => header.remove("authorization"),
             };
         }

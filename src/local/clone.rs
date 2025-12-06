@@ -109,6 +109,7 @@ impl Platform {
         match self {
             Platform::Github => format!("https://github.com/{}/{}.git", owner.as_ref(), repo.as_ref()),
             Platform::Gitlab |
+            Platform::Codeberg |
             Platform::Gitea => format!("https://{}/{}/{}.git", endpoint.as_ref(), owner.as_ref(), repo.as_ref()),
         }
     }
