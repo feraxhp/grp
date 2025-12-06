@@ -18,6 +18,7 @@ impl Platform {
         let url = match &self {
             Platform::Github |
             Platform::Gitlab |
+            Platform::Codeberg |
             Platform::Gitea => { 
                format!("{}/user", self.get_base_url(&conf.endpoint))
             },
@@ -37,7 +38,8 @@ impl Platform {
                 let name = json["login"].as_str().unwrap().to_string();
                 User { id: name.clone(), name: name.clone(), path: None }
             },
-            Platform::Gitea => {
+            Platform::Gitea |
+            Platform::Codeberg => {
                 let name = json["login"].as_str().unwrap().to_string();
                 User { id: name.clone(), name: name.clone(), path: None }
             },

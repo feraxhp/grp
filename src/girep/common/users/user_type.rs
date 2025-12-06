@@ -14,6 +14,7 @@ impl Platform {
         
         match &self {
             Platform::Github |
+            Platform::Codeberg |
             Platform::Gitea => {
                 let user = User { id: name.clone(), name: name.clone(), path: None };
                 let orgs = self.get_logged_orgs(conf).await?;

@@ -35,6 +35,7 @@ impl Platform {
                 let _ = gitlab::groups::delete::premanently_remove(&self, &user, config).await?;
                 Ok(())
             },
+            (Platform::Codeberg, 204) => Ok(()),
             (_, 202) => Ok(()),
             (_, _) => {
                 let context = Context {

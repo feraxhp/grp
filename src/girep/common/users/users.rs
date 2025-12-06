@@ -20,6 +20,7 @@ impl User {
                 id = name.clone();
                 path = None
             },
+            Platform::Codeberg |
             Platform::Gitea => {
                 name = json["name"].as_str().unwrap().to_string();
                 id = name.clone();
@@ -43,6 +44,7 @@ impl User {
                     let name = org["login"].as_str().unwrap().to_string();
                     User { id: name.clone(), name: name.clone(), path: None }
                 }).collect(),
+            Platform::Codeberg |
             Platform::Gitea => json.iter()
                 .map(|org| {
                     let name = org["name"].as_str().unwrap().to_string();
