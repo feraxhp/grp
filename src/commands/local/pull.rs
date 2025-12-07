@@ -40,7 +40,7 @@ pub(crate) fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
-    let animation = Fetch::new("Fetching the repository ...");
+    let mut animation = Fetch::new("Fetching the repository ...");
     
     let pconf = args.get_one::<Pconf>("pconf").map(| p| p.clone());
     
@@ -80,7 +80,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         false => PullAction::MERGE,
     };
     
-    let result = Platform::pull_repo(&path, options, pconf.clone(), action, &usettings, Some(&animation));
+    let result = Platform::pull_repo(&path, options, pconf.clone(), action, &usettings, &mut animation);
     
     let logs = match result {
         Ok((logs, true)) => {

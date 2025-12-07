@@ -2,8 +2,11 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::path::PathBuf;
 use color_print::cformat;
+use git2::IntoCString;
+use indicatif::HumanBytes;
 use git2::{Error, ErrorClass, ErrorCode, PushOptions, Repository};
 
+use crate::animations::animation::Subprogress;
 use crate::girep::usettings::structs::Pconf;
 use crate::girep::usettings::structs::Usettings;
 use crate::girep::animation::Animation;
@@ -15,28 +18,28 @@ use super::git::structs::GitUtils;
 
 impl Platform {
     /// return: __logs__, true (_no errors on push_) - false (_some errors on push_)
-    pub(crate) fn push_repo<A: Animation + ?Sized>(
+    pub(crate) fn push_repo<A: Animation + Subprogress + ?Sized>(
         path: &PathBuf,
         pconf: Option<Pconf>,
         options: Options,
         usettings: &Usettings,
-        animation: Option<&Box<A>>
+        animation: &mut Box<A>
     ) -> Result<(Vec<String>, bool), Error> {
-        if let Some(an) = animation { an.change_message("Getting the local repository ..."); }
+        animation.change_message("Getting the local repository ...");
         let repo = Repository::discover(path)?;
         
-        if let Some(an) = animation { an.change_message("Getting the branch and remote ..."); }
+        animation.change_message("Getting the branch and remote ...");
         let (
             branch_name,
             remote_name
         ) = GitUtils::get_repo_branch_and_remote(&repo, &options)?;
         
         if options.method == Methods::UPSTREAM && !options.dry_run.clone() {
-            if let Some(an) = animation { an.change_message("Setting upstream ..."); }
+            animation.change_message("Setting upstream ...");
             let _ = options.method.set_upstream(&repo, &branch_name, &remote_name)?;
         };
         
-        if let Some(an) = animation { an.change_message("Preparing ref_specs ..."); }
+        animation.change_message("Preparing ref_specs ...");
         let ref_specs= options.method
             .get_push_refs(&repo, Some(&branch_name), &options.force)?;
         
@@ -78,7 +81,7 @@ impl Platform {
             return Ok((logs, true))
         }
         
-        if let Some(an) = animation { an.change_message("Setting up credentials ..."); }
+        animation.change_message("Setting up credentials ...");
         let mut callbacks = GitUtils::get_credential_callbacks(&config);
         
         let logs = Arc::new(Mutex::new(Vec::new()));
@@ -96,7 +99,7 @@ impl Platform {
             
             if let Some(error) = status {
                 let message = cformat!("<r>* <m>{}</><w> got <r>Error:</> <i>{}</>", refs, &error);
-                // if let Some(an) = animation { an.change_message(&message); }
+                // animation.change_message(&message);
                 logs.push(message);
                 *perfect = false;
                 return Ok(());
@@ -108,27 +111,77 @@ impl Platform {
                 _          => cformat!("<g>* <m>{}</><w> was <g>pushed</>", refs)
             };
             
-            // if let Some(an) = animation { an.change_message(&message); }
+            // animation.change_message(&message);
             logs.push(message);
             
             Ok(())
         });
         
         let transfer_clone = transfer.clone();
-
+        
+        let _ = animation.add(); // 1: for deltification
+        let _ = animation.add(); // 2: for push progress
+        let mut_animation = Arc::new(&animation);
+        
+        let _animation = mut_animation.clone();
+        callbacks.pack_progress(move |stage, current, total| {
+            let mut __animation = _animation.clone();
+            
+            __animation.set_message(1, format!("{:?}", stage));
+            __animation.set_total(
+                1, total as u64, 
+                cformat!("  * <g>{{msg}}</>: {{percent:>3.blue}}% {{bar:30.green/blue}}  {{pos}}/{{len}} on {{elapsed_precise:.yellow}}").as_str()
+            );
+            
+            __animation.set_state(1, current as u64);
+        });
+        
+        let _animation = mut_animation.clone();
         callbacks.push_transfer_progress(move |current, total, bytes| {
+            let mut __animation = _animation.clone();
+            
             let mut transfer = transfer_clone.lock().unwrap(); 
             *transfer = total;
-            if let Some(an) = animation {
-               let message = cformat!("Progress: {}/{} objects transferred ({} bytes)", current, total, bytes); 
-                an.change_message(&message); 
+            
+            if total != 0 {
+                __animation.set_total(
+                    2, total as u64, 
+                    cformat!("  * <g>{{msg}}</>: {{percent:>3.blue}}% {{bar:30.green/blue}}    {{pos}}/{{len}} on {{elapsed_precise:.yellow}}").as_str()
+                );
+                
+                __animation.set_state(2, current as u64);
+                __animation.set_message(2, format!("{}", HumanBytes(bytes as u64)));
+            } else {
+                __animation.change_message(cformat!("<g>Up-to-date</g> <y>Cheking remote status ..."));
             }
         });
+        
+        callbacks.sideband_progress(|n| { // Server post procesing
+            let msg = n.to_vec().into_c_string()
+                .unwrap_or_default()
+                .into_string()
+                .unwrap_or("finishing ...".to_string());
+            animation.change_message(cformat!("Server: <m,i>{}</m,i>", msg));
+            true
+        });
+        
+        callbacks.push_negotiation(|n| {
+            
+            let _ref = if n.len() > 0 { 
+                n.last().unwrap()
+                    .src_refname()
+                    .unwrap_or_default()
+            } else { "Negociating ..." };
+             
+             animation.change_message(cformat!("<g>*</g> <m>{_ref}</m>"));
+             Ok(())
+        });
+        
         
         let mut push_options = PushOptions::new();
         push_options.remote_callbacks(callbacks);
         
-        if let Some(an) = animation { an.change_message("Pushing repository ..."); }
+        animation.change_message("Pushing repository ...");
         let mut remote = repo.find_remote(&remote_name)?;
         remote.push(&ref_specs, Some(&mut push_options))?;
         

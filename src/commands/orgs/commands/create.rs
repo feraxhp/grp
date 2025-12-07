@@ -40,7 +40,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let platform = Platform::matches(pconf.r#type.as_str());
     let config = pconf.to_config();
     
-    let (users, errors) = platform.create_org(name, &config, recursive, Some(&animation)).await;
+    let (users, errors) = platform.create_org(name, &config, recursive, &animation).await;
     
     match (users.is_empty(), errors.is_empty()) {
         (true, true) => {

@@ -2,7 +2,9 @@ use std::path::PathBuf;
 
 use color_print::cformat;
 use git2::{AnnotatedCommit, AutotagOption, Error, ErrorClass, ErrorCode, FetchOptions, Repository};
+use indicatif::HumanBytes;
 
+use crate::animations::animation::Subprogress;
 use crate::girep::usettings::structs::{Pconf, Usettings};
 use super::git::structs::GitUtils;
 use super::git::options::{Methods, Options};
@@ -16,12 +18,12 @@ pub struct FetchResult<'repo> {
 } 
 
 impl Platform {
-    pub(crate) fn fetch<'repo, A: Animation + ?Sized>(
+    pub(crate) fn fetch<'repo, A: Animation + Subprogress + ?Sized>(
         repo: &'repo Repository,
         pconf: Option<Pconf>, 
         options: Options,
         usettings: &Usettings, 
-        animation: Option<&Box<A>>
+        animation: &mut Box<A>
     ) -> Result<FetchResult<'repo>, Error> {
         match options.method {
             Methods::ALL      |
@@ -36,18 +38,18 @@ impl Platform {
             Methods::UPSTREAM => (),
         };
         
-        if let Some(an) = animation { an.change_message("Getting the branch and remote ..."); }
+        animation.change_message("Getting the branch and remote ...");
         let (
             branch_name,
             remote_name
         ) = GitUtils::get_repo_branch_and_remote(&repo, &options)?;
         
         if options.method == Methods::UPSTREAM && !options.dry_run.clone() {
-            if let Some(an) = animation { an.change_message("Setting upstream ..."); }
+            animation.change_message("Setting upstream ...");
             let _ = options.method.set_upstream(&repo, &branch_name, &remote_name)?;
         };
         
-        if let Some(an) = animation { an.change_message("Preparing ref_specs ..."); }
+        animation.change_message("Preparing ref_specs ...");
         let mut remote = repo.find_remote(&remote_name)?;
         let ref_specs= options.method
             .get_fetch_refs(&branch_name, &remote)?;
@@ -100,33 +102,32 @@ impl Platform {
             return Ok(fr)
         }
         
-        if let Some(an) = animation { an.change_message("Setting up credentials ..."); }
+        animation.change_message("Setting up credentials ...");
         let mut callbacks = GitUtils::get_credential_callbacks(&config);
         
-        if let Some(an) = animation {
-            callbacks.transfer_progress(|stats| {
-                let message = if stats.total_objects() == 0 { return true; } 
-                else if stats.received_objects() == stats.total_objects() {
-                    format!(
-                        "Resolving deltas {}/{}",
-                        stats.indexed_deltas(),
-                        stats.total_deltas()
-                    )
-                } 
-                else {
-                    format!(
-                        "Received {}/{} objects ({}) in {} bytes",
-                        stats.received_objects(),
-                        stats.total_objects(),
-                        stats.indexed_objects(),
-                        stats.received_bytes()
-                    )
-                };
-                
-                an.change_message(message);
-                true
-            });
-        }
+        callbacks.transfer_progress(|stats| {
+            if stats.total_objects() == 0 { return true; } 
+            else if stats.received_objects() == stats.total_objects() {
+                animation.change_message("Resolving deltas ...");
+                animation.set_state(1, stats.received_objects() as u64);
+                animation.set_total(
+                    2, stats.total_deltas() as u64, 
+                    "    🔄 {percent:>3.blue}% {bar:30.green/blue}    {pos}/{len} on {elapsed_precise:.yellow}"
+                );
+                animation.set_state(2, stats.indexed_deltas() as u64);
+            } 
+            else {
+                animation.change_message("Downloading objects ...");
+                animation.set_total(
+                    1, stats.total_objects() as u64, 
+                    "    ⬇️ {percent:>3.blue}% {bar:30.green/blue}    {pos}/{len}: [{msg}] on {elapsed_precise:.yellow}"
+                );
+                animation.set_state(1, stats.received_objects() as u64);
+                animation.set_message(1, format!("{} indexed: {}", HumanBytes(stats.received_bytes() as u64), stats.indexed_objects()));
+            };
+            
+            true
+        });
         
         let mut fetch_options = FetchOptions::new();
         fetch_options.remote_callbacks(callbacks);
@@ -134,7 +135,7 @@ impl Platform {
         
         let bbranches = GitUtils::get_branches_by_remote(repo, &remote_name)?;
         
-        if let Some(an) = animation { an.change_message("Fetching repository ..."); }
+        animation.change_message("Fetching repository ...");
         let _ = remote.fetch(&ref_specs, Some(&mut fetch_options), None)?;
         
         let abranches = GitUtils::get_branches_by_remote(repo, &remote_name)?;
@@ -154,12 +155,12 @@ impl Platform {
         return Ok(result);
     }
     
-    pub async fn fetch_repo<A: Animation + ?Sized>(
+    pub async fn fetch_repo<A: Animation + Subprogress + ?Sized>(
         path: &PathBuf, 
         pconf: Option<Pconf>, 
         options: Options, 
         usettings: &Usettings, 
-        animation: Option<&Box<A>>
+        animation: &mut Box<A>
     ) -> Result<Vec<String>, git2::Error> {
         let repo = Repository::discover(path)?;
         

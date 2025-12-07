@@ -73,7 +73,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let config = pconf.to_config();
     
-    match platform.delete_repo(&repo.owner, &repo.path, &config, !soft, Some(&animation)).await {
+    match platform.delete_repo(&repo.owner, &repo.path, &config, !soft, &animation).await {
         Ok(_) => {
             let message = match (soft, platform) {
                 (true, Platform::Gitlab) => cformat!("repo <m,i>mark</> <g>for delition!</>"),

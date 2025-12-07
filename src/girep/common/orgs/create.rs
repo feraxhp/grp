@@ -12,7 +12,7 @@ impl Platform {
         name: T,
         config: &Config,
         recursive: bool, 
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> (Vec<User>, Vec<Error>) {
         let name = name.into();
         match self {

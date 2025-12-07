@@ -34,7 +34,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let platform = Platform::matches(pconf.r#type.as_str());
     let config = pconf.to_config();
     
-    let (orgs, _pag_error, _errors) = platform.list_orgs(&config, Some(&animation)).await;
+    let (orgs, _pag_error, _errors) = platform.list_orgs(&config, &animation).await;
     
     match (orgs, _pag_error, _errors) {
         (o, None, e) if e.is_empty() && !o.is_empty() => {

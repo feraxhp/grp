@@ -14,20 +14,20 @@ impl Platform {
     pub async fn list_repos<T: Into<String>, A: Animation + ?Sized>(&self,
         owner: Option<T>, 
         config: &Config,
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> (Vec<Repo>, Option<Error>, Vec<Error>) {
         let header_map = self.get_auth_header(&config.token);
         let owner = owner.map(|o| o.into());
         let owner = owner.unwrap_or(config.user.clone());
         
-        if let Some(an) = animation { an.change_message("getting user type"); }
+        animation.change_message("getting user type");
         
         let user_type = match self.get_user_type(&owner, &config).await {
             Ok(ut) => ut,
             Err(e) => return (Vec::new(), Some(e), vec![])
         };
         
-        if let Some(an) = animation { an.change_message("fetching repositories..."); }
+        animation.change_message("fetching repositories...");
         
         let url = self.url_list_repos(&user_type, &config.endpoint).await;
         let (responses, error) = pagination(url, header_map).await;
@@ -54,7 +54,7 @@ impl Platform {
         let mut repos_erros: Vec<Error> = response_erros.into_iter().map(Result::unwrap_err).collect();
         let mut repos: Vec<Repo> = Vec::new();
         
-        if let Some(an) = animation { an.change_message("formating repositories"); }
+        animation.change_message("formating repositories");
         
         for response in responses {
             match self.get_repo(response) {

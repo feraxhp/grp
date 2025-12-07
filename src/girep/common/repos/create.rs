@@ -10,18 +10,18 @@ impl Platform {
         owner: Option<T>, 
         repo: Repo,
         config: &Config,
-        animation: Option<&Box<A>>
+        animation: &Box<A>
     ) -> Result<Repo, Error> {
         let owner = owner.map(|o| o.into());
         let owner = owner.unwrap_or(config.user.clone());
         
-        if let Some(an) = animation { an.change_message("getting user type"); }
+        animation.change_message("getting user type");
         let user_type = self.get_user_type(&owner, &config).await?;
         
-        if let Some(an) = animation { an.change_message("Serializing repository..."); }
+        animation.change_message("Serializing repository...");
         let json = repo.as_json(&self);
         
-        if let Some(an) = animation { an.change_message("creating repository..."); }
+        animation.change_message("creating repository...");
         let url = self.url_create_repo(&user_type, &config.endpoint).await;
         let result = self.post(url, true, config, &json).await?;
         

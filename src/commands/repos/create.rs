@@ -96,7 +96,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     let result = platform.create_repo(
-        Some(owner), repo, &config, Some(&animation)
+        Some(owner), repo, &config, &animation
     ).await;
     
     match result {
