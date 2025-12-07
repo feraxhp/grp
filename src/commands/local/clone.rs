@@ -15,7 +15,7 @@ use crate::girep::usettings::structs::{Pconf, Usettings};
 use crate::local::git::structs::Action;
 use crate::girep::{animation::Animation, common::show::Show, error::structs::Error, platform::Platform};
 use crate::commands::core::args::Arguments;
-use crate::animations::animation::Process;
+use crate::animations::animation::{Process, Subprogress};
 
 const DEFNAME: &'static str = "defname";
 
@@ -36,7 +36,7 @@ pub fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
-    let animation = Process::new("Initializing repository cloning...");
+    let mut animation = Process::new("Initializing repository cloning...");
     
     let path = args.get_one::<PathBuf>("path");
     
@@ -48,7 +48,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let bare = args.get_flag("bare");
     
     match (args.get_one::<RepoStructure>("repo"), args.get_many::<String>("url"))  {
-        (Some(repo), None) => by_repostructure(repo, bare, path, branch, &animation, usettings).await,
+        (Some(repo), None) => by_repostructure(repo, bare, path, branch, &mut animation, usettings).await,
         (None, Some(values)) => {
             let mut values_iter = values.clone();
             let pconf = values_iter.next().unwrap().to_owned();
@@ -70,17 +70,17 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 },
             };
             
-            by_url(url, bare, path, pconf, branch, &animation, usettings).await;
+            by_url(url, bare, path, pconf, branch, &mut animation, usettings).await;
         }
         _ => unreachable!()
     }
 }
 
-async fn by_repostructure<A: Animation + ?Sized>(repo: &RepoStructure, 
+async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStructure, 
     bare: bool,
     path: Option<&PathBuf>, 
     branch: Option<String>, 
-    animation: &Box<A>, 
+    animation: &mut Box<A>, 
     usettings: Usettings
 ) {
     let pconf = match &repo.pconf {
@@ -107,7 +107,7 @@ async fn by_repostructure<A: Animation + ?Sized>(repo: &RepoStructure,
         bare: bare,
     };
     
-    match platform.clone_repo(&repo.owner, &repo.path, &options, &config, &animation).await {
+    match platform.clone_repo(&repo.owner, &repo.path, &options, &config, animation).await {
         Ok(r) => {
             animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
             vec![r].print_pretty();
@@ -123,11 +123,11 @@ async fn by_repostructure<A: Animation + ?Sized>(repo: &RepoStructure,
     }
 }
 
-async fn by_url<A: Animation + ?Sized>(url: Url, 
+async fn by_url<A: Animation + Subprogress + ?Sized>(url: Url, 
     bare: bool,
     path: Option<&PathBuf>, pconf: String,
     branch: Option<String>, 
-    animation: &Box<A>, 
+    animation: &mut Box<A>, 
     usettings: Usettings
 ) {
     let repo_ = match url.path_segments() {
