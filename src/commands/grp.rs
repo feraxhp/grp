@@ -1,9 +1,10 @@
-use clap::Command;
+use clap::{Command, crate_authors};
 use std::process::exit;
 use color_print::{cprintln,cformat};
 use clap::{ArgMatches, arg, command, crate_version};
 
 use crate::commands::local::fetch;
+use crate::girep::platform::SUPPORTED_REPOS;
 
 use super::super::animations;
 use super::super::commands::core::utils::version::show_version;
@@ -19,8 +20,15 @@ use super::super::commands::config::config;
 
 
 pub fn command() -> Command {
+    let platforms: String = SUPPORTED_REPOS
+        .iter()
+        .map(|s| cformat!("  * <g>{}</>\n", s.2))
+        .collect();
+    
     command!()
         .name("grp")
+        .author(crate_authors!())
+        .after_help(cformat!("<bold,u>Supported platforms:</bold,u>\n{}", platforms))
         .about("A simple CLI to manage platforms for git repositories")
         .arg(arg!( -v --"number" "Prints the version number to the standard output")
             .exclusive(true)
