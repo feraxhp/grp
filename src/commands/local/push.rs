@@ -53,7 +53,7 @@ pub(crate) fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
-    let animation = Create::new("Preparing to push ...");
+    let mut animation = Create::new("Preparing to push ...");
 
     let pconf = args.get_one::<Pconf>("pconf").map(| p| p.clone());
     
@@ -106,7 +106,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         dry_run
     };
 
-    let result = Platform::push_repo(&path, pconf.clone(), options, &usettings, &animation);
+    let result = Platform::push_repo(&path, pconf.clone(), options, &usettings, &mut animation);
     
     let logs = match result {
         Ok((logs, true)) => {
