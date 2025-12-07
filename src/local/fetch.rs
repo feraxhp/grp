@@ -2,7 +2,9 @@ use std::path::PathBuf;
 
 use color_print::cformat;
 use git2::{AnnotatedCommit, AutotagOption, Error, ErrorClass, ErrorCode, FetchOptions, Repository};
+use indicatif::HumanBytes;
 
+use crate::animations::animation::Subprogress;
 use crate::girep::usettings::structs::{Pconf, Usettings};
 use super::git::structs::GitUtils;
 use super::git::options::{Methods, Options};
@@ -16,12 +18,12 @@ pub struct FetchResult<'repo> {
 } 
 
 impl Platform {
-    pub(crate) fn fetch<'repo, A: Animation + ?Sized>(
+    pub(crate) fn fetch<'repo, A: Animation + Subprogress + ?Sized>(
         repo: &'repo Repository,
         pconf: Option<Pconf>, 
         options: Options,
         usettings: &Usettings, 
-        animation: &Box<A>
+        animation: &mut Box<A>
     ) -> Result<FetchResult<'repo>, Error> {
         match options.method {
             Methods::ALL      |
@@ -104,25 +106,26 @@ impl Platform {
         let mut callbacks = GitUtils::get_credential_callbacks(&config);
         
         callbacks.transfer_progress(|stats| {
-            let message = if stats.total_objects() == 0 { return true; } 
+            if stats.total_objects() == 0 { return true; } 
             else if stats.received_objects() == stats.total_objects() {
-                format!(
-                    "Resolving deltas {}/{}",
-                    stats.indexed_deltas(),
-                    stats.total_deltas()
-                )
+                animation.change_message("Resolving deltas ...");
+                animation.set_state(1, stats.received_objects() as u64);
+                animation.set_total(
+                    2, stats.total_deltas() as u64, 
+                    "    🔄 {percent:>3.blue}% {bar:30.green/blue}    {pos}/{len} on {elapsed_precise:.yellow}"
+                );
+                animation.set_state(2, stats.indexed_deltas() as u64);
             } 
             else {
-                format!(
-                    "Received {}/{} objects ({}) in {} bytes",
-                    stats.received_objects(),
-                    stats.total_objects(),
-                    stats.indexed_objects(),
-                    stats.received_bytes()
-                )
+                animation.change_message("Downloading objects ...");
+                animation.set_total(
+                    1, stats.total_objects() as u64, 
+                    "    ⬇️ {percent:>3.blue}% {bar:30.green/blue}    {pos}/{len}: [{msg}] on {elapsed_precise:.yellow}"
+                );
+                animation.set_state(1, stats.received_objects() as u64);
+                animation.set_message(1, format!("{} indexed: {}", HumanBytes(stats.received_bytes() as u64), stats.indexed_objects()));
             };
             
-            animation.change_message(message);
             true
         });
         
@@ -152,12 +155,12 @@ impl Platform {
         return Ok(result);
     }
     
-    pub async fn fetch_repo<A: Animation + ?Sized>(
+    pub async fn fetch_repo<A: Animation + Subprogress + ?Sized>(
         path: &PathBuf, 
         pconf: Option<Pconf>, 
         options: Options, 
         usettings: &Usettings, 
-        animation: &Box<A>
+        animation: &mut Box<A>
     ) -> Result<Vec<String>, git2::Error> {
         let repo = Repository::discover(path)?;
         

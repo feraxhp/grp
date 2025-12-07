@@ -3,7 +3,7 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 pub(crate) struct Process { pub(crate) multi: MultiProgress, pub spinners: Vec<ProgressBar> }
 pub(crate) struct Create  { pub spinner: ProgressBar }
 pub(crate) struct Delete  { pub spinner: ProgressBar }
-pub(crate) struct Fetch   { pub spinner: ProgressBar }
+pub(crate) struct Fetch   { pub(crate) multi: MultiProgress, pub spinners: Vec<ProgressBar> }
 
 pub(crate) trait Style {
     fn normal() -> (ProgressStyle, u64);

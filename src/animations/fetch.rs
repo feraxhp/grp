@@ -1,49 +1,88 @@
 use std::time::Duration;
 use color_print::{cformat, cprintln};
-use indicatif::{ProgressBar, ProgressStyle};
-use crate::animations::animation::Fetch;
+use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use crate::animations::animation::{Fetch, Style, Subprogress};
 use crate::girep::animation::Animation;
 
+impl Style for Fetch {
+    fn normal() -> (ProgressStyle, u64) {
+        (
+            ProgressStyle::default_spinner()
+                .tick_strings(
+                    &[
+                        cformat!("<y>💻     🌎</>").as_str(),
+                        cformat!("<y>💻    <<🌎</>").as_str(),
+                        cformat!("<y>💻   <<=🌎</>").as_str(),
+                        cformat!("<y>💻  <<= 🌎</>").as_str(),
+                        cformat!("<y>💻 <<=  🌎</>").as_str(),
+                        cformat!("<y>💻<<=   🌎</>").as_str(),
+                        cformat!("<y>💻=    🌎</>").as_str(),
+                    ]
+                )
+            ,
+            200
+        )
+    }
+}
 
 impl Animation for Fetch {
     fn new<T: Into<String>>(message: T) -> Box<Fetch> {
-        let spinner = ProgressBar::new_spinner();
-        let style = ProgressStyle::default_spinner()
-            .tick_strings(
-                &[
-                    cformat!("<y>💻     🌎</>").as_str(),
-                    cformat!("<y>💻    <<🌎</>").as_str(),
-                    cformat!("<y>💻   <<=🌎</>").as_str(),
-                    cformat!("<y>💻  <<= 🌎</>").as_str(),
-                    cformat!("<y>💻 <<=  🌎</>").as_str(),
-                    cformat!("<y>💻<<=   🌎</>").as_str(),
-                    cformat!("<y>💻=    🌎</>").as_str(),
-                ]
-            )
-            ;
-        spinner.set_style(style);
-        spinner.set_message(cformat!("<y>{}</>", message.into()));
-        spinner.enable_steady_tick(Duration::from_millis(200));
+        let multi = MultiProgress::new();
+        let spinner = multi.add(ProgressBar::new_spinner());
+        let style = Self::normal();
 
-        Box::from(Fetch { spinner })
+        spinner.set_style(style.0);
+        spinner.set_message(cformat!("<y>{}</>", message.into()));
+        spinner.enable_steady_tick(Duration::from_millis(style.1));
+
+        Box::from(Fetch { multi, spinners: vec![spinner] })
     }
 
     fn finish_with_error<T: Into<String>>(&self, message: T) {
-        self.spinner.finish_and_clear();
+        self.finish_all();
         cprintln!("<r>💻--X--🌎 {}</>", message.into());
     }
 
     fn finish_with_warning<T: Into<String>>(&self, message: T) {
-        self.spinner.finish_and_clear();
+        self.finish_all();
         cprintln!("<y>💻--!--🌎 {}</>", message.into());
     }
 
     fn finish_with_success<T: Into<String>>(&self, message: T) {
-        self.spinner.finish_and_clear();
+        self.finish_all();
         cprintln!("<g>💻--✓--🌎 {}</>", message.into());
     }
 
     fn change_message<T: Into<String>>(&self, message: T) {
-        self.spinner.set_message(cformat!("<y>{}</>", message.into()));
+        self.spinners[0].set_message(cformat!("<y>{}</>", message.into()));
+    }
+}
+
+impl Subprogress for Fetch {
+    fn add(&mut self) -> usize {
+        let pb = self.multi.add(ProgressBar::new(0));
+        
+        let index = self.spinners.len();
+        self.spinners.push(pb);
+        index
+    }
+
+    fn set_total(&self, index: usize, total: u64, template: &str) {
+        let style = Self::progress(template);
+        self.spinners[index].set_style(style);
+        self.spinners[index].set_length(total);
+    }
+
+    fn set_state(&self, index: usize, current: u64) { self.spinners[index].set_position(current) }
+
+    fn set_message<T: Into<String>>(&self, index: usize, message: T) {
+        self.spinners[index].set_message(message.into());
+    }
+
+    fn finish_all(&self) {
+        let len = self.spinners.len();
+        for index in 0..len {
+            self.spinners[index].finish_and_clear();
+        }
     }
 }

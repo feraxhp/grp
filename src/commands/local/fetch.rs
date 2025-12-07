@@ -27,7 +27,7 @@ pub fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
-    let animation = Process::new("Initializing repository fetching...");
+    let mut animation = Process::new("Initializing repository fetching...");
     
     let pconf = args.get_one::<Pconf>("pconf").map(| p| p.clone());
     
@@ -49,7 +49,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         force: false, dry_run
     };
     
-    let result = Platform::fetch_repo(&path, pconf.clone(), options, &usettings, &animation).await;
+    let result = Platform::fetch_repo(&path, pconf.clone(), options, &usettings, &mut animation).await;
     
     match result {
         Ok(logs) => {
