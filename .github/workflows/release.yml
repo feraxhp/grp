@@ -1,57 +1,112 @@
 name: Create release from TAG
 
 on:
-  push:
-    tags:
-      - 'v*' # Triggers with any: v1.0, v1.2.3, v2.0-beta
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+      event:
+        # Will receive github.event_name (e.g., 'push', 'workflow_dispatch', 'release').
+        # This allows the workflow to know the trigger cause.
+        type: string
+        required: true
+    secrets:
+      token:
+        required: true
 
 jobs:
   create-release:
-    name: Crear Release
+    name: Create Release
     runs-on: ubuntu-latest
 
-    if: github.event.pusher.name != 'web-flow'
-    
     permissions:
-      contents: write
+      contents: write # Required for actions/create-release@v1 to write the release
 
     steps:
-      - name: Code Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # get all the tags and metadata
-
-      - name: Get tag message
-        id: get_tag_message
-        run: echo "tag_body=$(git tag -l --format='%(contents)' ${{ github.ref_name }})" >> $GITHUB_OUTPUT
-
-      - name: Generate changelog
-        id: generate_changelog
+      - name: 📝 Log Workflow Inputs
         run: |
-          PREVIOUS_TAG=$(git tag --sort=-v:refname | sed -n '2p')
-          if [ -z "$PREVIOUS_TAG" ]; then
-            echo "changelog_body=### Primer lanzamiento" >> $GITHUB_OUTPUT
-          else
-            CHANGELOG_URL="https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${{ github.ref_name }}"
-            {
-              echo "changelog_body<<EOF"
-              echo ""
-              echo "---"
-              echo "**Full Changelog**: ${CHANGELOG_URL}"
-              echo "EOF"
-            } >> $GITHUB_OUTPUT
+          echo "Workflow Trigger Event: ${{ inputs.event }}"
+          echo "Provided Tag: ${{ inputs.tag }}"
+          
+      # --- Condition to Skip Release Creation Logic ---
+      # Release creation should only occur for 'push' events targeting tags.
+      # It should be skipped for:
+      #   1. 'workflow_dispatch' (manual runs, user might only want builds)
+      #   2. 'release' (a release was already created, no need to create it again)
+      #   3. Tags that do not start with 'v' (this will be caught by validation, but good for early feedback)
+      - name: 🔍 Pre-check to Skip Release Creation
+        # This step runs if it's NOT a 'push' event OR if the tag does not start with 'v'
+        if: ${{ inputs.event != 'push' || !startsWith(inputs.tag, 'v') }}
+        run: |
+          echo "Skipping GitHub Release creation steps."
+          echo "Reason:"
+          if [ "${{ inputs.event }}" != "push" ]; then
+            echo "- Workflow triggered by '${{ inputs.event }}' event, but releases are only created for 'push' events to tags."
+          fi
+          if [[ ! "${{ inputs.tag }}" =~ ^v ]]; then
+            echo "- The tag '${{ inputs.tag }}' does not start with 'v'."
           fi
 
+      # --- Steps that Proceed with Release Creation ---
+      # These steps will only run if the event IS 'push' AND the tag starts with 'v'
+      - name: Code Checkout
+        if: ${{ inputs.event == 'push' && startsWith(inputs.tag, 'v') }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Get all tags and metadata for future use (e.g., changelog generation)
 
+      - name: 🔭 Validate Tag Format
+        if: ${{ inputs.event == 'push' && startsWith(inputs.tag, 'v') }}
+        run: |
+          TAG="${{ inputs.tag }}"
+          # Regex to match: vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-PRE_RELEASE
+          # Examples: v1.0.0, v0.1.0-beta, v1.2.3-alpha.4
+          # Must start with 'v', followed by three numbers separated by dots,
+          # and optionally a hyphen followed by alphanumeric characters, dots, or hyphens for the prerelease.
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9\.-]+)?$ ]]; then
+            echo "Error: Tag '$TAG' does not comply with the required semantic versioning format 'vMAJOR.MINOR.PATCH' or 'vMAJOR.MINOR.PATCH-PRE_RELEASE'."
+            echo "Examples of valid tags: v1.0.0, v0.5.2-beta, v2.1.0-rc.1"
+            exit 1
+          fi
+          echo "Tag '$TAG' format is valid."
+
+      - name: 👓 Get Release Notes from rnotes.md
+        id: rnotes_step
+        if: ${{ inputs.event == 'push' && startsWith(inputs.tag, 'v') }}
+        run: |
+          RNOTES_FILE="rnotes.md"
+          if [ ! -f "$RNOTES_FILE" ]; then
+            echo "Error: Release notes file '${RNOTES_FILE}' not found at the repository root."
+            echo "An 'rnotes.md' file is required to create a GitHub Release."
+            exit 1
+          fi
+          
+          # Read file content and trim whitespace (especially newlines)
+          # This ensures that a file with only spaces/newlines is considered empty.
+          RNOTES_CONTENT=$(cat "$RNOTES_FILE" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+          
+          if [ -z "$RNOTES_CONTENT" ]; then
+            echo "Error: The release notes file '${RNOTES_FILE}' is empty. Cannot create a release with empty notes."
+            exit 1
+          fi
+          
+          {
+            echo "rnotes_body<<EOF"
+            echo ""
+            echo "$RNOTES_CONTENT"
+            echo ""
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+        
       - name: Create GitHub Release
+        if: ${{ inputs.event == 'push' && startsWith(inputs.tag, 'v') }}
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.token }} 
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: ${{ github.ref_name }}
-          body: |
-            ${{ steps.get_tag_message.outputs.tag_body }}
-            ${{ steps.generate_changelog.outputs.changelog_body }}
-          draft: false # Set to true to review before publish
+          tag_name: ${{ inputs.tag }}
+          release_name: ${{ inputs.tag }}
+          body: ${{ steps.rnotes_step.outputs.rnotes_body }}
+          draft: false 
           prerelease: false
