@@ -17,10 +17,6 @@ on:
   push:
     tags:
       - 'v*' # Triggers when a tag starting with 'v' is pushed (e.g., v1.0.0, v0.5.1-beta)
-    paths:
-      - 'rnotes.md'
-    branches:
-      - main
 
 env:
   CARGO_TERM_COLOR: always
