@@ -105,6 +105,9 @@ impl Platform {
         animation.change_message("Setting up credentials ...");
         let mut callbacks = GitUtils::get_credential_callbacks(&config);
         
+        let _objects = animation.add();
+        let _deltas = animation.add();
+        
         callbacks.transfer_progress(|stats| {
             if stats.total_objects() == 0 { return true; } 
             else if stats.received_objects() == stats.total_objects() {
