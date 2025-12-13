@@ -25,7 +25,7 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 | Feature | GitHub | Gitea | Codeberg | GitLab | Azure DevOps |
 |:-------:|:------:|:-----:|:--------:|:------:|:------------:|
 | List    |   ✅   |   ✅   |   ✅   |   ✅   | 🟪            |
-| Create  |   ✅`1`|   ✅   |   ✅   |   ✅`2`| 🟪            |
+| Create  |   🟪`1`|   ✅   |   ✅   |   ✅`2`| 🟪            |
 | Delete  |   ✅   |   ✅   |   ✅   |   ✅`3`| 🟪            |
 
 ### git integrations
