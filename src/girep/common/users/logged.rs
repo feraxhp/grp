@@ -19,6 +19,7 @@ impl Platform {
             Platform::Github |
             Platform::Gitlab |
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => { 
                format!("{}/user", self.get_base_url(&conf.endpoint))
             },
@@ -39,6 +40,7 @@ impl Platform {
                 User { id: name.clone(), name: name.clone(), path: None }
             },
             Platform::Gitea |
+            Platform::Forgejo |
             Platform::Codeberg => {
                 let name = json["login"].as_str().unwrap().to_string();
                 User { id: name.clone(), name: name.clone(), path: None }

@@ -77,7 +77,7 @@ pub async fn unwrap(
                 ErrorType::AlreadyExists,
                 vec![
                     "Orgs".to_string(),
-                    context.owner
+                    context.additional
                         .ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?
                 ]
             )
@@ -111,6 +111,22 @@ pub async fn unwrap(
                                 .ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
                             context.repo
                                 .ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
+                        ]
+                    )
+                },
+                _ if 
+                    error.message.starts_with("{\"message\":\"Must be an organization owner\"") && 
+                    matches!(context.request_type, RequestType::DeleteOrg) 
+                => {
+                    let pconf = config.pconf.as_str().to_string();
+                    let org = context.owner.ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?;
+                    
+                    Error::new_custom(
+                        ErrorType::Unauthorized.get_message(),
+                        vec![
+                            cformat!("<y>You must be and organization owner</>"),
+                            cformat!("  <g>» Pconf: <m>{pconf}"),
+                            cformat!("  <g>» Org: <m>{org}"),
                         ]
                     )
                 },

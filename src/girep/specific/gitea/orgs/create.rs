@@ -12,7 +12,11 @@ pub(crate) async fn create<A: Animation + ?Sized>(
     config: &Config,
     animation: &Box<A>
 ) -> Result<User, Error> {
-    assert!(matches!(platform, Platform::Gitea) || matches!(platform, Platform::Codeberg));
+    assert!(
+        matches!(platform, Platform::Gitea) || 
+        matches!(platform, Platform::Codeberg) ||
+        matches!(platform, Platform::Forgejo)
+    );
     
     animation.change_message("generating url ...");
     let url = format!("{}/orgs", platform.get_base_url(&config.endpoint));

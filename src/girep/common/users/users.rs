@@ -21,6 +21,7 @@ impl User {
                 path = None
             },
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => {
                 name = json["name"].as_str().unwrap().to_string();
                 id = name.clone();
@@ -45,6 +46,7 @@ impl User {
                     User { id: name.clone(), name: name.clone(), path: None }
                 }).collect(),
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => json.iter()
                 .map(|org| {
                     let name = org["name"].as_str().unwrap().to_string();

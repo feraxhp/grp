@@ -10,6 +10,7 @@ impl Repo {
         match platform {
             Platform::Github |
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => {
                 serde_json::json!({
                     "name": self.name,
@@ -42,6 +43,7 @@ impl Repo {
                 }
             },
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => { 
                 let repo: gitea::parser::Repository = JSON::from_str(text)?;
                 
@@ -90,6 +92,7 @@ impl Repo {
                 repos
             },
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => {
                 let tmp: Vec<gitea::parser::Repository> = JSON::from_str(text)?;
                 

@@ -29,9 +29,12 @@ impl Platform {
         let result = self.delete(&url, config).await?;
         
         match (self, result.status().as_u16()) {
-            (Platform::Gitea, 204) | 
-            (Platform::Codeberg, 204) | 
-            (Platform::Github, 204) => Ok(()),
+            (
+                Platform::Gitea |
+                Platform::Codeberg |
+                Platform::Forgejo | 
+                Platform::Github, 204
+            ) => Ok(()),
             (Platform::Gitlab, 202 | 400) if permanent => {
                 animation.change_message("Permamently deleting gitlab project ...");
                 let project = gitlab::projects::get::get_project_with_id(&self, &owner, config).await?;

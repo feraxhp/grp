@@ -15,6 +15,7 @@ impl Platform {
             "gitea" => Platform::Gitea,
             "gitlab" => Platform::Gitlab,
             "codeberg" => Platform::Codeberg,
+            "forgejo" => Platform::Forgejo,
             name => {
                 cprintln!("* Error: <i>{}</> is not a valid platform", name);
                 exit(1)
@@ -29,6 +30,7 @@ impl Platform {
         match self {
             Platform::Github => { github::header::get_auth_header(token) }
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => { gitea::header::get_auth_header(token) }
             Platform::Gitlab => { gitlab::header::get_auth_header(token) }
         }
@@ -39,6 +41,7 @@ impl Platform {
         match self {
             Platform::Github => { format!("https://{}", endpoint) }
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => { format!("https://{}/api/v1", endpoint) }
             Platform::Gitlab => { format!("https://{}/api/v4", endpoint) }
         }
@@ -53,6 +56,7 @@ impl Platform {
         match self {
             Platform::Github => { github::unwrap::unwrap(result, base_message.into(), config, context).await }
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => { gitea::unwrap::unwrap(result, base_message.into(), config, context).await }
             Platform::Gitlab => { gitlab::unwrap::unwrap(result, base_message.into(), config, context).await }
         }
