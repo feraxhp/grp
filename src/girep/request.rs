@@ -22,6 +22,7 @@ impl Platform {
                 Platform::Github => header.remove("Authorization"),
                 Platform::Gitea |
                 Platform::Codeberg |
+                Platform::Forgejo |
                 Platform::Gitlab => header.remove("authorization"),
             };
         }

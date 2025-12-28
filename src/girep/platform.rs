@@ -1,8 +1,9 @@
-pub(crate) const SUPPORTED_REPOS: [(&str, &str, &str); 4] = [
+pub(crate) const SUPPORTED_REPOS: [(&str, &str, &str); 5] = [
     ("0", "gh", "github"),
     ("1", "gt", "gitea"),
     ("2", "gl", "gitlab"),
     ("3", "cb", "codeberg"),
+    ("4", "fg", "forgejo"),
 ];
 
 #[derive(PartialEq, Clone)]
@@ -11,6 +12,7 @@ pub enum Platform {
     Gitea,
     Gitlab,
     Codeberg,
+    Forgejo,
 }
 
 impl Platform {
@@ -19,7 +21,8 @@ impl Platform {
             Platform::Github => "github",
             Platform::Gitea => "gitea",
             Platform::Gitlab => "gitlab",
-            Platform::Codeberg => "codeberg"
+            Platform::Codeberg => "codeberg",
+            Platform::Forgejo => "forgejo",
         }
     }
     
@@ -27,6 +30,7 @@ impl Platform {
         match self {
             Platform::Github |
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => 1,
             Platform::Gitlab => usize::MAX,
         }

@@ -8,16 +8,19 @@ impl Platform {
         match (user_type, self) {
             (UserType::LoggedUser(_), Platform::Gitea) |
             (UserType::LoggedUser(_), Platform::Codeberg) |
+            (UserType::LoggedUser(_), Platform::Forgejo) |
             (UserType::LoggedUser(_), Platform::Github) => {
                 format!("{}/user/repos", self.get_base_url(endpoint))
             }
             (UserType::LoggedOrg(user), Platform::Gitea) |
             (UserType::LoggedOrg(user), Platform::Codeberg) |
+            (UserType::LoggedOrg(user), Platform::Forgejo) |
             (UserType::LoggedOrg(user), Platform::Github) => {
                 format!("{}/orgs/{}/repos", self.get_base_url(endpoint), user.name)
             }
             (UserType::UnloggedUser(user), Platform::Gitea) |
             (UserType::UnloggedUser(user), Platform::Codeberg) |
+            (UserType::UnloggedUser(user), Platform::Forgejo) |
             (UserType::UnloggedUser(user), Platform::Github) => {
                 format!("{}/users/{}/repos", self.get_base_url(endpoint), user.name)
             }
@@ -40,16 +43,19 @@ impl Platform {
         match (user_type, self) {
             (UserType::LoggedUser(_), Platform::Gitea) |
             (UserType::LoggedUser(_), Platform::Codeberg) |
+            (UserType::LoggedUser(_), Platform::Forgejo) |
             (UserType::LoggedUser(_), Platform::Github) => {
                 format!("{}/user/repos", self.get_base_url(endpoint))
             }
             (UserType::LoggedOrg(user), Platform::Gitea) |
             (UserType::LoggedOrg(user), Platform::Codeberg) |
+            (UserType::LoggedOrg(user), Platform::Forgejo) |
             (UserType::LoggedOrg(user), Platform::Github) => {
                 format!("{}/orgs/{}/repos", self.get_base_url(endpoint), user.name)
             }
             (UserType::UnloggedUser(user), Platform::Gitea) |
             (UserType::UnloggedUser(user), Platform::Codeberg) |
+            (UserType::UnloggedUser(user), Platform::Forgejo) |
             (UserType::UnloggedUser(user), Platform::Github) => {
                 format!("{}/users/{}/repos", self.get_base_url(endpoint), user.name)
             }
@@ -65,6 +71,7 @@ impl Platform {
         match self {
             Platform::Github |
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => format!("{}/repos/{}/{}", self.get_base_url(endpoint), owner.as_ref(), repo.as_ref()),
             Platform::Gitlab => {
                 format!("{}/projects/{}", self.get_base_url(endpoint), owner.as_ref())

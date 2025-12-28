@@ -25,7 +25,7 @@ impl Platform {
         animation.change_message("generating url ...");
         let url = self.url_delete_org(&name, &config.endpoint);
         
-        animation.change_message("Deleting repository ...");
+        animation.change_message("Deleting organization ...");
         let result = self.delete(&url, config).await?;
         
         match (self, result.status().as_u16()) {
@@ -35,8 +35,11 @@ impl Platform {
                 let _ = gitlab::groups::delete::premanently_remove(&self, &user, config).await?;
                 Ok(())
             },
-            (Platform::Codeberg, 204) => Ok(()),
-            (_, 202) => Ok(()),
+            (
+                Platform::Codeberg |
+                Platform::Forgejo
+                , 204
+            ) | (_, 202) => Ok(()),
             (_, _) => {
                 let context = Context {
                     request_type: RequestType::DeleteOrg,

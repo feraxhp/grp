@@ -6,6 +6,7 @@ impl Platform {
         match &self {
             Platform::Github |
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => {
                 format!("{}/user/orgs", self.get_base_url(endpoint))
             },
@@ -19,6 +20,7 @@ impl Platform {
         match self {
             Platform::Github |
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => format!("{}/orgs/{}", self.get_base_url(endpoint), name),
             Platform::Gitlab => format!("{}/groups/{}", self.get_base_url(endpoint), name)
         }

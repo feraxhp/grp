@@ -24,6 +24,7 @@ impl Platform {
                 )]
             ),
             Platform::Codeberg |
+            Platform::Forgejo |
             Platform::Gitea => {
                 let result = gitea::orgs::create::create(self, &name, config, animation).await;
                 match result {

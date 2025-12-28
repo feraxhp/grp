@@ -1,5 +1,5 @@
 use std::time::Duration;
-use color_print::{cformat, cprintln};
+use color_print::{cformat, ceprintln};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use crate::animations::animation::{Fetch, Style, Subprogress};
 use crate::girep::animation::Animation;
@@ -40,17 +40,17 @@ impl Animation for Fetch {
 
     fn finish_with_error<T: Into<String>>(&self, message: T) {
         self.finish_all();
-        cprintln!("<r>💻--X--🌎 {}</>", message.into());
+        ceprintln!("<r>💻--X--🌎 {}</>", message.into());
     }
 
     fn finish_with_warning<T: Into<String>>(&self, message: T) {
         self.finish_all();
-        cprintln!("<y>💻--!--🌎 {}</>", message.into());
+        ceprintln!("<y>💻--!--🌎 {}</>", message.into());
     }
 
     fn finish_with_success<T: Into<String>>(&self, message: T) {
         self.finish_all();
-        cprintln!("<g>💻--✓--🌎 {}</>", message.into());
+        ceprintln!("<g>💻--✓--🌎 {}</>", message.into());
     }
 
     fn change_message<T: Into<String>>(&self, message: T) {
