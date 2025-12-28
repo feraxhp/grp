@@ -15,18 +15,18 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 ### Repositories
 
-| Feature | GitHub | Gitea | Codeberg | GitLab | Azure DevOps |
-|:-------:|:------:|:-----:|:--------:|:------:|:------------:|
-| List    | ✅     | ✅   | ✅       | ✅    | 🟥            |
-| Create  | ✅     | ✅   | ✅       | ✅    | 🟥            |
-| Delete  | ✅     | ✅   | ✅       | ✅    | 🟥            |
+| Feature | GitHub | Gitea | Codeberg | Forgejo | GitLab | Azure DevOps |
+|:-------:|:------:|:-----:|:--------:|:--------:|:------:|:------------:|
+| List    | ✅     | ✅    | ✅        | ✅        | ✅    | 🟥            |
+| Create  | ✅     | ✅    | ✅        | ✅        | ✅    | 🟥            |
+| Delete  | ✅     | ✅    | ✅        | ✅        | ✅    | 🟥            |
 
 ### Organizations
-| Feature | GitHub | Gitea | Codeberg | GitLab | Azure DevOps |
-|:-------:|:------:|:-----:|:--------:|:------:|:------------:|
-| List    |   ✅   |   ✅   |   ✅   |   ✅   | 🟪            |
-| Create  |   🟪`1`|   ✅   |   ✅   |   ✅`2`| 🟪            |
-| Delete  |   ✅   |   ✅   |   ✅   |   ✅`3`| 🟪            |
+| Feature | GitHub | Gitea | Codeberg | Forgejo | GitLab | Azure DevOps |
+|:-------:|:------:|:-----:|:--------:|:--------:|:------:|:------------:|
+| List    | ✅     | ✅    | ✅       | ✅        | ✅     | 🟪           |
+| Create  | 🟪`1`  | ✅    | ✅       | ✅        | ✅`2`  | 🟪           |
+| Delete  | ✅     | ✅    | ✅       | ✅        | ✅`3`  | 🟪           |
 
 ### git integrations
 
@@ -91,7 +91,7 @@ source <(COMPLETE=zsh grp)
 ~~~
 
 ### fish
-~~~fish
+~~~sh
 COMPLETE=fish grp | source
 ~~~
 
