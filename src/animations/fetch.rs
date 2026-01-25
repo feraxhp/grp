@@ -2,7 +2,7 @@ use std::time::Duration;
 use color_print::{cformat, ceprintln};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use crate::animations::animation::{Fetch, Style, Subprogress};
-use crate::girep::animation::Animation;
+use grp_core::animation::Animation;
 
 impl Style for Fetch {
     fn normal() -> (ProgressStyle, u64) {

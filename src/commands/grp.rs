@@ -4,14 +4,15 @@ use color_print::{cprintln,cformat};
 use clap::{ArgMatches, arg, command, crate_version};
 
 use crate::commands::local::fetch;
-use crate::girep::platform::SUPPORTED_REPOS;
+use grp_core::platform::SUPPORTED_REPOS;
+
+use grp_core::animation::Animation;
+use grp_core::error::structs::Error;
 
 use super::super::animations;
+use super::super::usettings::structs::Usettings;
 use super::super::commands::core::utils::version::show_version;
-use super::super::girep::animation::Animation;
-use super::super::girep::error::structs::Error;
 use super::super::update::structs::Version;
-use super::super::girep::usettings::structs::Usettings;
 use super::super::commands::repos::{create, delete, list};
 use super::super::commands::orgs::orgs;
 use super::super::commands::local::{clone, pull, push};

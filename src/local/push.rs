@@ -6,17 +6,16 @@ use git2::IntoCString;
 use indicatif::HumanBytes;
 use git2::{Error, ErrorClass, ErrorCode, PushOptions, Repository};
 
-use crate::animations::animation::Subprogress;
-use crate::girep::usettings::structs::Pconf;
-use crate::girep::usettings::structs::Usettings;
-use crate::girep::animation::Animation;
-use crate::girep::platform::Platform;
+use grp_core::animation::Animation;
 
 use super::git::options::{Methods, Options};
 use super::git::structs::GitUtils;
+use crate::animations::animation::Subprogress;
+use crate::local::structs::Local;
+use crate::usettings::structs::{Pconf, Usettings};
 
 
-impl Platform {
+impl Local {
     /// return: __logs__, true (_no errors on push_) - false (_some errors on push_)
     pub(crate) fn push_repo<A: Animation + Subprogress + ?Sized>(
         path: &PathBuf,

@@ -1,7 +1,7 @@
 use clap::{command, ArgMatches, Command};
 
 use crate::commands::core::common::invalid;
-use crate::girep::usettings::structs::Usettings;
+use crate::usettings::structs::Usettings;
 use crate::commands::orgs::commands::{create, delete, list};
 
 

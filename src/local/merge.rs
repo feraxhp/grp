@@ -1,13 +1,12 @@
 use color_print::cformat;
 use git2::build::CheckoutBuilder;
 use git2::{AnnotatedCommit, Error, Repository};
+use grp_core::animation::Animation;
 
-use crate::girep::animation::Animation;
 use crate::local::git::structs::GitUtils;
-use crate::girep::platform::Platform;
+use crate::local::structs::Local;
 
-
-impl Platform {
+impl Local {
     /// > Result: Message, perfect (true: no errors)
     pub fn merge_fetch<'repo, A: Animation + ?Sized>(
         repo: &'repo Repository,

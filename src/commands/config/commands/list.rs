@@ -1,6 +1,6 @@
 use clap::{command, Command};
 
-use crate::girep::usettings::structs::Usettings;
+use crate::usettings::structs::Usettings;
 use crate::system:: stdout;
 
 pub fn command() -> Command {

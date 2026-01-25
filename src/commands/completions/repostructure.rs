@@ -2,8 +2,7 @@ use std::ffi::OsStr;
 
 use clap_complete::CompletionCandidate;
 
-use crate::girep::usettings::structs::Usettings;
-
+use crate::usettings::structs::Usettings;
 use super::structure::Completer;
 use super::super::validations::repo::RepoStructure;
 

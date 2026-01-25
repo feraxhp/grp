@@ -1,14 +1,16 @@
 use std::path::PathBuf;
 use clap::{ArgMatches, Command, arg, command};
 use color_print::cformat;
+use grp_core::animation::Animation;
+use grp_core::error::structs::Error;
 
 use super::super::completions::structure::Completer;
 
 use crate::commands::completions::git::remote::Remote;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::local::structs::{Git2Error, Local};
+use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
-use crate::girep::{animation::Animation, error::structs::Error, platform::Platform};
 use crate::commands::core::args::Arguments;
 use crate::animations::animation::Process;
 
@@ -49,7 +51,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         force: false, dry_run
     };
     
-    let result = Platform::fetch_repo(&path, pconf.clone(), options, &usettings, &mut animation).await;
+    let result = Local::fetch_repo(&path, pconf.clone(), options, &usettings, &mut animation).await;
     
     match result {
         Ok(logs) => {

@@ -2,7 +2,7 @@ use std::time::Duration;
 use color_print::{cformat, ceprintln};
 use indicatif::{ProgressBar, ProgressStyle};
 use crate::animations::animation::Delete;
-use crate::girep::animation::Animation;
+use grp_core::animation::Animation;
 
 
 

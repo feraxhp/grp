@@ -446,6 +446,7 @@ dependencies = [
  "dirs",
  "futures",
  "git2",
+ "grp-core",
  "hyper",
  "indicatif",
  "regex",
@@ -455,6 +456,26 @@ dependencies = [
  "tokio",
  "urlencoding",
  "winres",
+]
+
+[[package]]
+name = "grp-core"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "clap_complete",
+ "color-print",
+ "dirs",
+ "futures",
+ "git2",
+ "hyper",
+ "indicatif",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "urlencoding",
 ]
 
 [[package]]

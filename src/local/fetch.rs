@@ -4,12 +4,13 @@ use color_print::cformat;
 use git2::{AnnotatedCommit, AutotagOption, Error, ErrorClass, ErrorCode, FetchOptions, Repository};
 use indicatif::HumanBytes;
 
-use crate::animations::animation::Subprogress;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use grp_core::animation::Animation;
+
+use crate::local::structs::Local;
 use super::git::structs::GitUtils;
 use super::git::options::{Methods, Options};
-use crate::girep::platform::Platform;
-use crate::girep::animation::Animation;
+use crate::animations::animation::Subprogress;
+use crate::usettings::structs::{Pconf, Usettings};
 
 pub struct FetchResult<'repo> {
     pub id: Option<AnnotatedCommit<'repo>>,
@@ -17,7 +18,7 @@ pub struct FetchResult<'repo> {
     pub branch: String,
 } 
 
-impl Platform {
+impl Local {
     pub(crate) fn fetch<'repo, A: Animation + Subprogress + ?Sized>(
         repo: &'repo Repository,
         pconf: Option<Pconf>, 
@@ -167,7 +168,7 @@ impl Platform {
     ) -> Result<Vec<String>, git2::Error> {
         let repo = Repository::discover(path)?;
         
-        let result = Platform::fetch(&repo, pconf, options, usettings, animation)?;
+        let result = Local::fetch(&repo, pconf, options, usettings, animation)?;
         
         Ok(result.logs)
     }
