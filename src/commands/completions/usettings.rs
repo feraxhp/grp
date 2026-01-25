@@ -1,7 +1,7 @@
 use std::ffi::OsStr;
 use clap_complete::engine::CompletionCandidate;
 
-use crate::girep::usettings::structs::Usettings;
+use crate::usettings::structs::Usettings;
 use super::structure::Completer;
 
 

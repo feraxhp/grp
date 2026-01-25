@@ -1,6 +1,6 @@
 use color_print::cformat;
 
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::usettings::structs::{Pconf, Usettings};
 use crate::commands::validations::structure::Validations;
 
 

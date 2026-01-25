@@ -1,14 +1,14 @@
 use clap::{arg, ArgMatches, Command};
 use color_print::{cformat, cprintln};
+use grp_core::platform::Platform;
+use grp_core::animation::Animation;
 
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
-use crate::girep::animation::Animation;
-use crate::girep::common::show::Show;
-use crate::girep::platform::Platform;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::system::show::Show;
+use crate::usettings::structs::{Pconf, Usettings};
 
 pub fn command() -> Command {
     Commands::list("List the all the repositories from a configured repo and the given user")

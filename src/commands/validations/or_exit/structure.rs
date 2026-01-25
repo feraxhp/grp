@@ -1,5 +1,5 @@
 
-use crate::girep::animation::Animation;
+use grp_core::animation::Animation;
 
 
 pub trait OrExit {

@@ -1,11 +1,12 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-mod girep;
+// mod girep;
 mod local;
 mod system;
 mod update;
 mod commands;
+mod usettings;
 mod animations;
 
 use crate::commands::grp;

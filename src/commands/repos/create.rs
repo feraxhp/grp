@@ -1,5 +1,9 @@
 use std::path::PathBuf;
 use std::process::exit;
+use grp_core::animation::Animation;
+use grp_core::common::structs::Repo;
+use grp_core::error::structs::Error;
+use grp_core::platform::Platform;
 
 use clap::builder::ValueParser;
 use clap::{arg, ArgMatches, Command};
@@ -9,14 +13,11 @@ use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
-use crate::girep::animation::Animation;
-use crate::girep::common::show::Show;
-use crate::girep::common::structs::Repo;
-use crate::girep::error::structs::Error;
-use crate::girep::platform::Platform;
+use crate::local::structs::{Git2Error, Local};
+use crate::system::show::Show;
 use crate::local::git::structs::Action;
 use crate::system::directories::Directories;
-use crate::girep::usettings::structs::Usettings;
+use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
     Commands::create("Create a new repository in a configured platform")
@@ -77,7 +78,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         value => value
     };
     
-    let platform = Platform::matches(pconf.r#type.as_str());
+    let platform = Local(Platform::matches(pconf.r#type.as_str()));
     if let Err(e) = repo.is_unsupported(&platform) {
         animation.finish_with_error(&e.message);
         e.show();

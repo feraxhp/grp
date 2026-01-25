@@ -3,13 +3,15 @@ use indicatif::HumanBytes;
 use std::path::PathBuf;
 use git2::build::RepoBuilder;
 
+use grp_core::config::Config;
+use grp_core::platform::Platform;
+use grp_core::animation::Animation;
+use grp_core::common::structs::Repo;
+
 use crate::animations::animation::Subprogress;
-use crate::girep::animation::Animation;
-use crate::girep::platform::Platform;
-use crate::girep::config::Config;
-use crate::girep::common::structs::Repo;
 use crate::local::git::options::Methods;
 use crate::local::git::structs::GitUtils;
+use crate::local::structs::Local;
 
 #[derive(Clone, Debug)]
 pub struct CloneOptions {
@@ -18,7 +20,7 @@ pub struct CloneOptions {
     pub bare: bool,
 }
 
-impl Platform {
+impl Local {
     pub async fn clone_repo<A: Subprogress + Animation + ?Sized>(&self,
         owner: &String, repo: &String,
         options: &CloneOptions,
@@ -110,7 +112,7 @@ impl Platform {
     }
 
     fn generate_clone_url<S: AsRef<str>>(&self, endpoint: &S, owner: &S, repo: &S) -> String {
-        match self {
+        match self.0 {
             Platform::Github => format!("https://github.com/{}/{}.git", owner.as_ref(), repo.as_ref()),
             Platform::Gitlab |
             Platform::Codeberg |

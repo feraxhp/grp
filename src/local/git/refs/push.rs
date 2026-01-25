@@ -1,6 +1,8 @@
+use grp_core::location;
 use git2::{Error, ErrorClass, ErrorCode, Repository};
 
-use crate::{local::git::{options::Methods, structs::GitUtils}, location};
+use super::super::structs::GitUtils;
+use super::super::options::Methods;
 
 impl Methods {
     pub fn get_push_refs(&self, repo: &Repository, branch: Option<&String>, force: &bool) -> Result<Vec<String>, Error> {

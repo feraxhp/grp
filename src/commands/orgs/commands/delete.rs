@@ -4,10 +4,10 @@ use std::io;
 use clap::{arg, ArgMatches, Command};
 use color_print::cformat;
 
-use crate::girep::platform::Platform;
-use crate::girep::animation::Animation;
+use grp_core::platform::Platform;
+use grp_core::animation::Animation;
 use crate::animations::animation::Delete;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::usettings::structs::{Pconf, Usettings};
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 

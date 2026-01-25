@@ -3,18 +3,19 @@ use std::path::PathBuf;
 use clap::{arg, Arg, ArgMatches, Command, command};
 use color_print::cformat;
 
+use grp_core::animation::Animation;
+use grp_core::error::structs::Error;
+
 use crate::commands::completions::git::branch::Branch;
 use crate::commands::completions::git::remote::Remote;
 use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
-use crate::girep::error::structs::Error;
-use crate::girep::platform::Platform;
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
 use crate::local::pull::PullAction;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::local::structs::{Git2Error, Local};
+use crate::usettings::structs::{Pconf, Usettings};
 use crate::animations::animation::Fetch;
-use crate::girep::animation::Animation;
 
 
 pub(crate) fn command() -> Command {
@@ -80,7 +81,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         false => PullAction::MERGE,
     };
     
-    let result = Platform::pull_repo(&path, options, pconf.clone(), action, &usettings, &mut animation);
+    let result = Local::pull_repo(&path, options, pconf.clone(), action, &usettings, &mut animation);
     
     let logs = match result {
         Ok((logs, true)) => {

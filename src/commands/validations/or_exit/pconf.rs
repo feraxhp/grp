@@ -3,8 +3,8 @@ use color_print::cformat;
 
 use super::structure::OrExit;
 
-use crate::girep::usettings::structs::Pconf;
-use crate::girep::animation::Animation;
+use crate::usettings::structs::Pconf;
+use grp_core::animation::Animation;
 
 
 impl OrExit for Option<Pconf> {

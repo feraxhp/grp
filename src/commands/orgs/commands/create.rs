@@ -1,13 +1,15 @@
 use clap::{arg, ArgMatches, Command};
 use color_print::{cformat, cprintln};
+use grp_core::animation::Animation;
+use grp_core::platform::Platform;
+
+
+use crate::system::show::Show;
 use crate::animations::animation::Create;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
-use crate::girep::animation::Animation;
-use crate::girep::common::show::Show;
-use crate::girep::platform::Platform;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::usettings::structs::{Pconf, Usettings};
 
 pub fn command() -> Command {
     Commands::create("Create a new organization in the configured platform")

@@ -4,16 +4,20 @@ use clap::{Arg, ArgMatches, Command, arg, command};
 use color_print::cformat;
 use reqwest::Url;
 
-use super::super::completions::structure::Completer;
+use grp_core::common::structs::Repo;
+use grp_core::platform::Platform;
+use grp_core::error::structs::Error;
+use grp_core::animation::Animation;
 
+use super::super::completions::structure::Completer;
+use crate::local::structs::{Git2Error, Local};
+use crate::system::show::Show;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 use crate::commands::validations::structure::Validations;
-use crate::girep::common::structs::Repo;
 use crate::local::clone::CloneOptions;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::structs::Action;
-use crate::girep::{animation::Animation, common::show::Show, error::structs::Error, platform::Platform};
 use crate::commands::core::args::Arguments;
 use crate::animations::animation::{Process, Subprogress};
 
@@ -93,7 +97,7 @@ async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStruct
         None => std::env::current_dir().unwrap().join(&repo.path)
     };
     
-    let platform = Platform::matches(pconf.r#type.as_str());
+    let platform = Local(Platform::matches(pconf.r#type.as_str()));
     if let Err(e) = repo.is_unsupported(&platform) {
         animation.finish_with_error(&e.message);
         e.show();
@@ -156,7 +160,7 @@ async fn by_url<A: Animation + Subprogress + ?Sized>(url: Url,
         bare: bare,
     };
     
-    match Platform::clone_by_url(&url_string, &options, &config,  animation).await {
+    match Local::clone_by_url(&url_string, &options, &config,  animation).await {
         Ok(_) => {
             animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
             let repo = Repo {

@@ -2,17 +2,17 @@ use std::path::PathBuf;
 
 use clap::{arg, command, Arg, ArgMatches, Command};
 use color_print::cformat;
+use grp_core::animation::Animation;
+use grp_core::error::structs::Error;
 
 use crate::commands::completions::git::branch::Branch;
 use crate::commands::completions::git::remote::Remote;
 use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::local::structs::{Git2Error, Local};
+use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::{structs::Action};
 use crate::local::git::options::{Methods, Options};
-use crate::girep::platform::Platform;
-use crate::girep::error::structs::Error;
-use crate::girep::animation::Animation;
 use crate::animations::animation::Create;
 
 pub(crate) fn command() -> Command {
@@ -106,7 +106,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         dry_run
     };
 
-    let result = Platform::push_repo(&path, pconf.clone(), options, &usettings, &mut animation);
+    let result = Local::push_repo(&path, pconf.clone(), options, &usettings, &mut animation);
     
     let logs = match result {
         Ok((logs, true)) => {

@@ -1,6 +1,6 @@
 use std::{fs::{create_dir_all, File}, path::PathBuf};
 
-use crate::girep::error::{structs::Error, types::ErrorType};
+use grp_core::error::{structs::Error, types::ErrorType};
 
 pub struct Directories;
 

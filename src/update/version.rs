@@ -1,7 +1,8 @@
 use std::fs;
 use clap::crate_version;
 
-use crate::{girep::error::structs::Error, update::{check::get_latest_version, structs::Version}};
+use crate::update::{check::get_latest_version, structs::Version};
+use grp_core::error::structs::Error;
 
 
 impl Version {

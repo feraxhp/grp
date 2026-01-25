@@ -1,3 +1,4 @@
+pub mod structs;
 pub mod remote;
 pub mod clone;
 pub mod fetch;

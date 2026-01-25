@@ -8,9 +8,9 @@ use crate::animations::animation::Delete;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::repo::RepoStructure;
-use crate::girep::animation::Animation;
-use crate::girep::platform::Platform;
-use crate::girep::usettings::structs::Usettings;
+use grp_core::animation::Animation;
+use grp_core::platform::Platform;
+use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
     Commands::delete("Delete a repository")

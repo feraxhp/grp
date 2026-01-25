@@ -1,14 +1,15 @@
 use color_print::cformat;
 use git2::{ErrorClass, ErrorCode};
 
-use crate::girep::config::Config;
-use crate::girep::error::structs::Error;
-use crate::girep::error::types::ErrorType;
-use crate::local::git::structs::Action;
+use grp_core::config::Config;
+use grp_core::error::structs::Error;
+use grp_core::error::types::ErrorType;
+use super::super::git::structs::Action;
+use super::super::structs::Git2Error;
 
 
-impl Error {
-    pub fn from_git2<T: AsRef<str>>(ge: git2::Error, action: Action, repo: &T, config: Option<&Config>) -> Self {
+impl Git2Error for Error {
+    fn from_git2<T: AsRef<str>>(ge: git2::Error, action: Action, repo: &T, config: Option<&Config>) -> Self {
         let code = ge.code();
         let class_ = ge.class();
         let message = ge.message().to_string();

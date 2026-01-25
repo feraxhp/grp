@@ -1,6 +1,6 @@
 use crate::local::git::structs::GitUtils;
 use git2::{Cred, RemoteCallbacks};
-use crate::girep::config::Config;
+use grp_core::config::Config;
 
 
 impl GitUtils {

@@ -6,7 +6,7 @@ use clap::builder::ValueParser;
 
 use crate::commands::validations::repo::RepoStructure;
 use crate::commands::validations::structure::Validations;
-use crate::girep::usettings::structs::{Pconf, Usettings};
+use crate::usettings::structs::{Pconf, Usettings};
 use super::super::completions::structure::Completer;
 
 
