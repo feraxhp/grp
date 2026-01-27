@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::{arg, command, Arg, ArgMatches, Command};
 use color_print::cformat;
 use grp_core::animation::Animation;
-use grp_core::error::structs::Error;
+use grp_core::Error;
 
 use crate::commands::completions::git::branch::Branch;
 use crate::commands::completions::git::remote::Remote;

@@ -1,7 +1,9 @@
+use std::process::exit;
+
 use clap::{arg, ArgMatches, Command};
 use color_print::{cformat, cprintln};
-use grp_core::platform::Platform;
 use grp_core::animation::Animation;
+use grp_core::Platform;
 
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
@@ -30,7 +32,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let show_errors = args.get_flag("show-errors");
     
-    let platform = Platform::matches(pconf.r#type.as_str());
+    let platform = match Platform::matches(&pconf.r#type) {
+        Ok(p) => p,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            exit(1)
+        },
+    };
     let config = pconf.to_config();
     
     let (repos, _pag_error, _errors) = platform.list_repos(args.get_one::<String>("owner"), &config, &animation).await;

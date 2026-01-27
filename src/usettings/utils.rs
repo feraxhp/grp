@@ -1,5 +1,5 @@
 
-use grp_core::config::Config;
+use grp_core::Config;
 use super::structs::Pconf;
 
 

@@ -1,15 +1,16 @@
 
 use std::io;
 use std::process::exit;
-
 use clap::{arg, ArgMatches, Command};
 use color_print::cformat;
+
+use grp_core::animation::Animation;
+use grp_core::Platform;
+
 use crate::animations::animation::Delete;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::repo::RepoStructure;
-use grp_core::animation::Animation;
-use grp_core::platform::Platform;
 use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
@@ -64,7 +65,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         confirmation = input == format!("{}/{}", &repo.owner, &repo.path);
     }
     
-    let platform = Platform::matches(pconf.r#type.as_str());
+    let platform = match Platform::matches(&pconf.r#type) {
+        Ok(p) => p,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            exit(1)
+        },
+    };
     if let Err(e) = repo.is_unsupported(&platform) {
         animation.finish_with_error(&e.message);
         e.show();

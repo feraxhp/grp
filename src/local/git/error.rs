@@ -1,9 +1,9 @@
 use color_print::cformat;
 use git2::{ErrorClass, ErrorCode};
 
-use grp_core::config::Config;
-use grp_core::error::structs::Error;
-use grp_core::error::types::ErrorType;
+use grp_core::Config;
+use grp_core::Error;
+use grp_core::ErrorType;
 use super::super::git::structs::Action;
 use super::super::structs::Git2Error;
 

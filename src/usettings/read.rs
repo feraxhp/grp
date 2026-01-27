@@ -1,7 +1,6 @@
 use color_print::{cformat, cprintln};
 
-use grp_core::error::structs::Error;
-use grp_core::error::types::ErrorType;
+use grp_core::{Error, ErrorType};
 use super::structs::{Pconf, Usettings};
 use crate::system::directories::Directories;
 

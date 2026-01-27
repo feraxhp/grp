@@ -6,6 +6,11 @@ use crate::platform::Platform;
 use crate::specific::gitlab;
 
 impl Platform {
+    /// # Return
+    /// a `grp_core::structs::UserType` containing a `grp_core::structs::User` with the information.
+    /// 
+    /// # Error
+    /// a `grp_core::Error` containing the detail of the error. 
     pub async fn get_user_type(&self, name: &String, conf: &Config) -> Result<UserType, Error> {
         let name = name.clone();
         

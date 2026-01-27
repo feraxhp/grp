@@ -2,7 +2,7 @@ use crate::platform::Platform;
 
 
 impl Platform {
-    pub fn url_list_orgs<S: AsRef<str>>(&self, endpoint: &S) -> String {
+    pub(crate) fn url_list_orgs<S: AsRef<str>>(&self, endpoint: &S) -> String {
         match &self {
             Platform::Github |
             Platform::Codeberg |
@@ -15,7 +15,7 @@ impl Platform {
             }
         }
     }
-    pub fn url_delete_org<S: AsRef<str>>(&self, name: &S, endpoint: &S) -> String { 
+    pub(crate) fn url_delete_org<S: AsRef<str>>(&self, name: &S, endpoint: &S) -> String { 
         let name = name.as_ref();
         match self {
             Platform::Github |

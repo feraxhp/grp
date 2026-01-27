@@ -1,4 +1,5 @@
-
+/// # Animation
+/// This trait is meant to allow you to show progress during the platform interaction. 
 pub trait Animation {
     fn new<T: Into<String>>(message: T) -> Box<Self>;
     fn finish_with_error<T: Into<String>>(&self, message: T);
@@ -7,6 +8,9 @@ pub trait Animation {
     fn change_message<T: Into<String>>(&self, message: T);
 }
 
+/// # animation::None
+/// default implementation for a None animation. use it when its not necesary show 
+/// any information to the user. 
 pub struct None;
 
 impl None { fn new() -> Box<None> { Box::new(None) } }

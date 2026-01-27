@@ -7,6 +7,18 @@ use crate::specific::gitlab;
 
 
 impl Platform {
+    /// Deletes the repo that its given in the selected platform.
+    /// 
+    /// - `owner`: the name or path of the **user** or **org** of the repo to be deleted.
+    /// - `config`: a `grp_core::Config`.
+    /// - `permanent`: only valid for "Gitlab", it will mark for deletion and delete permanently that repo. 
+    /// - `animation`: a struct wich implements the trait `grp_core::animation::Animation`
+    /// 
+    /// # Return
+    /// `()` if the delete succed
+    /// 
+    /// # Error
+    /// a `grp_core::Error` containing the detail of the error. 
     pub async fn delete_repo<T: Into<String>, A: Animation + ?Sized>(&self,
         owner: T, repo: T,
         config: &Config,

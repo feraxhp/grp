@@ -2,7 +2,7 @@
 use std::fmt::Display;
 use color_print::cformat;
 
-use grp_core::{error::structs::Error, platform::Platform};
+use grp_core::{Error, Platform};
 
 
 #[derive(Debug, Clone)]

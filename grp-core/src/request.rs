@@ -10,7 +10,7 @@ impl Platform {
     async fn send(req: RequestBuilder) -> Result<Response, Error> {
         req.send().await.map_err( |e| Error::new(
             ErrorType::FetchFailed, 
-            vec![e.to_string(), "Please check you ethernet conection".to_string()]
+            vec![e.to_string(), "Please check your ethernet conection".to_string()]
         ))
     }
     pub async fn get<U: IntoUrl>(&self, url: U, auth: bool, config: &Config) -> Result<Response, Error> {

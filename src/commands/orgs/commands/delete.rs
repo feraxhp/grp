@@ -1,10 +1,11 @@
 
 use std::io;
+use std::process::exit;
 
 use clap::{arg, ArgMatches, Command};
 use color_print::cformat;
 
-use grp_core::platform::Platform;
+use grp_core::Platform;
 use grp_core::animation::Animation;
 use crate::animations::animation::Delete;
 use crate::usettings::structs::{Pconf, Usettings};
@@ -58,7 +59,14 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
         confirmation = input == format!("{}", name);
     }
     
-    let platform = Platform::matches(pconf.r#type.as_str());
+    let platform = match Platform::matches(&pconf.r#type) {
+        Ok(p) => p,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            exit(1)
+        },
+    };
     let config = pconf.to_config();
     
     match platform.delete_org(name, &config, !soft, &animation).await {

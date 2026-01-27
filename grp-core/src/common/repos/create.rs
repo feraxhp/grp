@@ -6,6 +6,18 @@ use crate::platform::Platform;
 
 
 impl Platform {
+    /// Creates a repository for the given owner in the selected platform.
+    /// 
+    /// - `owner`: the name or path of the **user** or **org** that _owns_ the repo.
+    /// - `repo`: a `grp_core::Repo` with the metadata for the new repo.
+    /// - `config`: a `grp_core::Config`
+    /// - `animation`: a struct wich implements the trait `grp_core::animation::Animation`
+    /// 
+    /// # Retuns
+    /// a `grp_core::Repo` with the confirmation from the platform.
+    /// 
+    /// #Error
+    /// a `grp_core::Error` containing the detail of the error. 
     pub async fn create_repo<T: Into<String>, A: Animation + ?Sized>(&self,
         owner: Option<T>, 
         repo: Repo,

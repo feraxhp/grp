@@ -3,8 +3,7 @@ use crate::platform::Platform;
 
 
 impl Platform {
-    pub async fn url_list_repos<S: AsRef<str>>(&self, user_type: &UserType, endpoint: &S) -> String {
-        // println!("{:#?}", &user_type);
+    pub(crate) async fn url_list_repos<S: AsRef<str>>(&self, user_type: &UserType, endpoint: &S) -> String {
         match (user_type, self) {
             (UserType::LoggedUser(_), Platform::Gitea) |
             (UserType::LoggedUser(_), Platform::Codeberg) |
@@ -38,8 +37,7 @@ impl Platform {
         }
     }
     
-    pub async fn url_create_repo<S: AsRef<str>>(&self, user_type: &UserType, endpoint: &S) -> String {
-        // println!("{:#?}", &user_type);
+    pub(crate) async fn url_create_repo<S: AsRef<str>>(&self, user_type: &UserType, endpoint: &S) -> String {
         match (user_type, self) {
             (UserType::LoggedUser(_), Platform::Gitea) |
             (UserType::LoggedUser(_), Platform::Codeberg) |

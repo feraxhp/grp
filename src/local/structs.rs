@@ -1,8 +1,6 @@
 
 use std::ops::Deref;
-use grp_core::config::Config;
-use grp_core::platform::Platform;
-use grp_core::error::structs::Error;
+use grp_core::{Config, Error, Platform};
 
 use super::git::structs::Action;
 

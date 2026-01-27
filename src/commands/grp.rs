@@ -3,21 +3,20 @@ use std::process::exit;
 use color_print::{cprintln,cformat};
 use clap::{ArgMatches, arg, command, crate_version};
 
-use crate::commands::local::fetch;
-use grp_core::platform::SUPPORTED_REPOS;
-
+use grp_core::{SUPPORTED_REPOS, Error};
 use grp_core::animation::Animation;
-use grp_core::error::structs::Error;
 
-use super::super::animations;
-use super::super::usettings::structs::Usettings;
-use super::super::commands::core::utils::version::show_version;
-use super::super::update::structs::Version;
-use super::super::commands::repos::{create, delete, list};
-use super::super::commands::orgs::orgs;
-use super::super::commands::local::{clone, pull, push};
-use super::super::commands::core::common::invalid;
-use super::super::commands::config::config;
+use crate::commands::local::fetch;
+
+use crate::animations;
+use crate::usettings::structs::Usettings;
+use crate::commands::core::utils::version::show_version;
+use crate::update::structs::Version;
+use crate::commands::repos::{create, delete, list};
+use crate::commands::orgs::orgs;
+use crate::commands::local::{clone, pull, push};
+use crate::commands::core::common::invalid;
+use crate::commands::config::config;
 
 
 pub fn command() -> Command {

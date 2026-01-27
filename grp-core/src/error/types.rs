@@ -1,5 +1,12 @@
 
-
+/// # ErrorType
+/// 
+/// is an enum for preset errors that describes in every one of them wich 
+/// parameters are needed to show a good error.
+/// 
+/// It also contains the default message for that specific error.
+/// 
+/// see: `grp_core::Error` to learn how to create an error.
 pub enum ErrorType {
     /// vec: [>=2]
     /// - 0 : path

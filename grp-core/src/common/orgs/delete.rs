@@ -7,6 +7,18 @@ use crate::specific::gitlab;
 
 
 impl Platform {
+    /// Deletes the org that its given in the selected platform.
+    /// 
+    /// - `name`: the name or path of the **org** of the repo to be deleted.
+    /// - `config`: a `grp_core::Config`.
+    /// - `permanent`: only valid for "Gitlab", it will mark for deletion and delete permanently that org. 
+    /// - `animation`: a struct wich implements the trait `grp_core::animation::Animation`
+    /// 
+    /// # Return
+    /// `()` if the delete succed
+    /// 
+    /// # Error
+    /// a `grp_core::Error` containing the detail of the error. 
     pub async fn delete_org<T: Into<String>, A: Animation + ?Sized>(&self,
         name: T,
         config: &Config,

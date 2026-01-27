@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 use std::process::exit;
 use grp_core::animation::Animation;
-use grp_core::common::structs::Repo;
-use grp_core::error::structs::Error;
-use grp_core::platform::Platform;
+use grp_core::structs::Repo;
+use grp_core::{Error, Platform};
 
 use clap::builder::ValueParser;
 use clap::{arg, ArgMatches, Command};
@@ -77,8 +76,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         value if value.eq("*") => pconf.owner.clone(),
         value => value
     };
-    
-    let platform = Local(Platform::matches(pconf.r#type.as_str()));
+    let platform = match Platform::matches(&pconf.r#type) {
+        Ok(p) => p,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            exit(1)
+        },
+    };
+    let platform = Local(platform);
     if let Err(e) = repo.is_unsupported(&platform) {
         animation.finish_with_error(&e.message);
         e.show();

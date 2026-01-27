@@ -7,6 +7,11 @@ use crate::config::Config;
 use crate::platform::Platform;
 
 impl Platform {
+    /// # Return
+    /// a the logged user as `grp_core::structs::User`
+    /// 
+    /// # Error
+    /// a `grp_core::Error` containing the detail of the error. 
     pub async fn get_logged_user(&self, conf: &Config) -> Result<User, Error> {
         let context = Context {
             request_type: RequestType::UserList,
