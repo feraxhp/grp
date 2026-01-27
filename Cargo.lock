@@ -447,7 +447,6 @@ dependencies = [
  "futures",
  "git2",
  "grp-core",
- "hyper",
  "indicatif",
  "regex",
  "reqwest",
@@ -462,14 +461,9 @@ dependencies = [
 name = "grp-core"
 version = "0.1.0"
 dependencies = [
- "clap",
- "clap_complete",
  "color-print",
- "dirs",
  "futures",
- "git2",
  "hyper",
- "indicatif",
  "regex",
  "reqwest",
  "serde",
