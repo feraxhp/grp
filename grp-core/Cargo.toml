@@ -2,6 +2,10 @@
 name = "grp-core"
 version = "0.1.0"
 edition = "2024"
+license = "GPLv3"
+authors = ["feraxhp <feraxhp+gh@gmail.com>"]
+description = "A simple tool to mannage platforms for git repositories"
+homepage = "https://github.com/feraxhp/grp"
 
 [dependencies]
 hyper = "1.8.1"
