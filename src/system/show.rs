@@ -1,9 +1,9 @@
 use color_print::cformat;
 use color_print::ceprintln;
 
-use grp_core::common::structs::Repo;
-use grp_core::common::users::structs::User;
-use grp_core::error::structs::Error;
+use grp_core::structs::Repo;
+use grp_core::structs::User;
+use grp_core::Error;
 
 use crate::system::stdout;
 

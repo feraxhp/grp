@@ -8,7 +8,7 @@ use reqwest::{Client, Response, Url};
 use crate::error::structs::Error;
 use crate::error::types::ErrorType;
 
-pub async fn pagination(
+pub(crate) async fn pagination(
     url: String,
     headers: HeaderMap
 ) -> (Vec<Response>, Option<Error>){

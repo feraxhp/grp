@@ -10,7 +10,16 @@ use crate::common::pagination::pagination;
 use crate::common::structs::{Context, Repo, RequestType};
 
 impl Platform {
-    #[allow(dead_code)]
+    /// list all the repos for the given owner, if not present, returns all the repos for the default user (config).
+    /// 
+    /// # Return
+    /// a tuple with:
+    /// 1. `Vec<Repo>` a list with the repos 
+    /// 2. `Option<Error>` a `grp_core::Error` containing the detail of the error, if this error is present, the list of repos is empty.
+    /// 3. `Vec<Error>` a list of `grp_core::Error` that contains a list of errors if something happen during the paggination.
+    /// 
+    /// ## Why is this?
+    /// a better solution with yield is planned, but for know this is the best i could do.
     pub async fn list_repos<T: Into<String>, A: Animation + ?Sized>(&self,
         owner: Option<T>, 
         config: &Config,

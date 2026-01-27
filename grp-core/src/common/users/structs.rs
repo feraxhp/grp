@@ -1,15 +1,26 @@
 
+/// # UserType
+/// represents the type of the user that was given.
+/// 
+/// 1. `LoggedUser`: **User** that is logged in
+/// 2. `LoggedOrg`: **Organization** that belongs to the logged user
+/// 3. `UnloggedUser`: **User** that is not logged in
+/// 4. `UnloggedOrg`: **Organization** that does not belong to the logged user
 #[derive(Clone, Debug)]
-#[allow(dead_code)]
 pub enum UserType {
-    LoggedUser(User),    // User that is logged in
-    LoggedOrg(User),     // Organization that belongs to the logged user
-    UnloggedUser(User),  // User that is not logged in
-    UnloggedOrg(User),   // Organization that does not belong to the logged user
+    LoggedUser(User),
+    LoggedOrg(User),
+    UnloggedUser(User),
+    UnloggedOrg(User),
 }
 
+/// # User
+/// Represents a _user_ or _org_ for every platform.
+/// 
+/// 1. `id`: the id of the user.
+/// 2. `name`: the name of the user.
+/// 3. `path`: an optional path for the group or organization (gitea)
 #[derive(Clone, Debug)]
-#[allow(dead_code)]
 pub struct User {
     pub id: String,
     pub name: String,

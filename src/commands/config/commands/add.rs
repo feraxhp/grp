@@ -3,9 +3,10 @@
 
 use std::{io, process::exit};
 
-use color_print::cprintln;
 use clap::{arg, command, ArgMatches, Command};
-use grp_core::platform::SUPPORTED_REPOS;
+use color_print::cprintln;
+use grp_core::SUPPORTED_REPOS;
+
 use crate::usettings::structs::{Pconf, Usettings};
 
 

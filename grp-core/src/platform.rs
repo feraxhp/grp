@@ -1,3 +1,4 @@
+/// Current list of suported repos
 pub const SUPPORTED_REPOS: [(&str, &str, &str); 5] = [
     ("0", "gh", "github"),
     ("1", "gt", "gitea"),
@@ -6,6 +7,19 @@ pub const SUPPORTED_REPOS: [(&str, &str, &str); 5] = [
     ("4", "fg", "forgejo"),
 ];
 
+/// # Platform
+/// is the main part of grp, this struct allows 
+/// you to interact with any platform, just by 
+/// giving a configuration
+/// 
+/// ~~~
+/// use grp_core::Platform;
+/// 
+/// let platform = Platform::matches("github");
+/// 
+/// assert!(platform == Platform::Github);
+/// ~~~
+/// 
 #[derive(PartialEq, Clone)]
 pub enum Platform {
     Github,
@@ -16,6 +30,7 @@ pub enum Platform {
 }
 
 impl Platform {
+    /// return the &str name for the repo.
     pub fn name(&self) -> &'static str {
         match self {
             Platform::Github => "github",
@@ -26,6 +41,7 @@ impl Platform {
         }
     }
     
+    /// Max path depth for a repo
     pub fn max_repo_depth(&self) -> usize {
         match self {
             Platform::Github |

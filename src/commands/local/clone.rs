@@ -4,10 +4,9 @@ use clap::{Arg, ArgMatches, Command, arg, command};
 use color_print::cformat;
 use reqwest::Url;
 
-use grp_core::common::structs::Repo;
-use grp_core::platform::Platform;
-use grp_core::error::structs::Error;
 use grp_core::animation::Animation;
+use grp_core::structs::Repo;
+use grp_core::{Platform, Error};
 
 use super::super::completions::structure::Completer;
 use crate::local::structs::{Git2Error, Local};
@@ -97,7 +96,16 @@ async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStruct
         None => std::env::current_dir().unwrap().join(&repo.path)
     };
     
-    let platform = Local(Platform::matches(pconf.r#type.as_str()));
+    let platform = match Platform::matches(&pconf.r#type) {
+        Ok(p) => p,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            exit(1)
+        },
+    };
+    
+    let platform = Local(platform);
     if let Err(e) = repo.is_unsupported(&platform) {
         animation.finish_with_error(&e.message);
         e.show();

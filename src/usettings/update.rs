@@ -1,4 +1,4 @@
-use grp_core::error::structs::Error;
+use grp_core::Error;
 
 use super::structs::{Pconf, Usettings};
 

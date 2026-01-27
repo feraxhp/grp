@@ -10,6 +10,19 @@ use crate::common::structs::{Context, RequestType};
 
 
 impl Platform {
+    /// List all the orgs in wich the logged user is member.
+    /// 
+    /// - `config`: a `grp_core::Config`
+    /// - `animation`: a struct wich implements the trait `grp_core::animation::Animation`
+    /// 
+    /// # Return
+    /// a tuple with:
+    /// 1. `Vec<Repo>` a list with the repos 
+    /// 2. `Option<Error>` a `grp_core::Error` containing the detail of the error, if this error is present, the list of repos is empty.
+    /// 3. `Vec<Error>` a list of `grp_core::Error` that contains a list of errors if something happen during the paggination.
+    /// 
+    /// ## Why is this?
+    /// a better solution with yield is planned, but for know this is the best i could do.
     pub async fn list_orgs<A: Animation + ?Sized>(&self, 
         config: &Config, 
         animation: &Box<A>

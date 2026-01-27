@@ -6,7 +6,11 @@ use crate::specific::{gitea, github, gitlab};
 
 
 impl Repo {
-    pub fn as_json(&self, platform: &Platform) -> serde_json::Value {
+    /// # Returns
+    /// 
+    /// a serde value with the details for a repo, with the structure 
+    /// that undestand every platform 
+    pub(crate) fn as_json(&self, platform: &Platform) -> serde_json::Value {
         match platform {
             Platform::Github |
             Platform::Codeberg |
@@ -28,6 +32,12 @@ impl Repo {
         }
     }
     
+    /// # Return
+    /// Generates an instance of a repo if the information of 
+    /// the text is a valid json and the platform matches that content.
+    /// 
+    /// # Error
+    /// a `grp_core::Error` of type `grp_core::ErrorType::ResponseParsing`.
     pub fn from_text(text: &String, platform: &Platform) -> Result<Self, Error> {
         let repo = match platform {
             Platform::Github => { 
@@ -73,6 +83,13 @@ impl Repo {
         Ok(repo)
     }
     
+    /// # Return
+    /// 
+    /// Generates a list of Repos if the information of the text is a valid list of json 
+    /// and the platform matches that content.
+    /// 
+    /// # Error
+    /// a `grp_core::Error` of type `grp_core::ErrorType::ResponseParsing`.
     pub fn from_text_array(text: &String, platform: &Platform) -> Result<Vec<Self>, Error> {
         let repos = match platform {
             Platform::Github => {

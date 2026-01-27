@@ -1,4 +1,9 @@
-#[allow(dead_code)]
+/// # Repo (repository)
+/// 
+/// Represents a repository for any platform 
+/// it contains varios properties that are shared 
+/// across all the repositories.
+/// 
 pub struct Repo {
     pub name: String,
     pub path: String,
@@ -8,7 +13,11 @@ pub struct Repo {
     pub description: Option<String>,
 }
 
-#[allow(dead_code)]
+/// # Contex
+/// 
+/// This object allows to share more debug informacion for 
+/// the error, if some platform fails.
+/// 
 pub struct Context {
     pub request_type: RequestType,
     pub owner: Option<String>,
@@ -16,7 +25,10 @@ pub struct Context {
     pub additional: Option<String>,
 }
 
-#[allow(dead_code)]
+/// # RequestType
+/// 
+/// an enum used to represent the aim of the request.
+///  
 #[derive(Clone)]
 pub enum RequestType {
     List,

@@ -12,6 +12,8 @@
 /// # Examples
 /// 
 /// ```rust
+/// use grp_core::location;
+/// 
 /// let loc = location!();
 /// ```
 macro_rules! location {

@@ -8,6 +8,17 @@ use crate::specific::{gitea, gitlab};
 
 
 impl Platform {
+    /// Create a given **org** for the logged user in the selected platform.
+    /// 
+    /// - `name`: the name or path of the **org** to be created.
+    /// - `config`: a `grp_core::Config`.
+    /// - `recursive`: only valid for "Gitlab", it will create all the groups if they not exist. 
+    /// - `animation`: a struct wich implements the trait `grp_core::animation::Animation`.
+    /// 
+    /// # Returns
+    /// a tuple with:
+    /// 1. `Vec<User>`: A list of the created orgs.
+    /// 2. `Vec<Error>`: A list of errors if some org faild to be created.
     pub async fn create_org<T: Into<String>, A: Animation + ?Sized>(&self, 
         name: T,
         config: &Config,

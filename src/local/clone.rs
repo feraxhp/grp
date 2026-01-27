@@ -3,10 +3,10 @@ use indicatif::HumanBytes;
 use std::path::PathBuf;
 use git2::build::RepoBuilder;
 
-use grp_core::config::Config;
-use grp_core::platform::Platform;
+use grp_core::Config;
+use grp_core::Platform;
 use grp_core::animation::Animation;
-use grp_core::common::structs::Repo;
+use grp_core::structs::Repo;
 
 use crate::animations::animation::Subprogress;
 use crate::local::git::options::Methods;

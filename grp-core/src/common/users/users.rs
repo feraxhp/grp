@@ -7,6 +7,12 @@ use crate::json::JSON;
 
 
 impl User {
+    /// # Return
+    /// Generates an instance of a user if the information of 
+    /// the text is a valid json and the platform matches that content.
+    /// 
+    /// # Error
+    /// a `grp_core::Error` of type `grp_core::ErrorType::ResponseParsing`.
     pub fn from_text(text: &String, platform: &Platform) -> Result<Self, Error> {
         let json: Value = JSON::from_str(text)?;
         
@@ -36,6 +42,13 @@ impl User {
         Ok(User { id: id, name: name, path: path })
     }
     
+    /// # Return
+    /// 
+    /// Generates a list of User if the information of the text is a valid list of json 
+    /// and the platform matches that content.
+    /// 
+    /// # Error
+    /// a `grp_core::Error` of type `grp_core::ErrorType::ResponseParsing`.
     pub fn from_text_array(text: &String, platform: &Platform) -> Result<Vec<Self>, Error> {
         let json: Vec<Value> = JSON::from_str(&text)?;
         

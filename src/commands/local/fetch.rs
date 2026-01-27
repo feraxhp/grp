@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use clap::{ArgMatches, Command, arg, command};
 use color_print::cformat;
 use grp_core::animation::Animation;
-use grp_core::error::structs::Error;
+use grp_core::Error;
 
 use super::super::completions::structure::Completer;
 

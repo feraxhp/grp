@@ -1,25 +1,13 @@
 use crate::update::structs::Version;
 
-use grp_core::common::structs::{Context, RequestType};
-use grp_core::error::structs::Error;
-use grp_core::json::JSON;
-use grp_core::platform::Platform;
+use grp_core::structs::{Context, RequestType};
+use grp_core::{Config, Error, JSON, Platform};
 
-use crate::usettings::structs::Pconf;
-
-pub(crate) async fn get_latest_version() -> Result<Version, Error>{
-    let pconf = Pconf {
-        name: "private".to_string(),
-        owner: "grp".to_string(),
-        r#type: "github".to_string(),
-        endpoint: "api.github.com".to_string(),
-        token: "".to_string()
-    };
+pub(crate) async fn get_latest_version() -> Result<Version, Error> {
+    let platform = Platform::Github;
+    let config = Config::new("internal", "grp", "", "api.github.com");
     
-    let platform = Platform::matches(&pconf.r#type);
-    
-    let url = format!("https://{}/repos/feraxhp/grp/releases/latest", &pconf.endpoint);
-    let config = pconf.to_config();
+    let url = format!("https://{}/repos/feraxhp/grp/releases/latest", &config.endpoint);
 
     let result = platform.get(url, false, &config).await?;
     
