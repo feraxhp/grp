@@ -12,7 +12,6 @@ homepage = "https://github.com/feraxhp/grp"
 
 [dependencies]
 grp-core = { path = "./grp-core" }
-hyper = "1.6.0"
 tokio = { version = "1.45.1", features = ["rt", "rt-multi-thread", "macros"] }
 reqwest = { version = "0.12.19", features = ["json"] }
 serde = { version = "1.0.219", features = ["derive"] }
