@@ -58,17 +58,12 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 
 - Windows: Download the latest .exe from the releases page.
     - `grp.exe` is the portable version
-    - `grp-0.7.1-x86_64.msi` is the installer
+    - `grp-0.11.0-x86_64.msi` is the installer
     - Or use winget.
     ~~~bash
     winget install --id feraxhp.grp
     ~~~
 - Ubuntu: See releases page for the latest deb package.
-```bash
-wget -O paquete.deb <URL_DEL_PAQUETE> 
-dpkg sudo dpkg -i paquete.deb 
-sudo apt-get install -f
-```
 - fedora: See releases page for the latest rpm package.
 ```bash
 sudo dnf install <URL_DEL_PAQUETE>
@@ -76,6 +71,10 @@ sudo dnf install <URL_DEL_PAQUETE>
 - Arch Linux: See build instructions below.
 - Other Linux distributions: See build instructions below.
 - MacOS: See build instructions below.
+- Cargo: 
+~~~bash
+cargo install girep --version 0.11.0-beta
+~~~
 
 ---
 ## Completions
