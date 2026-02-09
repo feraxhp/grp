@@ -2,7 +2,7 @@
 members = ["grp-core"]
 
 [package]
-name = "grp"
+name = "girep"
 version = "0.11.0-beta"
 edition = "2024"
 license = "MIT"
@@ -26,16 +26,22 @@ urlencoding = "2.1.3"
 regex = "1.12.2"
 clap_complete = { version = "4.5.65", features = ["unstable-dynamic"] } 
 
+[[bin]]
+name = "grp"
+path = "src/main.rs"
+
 [build-dependencies]
 winres = "0.1"
 
 [package.metadata.generate-rpm]
+name="grp"
 url="https://github.com/feraxhp/grp"
 assets = [
     { source = "target/release/grp", dest = "/usr/bin/grp", mode = "755" },
 ]
 
 [package.metadata.deb]
+name="grp"
 depends="$auto"
 assets = [
     ["target/release/grp", "usr/bin/", "755"],
