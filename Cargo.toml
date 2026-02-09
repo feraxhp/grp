@@ -11,7 +11,7 @@ description = "A simple CLI tool to mannage platforms for git repositories"
 homepage = "https://github.com/feraxhp/grp"
 
 [dependencies]
-grp-core = { path = "./grp-core" }
+grp-core = { path = "./grp-core", version="0.1.0" }
 tokio = { version = "1.49.0", features = ["rt", "rt-multi-thread", "macros"] }
 reqwest = { version = "0.13.1", features = ["json"] }
 serde = { version = "1.0.228", features = ["derive"] }
