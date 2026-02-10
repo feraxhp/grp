@@ -26,7 +26,7 @@
 //! 
 //! let platform = Platform::matches("github");
 //! 
-//! assert!(platform == Platform::Github);
+//! assert!(platform.unwrap() == Platform::Github);
 //! ~~~
 //! 
 //! ## Configuration

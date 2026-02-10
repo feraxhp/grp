@@ -30,7 +30,7 @@ clap_complete = { version = "4.5.65", features = ["unstable-dynamic"] }
 name = "grp"
 path = "src/main.rs"
 
-[build-dependencies]
+[target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
 
 [package.metadata.generate-rpm]

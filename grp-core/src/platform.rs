@@ -17,7 +17,7 @@ pub const SUPPORTED_REPOS: [(&str, &str, &str); 5] = [
 /// 
 /// let platform = Platform::matches("github");
 /// 
-/// assert!(platform == Platform::Github);
+/// assert!(platform.unwrap() == Platform::Github);
 /// ~~~
 /// 
 #[derive(PartialEq, Clone)]
