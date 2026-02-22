@@ -26,6 +26,7 @@ macro_rules! create {
 /// **Expands to:**
 /// 
 /// ~~~rust
+/// pub struct Config;
 /// impl Directories for Config {
 ///     fn file() -> Result<PathBuf, Error> { create!("config.json") }
 ///     fn directory() -> Result<PathBuf, Error> { create!(config_dir) }
@@ -33,6 +34,7 @@ macro_rules! create {
 /// ~~~
 macro_rules! directory {
     ($struct:ident $method:ident $name:literal) => {
+        pub struct $struct;
         impl Directories for $struct {
             fn file() -> Result<PathBuf, Error> { create!($name) }
             fn directory() -> Result<PathBuf, Error> { create!($method) }
@@ -40,11 +42,7 @@ macro_rules! directory {
     };
 }
 
-
-pub struct Config;
 directory!(Config config_dir "config.json");
-
-pub struct RepoCompletion;
 directory!(RepoCompletion cache_dir "repos.json");
 
 pub struct BasicDir;
