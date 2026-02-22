@@ -89,7 +89,11 @@ impl Error {
         }
     }
 
-    pub fn new_custom<T: Into<String>>(message: T, content: Vec<T>) -> Error {
+    pub fn new_custom<M, C>(message: M, content: Vec<C>) -> Error
+    where 
+        M: Into<String>,
+        C: Into<String>
+    {
         Error { 
             message: message.into(),
             content: content.into_iter().map(|s| s.into()).collect()

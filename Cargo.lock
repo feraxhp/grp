@@ -268,6 +268,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
 
 [[package]]
+name = "directories"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16f5094c54661b38d03bd7e50df373292118db60b585c08a411c6d840017fe7d"
+dependencies = [
+ "dirs-sys",
+]
+
+[[package]]
 name = "dirs"
 version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -473,9 +482,11 @@ dependencies = [
 name = "girep"
 version = "0.11.0-beta"
 dependencies = [
+ "cfg-if",
  "clap",
  "clap_complete",
  "color-print",
+ "directories",
  "dirs",
  "futures",
  "git2",

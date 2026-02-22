@@ -1,75 +1,93 @@
-use std::{fs::{create_dir_all, File}, path::PathBuf};
+use std::{fs::{File, create_dir_all}, path::{Path, PathBuf}};
 
+use directories::ProjectDirs;
 use grp_core::{Error, ErrorType};
 
-pub struct Directories;
-
-impl Directories {
-    #[allow(dead_code)]
-    pub fn config_file() -> Result<PathBuf, Error> {
-        let path = Self::config_dir()?.join("config.json");
-        if !path.exists() {
-            File::create(&path)
-                .expect("Failed to create config directory");
-        }
-        Ok(path)
-    }
-    
-    #[allow(dead_code)]
-    pub fn config_dir() -> Result<PathBuf, Error> {
-        let dir_name = "girep";
-        let home_dir = match dirs::home_dir() {
-            Some(e) => e,
-            None => return Err(
-                Error::new(
-                    ErrorType::Path404, 
-                    vec![
-                        "HOME_DIR",
-                        "Imposible to optain the home directory"
-                    ]
-                )
-            ),
-        };
-        let location = match std::env::consts::OS {
-            "linux" => home_dir.join(format!(".config/{}", dir_name)),
-            "windows" => {
-                let appdata = match std::env::var("APPDATA") {
-                    Ok(s) => s,
-                    Err(_) => return Err(
-                        Error::new(
-                            ErrorType::Path404, 
-                            vec![
-                                "APPDATA",
-                                "The env variable is not configured!"
-                            ]
-                        )
-                    ),
-                };
-                PathBuf::from(appdata).join(dir_name)
-            },
-            "macos" => home_dir.join(format!("Library/Application Support/{}", dir_name)),
-            _ => home_dir.join(format!(".config/{}", dir_name)),
-        };
-    
-        // Create file if it does not exist
-        if !location.exists() { create_dir_all(&location)
-            .expect("Failed to create config directory");
-        }
-    
-        Ok(location)
-    }
-    
-    pub fn current_dir() -> Result<PathBuf, Error> {
-        let current_dir = std::env::current_dir()
-            .map_err(|e| Error::new(
-                ErrorType::Path404, 
-                vec![
-                    "CURRENT_DIR",
-                    "Directory",
-                    &e.to_string()
-                ]
-            ))?;
+macro_rules! create {
+    ($method:ident) => {{
+        let pd = Self::new()?;
+        let directory = pd.$method();
+        Self::create_dirs(directory)?;
         
-        Ok(current_dir)
+        Ok(directory.into())
+    }};
+    
+    ($file:literal) => {{
+        let directory = Self::directory()?;
+        let path = directory.join($file);
+        Self::create_files(&path)?;
+        Ok(path)
+    }}
+}
+
+/// ## Example 
+/// This `directory!(Config config_dir "config.json");`
+/// 
+/// **Expands to:**
+/// 
+/// ~~~rust
+/// impl Directories for Config {
+///     fn file() -> Result<PathBuf, Error> { create!("config.json") }
+///     fn directory() -> Result<PathBuf, Error> { create!(config_dir) }
+/// }
+/// ~~~
+macro_rules! directory {
+    ($struct:ident $method:ident $name:literal) => {
+        impl Directories for $struct {
+            fn file() -> Result<PathBuf, Error> { create!($name) }
+            fn directory() -> Result<PathBuf, Error> { create!($method) }
+        }
+    };
+}
+
+
+pub struct Config;
+directory!(Config config_dir "config.json");
+
+pub struct RepoCompletion;
+directory!(RepoCompletion cache_dir "repos.json");
+
+pub struct BasicDir;
+impl BasicDir {
+    pub fn current() -> Result<PathBuf, Error> {
+        std::env::current_dir()
+            .map_err(|e| Error::new(
+                ErrorType::Path404, vec!["CURRENT_DIR", "Directory", &e.to_string()]
+            ))
+    }
+}
+
+pub trait Directories {
+    fn file() -> Result<PathBuf, Error>;
+    fn directory() -> Result<PathBuf, Error>;
+    
+    fn new() -> Result<ProjectDirs, Error> {
+        let project = ProjectDirs::from("", "", "girep");
+        project.ok_or(Error::new_custom("Internal error", vec!["* The system directories can not be determined"]))
+    }
+    
+    fn create_dirs(location: &Path) -> Result<(), Error> {
+        match location.exists() {
+            true => Ok(()),
+            false => {
+                create_dir_all(&location).map_err(|e| {
+                    Error::new_custom("Error during directory creation", vec![e.to_string()])
+                })?;
+                
+                Ok(())
+            },
+        }
+    }
+    
+    fn create_files(path: &Path) -> Result<(), Error> {
+        match path.exists() {
+            true => Ok(()),
+            false => {
+                File::create(&path).map_err(|e| {
+                    Error::new_custom("Error during file creation", vec![e.to_string()])
+                })?;
+                Ok(())
+            },
+        }
     }
 }

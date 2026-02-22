@@ -2,7 +2,7 @@ use color_print::{cformat, cprintln};
 
 use grp_core::{Error, ErrorType};
 use super::structs::{Pconf, Usettings};
-use crate::system::directories::Directories;
+use crate::system::directories::{Config, Directories};
 
 
 impl Usettings {
@@ -17,7 +17,7 @@ impl Usettings {
         self.get_pconf_by_name(name).or_else(|| self.get_default_pconf())
     }
     pub fn read() -> Result<Usettings, Error> {
-        let mut path = Directories::config_file()?;
+        let mut path = Config::file()?;
         
         let file = match std::fs::read_to_string(&path) {
             Ok(file) => file,
