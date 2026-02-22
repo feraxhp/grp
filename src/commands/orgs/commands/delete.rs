@@ -7,7 +7,9 @@ use color_print::cformat;
 
 use grp_core::Platform;
 use grp_core::animation::Animation;
+use grp_core::structs::User;
 use crate::animations::animation::Delete;
+use crate::cache::structure::Uncacher;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
@@ -71,7 +73,7 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
     
     match platform.delete_org(name, &config, !soft, &animation).await {
         Ok(_) => {
-            let message = match (soft, platform) {
+            let message = match (soft, &platform) {
                 (true, Platform::Gitlab) => cformat!("group <m,i>marked</> <g>for delition!</>"),
                 (true, _) => vec![
                     cformat!("<y,i>org delition</y,i> <g>succeeded!</>"),
@@ -81,6 +83,7 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
                 (false, _) => cformat!("<y,i>org delition</y,i> <g>succeeded!</>"),
             };
             
+            let _ = User::remove(&pconf.name, &name);
             animation.finish_with_success(message);
         },
         Err(e) => {

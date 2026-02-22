@@ -1,4 +1,5 @@
-use std::{fs::{File, create_dir_all}, path::{Path, PathBuf}};
+use std::fs::{File, create_dir_all};
+use std::path::{Path, PathBuf};
 
 use directories::ProjectDirs;
 use grp_core::{Error, ErrorType};
@@ -43,7 +44,7 @@ macro_rules! directory {
 }
 
 directory!(Config config_dir "config.json");
-directory!(RepoCompletion cache_dir "repos.json");
+directory!(Cache cache_dir "cache.json");
 
 pub struct BasicDir;
 impl BasicDir {

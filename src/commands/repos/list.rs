@@ -6,6 +6,7 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 
 use crate::animations::animation::Fetch;
+use crate::cache::structure::Cacher;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
@@ -42,7 +43,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
-    let (repos, _pag_error, _errors) = platform.list_repos(args.get_one::<String>("owner"), &config, &animation).await;
+    let (repos, _pag_error, mut _errors) = platform.list_repos(args.get_one::<String>("owner"), &config, &animation).await;
+    
+    match repos.save(&pconf.name, false) {
+        Ok(_) => (),
+        Err(e) => _errors.push(e),
+    };
     
     match (repos, _pag_error, _errors) {
         (r, None, e) if e.is_empty() && !r.is_empty() => {

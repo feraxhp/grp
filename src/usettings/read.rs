@@ -1,36 +1,32 @@
-use color_print::{cformat, cprintln};
+use color_print::cprintln;
 
 use grp_core::{Error, ErrorType};
 use super::structs::{Pconf, Usettings};
-use crate::system::directories::{Config, Directories};
+use crate::system::{directories::{Config, Directories}, file::File};
 
 
 impl Usettings {
     pub fn get_pconf_by_name(&self, name: &str) -> Option<Pconf> {
         if name == "*" { return self.get_default_pconf(); }
-        self.pconfs.iter().find(|pconf| pconf.name == name).cloned()
+        self.pconfs.iter()
+            .find(|pconf| pconf.name == name)
+            .cloned()
     }
+    
     pub fn get_default_pconf(&self) -> Option<Pconf> {
-        self.pconfs.iter().find(|pconf| pconf.name == self.default).cloned()
+        self.pconfs.iter()
+            .find(|pconf| pconf.name == self.default)
+            .cloned()
     }
+    
     pub fn get_pconf_or_default(&self, name: &str) -> Option<Pconf> {
-        self.get_pconf_by_name(name).or_else(|| self.get_default_pconf())
+        self.get_pconf_by_name(name)
+            .or_else(|| self.get_default_pconf())
     }
+    
     pub fn read() -> Result<Usettings, Error> {
         let mut path = Config::file()?;
-        
-        let file = match std::fs::read_to_string(&path) {
-            Ok(file) => file,
-            Err(e) => return Err(
-                Error::new_custom(
-                    "The config file could not be read".to_string(),
-                    vec![
-                        cformat!("* Error : {}", e),
-                        cformat!("  Please check the config file at <i,u,b>{:?}</>", path),
-                    ]
-                )
-            )
-        };
+        let file = File::read(&path)?;
     
         if file.is_empty() {
             let void_config = Usettings {

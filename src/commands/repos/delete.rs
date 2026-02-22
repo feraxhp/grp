@@ -6,8 +6,10 @@ use color_print::cformat;
 
 use grp_core::animation::Animation;
 use grp_core::Platform;
+use grp_core::structs::Repo;
 
 use crate::animations::animation::Delete;
+use crate::cache::structure::Uncacher;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::repo::RepoStructure;
@@ -92,6 +94,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 (false, _) => cformat!("<y,i>repo delition</y,i> <g>succeeded!</>"),
             };
             
+            let _ = Repo::remove(&pconf.name, &repo.path);
             animation.finish_with_success(message);
         },
         Err(e) => {
