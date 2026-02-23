@@ -53,3 +53,9 @@ source <(COMPLETE=zsh grp)
 ~~~sh
 COMPLETE=fish grp | source
 ~~~
+
+### Whant a rust lib?
+
+__grp__ in the version 0.12.0 and above has splited into a [rust crate](https://crates.io/crates/grp-core) called _grp-core_. 
+
+> grp-core does not include any git command, just exposes the interaction with the platforms.
