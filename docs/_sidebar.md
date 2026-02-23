@@ -17,7 +17,8 @@
     * [Create](/usage/orgs/create)
     * [Delete](/usage/orgs/delete)
   * Git abstractions
-    * [pull](/usage/git/pull)
+    * [clone](/usage/git/clone)
     * [push](/usage/git/push)
+    * [pull](/usage/git/pull)
     * [fetch](/usage/git/fetch)
-  * Tips and Ticks
+  * [Tips and Ticks](/usage/tips)

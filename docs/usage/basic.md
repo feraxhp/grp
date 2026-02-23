@@ -27,7 +27,8 @@ clone grp, the owner is goin to be __feraxhp__.
 
 ### RepoStructure
 
-The _repo structure_ is a simple syntaxis designed to identify a repository. 
+The _repo structure_ is a simple syntaxis designed to identify a repository 
+it will always apear in the --help as <repo>. 
 
 It looks like:
 ~~~RepoStructure
