@@ -23,7 +23,6 @@ pub trait Cacher {
         JSON::from_str(&text)
     }
     
-    #[allow(unused)]
     fn get(pconf: &str) -> Result<HashSet<String>, Error>;
     fn put(&self, pconf: &str, union: bool) -> Result<HashMap<String, Values>, Error>;
     
