@@ -31,6 +31,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         None => usettings.get_default_pconf().or_exit(&animation),
     };
     
+    let owner = args.get_one::<String>("owner");
     let show_errors = args.get_flag("show-errors");
     
     let platform = match Platform::matches(&pconf.r#type) {
@@ -43,9 +44,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
-    let (repos, _pag_error, mut _errors) = platform.list_repos(args.get_one::<String>("owner"), &config, &animation).await;
+    let (repos, _pag_error, mut _errors) = platform.list_repos(owner, &config, &animation).await;
     
-    match repos.save(&pconf.name, false) {
+    match repos.save(&pconf.name, !owner.is_none()) {
         Ok(_) => (),
         Err(e) => _errors.push(e),
     };
