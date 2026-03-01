@@ -1,6 +1,5 @@
 
 use std::{env, ffi::OsStr};
-use clap_complete::CompletionCandidate;
 use git2::BranchType;
 
 use super::super::structure::Completer;
@@ -10,7 +9,7 @@ pub struct Branch;
 
 
 impl<'a> Completer for Branch {
-    fn canditates(current: &OsStr) -> Vec<CompletionCandidate> {
+    fn canditates(current: &OsStr) -> Vec<String> {
         let prefix = current.to_string_lossy();
         let path = match env::current_dir() {
             Ok(p) => p,
@@ -22,12 +21,12 @@ impl<'a> Completer for Branch {
             Err(_) => return vec![],
         };
         
-        let remotes = match repo.branches(Some(BranchType::Local)) {
+        let branches = match repo.branches(Some(BranchType::Local)) {
             Ok(sa) => sa,
             Err(_) => return vec![],
         };
         
-        remotes
+        branches
             .filter_map(|b| {
                 let branch = match b {
                     Ok(b) => b,
@@ -40,7 +39,7 @@ impl<'a> Completer for Branch {
                 };
                 
                 if prefix.is_empty() || name.starts_with(&*prefix) {
-                    Some(CompletionCandidate::new(name))
+                    Some(name.to_string())
                 }
                 else 
                 { None }

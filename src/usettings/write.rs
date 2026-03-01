@@ -3,12 +3,13 @@ use color_print::cformat;
 use grp_core::Error;
 
 use super::structs::Usettings;
-use crate::system::directories::Directories;
+use crate::system::{directories::{Config, Directories}, file::File};
 
 impl Usettings {
     pub(crate) fn save(&self) -> Result<(), Error> {
-        let file_location = Directories::config_file()?;
-        let file = std::fs::File::create(file_location)
+        let path = Config::file()?;
+        
+        let contents = serde_json::to_string_pretty(self)
             .map_err(|e| Error::new_custom(
                 "Error creating the configuration file".to_string(), 
                 vec![
@@ -16,14 +17,6 @@ impl Usettings {
                 ]
             ))?;
         
-        serde_json::to_writer_pretty(file, self)
-            .map_err(|e| Error::new_custom(
-                "Error creating the configuration file".to_string(), 
-                vec![
-                    cformat!("<r>* Error:</> {:?}", e)
-                ]
-            ))?;
-        
-        Ok(())
+        File::write(&path, &contents)
     }
 }

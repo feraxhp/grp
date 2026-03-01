@@ -1,7 +1,5 @@
 
 use std::{env, ffi::OsStr};
-use clap_complete::CompletionCandidate;
-
 use super::super::structure::Completer;
 
 
@@ -9,7 +7,7 @@ pub struct Remote;
 
 
 impl<'a> Completer for Remote {
-    fn canditates(current: &OsStr) -> Vec<CompletionCandidate> {
+    fn canditates(current: &OsStr) -> Vec<String> {
         let prefix = current.to_string_lossy();
         let path = match env::current_dir() {
             Ok(p) => p,
@@ -26,7 +24,7 @@ impl<'a> Completer for Remote {
             Err(_) => return vec![],
         };
         
-        if remotes.len() == 0 { return vec![CompletionCandidate::new("[no-remote]")] }
+        if remotes.len() == 0 { return vec![] }
         
         remotes
             .iter()
@@ -37,7 +35,7 @@ impl<'a> Completer for Remote {
                 };
                 
                 if prefix.is_empty() || remote.starts_with(&*prefix) {
-                    Some(CompletionCandidate::new(remote))
+                    Some(remote.to_string())
                 }
                 else 
                 { None }
