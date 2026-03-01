@@ -20,25 +20,22 @@ related to the API's themselfs, to be able to create issues, pull request... etc
 - Supported: ✅
 - Planed support: 🟥
 - On development: 🔶
+- Not available on the platform: 🟪
 
 ### Repositories
 
-| Feature | GitHub | Gitea | GitLab |
-|:-------:|:------:|:-----:|:------:|
-| List    |   ✅   |   ✅   |   ✅   |
-| Create  |   ✅   |   ✅   |   ✅   |
-| Delete  |   ✅   |   ✅   |   ✅   |
-|  Clone  |   ✅   |   ✅   |   ✅   |
-|  Push   |   ✅   |   ✅   |   ✅   |
-|  Pull   |   ✅   |   ✅   |   ✅   |
+| Feature | GitHub | Gitea | Codeberg | Forgejo | GitLab | Azure DevOps |
+|:-------:|:------:|:-----:|:--------:|:--------:|:------:|:------------:|
+| List    | ✅     | ✅    | ✅        | ✅        | ✅    | 🟥            |
+| Create  | ✅     | ✅    | ✅        | ✅        | ✅    | 🟥            |
+| Delete  | ✅     | ✅    | ✅        | ✅        | ✅    | 🟥            |
 
 ### Organizations
-| Feature | GitHub | Gitea | GitLab |
-|:-------:|:------:|:------:|:------:|
-| List    |   ✅   |   ✅  |   ✅   |
-| Create  |   ✅`1`|   ✅  |   ✅`2`|
-| Delete  |   ✅   |   ✅  |   ✅`3`|
-
+| Feature | GitHub | Gitea | Codeberg | Forgejo | GitLab | Azure DevOps |
+|:-------:|:------:|:-----:|:--------:|:--------:|:------:|:------------:|
+| List    | ✅     | ✅    | ✅       | ✅        | ✅     | 🟪           |
+| Create  | 🟪`1`  | ✅    | ✅       | ✅        | ✅`2`  | 🟪           |
+| Delete  | ✅     | ✅    | ✅       | ✅        | ✅`3`  | 🟪           |
 ---
 
 See [Quick start](/guides/quick) to continue.
