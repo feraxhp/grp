@@ -480,7 +480,7 @@ dependencies = [
 
 [[package]]
 name = "girep"
-version = "0.11.0-beta"
+version = "0.12.0"
 dependencies = [
  "cfg-if",
  "clap",
@@ -518,7 +518,7 @@ dependencies = [
 
 [[package]]
 name = "grp-core"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "color-print",
  "futures",
