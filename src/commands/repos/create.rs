@@ -15,7 +15,7 @@ use crate::commands::validations::repo::RepoStructure;
 use crate::local::structs::{Git2Error, Local};
 use crate::system::show::Show;
 use crate::local::git::structs::Action;
-use crate::system::directories::Directories;
+use crate::system::directories::BasicDir;
 use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
@@ -55,7 +55,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let add_to_local = args.get_flag("add-to-local");
     
     let path: Option<PathBuf> = match (add_to_local, remote) {
-        (true, _) => match Directories::current_dir() {
+        (true, _) => match BasicDir::current() {
             Ok(path) => Some(path),
             Err(e) => {
                 animation.finish_with_error(&e.message);

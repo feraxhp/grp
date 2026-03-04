@@ -1,6 +1,7 @@
 use clap::{command, Command};
 
-use crate::system::{directories::Directories, stdout};
+use crate::system::stdout;
+use crate::system::directories::{Config, Directories};
 
 pub fn command() -> Command {
     command!("path")
@@ -9,7 +10,7 @@ pub fn command() -> Command {
 }
 
 pub fn manager() {
-    match Directories::config_dir() {
+    match Config::directory() {
         Ok(path) => {
             let string = path.as_os_str().to_str();
             match string {

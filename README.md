@@ -83,6 +83,20 @@ cargo install girep --version 0.11.0-beta
 ~~~bash
 source <(COMPLETE=bash grp)
 ~~~
+Currently bash has a little problem with the autocompletion... 
+so, in order to solve the problem for auto completion of the repostructure 
+you may whant to add the completion to a file, and replace the last 5 lines 
+for the next:
+~~~bash
+if [[ "${BASH_VERSINFO[0]}" -eq 4 && "${BASH_VERSINFO[1]}" -ge 4 || "${BASH_VERSINFO[0]}" -gt 4 ]]; then
+    COMP_WORDBREAKS=${COMP_WORDBREAKS//:} complete -o nospace -o bashdefault -o nosort -F _clap_complete_grp dgrp
+else
+    COMP_WORDBREAKS=${COMP_WORDBREAKS//:} complete -o nospace -o bashdefault -F _clap_complete_grp dgrp
+fi
+~~~
+> [!note]
+> I already open a feature request in [clap-rs](https://github.com/clap-rs/clap/) 
+> if you find this a _Headache_ please help me by comenting in this [issue](https://github.com/clap-rs/clap/issues/6280) 
 
 ### zsh
 ~~~zsh

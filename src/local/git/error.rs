@@ -123,7 +123,7 @@ impl Git2Error for Error {
             }
             (ErrorCode::NotFound, ErrorClass::Config, m, _) |
             (ErrorCode::NotFound, ErrorClass::Reference, m, _) => { 
-                Error::new_custom(m, vec![])
+                Error::new_custom(m, Vec::<&str>::new())
             }
             (ErrorCode::NotFound, ErrorClass::Merge, m, Action::Pull) if m.contains("r:") => {
                 

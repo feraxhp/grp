@@ -8,6 +8,7 @@ use grp_core::Error;
 
 use crate::commands::completions::git::branch::Branch;
 use crate::commands::completions::git::remote::Remote;
+use crate::commands::completions::git::upstream::Upstream;
 use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
 use crate::local::git::options::{Methods, Options};
@@ -22,14 +23,15 @@ pub(crate) fn command() -> Command {
     command!("pull").aliases(["j"])
         .about(cformat!("Interface to <b,i>git pull</> using the given pconf"))
         .args([
-            Arguments::pconf(false, true),
             arg!( -f --force "Do a force pull"),
             arg!( -r --rebase).help(cformat!("Do a <i>pull --rebase</>")),
             arg!( -n --"dry-run" "Do everything except actually fetch the updates."),
             Arg::new("set-upstream").short('u').long("set-upstream")
                 .num_args(2)
                 .value_names(["remote", "branch"])
+                .add(Upstream::complete())
                 .help("Sets the name of the remote as default upstream for a branch"),
+            Arguments::pconf(false, true),
             arg!([remote] "The name of the remote to pull from")
                 .conflicts_with("set-upstream")
                 .add(Remote::complete()),

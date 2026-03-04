@@ -7,6 +7,7 @@ use grp_core::Error;
 
 use crate::commands::completions::git::branch::Branch;
 use crate::commands::completions::git::remote::Remote;
+use crate::commands::completions::git::upstream::Upstream;
 use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
 use crate::local::structs::{Git2Error, Local};
@@ -19,7 +20,6 @@ pub(crate) fn command() -> Command {
     command!("push").aliases(["p"])
         .about(cformat!("Interface to <b,i>git push</> using the given pconf"))
         .args([
-            Arguments::pconf(false, true),
             arg!( -A --all "Push all branches")
                 .conflicts_with_all(["branches", "tags", "set-upstream", "branch", "tag"])
             ,
@@ -38,8 +38,10 @@ pub(crate) fn command() -> Command {
             Arg::new("set-upstream").short('u').long("set-upstream")
                 .num_args(2)
                 .value_names(["remote", "branch"])
+                .add(Upstream::complete())
                 .conflicts_with_all(["all", "branches", "tags", "tag"])
                 .help("Sets the name of the remote as default upstream for a branch"),
+            Arguments::pconf(false, true),
             arg!([remote] "The name of the remote to push to")
                 .conflicts_with("set-upstream")
                 .add(Remote::complete())

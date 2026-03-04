@@ -5,6 +5,7 @@ use color_print::{cformat, cprintln};
 use grp_core::animation::Animation;
 use grp_core::Platform;
 
+use crate::cache::structure::Cacher;
 use crate::system::show::Show;
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
@@ -42,7 +43,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
-    let (orgs, _pag_error, _errors) = platform.list_orgs(&config, &animation).await;
+    let (orgs, _pag_error, mut _errors) = platform.list_orgs(&config, &animation).await;
+    
+    match orgs.save(&pconf.name, false) {
+        Ok(_) => (),
+        Err(e) => _errors.push(e),
+    };
     
     match (orgs, _pag_error, _errors) {
         (o, None, e) if e.is_empty() && !o.is_empty() => {

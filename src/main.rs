@@ -3,6 +3,7 @@
 
 // mod girep;
 mod local;
+mod cache;
 mod system;
 mod update;
 mod commands;
