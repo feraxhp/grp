@@ -10,6 +10,7 @@ pub mod already_exist;
 pub mod fetch_failed;
 pub mod unauthorized;
 pub mod unsupported;
+pub mod url_parsing;
 pub mod incomplete;
 pub mod path404;
 pub mod unknown;

@@ -74,4 +74,9 @@ pub enum ErrorType {
     /// vec: [==1]
     /// - 0 : path
     LocalRepoNotFound,
+    /// vec: [>=2]
+    /// - 0 : error message
+    /// - 1 : url
+    /// - 2+: additional information
+    URLParsing,
 }

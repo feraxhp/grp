@@ -1,9 +1,10 @@
 use std::process::exit;
+use futures::StreamExt;
 
 use clap::{arg, ArgMatches, Command};
 use color_print::{cformat, cprintln};
 use grp_core::animation::Animation;
-use grp_core::Platform;
+use grp_core::{Error, Platform};
 
 use crate::animations::animation::Fetch;
 use crate::cache::structure::Cacher;
@@ -44,36 +45,49 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
-    let (repos, _pag_error, mut _errors) = platform.list_repos(owner, &config, &animation).await;
+    let stream = match platform.list_repos(owner, &config, &animation).await {
+        Ok(s) => s,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            return;
+        },
+    };
+    
+    let (repos, mut errors) = stream
+        .fold((vec![], vec![]), async move |curr, act| {
+            let (mut repos, mut errors) = curr;
+            match act {
+                Ok(r) => repos.extend(r),
+                Err(e) => errors.push(e),
+            }
+            (repos, errors)
+        })
+        .await;
     
     match repos.save(&pconf.name, !owner.is_none()) {
         Ok(_) => (),
-        Err(e) => _errors.push(e),
+        Err(e) => errors.push(e),
     };
     
-    match (repos, _pag_error, _errors) {
-        (r, None, e) if e.is_empty() && !r.is_empty() => {
+    match (repos.is_empty(), errors.is_empty()) {
+        (true, true) => { animation.finish_with_success("<i>No repos found</>"); },
+        (false,  true) => {
             animation.finish_with_success(cformat!("<y,i>list repos</y,i> <g>succeeded!</>"));
-            r.print_pretty();
+            repos.print_pretty();
         },
-        (r, None, e) if e.is_empty() && r.is_empty() => {
-            animation.finish_with_success("<i>No repos found</>");
+        (true, false) => {
+            let error = Error::colection(errors);
+            animation.finish_with_error(format!("{}", error.message));
+            error.show();
         },
-        (_, Some(e), _) => {
-            animation.finish_with_error(format!("{}", e.message));
-            e.show();
-        },
-        (r, None, e) if !r.is_empty() && !e.is_empty() => {
+        (false, false) => {
             animation.finish_with_warning(cformat!("<m,i>list repos</m,i> <y>finish with errors!</>"));
-            r.print_pretty();
-            if show_errors { e.print_pretty(); } 
+            repos.print_pretty();
+            if show_errors { errors.print_pretty(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");
             }
-        },
-        (_, None, e) => { // e must not be empty
-            animation.finish_with_error(cformat!("<m,i>list repos</m,i> <r>finish with errors!</>"));
-            e.print_pretty();
         }
     }
 }

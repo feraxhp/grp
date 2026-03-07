@@ -1,4 +1,3 @@
-pub mod pagination;
 pub mod platform;
 pub mod structs;
 pub mod repos;

@@ -43,7 +43,7 @@ impl Platform {
                     Some(u) => return Ok(UserType::UnloggedUser(u)),
                     None => (),
                 }
-                match gitlab::groups::search::by_full_path(&self, &name, conf).await? {
+                match gitlab::groups::search::by_full_path(&name, conf).await? {
                     Some(u) => Ok(UserType::UnloggedOrg(u)),
                     None => return Err(Error::new(
                         ErrorType::NotOwnerFound,
