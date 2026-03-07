@@ -18,6 +18,7 @@ pub struct Repo {
 /// This object allows to share more debug informacion for 
 /// the error, if some platform fails.
 /// 
+#[derive(Clone, Debug)]
 pub struct Context {
     pub request_type: RequestType,
     pub owner: Option<String>,
@@ -29,7 +30,7 @@ pub struct Context {
 /// 
 /// an enum used to represent the aim of the request.
 ///  
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum RequestType {
     List,
     Create,

@@ -1,84 +1,48 @@
-
-
-use futures::future::join_all;
+use futures::{Stream, StreamExt};
 
 use crate::animation::Animation;
 use crate::config::Config;
 use crate::platform::Platform;
 use crate::error::structs::Error;
-use crate::common::pagination::pagination;
 use crate::common::structs::{Context, Repo, RequestType};
 
 impl Platform {
     /// list all the repos for the given owner, if not present, returns all the repos for the default user (config).
-    /// 
-    /// # Return
-    /// a tuple with:
-    /// 1. `Vec<Repo>` a list with the repos 
-    /// 2. `Option<Error>` a `grp_core::Error` containing the detail of the error, if this error is present, the list of repos is empty.
-    /// 3. `Vec<Error>` a list of `grp_core::Error` that contains a list of errors if something happen during the paggination.
-    /// 
-    /// ## Why is this?
-    /// a better solution with yield is planned, but for know this is the best i could do.
+    /// Return a stream response
     pub async fn list_repos<T: Into<String>, A: Animation + ?Sized>(&self,
         owner: Option<T>, 
         config: &Config,
         animation: &Box<A>
-    ) -> (Vec<Repo>, Option<Error>, Vec<Error>) {
-        let header_map = self.get_auth_header(&config.token);
+    ) -> Result<impl Stream<Item = Result<Vec<Repo>, Error>>, Error> {
         let owner = owner.map(|o| o.into());
         let owner = owner.unwrap_or(config.user.clone());
         
         animation.change_message("getting user type");
+        let user_type = self.get_user_type(&owner, &config).await?;
         
-        let user_type = match self.get_user_type(&owner, &config).await {
-            Ok(ut) => ut,
-            Err(e) => return (Vec::new(), Some(e), vec![])
+        let url = self.url_list_repos(&user_type, &config.endpoint).await;
+        
+        let context = Context {
+            request_type: RequestType::List,
+            owner: Some(user_type.get_user().name),
+            repo: None,
+            additional: None,
         };
         
         animation.change_message("fetching repositories...");
         
-        let url = self.url_list_repos(&user_type, &config.endpoint).await;
-        let (responses, error) = pagination(url, header_map).await;
-        
-        let responses: Vec<_> = responses.into_iter()
-            .map(|response| {
-                let context = Context {
-                    request_type: RequestType::List,
-                    owner: Some(user_type.get_user().name),
-                    repo: None,
-                    additional: None,
-                };
-                
-                self.unwrap(
-                    response, "Failed to fetch repositories",
-                    &config, context
-                )
-            }).collect();
-        
-        let responses = join_all(responses).await;
-        
-        let (responses, response_erros): (Vec<_>, Vec<_>) = responses.into_iter().partition(Result::is_ok);
-        
-        let mut repos_erros: Vec<Error> = response_erros.into_iter().map(Result::unwrap_err).collect();
-        let mut repos: Vec<Repo> = Vec::new();
-        
-        animation.change_message("formating repositories");
-        
-        for response in responses {
-            match self.get_repo(response) {
-                Ok(r) => repos.extend(r),
-                Err(e) => repos_erros.push(e),
-            }
-        }
-        
-        (repos, error, repos_erros)
+        Ok(
+            self.pagginate(url, &config, context)
+                .map(|result| {
+                    self.get_repos(result)
+                })
+        )
     }
     
-    pub fn get_repo(&self, response: Result<String, Error>) -> Result<Vec<Repo>, Error> {
+    pub fn get_repos(&self, response: Result<String, Error>) -> Result<Vec<Repo>, Error> {
         match response {
             Ok(rs) => Repo::from_text_array(&rs, &self),
-            Err(_) => { unreachable!() }
+            Err(e) => Err(e),
         }
     }
 }

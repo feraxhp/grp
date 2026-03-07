@@ -19,6 +19,7 @@ impl ErrorType {
             ErrorType::AlreadyExists => "Already exists",
             ErrorType::FetchFailed => "Failed during fetch",
             ErrorType::Unsupported => "Unsuported action",
+            ErrorType::URLParsing => "Failed at url parsing",
         }.to_string()
     }
 }

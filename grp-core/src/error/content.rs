@@ -19,6 +19,7 @@ impl ErrorType {
             ErrorType::AlreadyExists => sp::already_exist::content(vec),
             ErrorType::FetchFailed => sp::fetch_failed::content(vec),
             ErrorType::Unsupported => sp::unsupported::content(vec),
+            ErrorType::URLParsing => sp::url_parsing::content(vec),
         }
     }
 }

@@ -62,7 +62,7 @@ use crate::error::types::ErrorType;
 /// There is a 3 type and is a collection, this allows to return multiple errors 
 /// in just one `grp_core::Error`. usefull for paggination errors, or concations of multiple 
 /// of them.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Error {
     pub message: String,
     pub content: Vec<String>,

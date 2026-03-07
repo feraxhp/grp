@@ -1,5 +1,10 @@
-use reqwest::{Client, IntoUrl, RequestBuilder, Response};
+use async_stream::stream;
+use futures::Stream;
+use hyper::header::HeaderValue;
+use reqwest::{Client, IntoUrl, RequestBuilder, Response, Url};
 use serde::Serialize;
+
+use crate::structs::Context;
 
 use super::config::Config;
 use super::error::types::ErrorType;
@@ -59,4 +64,70 @@ impl Platform {
         
         Platform::send(req).await
     }
+    
+    pub fn pagginate(&self, 
+        url: String, 
+        config: &Config, 
+        context: Context
+    ) -> impl Stream<Item = Result<String, Error>> { stream! {
+        let client = Client::new();
+        let headers = self.get_auth_header(&config.token);
+    
+        let size = 10;
+        let mut url = Url::parse(&url)
+            .map_err(|e| { map_err(e.to_string(), url.to_string()) } )?;
+        
+        url.query_pairs_mut().append_pair("page", "1").append_pair("per_page", &size.to_string());
+        
+        let mut next = Some(url);
+        
+        while let Some(url) = next {
+    
+            let response = match client.get(url).headers(headers.clone()).send().await {
+                Ok(response) => response,
+                Err(e) => {
+                    yield Err(Error::new(ErrorType::PaginationErrors, vec![e.to_string()]));
+                    return;
+                }
+            };
+            
+            let response_headers = response.headers().clone();
+            let string = match self.unwrap(response,  "Faild getting reponse", &config, context.clone()).await {
+                Ok(s) => s,
+                Err(e) => {
+                    yield Err(e);
+                    return;
+                },
+            };
+            
+            yield Ok(string);
+            
+            next = extract_next(response_headers.get("link"))?;
+        }
+    }}
+}
+
+fn map_err(e: String, url: String) -> Error { 
+    Error::new(ErrorType::URLParsing, vec![e, url])
+}
+
+fn extract_next(link_header: Option<&HeaderValue>) -> Result<Option<Url>, Error> {
+    let header = match link_header.and_then(|header| header.to_str().ok()) {
+        Some(h) => h,
+        None => return Ok(None),
+    };
+    
+    let url = header.split(",")
+        .find_map(|link| -> Option<_> {
+            if link.ends_with(r#"; rel="next""#) {
+                Some(link.trim().trim_matches('<').replace(r#">; rel="next""#, ""))
+            }
+            else { None }
+        });
+    
+    if url.is_none() { return Ok(None) };
+    let url = url.unwrap();
+    Url::parse(&url)
+        .map(|e| Some(e))
+        .map_err(|e| map_err(e.to_string(), url) )
 }
