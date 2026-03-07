@@ -45,7 +45,13 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
+    let an = &animation;
     let (orgs, mut errors) = platform.list_orgs(&config, &animation)
+        .enumerate()
+        .map(|(i, s)| {
+            an.change_message(format!("Requesting page: {}", i + 1));
+            s
+        })
         .fold((vec![], vec![]), async move |acc, act| {
             let (mut users, mut errors) = acc;
             match act {
