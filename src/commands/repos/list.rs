@@ -54,7 +54,13 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
     };
     
+    let an = &animation;
     let (repos, mut errors) = stream
+        .enumerate()
+        .map(|(i, s)| {
+            an.change_message(format!("Requesting page: {}", i + 1));
+            s
+        })
         .fold((vec![], vec![]), async move |curr, act| {
             let (mut repos, mut errors) = curr;
             match act {
