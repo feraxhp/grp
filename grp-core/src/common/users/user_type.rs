@@ -1,5 +1,6 @@
+use crate::empty_notes;
+use crate::error::errors::not_found::NotFound;
 use crate::error::structs::Error;
-use crate::error::types::ErrorType;
 use crate::common::users::structs::{User, UserType};
 use crate::config::Config;
 use crate::platform::Platform;
@@ -45,10 +46,7 @@ impl Platform {
                 }
                 match gitlab::groups::search::by_full_path(&name, conf).await? {
                     Some(u) => Ok(UserType::UnloggedOrg(u)),
-                    None => return Err(Error::new(
-                        ErrorType::NotOwnerFound,
-                        vec![name]
-                    )),
+                    None => return Err(NotFound::user(name, empty_notes!())),
                 }
             },
         }

@@ -66,5 +66,5 @@ pub async fn by_full_path(name: &String, config: &Config) -> Result<Option<User>
     if user.is_some() { return Ok(user); }
     if errors.len() == 0 { return Ok(None); }
     
-    Err(Error::colection(errors))
+    Err(Error::collection(errors))
 }

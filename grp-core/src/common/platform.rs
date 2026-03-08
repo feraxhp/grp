@@ -1,7 +1,8 @@
 use hyper::HeaderMap;
 use reqwest::Response;
 
-use crate::error::types::ErrorType;
+use crate::empty_notes;
+use crate::error::errors::request::Request;
 use crate::error::structs::Error;
 use crate::common::structs::Context;
 use crate::config::Config;
@@ -22,12 +23,7 @@ impl Platform {
             "codeberg" => Platform::Codeberg,
             "forgejo" => Platform::Forgejo,
             name => {
-                return Err(
-                    Error::new(
-                        ErrorType::Unsupported,
-                        vec![name, "Platform variant"]
-                    )
-                )
+                return Err(Request::unsuported(name, "Platform variant", empty_notes!()));
             }
         };
 

@@ -1,6 +1,8 @@
+use std::fmt::Display;
+
 use color_print::cformat;
 
-use crate::error::types::ErrorType;
+use crate::error::tools::Notes;
 
 /// # Error
 /// This is the _error struct_ used in all the lib 
@@ -64,44 +66,60 @@ use crate::error::types::ErrorType;
 /// of them.
 #[derive(Debug, Clone)]
 pub struct Error {
+    pub(super) etype: String,
     pub message: String,
     pub content: Vec<String>,
 }
 
 #[allow(dead_code)]
 impl Error {
-    pub fn new<T: Into<String>>(error: ErrorType, content: Vec<T>) -> Error {
-        Error {
-            message: error.get_message(),
-            content: error.map_content(content.into_iter().map(|s| s.into()).collect()),
+    pub fn new<P, K, M>(
+        etype: &'static str, 
+        message: M,
+        detail: P,
+        explanation: Vec<String>,
+        notes: Vec<K>,
+    ) -> Error
+    where 
+        P: Display,
+        M: Display,
+        K: Display,
+    {
+        let notes_legth = notes.len();
+        let mut content: Vec<String> = Vec::with_capacity(notes_legth + 1 + explanation.len());
+        
+        content.push(cformat!("<y>{}</>", detail));
+        content.extend(explanation);
+        
+        if notes_legth > 0 { 
+            content.push(cformat!(""));
+            content.push(cformat!("<g># notes</>"));
+            content.extend(notes.iter().as_notes());
+        }
+        
+        Error { 
+            etype: format!("custom::{}", etype), 
+            message: message.to_string(), 
+            content
         }
     }
     
-    pub fn colection(errors: Vec<Error>) -> Error {
+    pub fn collection(errors: Vec<Error>) -> Error {
         let mut content = Vec::new();
         for error in errors {
             content.push(cformat!("\n*<r>{}</>",error.message));
             content.extend(error.content.iter().map(|s| format!("  {}", s)));
         }
         Error { 
+            etype: "".to_string(),
             message: "Multiple errors found".to_string(),
             content: content
         }
     }
-
-    pub fn new_custom<M, C>(message: M, content: Vec<C>) -> Error
-    where 
-        M: Into<String>,
-        C: Into<String>
-    {
-        Error { 
-            message: message.into(),
-            content: content.into_iter().map(|s| s.into()).collect()
-        }
-    }
-
-    pub fn show(&self) { self.show_with_offset(0); }
     
+    pub fn get_type(&self) -> String { self.etype.to_owned() }
+    
+    pub fn show(&self) { self.show_with_offset(0); }
     pub fn show_with_offset(&self, offset: usize) {
         self.content.iter().for_each(|line| {
             eprintln!("{:width$}{}", "", line, width = offset);

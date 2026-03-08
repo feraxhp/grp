@@ -50,7 +50,6 @@ pub use platform::SUPPORTED_REPOS;
 pub use platform::Platform;
 
 pub use error::structs::Error;
-pub use error::types::ErrorType;
 
 pub mod structs {
     pub use super::common::structs::*;
