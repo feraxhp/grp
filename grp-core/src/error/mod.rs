@@ -1,7 +1,4 @@
 pub mod structs;
-pub mod types;
-mod specific;
+pub mod errors;
 pub mod map;
-mod message;
-mod content;
-mod repo;
+mod tools;

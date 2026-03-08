@@ -1,4 +1,5 @@
-use crate::error::types::ErrorType;
+use crate::empty_notes;
+use crate::error::errors::request::Request;
 use crate::platform::Platform;
 use crate::error::structs::Error;
 use crate::config::Config;
@@ -29,10 +30,7 @@ impl Platform {
         match self {
             Platform::Github => (
                 vec![],
-                vec![Error::new(
-                    ErrorType::Unsupported, 
-                    vec![self.name(), "Create Orgs"]
-                )]
+                vec![ Request::unsuported(self.name(), "Create orgs", empty_notes!()) ]
             ),
             Platform::Codeberg |
             Platform::Forgejo |

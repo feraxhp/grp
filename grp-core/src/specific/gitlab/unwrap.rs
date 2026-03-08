@@ -1,13 +1,13 @@
 use reqwest::Response;
 use color_print::cformat;
 use serde::{Deserialize, Serialize};
-use serde_json::{to_string_pretty, Value};
+use serde_json::Value;
 
 use crate::config::Config;
+use crate::error::errors::request::Request;
 use crate::error::structs::Error;
-use crate::error::types::ErrorType;
 use crate::common::structs::{Context, RequestType};
-use crate::location;
+use crate::empty_notes;
 
 #[derive(Serialize, Deserialize)]
 struct ErrorDeserialize {
@@ -23,21 +23,18 @@ pub async fn unwrap(
 ) -> Result<String, Error> {
 
     let status = result.status();
-    let text = result.text().await.map_err(|e| {
-        Error::new(ErrorType::Unknown, vec![e.to_string().as_str()])
-    })?;
+    let text = result.text().await.map_err(Request::getting_body)?;
 
     let error = match status.as_u16() {
         200 => { return Ok(text) },
         201 if matches!(context.request_type, RequestType::Create) => { return Ok(text) },
         201 if matches!(context.request_type, RequestType::CreateOrg) => { return Ok(text) },
-        202 if matches!(context.request_type, RequestType::Create) => { return Ok(text) }
-        401 =>  Error::new(
-            ErrorType::Unauthorized,
-            vec![
-                config.pconf.clone(),
-                context.owner.ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
-            ]
+        202 if matches!(context.request_type, RequestType::Create) => { return Ok(text) },
+        
+        401 => Request::unauthorized(
+            &config.pconf,
+            &context.owner.expect("The owner  must be provided in the context"),
+            empty_notes!()
         ),
         status => {
             let error: ErrorDeserialize = serde_json::from_str(&text)
@@ -49,31 +46,16 @@ pub async fn unwrap(
                 }
             );
             
-            match error.message {
-                Some(message) => {
-                    Error::new_custom(
-                        base_message,
-                        vec![
-                            cformat!("<y>* Something went wrong: </>",),
-                            cformat!("  » Code: <r,i>{}</>", status),
-                            match to_string_pretty(&message) {
-                                Ok(msg) => cformat!("  » Error: <b>{}</>", msg),
-                                Err(_) => cformat!("  » Error: <b>{:#?}</>", message)
-                            },
-                        ]
-                    )
-                },
-                None => {
-                    Error::new_custom(
-                        base_message,
-                        vec![
-                            cformat!("<y>* Something went wrong: </>",),
-                            cformat!("  » Code: <r,i>{}</>", status),
-                            cformat!("  » Error: <b>{}</>", error.text.unwrap_or_else(|| "No error message provided".to_string()))
-                        ]
-                    )
-                }
-            }
+            Error::new(
+                "unknown",
+                base_message,
+                "Something went wrong:",
+                vec![
+                    cformat!("  » Code: <r,i>{}</>", status),
+                    cformat!("  » Error: {}", error.text.unwrap_or(cformat!("<r>No error message provided</>")))
+                ],
+                empty_notes!()
+            )
         }
     };
     

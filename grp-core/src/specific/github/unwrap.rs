@@ -3,10 +3,12 @@ use color_print::cformat;
 use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
+use crate::error::errors::already_exist::AlreadyExist;
+use crate::error::errors::not_found::NotFound;
+use crate::error::errors::request::Request;
 use crate::error::structs::Error;
-use crate::error::types::ErrorType;
 use crate::common::structs::{Context, RequestType};
-use crate::location;
+use crate::empty_notes;
 
 #[derive(Serialize, Deserialize)]
 struct ErrorDeserialize {
@@ -22,95 +24,59 @@ pub async fn unwrap(
 ) -> Result<String, Error> {
 
     let status = result.status();
-    let text = result.text().await.map_err(|e| {
-        Error::new(ErrorType::Unknown, vec![e.to_string().as_str()])
-    })?;
-
-
+    let text = result.text().await.map_err(Request::getting_body)?;
+    
     let error = match status.as_u16() {
-        200 => { return Ok(text) },
+        200 |
         201 if matches!(context.request_type, RequestType::Create) => { return Ok(text) },
         202 if matches!(context.request_type, RequestType::DeleteOrg) => { return Ok(text) },
-        401 => Error::new(
-            ErrorType::Unauthorized,
-            vec![
-                config.pconf.clone(),
-                context.owner.ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
-            ]
+        401 => Request::unauthorized(
+            &config.pconf,
+            &context.owner.expect("The owner  must be provided in the context"),
+            empty_notes!()
         ),
-        403 if matches!(context.request_type, RequestType::Delete) => {
-            Error::new(
-                ErrorType::BadTokenScope,
-                vec![
-                    config.pconf.as_str(),
-                    "delete_repo"
-                ]
-            )
-        },
-        404 if matches!(context.request_type, RequestType::Delete) => {
-            Error::new(
-                ErrorType::NotRepoFound,
-                vec![
-                    context.owner
-                        .ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
-                    context.repo
-                        .ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
-                ]
-            )
-        },
-        404 => {
-            let mut content = vec![
-                context
-                    .owner.ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
-            ];
-
-            if matches!(context.request_type, RequestType::Create) {
-                let message = cformat!(
-                    "  The user you provide is not an org\
-                      Neither is the logged user\
-                    <y>+ Please provide a valid org name"
-                );
-                content.push(message);
-            }
-
-            Error::new(ErrorType::NotOwnerFound, content)
-        },
-        422 if matches!(context.request_type, RequestType::Create) => {
-            Error::new(
-                ErrorType::AlreadyExists,
-                vec![
-                    "Repo".to_string(),
-                    context.owner
-                        .ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?,
-                    context.repo
-                        .ok_or_else(||Error::new(ErrorType::Incomplete,vec![location!()]))?
-                ]
-            )
-        },
+        403 if matches!(context.request_type, RequestType::Delete)
+            => Request::bad_token_scope(&config.pconf, vec!["delete_repo"]),
+        404 if matches!(context.request_type, RequestType::Delete)
+            => NotFound::repository(
+                &config.pconf, 
+                &context.owner.expect("The owner  must be provided in the context"), 
+                &context.repo.expect("The repo name must be provided in the context")
+            ),
+        404 if matches!(
+            context.request_type,
+            RequestType::ListOrg |
+            RequestType::DeleteOrg
+        ) => NotFound::organization(
+            &context.owner.expect("The owner  must be provided in the context"), 
+            empty_notes!()
+        ),
+        422 if matches!(context.request_type, RequestType::Create)
+            => AlreadyExist::repository(
+                &config.pconf, 
+                &context.owner.expect("The owner  must be provided in the context"), 
+                &context.repo.expect("The repo name must be provided in the context")
+            ),
         _ => {
-            match serde_json::from_str::<ErrorDeserialize>(text.clone().as_str()) {
-                Ok(error) => {
-                        Error::new_custom(
-                            base_message,
-                            vec![
-                                cformat!("<y>* Something went wrong: </>",),
-                                cformat!("  <r,i>{}</>", error.status),
-                                cformat!("  Error: {}", error.message)
-                            ]
-
-                    )
-                },
-                Err(e) => {
-                        Error::new(
-                            ErrorType::Unknown,
-                            vec![
-                                format!("{:?}", e).as_str(),
-                                text.as_str()
-                            ]
-                        )
-
+            let error: ErrorDeserialize = serde_json::from_str(&text)
+                .unwrap_or_else(|_| {
+                    ErrorDeserialize {
+                        message: format!("{}", text),
+                        status: status.to_string(),
+                    }
                 }
-            }
+            );
+            
+            Error::new(
+                "unknown",
+                base_message,
+                "Something went wrong:",
+                vec![
+                    cformat!("  » Code: <r,i>{}</>", status),
+                    cformat!("  » Error: {}", error.message)
+                ],
+                empty_notes!()
+            )
         }
     };
 
