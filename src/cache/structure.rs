@@ -1,10 +1,9 @@
 use std::{collections::{HashMap, HashSet}, path::PathBuf};
 
-use color_print::cformat;
 use grp_core::{Error, JSON};
 use serde::{Deserialize, Serialize};
 
-use crate::system::{directories::{Cache, Directories}, file::File};
+use crate::{errors::fs_errors::FSErrors, system::{directories::{Cache, Directories}, file::File}};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Values { 
@@ -31,12 +30,7 @@ pub trait Cacher {
         let data = self.put(pconf, union)?;
         
         let contents = serde_json::to_string_pretty(&data)
-            .map_err(|e| Error::new_custom(
-                "Error creating the configuration file".to_string(), 
-                vec![
-                    cformat!("<r>* Error:</> {:?}", e)
-                ]
-            ))?;
+            .map_err(|e| FSErrors::CREATION.file(path.to_string_lossy(), e))?;
         
         File::write(&path, &contents)
     }
@@ -55,12 +49,7 @@ where
         };
         
         let contents = serde_json::to_string_pretty(&data)
-            .map_err(|e| Error::new_custom(
-                "Error creating the configuration file".to_string(), 
-                vec![
-                    cformat!("<r>* Error:</> {:?}", e)
-                ]
-            ))?;
+            .map_err(|e| FSErrors::CREATION.file(path.to_string_lossy(), e))?;
         
         File::write(&path, &contents)?;
         Ok(true)

@@ -31,10 +31,4 @@ impl Parsing {
                 cformat!("  <b><<{}>></>", url),
         }
     }
-    
-    // pub fn usettings<P: Display>(error: P, text: &str) -> Error {
-    //     todo!()
-    // }
-    
-    
 }

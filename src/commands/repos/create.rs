@@ -103,7 +103,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     let result = platform.create_repo(
-        Some(owner), repo, &config, &animation
+        Some(&owner), repo, &config, &animation
     ).await;
     
     match result {
@@ -125,7 +125,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     Err(e) => {
                         let action =  Action::SetRemote(pconf.name.clone(), repo.git.clone());
                         let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
-                        let error = Error::from_git2(e, action, &path, Some(&config));
+                        let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
                         animation.finish_with_warning(cformat!("Failed adding remote: <r>{}</>", &error.message));
                         let name = match repo.private {
                             Some(true)  => cformat!("{} <r>priv</>", &repo.name),

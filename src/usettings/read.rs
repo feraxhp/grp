@@ -1,6 +1,7 @@
 use color_print::cprintln;
 
-use grp_core::{Error, ErrorType};
+use grp_core::{Error, errors::Parsing};
+use grp_core::Formater;
 use super::structs::{Pconf, Usettings};
 use crate::system::{directories::{Config, Directories}, file::File};
 
@@ -38,24 +39,14 @@ impl Usettings {
             
             cprintln!("* The config file has been created at <i,u,b>{}</>", path.as_mut_os_str().to_str().unwrap());
             cprintln!("  To configure it run");
-            cprintln!("  <g>• grp config add</>");
+            println!("{}", "grp config add".as_command());
     
             return Ok(void_config);
         } 
     
         let config: Usettings = match serde_json::from_str(&file) {
             Ok(json) => json,
-            Err(e) => {
-                return Err(
-                    Error::new(
-                        ErrorType::UsettingsParsing,
-                        vec![
-                            format!("{:?}", e).as_str(),
-                            path.as_mut_os_str().to_str().unwrap()
-                        ]
-                    )
-                )
-            }
+            Err(e) => return Err(Parsing::serde(e, &file))
         };
     
         Ok(config)

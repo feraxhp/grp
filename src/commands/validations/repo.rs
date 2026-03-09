@@ -2,7 +2,7 @@
 use std::fmt::Display;
 use color_print::cformat;
 
-use grp_core::{Error, Platform};
+use grp_core::{Error, Platform, empty_notes};
 
 
 #[derive(Debug, Clone)]
@@ -89,12 +89,15 @@ impl RepoStructure {
     pub fn is_supported(&self, platform: &Platform) -> bool { self.len <= platform.max_repo_depth() as usize }
     pub fn is_unsupported(&self, platform: &Platform) -> Result<(), Error> { 
         if ! self.is_supported(platform) {
-            Err(Error::new_custom(
-                "The repo path is longer than the supported length".to_string(), 
-                vec![
-                    cformat!("* <m>{}</> does not suport repos of lenght <r>{}</>", platform.name(), self.len)
-                ]
-            ))
+            Err(
+                Error::new(
+                    "repostructure::ivalid", 
+                    "The repo path is longer than the supported length",
+                    cformat!("* <m>{}</> does not suport repos of lenght <r>{}</>", platform.name(), self.len),
+                    vec![cformat!("The max nested lenght is {}", self.len)],
+                    empty_notes!()
+                )
+            )
         } else { Ok(()) }
     }
 }
