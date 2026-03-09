@@ -2,7 +2,9 @@ use std::fs::{File, create_dir_all};
 use std::path::{Path, PathBuf};
 
 use directories::ProjectDirs;
-use grp_core::{Error, ErrorType};
+use grp_core::{Error, empty_notes};
+
+use crate::errors::fs_errors::FSErrors;
 
 macro_rules! create {
     ($method:ident) => {{
@@ -50,9 +52,7 @@ pub struct BasicDir;
 impl BasicDir {
     pub fn current() -> Result<PathBuf, Error> {
         std::env::current_dir()
-            .map_err(|e| Error::new(
-                ErrorType::Path404, vec!["CURRENT_DIR", "Directory", &e.to_string()]
-            ))
+            .map_err(|e| FSErrors::READING.directory("CURRENT_DIR", e))
     }
 }
 
@@ -62,7 +62,13 @@ pub trait Directories {
     
     fn new() -> Result<ProjectDirs, Error> {
         let project = ProjectDirs::from("", "", "girep");
-        project.ok_or(Error::new_custom("Internal error", vec!["* The system directories can not be determined"]))
+        project.ok_or(Error::new(
+            "not_found::directories", 
+            "Internal error", 
+            "The system directories can not be determined", 
+            vec![],
+            empty_notes!()
+        ))
     }
     
     fn create_dirs(location: &Path) -> Result<(), Error> {
@@ -70,7 +76,7 @@ pub trait Directories {
             true => Ok(()),
             false => {
                 create_dir_all(&location).map_err(|e| {
-                    Error::new_custom("Error during directory creation", vec![e.to_string()])
+                    FSErrors::CREATION.directory(location.display(), e)
                 })?;
                 
                 Ok(())
@@ -83,7 +89,7 @@ pub trait Directories {
             true => Ok(()),
             false => {
                 File::create(&path).map_err(|e| {
-                    Error::new_custom("Error during file creation", vec![e.to_string()])
+                    FSErrors::CREATION.file(path.display(), e)
                 })?;
                 Ok(())
             },

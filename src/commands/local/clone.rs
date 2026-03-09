@@ -125,9 +125,8 @@ async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStruct
             vec![r].print_pretty();
         },
         Err(e) => {
-            let action =  Action::Clone(platform.name().to_string());
-            let repo = format!("{}/{}", &repo.owner, &repo.path);
-            let error = Error::from_git2(e, action, &repo, Some(&config));
+            let action =  Action::Clone;
+            let error = Error::from_git2(e, action, &repo.owner, &repo.path, Some(&config), &usettings);
             
             animation.finish_with_error(&error.message);
             error.show();
@@ -183,9 +182,9 @@ async fn by_url<A: Animation + Subprogress + ?Sized>(url: Url,
             vec![repo].print_pretty();
         },
         Err(e) => {
-            let action =  Action::Clone(url.host_str().unwrap().to_string());
-            let repo = format!("{}", url);
-            let error = Error::from_git2(e, action, &repo, Some(&config));
+            let action =  Action::Clone;
+            let repo = format!("[{}]", url);
+            let error = Error::from_git2(e, action, &config.user, repo, Some(&config), &usettings);
             
             animation.finish_with_error(&error.message);
             error.show();

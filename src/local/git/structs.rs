@@ -1,13 +1,13 @@
 
 pub struct GitUtils;
 
-#[allow(dead_code)]
 pub enum Action {
     Push,
     Pull,
     Fetch,
     /// platform
-    Clone(String),
+    Clone,
     /// Name, Url
     SetRemote(String, String),
 }
+

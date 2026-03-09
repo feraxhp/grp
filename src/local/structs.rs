@@ -1,6 +1,8 @@
 
-use std::ops::Deref;
+use std::{fmt::Display, ops::Deref};
 use grp_core::{Config, Error, Platform};
+
+use crate::usettings::structs::Usettings;
 
 use super::git::structs::Action;
 
@@ -12,5 +14,15 @@ impl Deref for Local {
 }
 
 pub trait Git2Error {
-    fn from_git2<T: AsRef<str>>(ge: git2::Error, action: Action, repo: &T, config: Option<&Config>) -> Error;
+    fn from_git2<
+        T: Display,
+        S: Display,
+    >(
+        ge: git2::Error, 
+        action: Action, 
+        owner: S,
+        repo: T, 
+        config: Option<&Config>,
+        usettings: &Usettings,
+    ) -> Error;
 }

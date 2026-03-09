@@ -88,7 +88,7 @@ impl Error {
         let notes_legth = notes.len();
         let mut content: Vec<String> = Vec::with_capacity(notes_legth + 1 + explanation.len());
         
-        content.push(cformat!("<y>{}</>", detail));
+        content.push(cformat!("<y>* {}</>", detail));
         content.extend(explanation);
         
         if notes_legth > 0 { 

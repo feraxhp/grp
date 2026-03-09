@@ -50,6 +50,12 @@ pub use platform::SUPPORTED_REPOS;
 pub use platform::Platform;
 
 pub use error::structs::Error;
+pub use error::tools::Formater;
+
+pub mod errors {
+    pub use crate::error::errors::request::Request;
+    pub use crate::error::errors::parsing::Parsing;
+}
 
 pub mod structs {
     pub use super::common::structs::*;

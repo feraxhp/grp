@@ -21,6 +21,7 @@ where
 pub trait Formater {
     fn as_command(self) -> String;
     fn as_tip(self) -> String;
+    fn as_tip_cotinuation(self) -> String;
     fn concat(self, postfix: &'static str) -> String;
 }
 
@@ -35,9 +36,14 @@ where
     fn as_tip(self) -> String {
         cformat!("<g>✔</> {}", self)
     }
+    
+    fn as_tip_cotinuation(self) -> String {
+        format!(" {}", self)
+    }
 
     fn concat(self, postfix: &'static str) -> String {
         format!("{}{}", self, postfix)
     }
+
     
 }

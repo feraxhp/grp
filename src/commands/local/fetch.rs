@@ -70,9 +70,18 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             let error = match pconf {
                 Some(p) => {
                     let config = p.to_config();
-                    Error::from_git2(e, action, &path, Some(&config))
+                    Error::from_git2(e, action, p.owner, &path, Some(&config), &usettings)
                 }
-                None => Error::from_git2(e, action, &path, None),
+                None => {
+                    let pconf = usettings.get_default_pconf();
+                    
+                    if let Some(pconf) = pconf { 
+                        Error::from_git2(e, action, &pconf.owner,&path, None, &usettings)
+                    }
+                    else {
+                        Error::from_git2(e, action, "no owner",&path, None, &usettings)
+                    }
+                },
             };
             
             animation.finish_with_error(&error.message);

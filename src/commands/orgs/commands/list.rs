@@ -77,7 +77,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             orgs.print_pretty();
         },
         (true, _) => {
-            let error = Error::colection(errors);
+            let error = Error::collection(errors);
             animation.finish_with_error(format!("{}", error.message));
             error.show();
         },
