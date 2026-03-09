@@ -48,3 +48,7 @@ depends="$auto"
 assets = [
     ["target/release/grp", "usr/bin/", "755"],
 ]
+
+[package.metadata.wix]
+name="grp"
+product-icon = "wix/grp.ico"
