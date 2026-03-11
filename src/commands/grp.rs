@@ -22,7 +22,7 @@ use crate::commands::config::config;
 pub fn command() -> Command {
     let platforms: String = SUPPORTED_REPOS
         .iter()
-        .map(|s| cformat!("  * <g>{}</>\n", s.2))
+        .map(|s| cformat!("  <bold>{}</>\n", s.2))
         .collect();
     
     command!()
