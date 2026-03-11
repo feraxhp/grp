@@ -53,7 +53,6 @@ pub async fn mannager(matches: &ArgMatches) {
                 e.show();
                 exit(1);
             });
-            let version = Version::validate_version();
             match sub {
                 ("config", args) => config::manager(args),
                 ("list", args) => list::manager(args, usettings).await,
@@ -66,8 +65,6 @@ pub async fn mannager(matches: &ArgMatches) {
                 ("fetch", args) => fetch::manager(args, usettings).await,
                 _ => invalid(),
             };
-            let version = version.await;
-            print_version(version, true);
         },
         _ => {
             let an = animations::animation::Process::new("Verifing version");
