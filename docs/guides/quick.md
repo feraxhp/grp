@@ -25,6 +25,11 @@ sudo apt install ./girep.deb
 
 ### Other and Macos
 
+You can install it directly with `cargo`
+~~~bash
+cargo install girep
+~~~
+
 There is not a implemented `CI/DI` So you need to [build it from source](/guides/build).
 
 ---
