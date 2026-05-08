@@ -94,11 +94,11 @@ jobs:
           TARGET="target/${{ matrix.target }}/release"
           mv "$TARGET/${{ inputs.binary }}" "$TARGET/${{ inputs.binary }}-${{ matrix.name }}-v${{ env.version }}"
 
-      - name: Upload release assets
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "v${{ env.version }}"
-          files: |
-            ${{ inputs.path }}/target/${{ matrix.target }}/debian/*.deb
-            ${{ inputs.path }}/target/${{ matrix.target }}/generate-rpm/*.rpm
-            ${{ inputs.path }}/target/${{ matrix.target }}/release/${{ inputs.binary }}-*
+      # - name: Upload release assets
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     tag_name: "v${{ env.version }}"
+      #     files: |
+      #       ${{ inputs.path }}/target/${{ matrix.target }}/debian/*.deb
+      #       ${{ inputs.path }}/target/${{ matrix.target }}/generate-rpm/*.rpm
+      #       ${{ inputs.path }}/target/${{ matrix.target }}/release/${{ inputs.binary }}-*
