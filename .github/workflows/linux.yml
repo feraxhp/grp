@@ -1,6 +1,26 @@
 on:
   workflow_dispatch:
+    inputs:
+      binary:
+        description: 'Name of the generated binary'
+        required: true
+        type: string
+      path:
+        description: 'Path to the project root (where Cargo.toml is)'
+        required: false
+        default: '.'
+        type: string
   workflow_call:
+    inputs:
+      binary:
+        description: 'Name of the generated binary'
+        required: true
+        type: string
+      path:
+        description: 'Path to the project root (where Cargo.toml is)'
+        required: false
+        default: '.'
+        type: string
 
 env:
   CARGO_TERM_COLOR: always
@@ -8,34 +28,77 @@ env:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            name: x86_64
+            linker: ""
+          - target: aarch64-unknown-linux-gnu
+            name: aarch64
+            linker: gcc-aarch64-linux-gnu
+          - target: armv7-unknown-linux-gnueabihf
+            name: armv7
+            linker: gcc-arm-linux-gnueabihf
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.path }}
+
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        run: cargo build --release --verbose
 
-      - name: install cargo-deb
-        run: cargo install cargo-deb
+      - name: Install Rust target
+        run: rustup target add ${{ matrix.target }}
 
-      - name: install cargo-generate-rpm
-        run: cargo install cargo-generate-rpm
-
-      - name: Generate DEB package
-        run: cargo deb
-
-      - name: Generate RPM package
-        run: cargo generate-rpm
-
-      - name: get version
-        id: get_version
-        run: echo "version=$(./target/release/grp -v)" >> $GITHUB_ENV
-
-      - uses: AButler/upload-release-assets@v3.0
-        name: Upload release assets
+      - name: Setup Rust Cache
+        uses: Swatinem/rust-cache@v2
         with:
-          files: "target/debian/grp*.deb;target/generate-rpm/grp*.rpm;target/release/grp"
-          repo-token: ${{ github.token }}
-          release-tag: "v${{ env.version }}"
+          workspaces: ${{ inputs.path }}
+
+      - name: Install cross-compilation tools
+        if: matrix.linker != ''
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.linker }}
+
+      - name: Install packaging tools
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deb,cargo-generate-rpm
+
+      - name: Build for ${{ matrix.name }}
+        run: cargo build --release --target ${{ matrix.target }}
+        env:
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+          CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-gcc
+
+      - name: Generate DEB Package
+        run: cargo deb --target ${{ matrix.target }} --no-build
+
+      - name: Generate RPM Package
+        run: cargo generate-rpm --target ${{ matrix.target }}
+
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Prepare Binary for upload
+        run: |
+          TARGET="target/${{ matrix.target }}/release"
+          mv "$TARGET/${{ inputs.binary }}" "$TARGET/${{ inputs.binary }}-${{ matrix.name }}-v${{ env.version }}"
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ env.version }}"
+          files: |
+            ${{ inputs.path }}/target/${{ matrix.target }}/debian/*.deb
+            ${{ inputs.path }}/target/${{ matrix.target }}/generate-rpm/*.rpm
+            ${{ inputs.path }}/target/${{ matrix.target }}/release/${{ inputs.binary }}-*
