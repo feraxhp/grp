@@ -10,16 +10,20 @@ on:
         required: false
         default: '.'
         type: string
-  workflow_call:
-    inputs:
-      binary:
-        description: 'Name of the generated binary'
-        required: true
-        type: string
-      path:
-        description: 'Path to the project root (where Cargo.toml is)'
+      deps_x86_64:
+        description: 'Dependencias APT para x86_64 (ej: libssl-dev)'
         required: false
-        default: '.'
+        default: ''
+        type: string
+      deps_aarch64:
+        description: 'Dependencias APT para aarch64 (ej: libssl-dev:arm64)'
+        required: false
+        default: ''
+        type: string
+      deps_armv7:
+        description: 'Dependencias APT para armv7 (ej: libssl-dev:armhf)'
+        required: false
+        default: ''
         type: string
 
 env:
@@ -66,6 +70,33 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.linker }}
 
+      - name: Determinar dependencias y arquitectura DPKG
+        id: set_deps
+        run: |
+          if [ "${{ matrix.target }}" == "x86_64-unknown-linux-gnu" ]; then
+            echo "TARGET_DEPS=${{ inputs.deps_x86_64 }}" >> $GITHUB_ENV
+            echo "DPKG_ARCH=" >> $GITHUB_ENV
+            
+          elif [ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ]; then
+            echo "TARGET_DEPS=${{ inputs.deps_aarch64 }}" >> $GITHUB_ENV
+            echo "DPKG_ARCH=arm64" >> $GITHUB_ENV
+            
+          elif [ "${{ matrix.target }}" == "armv7-unknown-linux-gnueabihf" ]; then
+            echo "TARGET_DEPS=${{ inputs.deps_armv7 }}" >> $GITHUB_ENV
+            echo "DPKG_ARCH=armhf" >> $GITHUB_ENV
+          fi
+  
+      - name: Instalar dependencias del sistema por arquitectura
+        if: env.TARGET_DEPS != ''
+        run: |
+          # Si estamos compilando para ARM, debemos decirle a apt que acepte esos paquetes
+          if [ ! -z "$DPKG_ARCH" ]; then
+            sudo dpkg --add-architecture $DPKG_ARCH
+          fi
+          
+          sudo apt-get update
+          sudo apt-get install -y ${{ env.TARGET_DEPS }}
+      
       - name: Install packaging tools
         uses: taiki-e/install-action@v2
         with:
@@ -76,6 +107,8 @@ jobs:
         env:
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
           CARGO_TARGET_ARMV7_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-gcc
+          PKG_CONFIG_ALLOW_CROSS: 1
+          PKG_CONFIG_SYSROOT_DIR: /
 
       - name: Generate DEB Package
         run: cargo deb --target ${{ matrix.target }} --no-build
