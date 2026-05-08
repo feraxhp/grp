@@ -83,21 +83,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.linker }}
 
-      - name: Determinar dependencias y arquitectura DPKG
-        id: set_deps
+      - name: Instalar dependencias del sistema por arquitectura
+        if: env.TARGET_DEPS != ''
         run: |
-          if [ "${{ matrix.target }}" == "x86_64-unknown-linux-gnu" ]; then
-            echo "TARGET_DEPS=${{ inputs.deps_x86_64 }}" >> $GITHUB_ENV
-            echo "DPKG_ARCH=" >> $GITHUB_ENV
-            
-          elif [ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ]; then
-            echo "TARGET_DEPS=${{ inputs.deps_aarch64 }}" >> $GITHUB_ENV
-            echo "DPKG_ARCH=arm64" >> $GITHUB_ENV
-            
-          elif [ "${{ matrix.target }}" == "armv7-unknown-linux-gnueabihf" ]; then
-            echo "TARGET_DEPS=${{ inputs.deps_armv7 }}" >> $GITHUB_ENV
-            echo "DPKG_ARCH=armhf" >> $GITHUB_ENV
+          # Habilitar la arquitectura en el gestor de paquetes
+          if [ ! -z "$DPKG_ARCH" ]; then
+            sudo dpkg --add-architecture $DPKG_ARCH
           fi
+          
+          # Ahora el update no fallará porque sabe dónde buscar cada arch
+          sudo apt-get update
+          sudo apt-get install -y ${{ env.TARGET_DEPS }}
   
       - name: Instalar dependencias del sistema por arquitectura
         if: env.TARGET_DEPS != ''
