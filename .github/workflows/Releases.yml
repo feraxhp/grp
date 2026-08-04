@@ -43,8 +43,8 @@ jobs:
     needs: release
     name: Build linux binaries
     uses: feraxhp/ship-rs/.github/workflows/linux.yml@v0.1.0
-    # permissions:
-      # contents: write
+    permissions:
+      contents: write
     with:
       binary: grp
 

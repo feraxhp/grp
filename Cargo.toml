@@ -3,7 +3,7 @@ members = ["grp-core"]
 
 [package]
 name = "girep"
-version = "0.13.0"
+version = "0.13.1"
 edition = "2024"
 license = "MIT"
 authors = ["feraxhp <feraxhp+gh@gmail.com>"]
