@@ -71,12 +71,20 @@ impl Git2Error for Error {
                     format!("grp {} {}", action, msg).as_command(),
                 }
             }
+            (ErrorCode::Exists, ErrorClass::Invalid, msg,Action::Clone) if msg.ends_with("exists and is not an empty directory") => {
+                make_error!{
+                    "already_exist::directory",
+                    "Error cloning the remote",
+                    cformat!("The directory already exist: <g>{}</>", &repo),
+                    "You may want to delete or especify a difrent directory.".as_tip(),
+                }
+            }
             (ErrorCode::Exists, ErrorClass::Config, _,Action::SetRemote(name, url)) => {
                 make_error!{
                     "already_exist::remote",
                     "Error setting a new remote",
                     cformat!("The remote already exist"),
-                    "You may whant to run the command:".as_tip(),
+                    "You may want to run the command:".as_tip(),
                     format!("git remote set-url {} {}", &name, &url).as_command(),
                 }
             }
