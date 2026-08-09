@@ -52,7 +52,7 @@ impl GitUtils {
         let remote_prefix = format!("refs/remotes/{}/", remote_name);
         
         for reference in repo.references()?.filter_map(Result::ok) {
-            let Some(name) = reference.name() else { continue };
+            let Ok(name) = reference.name() else { continue };
             let Some(branch_name) = name.strip_prefix(&remote_prefix) else { continue };
             let Some(target) = reference.target() else { continue };
             

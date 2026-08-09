@@ -17,7 +17,7 @@ impl GitUtils {
                         )
                     )
                 } else {
-                    let remote = remotes.get(0).unwrap_or("[remote]");
+                    let remote = remotes.get(0).unwrap_or(None).unwrap_or("[remote]");
                     let branch_ = branch.name()?.unwrap_or("[unknown]");
                     Err(
                         Error::new(
@@ -30,22 +30,10 @@ impl GitUtils {
             }
         };
 
-        let remote = upstream.get().name().ok_or_else(
-            || Error::new(
-                git2::ErrorCode::NotFound,
-                git2::ErrorClass::Config,
-                "The repository has a remote configured\nwith a inaccesible name.",
-            )
-        )?;
+        let remote = upstream.get().name()?;
 
         let remote_name = repo.branch_remote_name(remote)?;
-        let remote_name = remote_name.as_str().map(|s| s.to_owned()).ok_or_else(
-            || Error::new(
-                git2::ErrorCode::NotFound,
-                git2::ErrorClass::Config,
-                "The repository has a remote configured\nwith an inaccesible name.",
-            )
-        )?;
+        let remote_name = remote_name.as_str().map(|s| s.to_owned())?;
 
         Ok(remote_name.to_string())
     }

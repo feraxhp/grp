@@ -30,8 +30,8 @@ impl<'a> Completer for Remote {
             .iter()
             .filter_map(|s| {
                 let remote = match s {
-                    Some(s) => s,
-                    None => return None
+                    Ok(Some(s)) => s,
+                    _ => return None
                 };
                 
                 if prefix.is_empty() || remote.starts_with(&*prefix) {

@@ -91,7 +91,7 @@ impl GitUtils {
 
                 let mut changed_files = Vec::new();
                 for entry in statuses.iter() {
-                    if let Some(path) = entry.path() {
+                    if let Ok(path) = entry.path() {
                         changed_files.push(path.to_string());
                     }
                 }
@@ -108,7 +108,7 @@ impl GitUtils {
 
         let name = reference.name()
             .map(ToString::to_string).unwrap_or_else(
-                || String::from_utf8_lossy(reference.name_bytes()).to_string()
+                |_| String::from_utf8_lossy(reference.name_bytes()).to_string()
         );
 
         let msg = format!("Fast-Forward: Setting {} to id: {}", name, remote.id());
