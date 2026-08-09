@@ -19,13 +19,13 @@ impl Methods {
                 let mut specs: Vec<String> = Vec::new();
                 for i in refs {
                     match (i.src(), i.dst()) {
-                        (Some(src), Some(dst)) => {
+                        (Ok(src), Ok(dst)) => {
                             specs.push(format!("{}:{}", src, dst))
                         }
-                        (Some(src), _) if i.is_force() => {
+                        (Ok(src), _) if i.is_force() => {
                             specs.push(format!("+{}", src));
                         }
-                        (Some(src), _) => {
+                        (Ok(src), _) => {
                             specs.push(src.to_string());
                         }
                         _ => ()
