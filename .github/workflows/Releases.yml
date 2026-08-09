@@ -39,15 +39,17 @@ jobs:
       token: ${{ secrets.GITHUB_TOKEN }}
 
   build-linux:
-    needs: release
-    permissions:
-      contents: write 
-    name: 🖥️ Linux Build
-    # Logic for running builds:
-    # - If workflow_dispatch, the 'linux' input is respected.
-    # - If a push/release event, it runs by default (inputs.linux will be null).
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.linux || github.event_name != 'workflow_dispatch' }}
-    uses: ./.github/workflows/linux.yml
+    needs: release
+    name: Build linux binaries
+    uses: feraxhp/ship-rs/.github/workflows/linux.yml@v0.2.0
+    permissions:
+      contents: write
+    with:
+      binary: grp
+      deps_x86_64: libssl-dev
+      deps_aarch64: libssl-dev:arm64
+      deps_armv7: libssl-dev:armhf
 
   build-windows:
     needs: release
