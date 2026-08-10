@@ -9,5 +9,6 @@ pub enum Action {
     Clone,
     /// Name, Url
     SetRemote(String, String),
+    SetUpstream,
 }
 

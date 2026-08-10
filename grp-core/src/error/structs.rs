@@ -125,4 +125,9 @@ impl Error {
             eprintln!("{:width$}{}", "", line, width = offset);
         });
     }
+    pub fn to_string_iter(&self, offset: &usize) -> impl Iterator<Item = String> {
+        self.content.iter().map(|line| {
+            format!("{:width$}{}", "", line, width = offset.clone())
+        })
+    }
 }

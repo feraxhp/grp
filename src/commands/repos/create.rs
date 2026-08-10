@@ -2,11 +2,11 @@ use std::path::PathBuf;
 use std::process::exit;
 use grp_core::animation::Animation;
 use grp_core::structs::Repo;
-use grp_core::{Error, Platform};
+use grp_core::{Error, Formater, Platform};
 
 use clap::builder::ValueParser;
 use clap::{arg, ArgMatches, Command};
-use color_print::{cformat, cprintln};
+use color_print::{cformat};
 use crate::animations::animation::Create;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
@@ -35,6 +35,12 @@ pub fn command() -> Command {
                 .conflicts_with("remote")
                 .action(clap::ArgAction::SetTrue)
             ,
+            arg!(-u --"set-upstream" "Add the remote as upstream for the current branch")
+                .required(false)
+                .requires("add-to-local")
+                .conflicts_with("remote")
+                // .action(clap::ArgAction::SetTrue)
+            ,
             arg!(-r --remote [path] "Add the remote to a local repository")
                 .required(false)
                 .require_equals(true)
@@ -53,6 +59,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
 
     let remote = args.get_one::<PathBuf>("remote");
     let add_to_local = args.get_flag("add-to-local");
+    let set_upstream = args.get_flag("set-upstream");
     
     let path: Option<PathBuf> = match (add_to_local, remote) {
         (true, _) => match BasicDir::current() {
@@ -108,45 +115,115 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     match result {
         Ok(repo) => {
+            let name = match repo.private {
+                Some(true)  => cformat!("{}   <r>priv</>", &repo.name),
+                Some(false) => cformat!("{}   <g>pub </>", &repo.name),
+                None => unreachable!(),
+            };
+
+            let mut finish_mode = FinishMode::SUCCESS;
+            let mut messages = vec![
+                cformat!("<m>1.</> <g>Created repo:"),
+                format!(
+                    "   {}", cformat!("<m>{}   {}</>", name, repo.git).as_tip()
+                )
+            ];
+
+            let mut set_upstream_local = set_upstream;
             if let Some(path) = path {
                 animation.change_message("Adding the remote");
                 match platform.add_remote(&pconf.name, &repo.git, &path) {
                     Ok(_) => {
-                        animation.finish_with_success(cformat!("<y,i>repo creation</y,i> <g>succeeded!</>"));
-                        let name = match repo.private {
-                            Some(true)  => cformat!("{} <r>priv</>", &repo.name),
-                            Some(false) => cformat!("{} <g>pub </>", &repo.name),
-                            None => unreachable!(),
-                        };
-                        cprintln!("<m>1.</> <g>Created repo:");
-                        cprintln!("   <g>* <m>{} {}</>", name, repo.git);
-                        cprintln!("<m>2.</> <g>Added remote: <y>{}</>", &pconf.name);
+                        set_upstream_local = true && set_upstream_local;
+                        messages.push(
+                            cformat!("<m>2.</> <g>Added remote: <y>{}</>", &pconf.name)
+                        );
                     },
                     Err(e) => {
+                        set_upstream_local = false;
                         let action =  Action::SetRemote(pconf.name.clone(), repo.git.clone());
                         let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
                         let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
-                        animation.finish_with_warning(cformat!("Failed adding remote: <r>{}</>", &error.message));
-                        let name = match repo.private {
-                            Some(true)  => cformat!("{} <r>priv</>", &repo.name),
-                            Some(false) => cformat!("{} <g>pub </>", &repo.name),
-                            None => unreachable!(),
-                        };
-                        cprintln!("<m>1.</> <g>Created repo:");
-                        cprintln!("   <g>* <m>{} {}</>", name, repo.git);
-                        cprintln!("<m>2.</> <r>No added remote");
-                        error.show_with_offset(3);
+                        finish_mode = FinishMode::WARNING(cformat!("Failed adding remote: <r>{}</>", &error.message));
+                        
+                        messages.push(cformat!("<m>2.</> <r>No added remote"));
+                        messages.extend(
+                            error.to_string_iter(&3)
+                        );
                     },
+                }
+                
+                match (set_upstream_local, set_upstream) {
+                    (true, true) => {
+                        match platform.set_upstream_to_local_branch(&pconf.name, &path) {
+                            Ok(branch) => {
+                                messages.push(cformat!("<m>3.</> <g>upstream setted"));
+                                messages.push(
+                                    format!(
+                                        "   {}", cformat!("<m>{} {}</>", &pconf.name, branch).as_tip()
+                                    )
+                                );
+                            },
+                            Err(e) => {
+                                let action =  Action::SetUpstream;
+                                let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
+                                let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
+                                finish_mode = FinishMode::WARNING(cformat!("Failed setting upstream: <r>{}</>", &error.message));
+                                
+                                messages.push(cformat!("<m>3.</> <r>No upstream set"));
+                                messages.extend(
+                                    error.to_string_iter(&3)
+                                );
+                            },
+                        };
+                    },
+                    (false, true) => {
+                        messages.push(cformat!("<m>3.</> <y>Skiping set upstream due to previous error"));
+                    }
+                    _ => ()
                 }
             }
             else {
-                animation.finish_with_success(cformat!("<y,i>repo creation</y,i> <g>succeeded!</>"));
-                vec![repo].print_pretty();
+                messages.extend(
+                    vec![repo].to_string_iter()
+                );
             }
+            
+            match finish_mode {
+                FinishMode::SUCCESS => animation.finish_with_success(cformat!("<y,i>repo creation</y,i> <g>succeeded!</>")),
+                FinishMode::WARNING(msg) => animation.finish_with_warning(msg),
+            };
+            
+            messages.iter().for_each(|e| {
+                println!("{}", e)
+            });
         },
         Err(e) => {
             animation.finish_with_error(&e.message);
             e.show();
         }
     }
+}
+
+enum FinishMode {
+    SUCCESS,
+    WARNING(String),
+}
+
+#[test]
+fn no_match_upstream() {
+    let res = command().try_get_matches_from([
+        "create", "-u", "gh:create/something"
+    ]);
+    
+    assert!(res.is_err())
+}
+
+#[test]
+fn match_upstream() {
+    let res = command().try_get_matches_from([
+        "create", "-au", "gh:create/something"
+    ]);
+    
+    assert!(res.is_ok())
 }
