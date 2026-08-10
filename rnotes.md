@@ -1,19 +1,14 @@
 ## Whats new
 
-- `*-` remove uneccesary check during normal petitions
-  > [!note]
-  > to check for updates run `grp`
-- `*!` fix windows CI/CD 
+- `*+` add `-u` to set upstream in the same command as repo creation.
 
-### grp-core
+## Internal
 
-- `++` improve error handling 
-- `++` improve consistency on results and error prints
+- `++` improve detection of the upstream set for the current banch.
+- `* ` migrate linux build action to [ship-rs](https://github.com/feraxhp/ship-rs). this 
+  allows to bundle linux packages for x86_64, arm64 and armv7. and future packages for archlinux.
 
-> [!caution]
-> ## Breaking changes
-> - `++` change pagginations to work as a stream 
 
 by @feraxhp
 ---
-**Full Changelog**: https://github.com/feraxhp/grp/compare/v0.12.0...v0.13.0
+**Full Changelog**: https://github.com/feraxhp/grp/compare/v0.13.0...v0.13.2

@@ -16,6 +16,7 @@ grp create [OPTIONS] <repo> [description]
 
 - `-p, --public`: Make the repository public
 - `-a, --add-to-local`: Add the remote to the current repository
+- `-u, --set-upstream`: set the current branch to tranck the configured remote by a
 - `-r, --remote[=<path>]`: Add the remote to a local repository
 - `...`: more to be added.
 
@@ -33,7 +34,14 @@ grp create -p gh:feraxhp/grp2
 ~~~bash
 grp create -a gh:feraxhp/grp2
 ~~~
-4. Create the grp2 repository with a description.
+3. Create the grp2 repository, add the remote to the current repository, and set it as upstream.
+~~~bash
+grp create -au gh:feraxhp/grp2
+~~~
+5. Create the grp2 repository with a description.
 ~~~bash
 grp create gh:feraxhp/grp2 "an example repo to show up the functionality"
 ~~~
+
+> [!Note]
+> The `-u` parameter will need `-a` to be specified, otherways it will fail.
