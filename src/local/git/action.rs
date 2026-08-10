@@ -10,7 +10,8 @@ impl Display for Action {
             Action::Pull =>  "pull",
             Action::Fetch => "fetch",
             Action::Clone => "clone",
-            Action::SetRemote(_, _) => "set remote"
+            Action::SetRemote(_, _) => "set remote",
+            Action::SetUpstream => "set upstream",
         };
         
         write!(f, "{}", write)

@@ -66,7 +66,7 @@ impl Git2Error for Error {
                 make_error!{
                     "not_found::upstream",
                     "No upstream set",
-                    cformat!("The current branch has no <i>Upstream</> set"),
+                    cformat!("The current branch has no <i>upstream</> set"),
                     "You can set it by running the command:".as_tip(),
                     format!("grp {} {}", action, msg).as_command(),
                 }
