@@ -123,7 +123,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
 
             let mut finish_mode = FinishMode::SUCCESS;
             let mut messages = vec![
-                cformat!("<m>1.</> <g>Created repo:"),
+                cformat!("<m>1.</> <g>created repo:"),
                 format!(
                     "   {}", cformat!("<m>{}   {}</>", name, repo.git).as_tip()
                 )
@@ -136,7 +136,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     Ok(_) => {
                         set_upstream_local = true && set_upstream_local;
                         messages.push(
-                            cformat!("<m>2.</> <g>Added remote: <y>{}</>", &pconf.name)
+                            cformat!("<m>2.</> <g>remote added: <y>{}</>", &pconf.name)
                         );
                     },
                     Err(e) => {
@@ -146,7 +146,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
                         finish_mode = FinishMode::WARNING(cformat!("Failed adding remote: <r>{}</>", &error.message));
                         
-                        messages.push(cformat!("<m>2.</> <r>No added remote"));
+                        messages.push(cformat!("<m>2.</> <r>no remote added"));
                         messages.extend(
                             error.to_string_iter(&3)
                         );
@@ -157,10 +157,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     (true, true) => {
                         match platform.set_upstream_to_local_branch(&pconf.name, &path) {
                             Ok(branch) => {
-                                messages.push(cformat!("<m>3.</> <g>upstream setted"));
+                                messages.push(cformat!("<m>3.</> <g>upstream set"));
                                 messages.push(
                                     format!(
-                                        "   {}", cformat!("<m>{} {}</>", &pconf.name, branch).as_tip()
+                                        "   {}", cformat!("<cyan>branch <m>{}</m> tracking <m>{}</>", branch, &pconf.name).as_tip()
                                     )
                                 );
                             },
@@ -170,7 +170,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                                 let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
                                 finish_mode = FinishMode::WARNING(cformat!("Failed setting upstream: <r>{}</>", &error.message));
                                 
-                                messages.push(cformat!("<m>3.</> <r>No upstream set"));
+                                messages.push(cformat!("<m>3.</> <r>no upstream set"));
                                 messages.extend(
                                     error.to_string_iter(&3)
                                 );
@@ -178,7 +178,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         };
                     },
                     (false, true) => {
-                        messages.push(cformat!("<m>3.</> <y>Skiping set upstream due to previous error"));
+                        messages.push(cformat!("<m>3.</> <y><cyan>set-upstream</cyan> skipped due to previous error</>"));
                     }
                     _ => ()
                 }
