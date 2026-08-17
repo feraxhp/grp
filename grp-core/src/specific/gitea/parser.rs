@@ -1,5 +1,7 @@
 use serde::Deserialize;
 use serde_json::Value;
+use chrono::Utc;
+use chrono::DateTime;
 
 #[derive(Deserialize)]
 pub struct Repository {
@@ -12,9 +14,19 @@ pub struct Repository {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Author {
+    pub login: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Issue {
     pub number: u64,
     pub title: String,
-    pub original_author: String,
-    pub pullrequest: Option<Value>,
+    pub user: Author,
+    pub pull_request: Option<Value>,
+    pub html_url: String,
+    pub state: String,
+    pub is_locked: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
