@@ -40,5 +40,6 @@ pub enum RequestType {
     ListOrg,
     CreateOrg,
     DeleteOrg,
-    RepositoryDetails
+    RepositoryDetails,
+    ListIssues
 }

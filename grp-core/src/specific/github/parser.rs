@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use serde_json::Value;
 
 #[derive(Deserialize)]
 pub struct Repository {
@@ -8,4 +9,11 @@ pub struct Repository {
     pub html_url: String,
     pub clone_url: String,
     pub description: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Issue {
+    pub number: u64,
+    pub title: String,
+    pub pullrequest: Option<Value>,
 }
