@@ -14,6 +14,7 @@ use crate::commands::core::utils::version::show_version;
 use crate::update::structs::Version;
 use crate::commands::repos::{create, delete, list};
 use crate::commands::orgs::orgs;
+use crate::commands::issues::issues;
 use crate::commands::local::{clone, pull, push};
 use crate::commands::core::common::invalid;
 use crate::commands::config::config;
@@ -39,6 +40,7 @@ pub fn command() -> Command {
         .subcommand(create::command())
         .subcommand(delete::command())
         .subcommand(orgs::command())
+        .subcommand(issues::command())
         .subcommand(clone::command())
         .subcommand(push::command())
         .subcommand(pull::command())
@@ -63,6 +65,7 @@ pub async fn mannager(matches: &ArgMatches) {
                 ("push", args) => push::manager(args, usettings).await,
                 ("pull", args) => pull::manager(args, usettings).await,
                 ("fetch", args) => fetch::manager(args, usettings).await,
+                ("issues", args) => issues::manager(args, usettings).await,
                 _ => invalid(),
             };
         },

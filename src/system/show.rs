@@ -1,5 +1,6 @@
 use color_print::cformat;
 
+use grp_core::structs::Issue;
 use grp_core::structs::Repo;
 use grp_core::structs::User;
 use grp_core::Error;
@@ -91,5 +92,38 @@ impl Show for Vec<Error> {
                 
                 [header, detail, blank]
             })
+    }
+}
+
+
+impl Show for Vec<Issue> {
+    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+        let (max_number, max_autor) = self.into_iter().fold((2, 6), |(number, author), issue| {
+            (
+                number.max(issue.number.to_string().len() + 1),
+                author.max(issue.author.to_string().len()),
+            )
+        });
+    
+        (!self.is_empty())
+            .then(move || {
+                let header = format!(
+                    "{:<max_number$}  {:<max_autor$}  {}",
+                    "ID", "AUTHOR", "TITLE",
+                );
+    
+                let body = self.into_iter().map(move |issue| {
+                    format!(
+                        "{:<max_number$}  {:<max_autor$}  {}",
+                        format!("#{}", issue.number),
+                        issue.author,
+                        issue.title,
+                    )
+                });
+                
+                std::iter::once(header).chain(body)
+            })
+            .into_iter()
+            .flatten()
     }
 }

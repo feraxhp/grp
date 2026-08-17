@@ -9,3 +9,16 @@ pub struct Repository {
     pub visibility: String,
     pub description: Option<String>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct Author {
+    pub name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Issue {
+    pub iid: u64,
+    pub author: Author,
+    pub title: String,
+    pub issue_type: String,
+}
