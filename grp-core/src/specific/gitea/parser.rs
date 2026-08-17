@@ -12,9 +12,14 @@ pub struct Repository {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Author {
+    pub login: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Issue {
     pub number: u64,
     pub title: String,
-    pub original_author: String,
+    pub user: Author,
     pub pullrequest: Option<Value>,
 }

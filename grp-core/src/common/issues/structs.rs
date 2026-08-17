@@ -29,7 +29,7 @@ impl Issue {
                     match issue.pullrequest {
                         None => Some(Issue { 
                             number: issue.number, 
-                            author: "Placeholder".to_string(),
+                            author: issue.user.login.to_string(),
                             title: issue.title.clone(),
                         }),
                         Some(_) => None,
@@ -46,7 +46,7 @@ impl Issue {
                     match issue.pullrequest {
                         None => Some(Issue { 
                             number: issue.number, 
-                            author: issue.original_author.to_owned(),
+                            author: issue.user.login.to_owned(),
                             title: issue.title.clone(),
                         }),
                         Some(_) => None,
