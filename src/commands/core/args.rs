@@ -4,6 +4,7 @@
 use clap::{Arg, arg};
 use clap::builder::ValueParser;
 
+use crate::commands::validations::issues::IssueStructure;
 use crate::commands::validations::repo::RepoStructure;
 use crate::commands::validations::structure::Validations;
 use crate::usettings::structs::{Pconf, Usettings};
@@ -30,6 +31,13 @@ impl Arguments {
         
         arg!(<repo> "The repository data as [pconf]:<owner>/<repo>")
             .value_parser(parcer)
+            .required(required)
+            .add(RepoStructure::complete())
+    }
+
+    pub(crate) fn issue_structure(required: bool) -> Arg {
+        arg!(<issue> "The repository data as <pconf>:<owner>/<repo>#<issue>")
+            .value_parser(IssueStructure::strict_value_parcer)
             .required(required)
             .add(RepoStructure::complete())
     }

@@ -14,6 +14,9 @@ impl Commands {
     pub(crate) fn list(about: &'static str) -> Command
     { Self::base("list", ["ls"], about) }
 
+    pub(crate) fn view(about: &'static str) -> Command
+    { Self::base("view", ["vw"], about) }
+
     pub(crate) fn create(about: &'static str) -> Command
     { Self::base("create", ["+", "cr", "crt", "add"], about) }
 
