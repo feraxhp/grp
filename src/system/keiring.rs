@@ -1,7 +1,7 @@
 use keyring::{Entry, Error};
 
-const SERVICE_NAME: &str = "token_vault";
-const KEY_USER: &str = "master_user";
+const SERVICE_NAME: &str = "rust::grp";
+const KEY_USER: &str = "dencriptor";
 
 #[allow(unused)]
 pub struct Keiring;
