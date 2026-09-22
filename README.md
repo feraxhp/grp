@@ -186,6 +186,18 @@ cd grp
 cargo install --path .
 ```
 
+## What's next?
+
+I want grp to become a full-featured cli multiplexer for the most used git platforms. 
+In order to reach that, multiple features have to come alive. I do have a lot of 
+ideas to implement, and I hope I have the time and motivation to go through all of 
+those ideas. More apps and stuff will be needed to reach that point. 
+For now, the roadmap will be this simple list below.
+
+- [ ] better token security handling (WIP)
+- [ ] issues sub-command `list` `create` `add` `comment` `detail` `close` `reopen`
+- [ ] pull-requests
+
 ---
 `*` Jetbrains has removed access for `Jetbrains space` So, is removed for the planed support.
 
