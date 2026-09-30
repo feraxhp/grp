@@ -28,3 +28,12 @@ pub struct Issue {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct Comment {
+    pub id: u64,
+    pub author: Author,
+    pub body: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}

@@ -3,5 +3,4 @@ pub mod structs;
 pub mod issues;
 pub mod repos;
 pub mod users;
-pub mod repo;
 pub mod orgs;
