@@ -85,4 +85,9 @@ impl Subprogress for Fetch {
             self.spinners[index].finish_and_clear();
         }
     }
+
+    // fn suspend<F, R>(&self, f: F) -> R
+    // where
+    //     F: FnOnce() -> R 
+    // { self.multi.suspend(f) }
 }
