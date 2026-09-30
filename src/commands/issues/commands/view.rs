@@ -1,18 +1,18 @@
-use std::process::exit;
-use futures::StreamExt;
+// use std::process::exit;
+// use futures::StreamExt;
 
 use clap::{arg, ArgMatches, Command};
-use color_print::{cformat, cprintln};
-use grp_core::animation::Animation;
-use grp_core::{Error, Platform};
+// use color_print::{cformat, cprintln};
+// use grp_core::animation::Animation;
+// use grp_core::{Error, Platform};
 
-use crate::animations::animation::Fetch;
+// use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::issues::IssueStructure;
-use crate::commands::validations::or_exit::structure::OrExit;
-use crate::commands::validations::repo::RepoStructure;
-use crate::system::show::Show;
+// use crate::commands::validations::or_exit::structure::OrExit;
+// use crate::commands::validations::repo::RepoStructure;
+// use crate::system::show::Show;
 use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {

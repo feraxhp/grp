@@ -14,7 +14,7 @@ use crate::commands::core::utils::version::show_version;
 use crate::update::structs::Version;
 use crate::commands::repos::{create, delete, list};
 use crate::commands::orgs::orgs;
-use crate::commands::issues::issues;
+use crate::commands::issues;
 use crate::commands::local::{clone, pull, push};
 use crate::commands::core::common::invalid;
 use crate::commands::config::config;

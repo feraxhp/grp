@@ -1,4 +1,6 @@
 use serde::Deserialize;
+use chrono::Utc;
+use chrono::DateTime;
 
 #[derive(Deserialize)]
 pub struct Repository {
@@ -21,4 +23,8 @@ pub struct Issue {
     pub author: Author,
     pub title: String,
     pub issue_type: String,
+    pub web_url: String,
+    pub state: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
