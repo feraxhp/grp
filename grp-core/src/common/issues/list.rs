@@ -6,9 +6,9 @@ use crate::Config;
 use crate::Error;
 use crate::Platform;
 use crate::animation::Animation;
-use crate::common::issues::structs::Issue;
 use crate::specific::gitlab;
 use crate::structs::Context;
+use crate::structs::Issue;
 use crate::structs::RequestType;
 
 
@@ -36,7 +36,7 @@ impl Platform {
         let url = self.url_list_repo_issues(&config.endpoint, &owner, &repo);
         
         let context = Context {
-            request_type: RequestType::List,
+            request_type: RequestType::ListIssues,
             owner: Some(owner),
             repo: None,
             additional: None,

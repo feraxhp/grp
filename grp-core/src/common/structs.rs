@@ -1,4 +1,8 @@
-/// # Repo (repository)
+use chrono::Utc;
+use chrono::DateTime;
+
+
+// # Repo (repository)
 /// 
 /// Represents a repository for any platform 
 /// it contains varios properties that are shared 
@@ -26,6 +30,27 @@ pub struct Context {
     pub additional: Option<String>,
 }
 
+#[derive(Debug)]
+pub struct Issue {
+    pub author: String,
+    pub number: u64,
+    pub title: String,
+    pub state: String,
+    pub url: String,
+    pub locked: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug)]
+pub struct Comment {
+    pub id: u64,
+    pub author: String,
+    pub body: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
 /// # RequestType
 /// 
 /// an enum used to represent the aim of the request.
@@ -41,5 +66,6 @@ pub enum RequestType {
     CreateOrg,
     DeleteOrg,
     RepositoryDetails,
-    ListIssues
+    ListIssues,
+    ListIssuesComments,
 }

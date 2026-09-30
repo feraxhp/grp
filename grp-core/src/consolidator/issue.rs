@@ -1,29 +1,16 @@
-use chrono::DateTime;
-use chrono::Utc;
-
 use crate::Error;
 use crate::JSON;
 use crate::Platform;
 use crate::specific::gitea;
 use crate::specific::github;
 use crate::specific::gitlab;
+use crate::structs::Issue;
 
-#[derive(Debug)]
-pub struct Issue {
-    pub author: String,
-    pub number: u64,
-    pub title: String,
-    pub state: String,
-    pub url: String,
-    pub locked: bool,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
 
 impl Issue {
     /// # Return
     /// 
-    /// Generates a list of Repos if the information of the text is a valid list of json 
+    /// Generates a list of Issues if the information of the text is a valid list of json 
     /// and the platform matches that content.
     /// 
     /// # Error

@@ -1,5 +1,6 @@
 use color_print::cformat;
 
+use grp_core::structs::Comment;
 use grp_core::structs::Issue;
 use grp_core::structs::Repo;
 use grp_core::structs::User;
@@ -177,6 +178,21 @@ impl Show for Vec<Issue> {
                 });
                 
                 std::iter::once(header).chain(body)
+            })
+            .into_iter()
+            .flatten()
+    }
+}
+
+impl Show for Vec<Comment> {
+    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+        (!self.is_empty())
+            .then(move || {
+                let body = self.into_iter().map(move |comment| {
+                    cformat!("<dim>---</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author, format!("{}", comment.id), &comment.created_at, &comment.body )
+                });
+                
+                body
             })
             .into_iter()
             .flatten()

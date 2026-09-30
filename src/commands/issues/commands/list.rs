@@ -57,6 +57,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let an = &animation;
     let (repos, errors) = stream
         .enumerate()
+        .take(1)
         .map(|(i, s)| {
             an.change_message(format!("Requesting page: {}", i + 1));
             s
