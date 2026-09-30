@@ -2,7 +2,7 @@
 use std::io;
 use std::process::exit;
 use clap::{arg, ArgMatches, Command};
-use color_print::cformat;
+use color_print::{ceprint, ceprintln, cformat};
 
 use grp_core::animation::Animation;
 use grp_core::Platform;
@@ -48,23 +48,30 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let mut confirmation = args.get_flag("yes");
     
     if !confirmation {
-        eprintln!(
-            "Do you realy whant to delete {}:{}/{}?",
-            pconf.name, &repo.owner, &repo.path
-        );
+        animation.suspend(||{
+            ceprintln!(
+                "Do you realy whant to delete <y>{}:{}/{}</>?",
+                pconf.name, &repo.owner, &repo.path
+            );
+
+            while !confirmation {
+                ceprint!(
+                    "Type <r>'{}/{}'</> to confirm or <g><<N/n>></> to cancel: ",
+                    &repo.owner, &repo.path
+                );
+                let mut input = String::new();
+                io::stdin().read_line(&mut input)
+                    .expect("Something went wrong while reading the input");
+                let input = input.trim();
+                if input.to_lowercase() == "n" { break; }
+                confirmation = input == format!("{}/{}", &repo.owner, &repo.path);
+            }
+        })
     }
     
-    while !confirmation {
-        eprint!(
-            "Type '{}/{}' to confirm: ",
-            &repo.owner, &repo.path
-        );
-        let mut input = String::new();
-        io::stdin().read_line(&mut input)
-            .expect("Something went wrong while reading the input");
-        let input = input.trim();
-
-        confirmation = input == format!("{}/{}", &repo.owner, &repo.path);
+    if !confirmation {
+        animation.finish_with_success(cformat!("<y,i>repo delition</y,i> <r>canceled!</>"));
+        exit(0)
     }
     
     let platform = match Platform::matches(&pconf.r#type) {

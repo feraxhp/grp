@@ -47,3 +47,13 @@ impl Animation for Delete {
         self.spinner.set_message(cformat!("<y>{}</>", message.into()));
     }
 }
+
+
+impl Delete {
+    pub fn suspend<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce() -> R 
+    {
+        self.spinner.suspend(f)
+    }
+}
