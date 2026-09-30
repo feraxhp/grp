@@ -31,7 +31,7 @@ impl Platform {
             owner = project.id.to_string();
         }
         
-        let mut issue = issue;
+        let issue = issue;
         // if matches!(self, Platform::Gitlab) {
         //     animation.change_message("getting project id");
         //     let issue = gitlab::issues::get::get_issue_iid(&self, &owner, repo.as_ref(), issue, config).await?;

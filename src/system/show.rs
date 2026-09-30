@@ -131,30 +131,13 @@ impl Show for Vec<Issue> {
 
 impl Show for Vec<Comment> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        let (max_number, max_autor) = self.into_iter().fold((2, 6), |(number, author), comment| {
-            (
-                number.max(comment.id.to_string().len() + 1),
-                author.max(comment.author.to_string().len()),
-            )
-        });
-    
         (!self.is_empty())
             .then(move || {
-                let header = format!(
-                    "{:<max_number$}  {:<max_autor$}  {}",
-                    "ID", "AUTHOR", "TITLE",
-                );
-    
                 let body = self.into_iter().map(move |comment| {
-                    format!(
-                        "{:<max_number$}  {:<max_autor$}  {}",
-                        format!("{}", comment.id),
-                        comment.author,
-                        &comment.body,
-                    )
+                    cformat!("<dim>---</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author, format!("{}", comment.id), &comment.created_at, &comment.body )
                 });
                 
-                std::iter::once(header).chain(body)
+                body
             })
             .into_iter()
             .flatten()
