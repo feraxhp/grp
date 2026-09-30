@@ -23,6 +23,7 @@ pub trait Subprogress {
     fn set_message<T: Into<String>>(&self, index: usize, message: T);
     fn finish_all(&self);
 
-    // fn pause(&self, index: Option<usize>);
-    // fn resume(&self, index: Option<usize>);
+    // fn suspend<F, R>(&self, f: F) -> R
+    // where
+    //     F: FnOnce() -> R;
 }
