@@ -1,5 +1,6 @@
 use color_print::cformat;
 
+use grp_core::structs::Comment;
 use grp_core::structs::Issue;
 use grp_core::structs::Repo;
 use grp_core::structs::User;
@@ -118,6 +119,38 @@ impl Show for Vec<Issue> {
                         format!("#{}", issue.number),
                         issue.author,
                         issue.title,
+                    )
+                });
+                
+                std::iter::once(header).chain(body)
+            })
+            .into_iter()
+            .flatten()
+    }
+}
+
+impl Show for Vec<Comment> {
+    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+        let (max_number, max_autor) = self.into_iter().fold((2, 6), |(number, author), comment| {
+            (
+                number.max(comment.id.to_string().len() + 1),
+                author.max(comment.author.to_string().len()),
+            )
+        });
+    
+        (!self.is_empty())
+            .then(move || {
+                let header = format!(
+                    "{:<max_number$}  {:<max_autor$}  {}",
+                    "ID", "AUTHOR", "TITLE",
+                );
+    
+                let body = self.into_iter().map(move |comment| {
+                    format!(
+                        "{:<max_number$}  {:<max_autor$}  {}",
+                        format!("{}", comment.id),
+                        comment.author,
+                        &comment.body,
                     )
                 });
                 
