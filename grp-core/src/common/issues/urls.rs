@@ -58,7 +58,7 @@ impl Platform {
                 format!("{}/repos/{}/{}/issues/{}/comments", self.get_base_url(endpoint), owner, repo, issue)
             },
             Platform::Gitlab => {
-                format!("{}/projects/{}/issues/{}/notes", self.get_base_url(endpoint), owner, issue)
+                format!("{}/projects/{}/issues/{}/notes?sort=asc", self.get_base_url(endpoint), owner, issue)
             }
         }
     }

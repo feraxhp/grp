@@ -136,7 +136,7 @@ impl Show for Vec<Comment> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
         (!self.is_empty())
             .then(move || {
-                let body = self.into_iter().rev().map(move |comment| {
+                let body = self.into_iter().map(move |comment| {
                     cformat!("<dim>--</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author, comment.id.as_link(&comment.url), &comment.created_at.to_human(), &comment.body )
                 });
                 
