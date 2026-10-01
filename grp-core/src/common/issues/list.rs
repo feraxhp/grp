@@ -15,7 +15,7 @@ use crate::structs::RequestType;
 impl Platform {
     pub async fn list_issues<T, R, A>(&self,
         owner: Option<T>, 
-        repo: &R,
+        repo_path: &R,
         config: &Config,
         animation: &Box<A>
     ) -> Result<impl Stream<Item = Result<Vec<Issue>, Error>>, Error> 
@@ -29,11 +29,11 @@ impl Platform {
 
         if matches!(self, Platform::Gitlab) {
             animation.change_message("getting project id");
-            let project = gitlab::projects::get::get_project_with_path(&self, &owner, repo.as_ref(), config).await?;
+            let project = gitlab::projects::get::get_project_with_path(&self, &owner, repo_path.as_ref(), config).await?;
             owner = project.id.to_string();
         }
         
-        let url = self.url_list_repo_issues(&config.endpoint, &owner, &repo);
+        let url = self.url_list_repo_issues(&config.endpoint, &owner, &repo_path);
         
         let context = Context {
             request_type: RequestType::ListIssues,
