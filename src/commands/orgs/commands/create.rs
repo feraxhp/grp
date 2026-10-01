@@ -6,7 +6,7 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 
 
-use crate::system::show::Show;
+use crate::printables::show::Show;
 use crate::animations::animation::Create;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;

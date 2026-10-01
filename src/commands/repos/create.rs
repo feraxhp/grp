@@ -13,7 +13,7 @@ use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 use crate::local::structs::{Git2Error, Local};
-use crate::system::show::Show;
+use crate::printables::show::Show;
 use crate::local::git::structs::Action;
 use crate::system::directories::BasicDir;
 use crate::usettings::structs::Usettings;

@@ -11,7 +11,7 @@ use crate::cache::structure::Cacher;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
-use crate::system::show::Show;
+use crate::printables::show::Show;
 use crate::usettings::structs::{Pconf, Usettings};
 
 pub fn command() -> Command {
