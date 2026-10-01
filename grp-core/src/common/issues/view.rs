@@ -1,3 +1,5 @@
+use std::clone;
+
 use futures::{Stream, StreamExt};
 
 use crate::Config;
@@ -7,6 +9,7 @@ use crate::structs::Comment;
 use crate::structs::Context;
 use crate::Platform;
 use crate::Error;
+use crate::structs::Repo;
 use crate::structs::RequestType;
 
 
@@ -30,7 +33,8 @@ impl Platform {
             let project = gitlab::projects::get::get_project_with_path(&self, &owner, repo.as_ref(), config).await?;
             owner = project.id.to_string();
         }
-        
+
+        let owner = owner;
         let issue = issue;
         // if matches!(self, Platform::Gitlab) {
         //     animation.change_message("getting project id");
@@ -42,24 +46,26 @@ impl Platform {
         
         let context = Context {
             request_type: RequestType::ListIssuesComments,
-            owner: Some(owner),
+            owner: Some(owner.clone()),
             repo: None,
             additional: None,
         };
         
         animation.change_message("fetching issue comments...");
+        let repo = Repo { name: format!("{}", owner.clone()), path: repo.to_string(), private: None, url: "".to_string(), git: "".to_string(), description: None };
         
         Ok(
             self.pagginate(url, &config, context)
-                .map(|result| {
-                    self.get_comments(result)
+                .map(move |result| {
+                    let repo = repo.clone();
+                    self.get_comments(result, repo)
                 })
         )
     }
 
-    pub fn get_comments(&self, response: Result<String, Error>) -> Result<Vec<Comment>, Error> {
+    pub fn get_comments(&self, response: Result<String, Error>, repo: Repo) -> Result<Vec<Comment>, Error> {
         match response {
-            Ok(rs) => Comment::from_text_array(&rs, &self),
+            Ok(rs) => Comment::from_text_array(&rs, &self, repo),
             Err(e) => Err(e),
         }
     }

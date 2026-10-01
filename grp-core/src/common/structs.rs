@@ -8,6 +8,7 @@ use chrono::DateTime;
 /// it contains varios properties that are shared 
 /// across all the repositories.
 /// 
+#[derive(Clone, Debug)]
 pub struct Repo {
     pub name: String,
     pub path: String,
@@ -30,7 +31,7 @@ pub struct Context {
     pub additional: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Issue {
     pub author: String,
     pub number: u64,
@@ -42,11 +43,12 @@ pub struct Issue {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Comment {
     pub id: u64,
     pub author: String,
     pub body: String,
+    pub url: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
