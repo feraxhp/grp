@@ -1,6 +1,6 @@
 # Issues
 
-- [ ] add comment url
+- [x] add comment url
 - [ ] replace @mentions to [@mentions](url-of-mentions)
 - [ ] implemetn rich markdown preview for issues
 
