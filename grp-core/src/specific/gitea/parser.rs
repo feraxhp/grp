@@ -36,6 +36,7 @@ pub struct Comment {
     pub id: u64,
     pub user: Author,
     pub body: String,
+    pub html_url: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
