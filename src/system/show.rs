@@ -134,7 +134,7 @@ impl Show for Vec<Comment> {
         (!self.is_empty())
             .then(move || {
                 let body = self.into_iter().rev().map(move |comment| {
-                    cformat!("<dim>--</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author, format!("{}", comment.id), &comment.created_at, &comment.body )
+                    cformat!("<dim>--</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author, format!("[{}]({})", comment.id, comment.url), &comment.created_at, &comment.body )
                 });
                 
                 body
