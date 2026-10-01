@@ -1,7 +1,7 @@
 use clap::{command, Command};
 use color_print::{ceprintln, cformat};
 
-use crate::system::show::Show;
+use crate::printables::show::Show;
 use crate::usettings::structs::Usettings;
 
 

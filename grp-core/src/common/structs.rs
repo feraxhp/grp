@@ -36,6 +36,7 @@ pub struct Issue {
     pub author: String,
     pub number: u64,
     pub title: String,
+    pub body: Option<String>,
     pub state: String,
     pub url: String,
     pub locked: bool,

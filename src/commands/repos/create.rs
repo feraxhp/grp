@@ -15,7 +15,7 @@ use crate::commands::validations::repo::RepoStructure;
 use crate::errors::ToError;
 use crate::local::structs::{Git2Context, Local};
 use crate::success;
-use crate::system::show::Show;
+use crate::printables::show::Show;
 use crate::local::git::structs::Action;
 use crate::system::directories::BasicDir;
 use crate::usettings::structs::Usettings;

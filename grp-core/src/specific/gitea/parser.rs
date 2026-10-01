@@ -22,6 +22,7 @@ pub struct Author {
 pub struct Issue {
     pub number: u64,
     pub title: String,
+    pub body: Option<String>,
     pub user: Author,
     pub pull_request: Option<Value>,
     pub html_url: String,

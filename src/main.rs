@@ -9,6 +9,7 @@ mod system;
 mod update;
 mod commands;
 mod usettings;
+mod printables;
 mod animations;
 
 use crate::commands::grp;

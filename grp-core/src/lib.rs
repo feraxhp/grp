@@ -65,3 +65,8 @@ pub mod structs {
 
 pub use json::JSON;
 pub use config::Config;
+
+pub mod chrono {
+    pub use chrono::Utc;
+    pub use chrono::DateTime;
+}

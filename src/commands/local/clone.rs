@@ -9,9 +9,9 @@ use grp_core::Platform;
 
 use super::super::completions::structure::Completer;
 use crate::errors::ToError;
-use crate::local::structs::{Git2Context, Local};
 use crate::success;
-use crate::system::show::Show;
+use crate::local::structs::{Git2Context, Local};
+use crate::printables::show::Show;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 use crate::commands::validations::structure::Validations;

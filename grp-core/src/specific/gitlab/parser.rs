@@ -22,6 +22,7 @@ pub struct Issue {
     pub iid: u64,
     pub author: Author,
     pub title: String,
+    pub description: Option<String>,
     pub issue_type: String,
     pub web_url: String,
     pub state: String,

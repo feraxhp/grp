@@ -9,7 +9,7 @@ use grp_core::{Error, Platform};
 
 use crate::cache::structure::Cacher;
 use crate::{success, warning};
-use crate::system::show::Show;
+use crate::printables::show::Show;
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
