@@ -23,6 +23,7 @@ pub trait Formater {
     fn as_tip(self) -> String;
     fn as_tip_cotinuation(self) -> String;
     fn concat(self, postfix: &'static str) -> String;
+    fn as_link(self, url: &str) -> String;
 }
 
 impl<D> Formater for D
@@ -45,5 +46,7 @@ where
         format!("{}{}", self, postfix)
     }
 
-    
+    fn as_link(self, url: &str) -> String {
+        format!("\x1b]8;;{}\x1b\\{}\x1b]8;;\x1b\\", url, self)
+    }
 }
