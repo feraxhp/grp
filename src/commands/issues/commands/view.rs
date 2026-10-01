@@ -45,6 +45,18 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
+    let issue_detail = match platform.issue(owner, &issue.repo.path, &issue.number, &config, &animation).await {
+        Ok(s) => s,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            return;
+        },
+    };
+    
+    println!("{}", issue_detail.title);
+    println!("{:?}", issue_detail.body);
+    
     let stream = match platform.list_issue_comments(owner, &issue.repo.path, &issue.number, &config, &animation).await {
         Ok(s) => s,
         Err(e) => {
