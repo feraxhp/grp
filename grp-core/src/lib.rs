@@ -60,7 +60,6 @@ pub mod errors {
 
 pub mod structs {
     pub use super::common::structs::*;
-    pub use super::common::users::structs::*;
 }
 
 pub use json::JSON;

@@ -1,7 +1,8 @@
 use crate::empty_notes;
 use crate::error::errors::not_found::NotFound;
 use crate::error::structs::Error;
-use crate::common::users::structs::{User, UserType};
+use crate::structs::User;
+use crate::structs::UserType;
 use crate::config::Config;
 use crate::platform::Platform;
 use crate::specific::gitlab;
@@ -23,7 +24,7 @@ impl Platform {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let user = User { id: name.clone(), name: name.clone(), path: None };
+                let user = User { id: name.clone(), name: name.clone(), path: None, url: String::default() };
                 let orgs = self.get_logged_orgs(conf).await?;
                 if orgs.iter().any(|org| org.name == name) { 
                     return Ok(UserType::LoggedOrg(user));

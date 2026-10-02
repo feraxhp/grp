@@ -2,7 +2,7 @@ use color_print::cformat;
 use serde::Serialize;
 
 use crate::common::structs::{Context, RequestType};
-use crate::common::users::structs::User;
+use crate::structs::User;
 use crate::config::Config;
 use crate::error::structs::Error;
 use crate::platform::Platform;

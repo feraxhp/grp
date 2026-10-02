@@ -1,8 +1,6 @@
-use serde_json::Value;
-
 use crate::error::structs::Error;
 use crate::common::structs::{Context, RequestType};
-use crate::common::users::structs::User;
+use crate::structs::User;
 use crate::config::Config;
 use crate::platform::Platform;
 
@@ -37,26 +35,6 @@ impl Platform {
             conf, context
         ).await?;
 
-        let json: Value = serde_json::from_str(&text).map_err(Error::from_serde(&text))?;
-
-        let user = match &self {
-            Platform::Github =>  {
-                let name = json["login"].as_str().unwrap().to_string();
-                User { id: name.clone(), name: name.clone(), path: None }
-            },
-            Platform::Gitea |
-            Platform::Forgejo |
-            Platform::Codeberg => {
-                let name = json["login"].as_str().unwrap().to_string();
-                User { id: name.clone(), name: name.clone(), path: None }
-            },
-            Platform::Gitlab => {
-                let id = json["id"].as_u64().unwrap().to_string();
-                let name = json["username"].as_str().unwrap().to_string();
-                User { id: id.clone(), name: name.clone(), path: None }
-            },
-        };
-        
-        return Ok(user);
+        User::from_text(&text, self)
     }
 }

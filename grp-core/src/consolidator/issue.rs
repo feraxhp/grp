@@ -1,6 +1,8 @@
 use crate::Error;
 use crate::JSON;
 use crate::Platform;
+use crate::common::traits::Convert;
+use crate::errors::Parsing;
 use crate::specific::gitea;
 use crate::specific::github;
 use crate::specific::gitlab;
@@ -9,81 +11,71 @@ use crate::structs::Issue;
 
 impl Issue {
     /// # Return
-    /// 
-    /// Generates a list of Issues if the information of the text is a valid list of json 
-    /// and the platform matches that content.
+    /// Generates an instance of a Issue if the information of 
+    /// the text is a valid json and the platform matches that content.
     /// 
     /// # Error
     /// a `grp_core::Error` of type `grp_core::ErrorType::ResponseParsing`.
-    pub fn from_text_array(text: &String, platform: &Platform) -> Result<Vec<Self>, Error> {
-        let issues = match platform {
+    pub fn from_text<S: AsRef<str>,>(text: &S, platform: &Platform) -> Result<Self, Error> {
+        let issue: Self = match platform {
             Platform::Github => {
-                let tmp: Vec<github::parser::Issue> = JSON::from_str(text)?;
-                
-                let issues = tmp.iter().filter_map(|issue| {
-                    match issue.pull_request {
-                        None => Some(Issue { 
-                            number: issue.number, 
-                            author: issue.user.login.to_string(),
-                            title: issue.title.to_owned(),
-                            body: issue.body.to_owned(),
-                            state: issue.state.to_owned(),
-                            created_at: issue.created_at.to_owned(),
-                            updated_at: issue.updated_at.to_owned(),
-                            locked: issue.locked.to_owned(),
-                            url: issue.html_url.to_owned(),
-                        }),
-                        Some(_) => None,
-                    }
-                }).collect();
-                
-                issues
+                let issue: github::parser::Issue = JSON::from_str(text)?;
+                match &issue.pull_request {
+                    Some(_) => return Err(Parsing::issue_is_pull_request()),
+                    None => issue.convert(),
+                }
             },
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let tmp: Vec<gitea::parser::Issue> = JSON::from_str(text)?;
-                let issues = tmp.iter().filter_map(|issue| {
-                    match issue.pull_request {
-                        None => Some(Issue { 
-                            number: issue.number, 
-                            author: issue.user.login.to_owned(),
-                            title: issue.title.to_owned(),
-                            body: issue.body.to_owned(),
-                            state: issue.state.to_owned(),
-                            created_at: issue.created_at.to_owned(),
-                            updated_at: issue.updated_at.to_owned(),
-                            locked: issue.is_locked.to_owned(),
-                            url: issue.html_url.to_owned(),
-                        }),
-                        Some(_) => None,
-                    }
-                }).collect();
-                
-                issues
+                let issue: gitea::parser::Issue = JSON::from_str(text)?;
+                match &issue.pull_request {
+                    Some(_) => return Err(Parsing::issue_is_pull_request()),
+                    None => issue.convert(),
+                }
             },
             Platform::Gitlab => {
-                let tmp: Vec<gitlab::parser::Issue> = JSON::from_str(text)?;
-                
-                let issues = tmp.iter().filter_map(|issue| {
-                    match issue.issue_type.as_str() {
-                        "issue" => Some(Issue { 
-                            number: issue.iid, 
-                            author: issue.author.name.to_owned(),
-                            title: issue.title.to_owned(),
-                            body: issue.description.to_owned(),
-                            state: issue.state.to_owned(),
-                            created_at: issue.created_at.to_owned(),
-                            updated_at: issue.updated_at.to_owned(),
-                            locked: false,
-                            url: issue.web_url.to_owned(),
-                        }),
-                        _ => None,
+                let issue: gitlab::parser::Issue = JSON::from_str(text)?;
+                issue.convert()
+            },
+        };
+        
+        Ok(issue)
+    }
+    
+    /// # Return
+    /// 
+    /// Generates a list of User if the information of the text is a valid list of json 
+    /// and the platform matches that content.
+    /// 
+    /// # Error
+    /// a `grp_core::Error` of type `grp_core::ErrorType::ResponseParsing`.
+    pub fn from_text_array<S: AsRef<str>>(text: &S, platform: &Platform) -> Result<Vec<Self>, Error> {
+        let issues: Vec<Self> = match platform {
+            Platform::Github => {
+                let issues: Vec<github::parser::Issue> = JSON::from_str(text)?;
+                issues.into_iter().filter_map(|i| {
+                    match &i.pull_request {
+                        Some(_) => None,
+                        None => Some(i.convert()),
                     }
-                }).collect();
-                
-                issues
-            }
+                }).collect()
+            },
+            Platform::Codeberg |
+            Platform::Forgejo |
+            Platform::Gitea => {
+                let issues: Vec<gitea::parser::Issue> = JSON::from_str(text)?;
+                issues.into_iter().filter_map(|i| {
+                    match &i.pull_request {
+                        Some(_) => None,
+                        None => Some(i.convert()),
+                    }
+                }).collect()
+            },
+            Platform::Gitlab => {
+                let issues: Vec<gitlab::parser::Issue> = JSON::from_str(text)?;
+                issues.into_iter().map(|i| i.convert()).collect()
+            },
         };
         
         Ok(issues)

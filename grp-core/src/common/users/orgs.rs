@@ -3,7 +3,7 @@ use futures::StreamExt;
 
 use crate::animation;
 use crate::error::structs::Error;
-use crate::common::users::structs::User;
+use crate::structs::User;
 use crate::config::Config;
 use crate::platform::Platform;
 

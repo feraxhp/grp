@@ -1,4 +1,4 @@
-use crate::common::users::structs::UserType;
+use crate::structs::UserType;
 use crate::platform::Platform;
 
 

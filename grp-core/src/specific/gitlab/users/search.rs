@@ -1,10 +1,10 @@
-use serde_json::Value;
-
+use crate::common::traits::Convert;
 use crate::error::structs::Error;
 use crate::common::structs::{Context, RequestType};
 use crate::json::JSON;
 use crate::platform::Platform;
-use crate::common::users::structs::User;
+use crate::specific::gitlab;
+use crate::structs::User;
 use crate::config::Config;
 
 
@@ -26,19 +26,12 @@ pub async fn by_name(platform: &Platform, name: &String, conf: &Config) -> Resul
     let base = "Failed during fetch of logged user";
     let text = platform.unwrap(result, base,conf, context).await?;
     
-    let json: Value = JSON::from_str(&text)?;
-    
-    let users = json.as_array().unwrap();
-    
+    let users: Vec<gitlab::parser::User> = JSON::from_str(&text)?;
     if users.is_empty() { return Ok(None) }
     
-    let user = users.iter().find(|u| u["username"].as_str().unwrap() == name);
+    let user = users.iter().find(|u| u.username.as_str() == name);
     if let Some(user) = user {
-        let user = User {
-            id: user["id"].as_str().unwrap().to_string(),
-            name: user["username"].as_str().unwrap().to_string(),
-            path: None 
-        };
+        let user = user.convert();
         return Ok(Some(user))
     }
     
