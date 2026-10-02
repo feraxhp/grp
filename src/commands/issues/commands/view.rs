@@ -142,8 +142,8 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
     chunks.push(cformat!("    <dim>╰──</> "));
     
     for comment in &comments {
-        chunks.push(cformat!("    <m>│</>"));
-        chunks.push(cformat!("    <m>🠯</>"));
+        chunks.push(cformat!("     <m>│</>"));
+        chunks.push(cformat!("     <m, bold>🡫</>"));
         chunks.push(cformat!("    <dim>╭── <green>{}</green> - {} - {}</>", comment.author, cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
         chunks.push(lazy_parse!(errors, Some(comment.body.clone()), cformat!("<dim, i>no comment</>")));
         chunks.push(cformat!("    <dim>╰──────</> "));
