@@ -10,6 +10,7 @@ use crate::structs::Context;
 use crate::Platform;
 use crate::Error;
 use crate::structs::Issue;
+use crate::structs::PaginatorResult;
 use crate::structs::RequestType;
 
 
@@ -20,7 +21,7 @@ impl Platform {
         issue: &u64,
         config: &Config,
         animation: &Box<A>
-    ) -> Result<impl Stream<Item = Result<Vec<Comment>, Error>>, Error> 
+    ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Comment>>, Error>>, Error> 
     where 
         T: Into<String>, 
         R: Display + AsRef<str>, 
@@ -48,7 +49,7 @@ impl Platform {
         animation.change_message("fetching issue comments...");
         
         Ok(
-            self.pagginate(url, &config, context)
+            self.pagginate(url, &config, context, 1)
                 .map(move |result| {
                     let repo = repo.clone();
                     self.get_comments(result, repo)
@@ -56,11 +57,10 @@ impl Platform {
         )
     }
 
-    pub fn get_comments(&self, response: Result<String, Error>, repo: String) -> Result<Vec<Comment>, Error> {
-        match response {
-            Ok(rs) => Comment::from_text_array(&rs, &self, repo),
-            Err(e) => Err(e),
-        }
+    pub fn get_comments(&self, response: Result<PaginatorResult<String>, Error>, repo: String) -> Result<PaginatorResult<Vec<Comment>>, Error> {
+        let pagginator = response?;
+        let comments = Comment::from_text_array(&pagginator.result, &self, repo)?;
+        Ok(pagginator.parse_result(comments))
     }
     
     pub async fn issue<A, R, T>(&self,
