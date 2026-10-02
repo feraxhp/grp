@@ -146,3 +146,9 @@ impl Show for Vec<Comment> {
             .flatten()
     }
 }
+
+impl Show for Vec<String> {
+    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+        self.into_iter().map(|s| s.to_owned())
+    }
+}

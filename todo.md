@@ -12,3 +12,4 @@
     - [ ] `2:6` from  page 2 to 6
     - [ ] `:3` from page 1 to 3
     - [ ] `1:` from page 1 to last
+    - [ ] `1::` from page 1 then skip to last
