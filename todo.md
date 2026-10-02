@@ -2,10 +2,14 @@
 
 - [x] add comment url
 - [ ] replace @mentions to [@mentions](url-of-mentions)
-- [ ] implemetn rich markdown preview for issues
+- [x] implemetn rich markdown preview for issues
+- [ ] add create issue command
+- [ ] add delete issue command
+- [ ] add comment on issue
+- [ ] add edit comment on issue
 
 # Pagination
-- [ ] move stating page
+- [-] move stating page
 
 ## CLI
 - [ ] add range for pagina
