@@ -6,7 +6,7 @@ use serde::Serialize;
 
 use crate::error::errors::parsing::Parsing;
 use crate::error::errors::request::Request;
-use crate::structs::{Context, PaginatorResult};
+use crate::structs::{Context, Pager, PaginatorResult};
 
 use super::config::Config;
 use super::platform::Platform;
@@ -90,6 +90,7 @@ impl Platform {
             .append_pair(self.limit(), &size.to_string());
         
         let mut next = Some(url);
+        let mut last = None;
         
         while let Some(url) = next {
     
@@ -110,10 +111,13 @@ impl Platform {
                 },
             };
 
-            let pagger = extract_next(response_headers.get("link"))?;
+            let mut pagger = extract_next(response_headers.get("link"))?;
+            if pagger.last.is_some() { last = pagger.last.clone() }
+            else if last.is_some() { pagger.last = last.clone() }
+            
             next = pagger.next.clone();
             
-            yield Ok(PaginatorResult { result: string, last: pagger.last_number() });
+            yield Ok(PaginatorResult { result: string, pager: pagger });
         }
     }}
 }
@@ -162,15 +166,10 @@ fn extract_next(link_header: Option<&HeaderValue>) -> Result<Pager, Error> {
     }
 }
 
-pub struct Pager {
-    pub next: Option<Url>,
-    pub last: Option<Url>,
-}
-
 impl Pager {
     fn none() -> Self { Self { next: None, last: None } }
     
-    fn last_number(&self) -> Option<u64>{
+    pub fn last_number(&self) -> Option<u64>{
         let last = self.last.clone().map(|url| {
             let value = url.query_pairs()
                 .flat_map(| (key, value) | {
