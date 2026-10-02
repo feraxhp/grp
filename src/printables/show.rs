@@ -119,7 +119,7 @@ impl Show for Vec<Issue> {
                 let body = self.into_iter().map(move |issue| {
                     format!(
                         "{:<max_number$}  {:<max_autor$}  {}",
-                        format!("#{}", issue.number),
+                        format!("#{}", issue.number).as_link(&issue.url),
                         issue.author,
                         issue.title,
                     )
