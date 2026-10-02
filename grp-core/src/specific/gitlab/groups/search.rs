@@ -22,10 +22,10 @@ pub async fn by_full_path(name: &String, config: &Config) -> Result<Option<User>
     };
     let mut user: Option<User> = None;
     
-    let errors: Vec<Error> = platform.pagginate(url, config, context)
+    let errors: Vec<Error> = platform.pagginate(url, config, context, 1)
         .map(|result| -> Result<Vec<Value>, Error>{
             match result {
-                Ok(s) => JSON::from_str(&s),
+                Ok(s) => JSON::from_str(&s.result),
                 Err(e) => Err(e),
             }
         })

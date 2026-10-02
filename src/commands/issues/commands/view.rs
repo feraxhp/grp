@@ -73,13 +73,18 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .enumerate()
         // .take(1)
         .map(|(i, s)| {
-            an.change_message(cformat!("Getting issue comments: <i, u>page: {}</>", i + 1));
+            match &s {
+                Ok(pr) if pr.last.is_some() => {
+                    an.change_message(cformat!("Getting issue comments: <i, u>page: {} of {}</>", i + 1, &pr.last.unwrap()))
+                },
+                _ => an.change_message(cformat!("Getting issue comments: <i, u>page: {}</>", i + 1)),
+            }
             s
         })
         .fold((vec![], vec![]), async move |curr, act| {
             let (mut repos, mut errors) = curr;
             match act {
-                Ok(r) => repos.extend(r),
+                Ok(r) => repos.extend(r.result),
                 Err(e) => errors.push(e),
             }
             (repos, errors)

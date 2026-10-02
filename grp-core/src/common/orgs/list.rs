@@ -2,6 +2,7 @@ use crate::config::Config;
 use crate::platform::Platform;
 use crate::animation::Animation;
 use crate::error::structs::Error;
+use crate::structs::PaginatorResult;
 use futures::{Stream, StreamExt};
 use crate::common::users::structs::User;
 use crate::common::structs::{Context, RequestType};
@@ -24,7 +25,7 @@ impl Platform {
     pub fn list_orgs<A: Animation + ?Sized>(&self, 
         config: &Config, 
         animation: &Box<A>
-    ) -> impl Stream<Item = Result<Vec<User>, Error>> {
+    ) -> impl Stream<Item = Result<PaginatorResult<Vec<User>>, Error>> {
         let url = self.url_list_orgs(&config.endpoint);
         
         let context = Context {
@@ -35,16 +36,15 @@ impl Platform {
         };
 
         animation.change_message("getting organizations ...");
-        self.pagginate(url, config, context)
+        self.pagginate(url, config, context, 1)
             .map(|result| {
                 self.get_user(result)
             })
     }
     
-    pub fn get_user(&self, response: Result<String, Error>) -> Result<Vec<User>, Error> {
-        match response {
-            Ok(text) => User::from_text_array(&text, self),
-            Err(e) => Err(e),
-        }
+    pub fn get_user(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<User>>, Error> {
+        let pagginator = response?;
+        let users = User::from_text_array(&pagginator.result, &self)?;
+        Ok(pagginator.parse_result(users))
     }
 }

@@ -2,6 +2,12 @@ use chrono::Utc;
 use chrono::DateTime;
 
 
+#[derive(Clone, Debug)]
+pub struct PaginatorResult<T> {
+    pub result: T,
+    pub last: Option<u64>
+}
+
 // # Repo (repository)
 /// 
 /// Represents a repository for any platform 
