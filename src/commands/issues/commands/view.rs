@@ -27,7 +27,7 @@ pub fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
-    let animation = Fetch::new("Incializing list issues");
+    let animation = Fetch::new("Incializing issue fetch");
 
     let issue = args.get_one::<IssueStructure> ("issue").unwrap();
     let pconf = match issue.repo.pconf.clone() {
@@ -47,7 +47,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
     };
     let config = pconf.to_config();
-    
+
+    animation.change_message("Getting issue details...");
     let issue_detail = match platform.issue(owner, &issue.repo.path, &issue.number, &config, &animation).await {
         Ok(s) => s,
         Err(e) => {
@@ -57,6 +58,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
     };
     
+    animation.change_message("Getting issue comments...");
     let stream = match platform.list_issue_comments(owner, &issue.repo.path, &issue.number, &config, &animation).await {
         Ok(s) => s,
         Err(e) => {
@@ -71,7 +73,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .enumerate()
         // .take(1)
         .map(|(i, s)| {
-            an.change_message(format!("Requesting page: {}", i + 1));
+            an.change_message(cformat!("Getting issue comments: <i, u>page: {}</>", i + 1));
             s
         })
         .fold((vec![], vec![]), async move |curr, act| {
