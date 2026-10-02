@@ -127,7 +127,7 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
             text.lines()
                 .map(|s| {
                     let content = s.get(2..).unwrap_or("");
-                    cformat!("<b, bold>{} </><dim>│</> {content}", $prefix)
+                    cformat!("<b, bold>{} </><b>│</> {content}", $prefix)
                 })
                 .collect::<Vec<_>>()
                 .join("\n")
@@ -135,21 +135,29 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
     }
     
     chunks.push(cformat!("\n<b, bold> █ {}</>", &issue.title));
-    chunks.push(cformat!("<b, bold> █ </><g>{} - <y>{}</> <dim>•</>", issue.author, issue.created_at.to_human()));
+    chunks.push(cformat!("<b, bold> █ </><g>{}</> <y,i>{}</>", issue.author, issue.created_at.to_human()));
     chunks.push(cformat!("<b, bold> █"));
-    chunks.push(cformat!("<b, bold> █ </><dim>╭── {} </>", cformat!("issue #{}", issue.number).as_link(&issue.url)));
+    chunks.push(cformat!("<b, bold> █ </><b>╭──<m> {} </>", cformat!("issue #{}", issue.number).as_link(&issue.url)));
     chunks.push(lazy_parse!(errors, issue.body, cformat!("<dim, i>no detail</>"), " █"));
-    chunks.push(cformat!("<b, bold> █ </><dim>╰──</> "));
+    chunks.push(cformat!("<b, bold> █ </><b>╰──</> ")); 
     
-    for comment in &comments {
-        chunks.push(cformat!("   <m>│</>"));
-        chunks.push(cformat!("   <m>│</>"));
-        chunks.push(cformat!("  <dim>╭── <green>{}</green> - {} - {}</>", comment.author, cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
+    let length = comments.len();
+    for (index, comment) in (&comments).iter().enumerate() {
+        let gliph = if index == 0 { 
+            chunks.push(cformat!("\n  <c>▌ Coments</>\n"));
+            "─" 
+        } else { "╯" };
+        chunks.push(cformat!("  <b>╭{} </><green>{}</> <dim>- {} - {}</>", gliph, comment.author, cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
         chunks.push(lazy_parse!(errors, Some(comment.body.clone()), cformat!("<dim, i>no comment</>"), " "));
-        chunks.push(cformat!("  <dim>╰──────</> "));
+        
+        if length == (index +1) { chunks.push(cformat!("  <b>╰──────</> ")); }
+        else {                    chunks.push(cformat!("  <b>╰╮</> ")); 
+            chunks.push(cformat!("   <b>│</>"));
+            chunks.push(cformat!("   <b>│</>"));
+        }
     }
     
-    if comments.is_empty() { chunks.push(format!("")) }
+    chunks.push(format!(""));
     
     (chunks, errors)
 }
