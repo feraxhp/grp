@@ -60,8 +60,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .take(1)
         .map(|(i, s)| {
             match &s {
-                Ok(pr) if pr.last.is_some() => {
-                    an.change_message(format!("Requesting page: {} of {}", i + 1, &pr.last.unwrap()))
+            Ok(pr) if let Some(last) = pr.pager.last_number() => {
+                    an.change_message(format!("Requesting page: {} of {}", i + 1, &last))
                 },
                 _ => an.change_message(format!("Requesting page: {}", i + 1)),
             }
