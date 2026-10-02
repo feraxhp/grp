@@ -1,11 +1,17 @@
 use chrono::Utc;
 use chrono::DateTime;
+use reqwest::Url;
 
+#[derive(Clone, Debug)]
+pub struct Pager {
+    pub next: Option<Url>,
+    pub last: Option<Url>,
+}
 
 #[derive(Clone, Debug)]
 pub struct PaginatorResult<T> {
     pub result: T,
-    pub last: Option<u64>
+    pub pager: Pager
 }
 
 // # Repo (repository)
