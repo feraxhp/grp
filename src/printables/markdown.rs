@@ -11,7 +11,7 @@ impl Markdown for String {
     fn parse(&self) -> Result<String, Error> { // temporal implementation for the markdown rich terminal output
         let args = Args {
             inputs: vec![],
-            theme: "auto".to_string(),
+            theme: "terminal".to_string(),
             width: Some(80),
             slides: true,
             plain: true,
