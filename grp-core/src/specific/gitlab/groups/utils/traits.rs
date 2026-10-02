@@ -1,4 +1,4 @@
-use crate::common::users::structs::User;
+use crate::structs::User;
 
 
 pub trait Search {
