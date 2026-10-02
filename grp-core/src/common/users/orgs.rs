@@ -30,7 +30,7 @@ impl Platform {
             })
             .fold(vec![], async move |acc, act| {
                 let mut curr = acc;
-                if let Ok(act) = act { curr.extend(act) };
+                if let Ok(act) = act { curr.extend(act.result) };
                 curr
             })
             .await

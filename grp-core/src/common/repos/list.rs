@@ -5,6 +5,7 @@ use crate::config::Config;
 use crate::platform::Platform;
 use crate::error::structs::Error;
 use crate::common::structs::{Context, Repo, RequestType};
+use crate::structs::PaginatorResult;
 
 impl Platform {
     /// list all the repos for the given owner, if not present, returns all the repos for the default user (config).
@@ -13,7 +14,7 @@ impl Platform {
         owner: Option<T>, 
         config: &Config,
         animation: &Box<A>
-    ) -> Result<impl Stream<Item = Result<Vec<Repo>, Error>>, Error> {
+    ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Repo>>, Error>>, Error> {
         let owner = owner.map(|o| o.into());
         let owner = owner.unwrap_or(config.user.clone());
         
@@ -32,17 +33,16 @@ impl Platform {
         animation.change_message("fetching repositories...");
         
         Ok(
-            self.pagginate(url, &config, context)
+            self.pagginate(url, &config, context, 1)
                 .map(|result| {
                     self.get_repos(result)
                 })
         )
     }
     
-    pub fn get_repos(&self, response: Result<String, Error>) -> Result<Vec<Repo>, Error> {
-        match response {
-            Ok(rs) => Repo::from_text_array(&rs, &self),
-            Err(e) => Err(e),
-        }
+    pub fn get_repos(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Repo>>, Error> {
+        let pagginator = response?;
+        let repos = Repo::from_text_array(&pagginator.result, &self)?;
+        Ok(pagginator.parse_result(repos))
     }
 }

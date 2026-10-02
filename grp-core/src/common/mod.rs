@@ -1,3 +1,4 @@
+pub mod pagginator;
 pub mod platform;
 pub mod structs;
 pub mod issues;

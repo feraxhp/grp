@@ -9,6 +9,7 @@ use crate::animation::Animation;
 use crate::specific::gitlab;
 use crate::structs::Context;
 use crate::structs::Issue;
+use crate::structs::PaginatorResult;
 use crate::structs::RequestType;
 
 
@@ -18,7 +19,7 @@ impl Platform {
         repo_path: &R,
         config: &Config,
         animation: &Box<A>
-    ) -> Result<impl Stream<Item = Result<Vec<Issue>, Error>>, Error> 
+    ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
     where 
         T: Into<String>, 
         R: Display + AsRef<str>, 
@@ -45,18 +46,17 @@ impl Platform {
         animation.change_message("fetching issues...");
         
         Ok(
-            self.pagginate(url, &config, context)
+            self.pagginate(url, &config, context, 1)
                 .map(|result| {
                     self.get_issues(result)
                 })
         )
     }
     
-    pub fn get_issues(&self, response: Result<String, Error>) -> Result<Vec<Issue>, Error> {
-        match response {
-            Ok(rs) => Issue::from_text_array(&rs, &self),
-            Err(e) => Err(e),
-        }
+    pub fn get_issues(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Issue>>, Error> {
+        let pagginator = response?;
+        let issues = Issue::from_text_array(&pagginator.result, &self)?;
+        Ok(pagginator.parse_result(issues))
     }
 }
 

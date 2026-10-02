@@ -6,7 +6,7 @@ use serde::Serialize;
 
 use crate::error::errors::parsing::Parsing;
 use crate::error::errors::request::Request;
-use crate::structs::Context;
+use crate::structs::{Context, PaginatorResult};
 
 use super::config::Config;
 use super::platform::Platform;
@@ -63,18 +63,31 @@ impl Platform {
         Platform::send(req).await
     }
     
+    fn limit(&self) -> &'static str {
+        match self {
+            Platform::Github |
+            Platform::Gitlab => "per_page",
+            Platform::Gitea |
+            Platform::Codeberg |
+            Platform::Forgejo => "limit",
+        }
+    }
+    
     pub fn pagginate(&self, 
         url: String, 
         config: &Config, 
-        context: Context
-    ) -> impl Stream<Item = Result<String, Error>> { stream! {
+        context: Context, 
+        page: u64,
+    ) -> impl Stream<Item = Result<PaginatorResult<String>, Error>> { stream! {
         let client = Client::new();
         let headers = self.get_auth_header(&config.token);
     
-        let size = 10;
+        let size = 50;
         let mut url = Url::parse(&url).map_err(|e| Parsing::url(e, &url) )?;
         
-        url.query_pairs_mut().append_pair("page", "1").append_pair("per_page", &size.to_string());
+        url.query_pairs_mut()
+            .append_pair("page", &page.to_string())
+            .append_pair(self.limit(), &size.to_string());
         
         let mut next = Some(url);
         
@@ -96,31 +109,82 @@ impl Platform {
                     return;
                 },
             };
+
+            let pagger = extract_next(response_headers.get("link"))?;
+            next = pagger.next.clone();
             
-            yield Ok(string);
-            
-            next = extract_next(response_headers.get("link"))?;
+            yield Ok(PaginatorResult { result: string, last: pagger.last_number() });
         }
     }}
 }
 
-fn extract_next(link_header: Option<&HeaderValue>) -> Result<Option<Url>, Error> {
+
+fn extract_next(link_header: Option<&HeaderValue>) -> Result<Pager, Error> {
     let header = match link_header.and_then(|header| header.to_str().ok()) {
         Some(h) => h,
-        None => return Ok(None),
+        None => return Ok(Pager::none()),
     };
     
-    let url = header.split(",")
-        .find_map(|link| -> Option<_> {
-            if link.ends_with(r#"; rel="next""#) {
-                Some(link.trim().trim_matches('<').replace(r#">; rel="next""#, ""))
-            }
-            else { None }
-        });
+    let (next_url, last_url) = header.split(',').fold((None, None), |(next, last), link| {
+        let link = link.trim();
+        if link.ends_with(r#"; rel="next""#) {
+            let url = link
+                .trim_start_matches('<')
+                .trim_end_matches(r#">; rel="next""#)
+                .to_string();
+            (Some(url), last)
+        } else if link.ends_with(r#"; rel="last""#) {
+            let url = link
+                .trim_start_matches('<')
+                .trim_end_matches(r#">; rel="last""#)
+                .to_string();
+            (next, Some(url))
+        } else {
+            (next, last)
+        }
+    });
     
-    if url.is_none() { return Ok(None) };
-    let url = url.unwrap();
-    Url::parse(&url)
+    if next_url.is_none() { return Ok(Pager::none()) };
+    let url = next_url.unwrap();
+    let url = Url::parse(&url)
         .map(|e| Some(e))
-        .map_err(|e| Parsing::url(e, &url) )
+        .map_err(|e| Parsing::url(e, &url) )?;
+
+    match last_url {
+        Some(last_url) => {
+            let last_url = Url::parse(&last_url)
+                .map(|e| Some(e))
+                .map_err(|e| Parsing::url(e, &last_url) )?;
+            
+            Ok(Pager{ next: url, last: last_url })
+        },
+        None => Ok(Pager{ next: url, last: None }),
+    }
+}
+
+pub struct Pager {
+    pub next: Option<Url>,
+    pub last: Option<Url>,
+}
+
+impl Pager {
+    fn none() -> Self { Self { next: None, last: None } }
+    
+    fn last_number(&self) -> Option<u64>{
+        let last = self.last.clone().map(|url| {
+            let value = url.query_pairs()
+                .flat_map(| (key, value) | {
+                    if key == "page" { Some(value) } 
+                    else { None }
+                })
+                .last();
+            
+            value.map(|value| value.parse::<u64>())
+        });
+        
+        match last {
+            Some(Some(Ok(number))) => Some(number.clone()),
+            _ => None,
+        }
+    }
 }
