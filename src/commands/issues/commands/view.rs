@@ -15,6 +15,7 @@ use crate::commands::validations::or_exit::structure::OrExit;
 use crate::printables::humanize::Humanize;
 use crate::printables::markdown::Markdown;
 use crate::printables::show::Show;
+use crate::printables::stylizer::Stylizer;
 use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
@@ -143,7 +144,7 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
     
     chunks.push(cformat!("\n<b, bold> █ {}</> <i, dim>{}</>", &issue.title, cformat!("#{}", issue.number).as_link(&issue.url)));
     chunks.push(cformat!("<b, bold> █"));
-    chunks.push(cformat!("<b, bold> █ </><b>╭──</> <green>{}</> <dim>- {}</>",issue.author, issue.created_at.to_human()));
+    chunks.push(cformat!("<b, bold> █ </><b>╭──</> <green>{}</> <dim>- {}</>",issue.author.to_link(), issue.created_at.to_human()));
     chunks.push(lazy_parse!(errors, issue.body, cformat!("<dim, i>no detail</>"), " █"));
     chunks.push(cformat!("<b, bold> █ </><b>╰──</> ")); 
     
@@ -154,7 +155,7 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
             "─" 
         // } else { "╯" };
         } else { "─" };
-        chunks.push(cformat!("  <b>╭{} </><green>{}</> <dim>- {} - {}</>", gliph, comment.author, cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
+        chunks.push(cformat!("  <b>╭{} </><green>{}</> <dim>- {} - <i>{}</>", gliph, comment.author.to_link(), cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
         chunks.push(lazy_parse!(errors, Some(comment.body.clone()), cformat!("<dim, i>no comment</>"), " "));
         
         if length == (index +1) { chunks.push(cformat!("  <b>╰──</> ")); }

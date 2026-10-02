@@ -8,6 +8,7 @@ use grp_core::structs::User;
 use grp_core::Error;
 
 use crate::printables::humanize::Humanize;
+use crate::printables::stylizer::Stylizer;
 
 
 pub trait Show {
@@ -105,7 +106,7 @@ impl Show for Vec<Issue> {
         let (max_number, max_autor) = self.into_iter().fold((2, 6), |(number, author), issue| {
             (
                 number.max(issue.number.to_string().len() + 1),
-                author.max(issue.author.to_string().len()),
+                author.max(issue.author.name.to_string().len()),
             )
         });
     
@@ -120,7 +121,7 @@ impl Show for Vec<Issue> {
                     format!(
                         "{:<max_number$}  {:<max_autor$}  {}",
                         format!("#{}", issue.number).as_link(&issue.url),
-                        issue.author,
+                        issue.author.to_link(),
                         issue.title,
                     )
                 });
@@ -137,7 +138,7 @@ impl Show for Vec<Comment> {
         (!self.is_empty())
             .then(move || {
                 let body = self.into_iter().map(move |comment| {
-                    cformat!("<dim>--</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author, comment.id.as_link(&comment.url), &comment.created_at.to_human(), &comment.body )
+                    cformat!("<dim>--</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author.to_link(), comment.id.as_link(&comment.url), &comment.created_at.to_human(), &comment.body )
                 });
                 
                 body
