@@ -115,7 +115,7 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
     let mut errors = Vec::with_capacity(comments.len() + 1);
 
     macro_rules! lazy_parse {
-        ($errors: expr, $text: expr, $default: expr) => {{
+        ($errors: expr, $text: expr, $default: expr, $prefix: literal) => {{
             let text = match $text.parse() {
                 Ok(s) => s,
                 Err(e) => {
@@ -127,7 +127,7 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
             text.lines()
                 .map(|s| {
                     let content = s.get(2..).unwrap_or("");
-                    cformat!("  <dim>│</> {content}")
+                    cformat!("<b, bold>{} </><dim>│</> {content}", $prefix)
                 })
                 .collect::<Vec<_>>()
                 .join("\n")
@@ -135,17 +135,17 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
     }
     
     chunks.push(cformat!("\n<b, bold> █ {}</>", &issue.title));
-    chunks.push(cformat!("<b, bold> █ </><dim>• {} - <y>{}</> <dim>•</>", issue.author, issue.created_at.to_human()));
-    chunks.push(format!(""));
-    chunks.push(cformat!("  <dim>╭── {} </>", cformat!("issue #{}", issue.number).as_link(&issue.url)));
-    chunks.push(lazy_parse!(errors, issue.body, cformat!("<dim, i>no detail</>")));
-    chunks.push(cformat!("  <dim>╰──</> "));
+    chunks.push(cformat!("<b, bold> █ </><g>{} - <y>{}</> <dim>•</>", issue.author, issue.created_at.to_human()));
+    chunks.push(cformat!("<b, bold> █"));
+    chunks.push(cformat!("<b, bold> █ </><dim>╭── {} </>", cformat!("issue #{}", issue.number).as_link(&issue.url)));
+    chunks.push(lazy_parse!(errors, issue.body, cformat!("<dim, i>no detail</>"), " █"));
+    chunks.push(cformat!("<b, bold> █ </><dim>╰──</> "));
     
     for comment in &comments {
         chunks.push(cformat!("   <m>│</>"));
-        chunks.push(cformat!("   <m, bold>🡫</>"));
+        chunks.push(cformat!("   <m>│</>"));
         chunks.push(cformat!("  <dim>╭── <green>{}</green> - {} - {}</>", comment.author, cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
-        chunks.push(lazy_parse!(errors, Some(comment.body.clone()), cformat!("<dim, i>no comment</>")));
+        chunks.push(lazy_parse!(errors, Some(comment.body.clone()), cformat!("<dim, i>no comment</>"), " "));
         chunks.push(cformat!("  <dim>╰──────</> "));
     }
     
