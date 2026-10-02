@@ -12,7 +12,7 @@ impl Markdown for String {
         let args = Args {
             inputs: vec![],
             theme: "auto".to_string(),
-            width: Some(150),
+            width: Some(80),
             slides: true,
             plain: true,
             watch: false,

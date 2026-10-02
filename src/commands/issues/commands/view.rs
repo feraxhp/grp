@@ -27,7 +27,7 @@ pub fn command() -> Command {
 }
 
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
-    let animation = Fetch::new("Incializing list issues");
+    let animation = Fetch::new("Incializing issue fetch");
 
     let issue = args.get_one::<IssueStructure> ("issue").unwrap();
     let pconf = match issue.repo.pconf.clone() {
@@ -47,7 +47,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
     };
     let config = pconf.to_config();
-    
+
+    animation.change_message("Getting issue details...");
     let issue_detail = match platform.issue(owner, &issue.repo.path, &issue.number, &config, &animation).await {
         Ok(s) => s,
         Err(e) => {
@@ -57,6 +58,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
     };
     
+    animation.change_message("Getting issue comments...");
     let stream = match platform.list_issue_comments(owner, &issue.repo.path, &issue.number, &config, &animation).await {
         Ok(s) => s,
         Err(e) => {
@@ -71,7 +73,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .enumerate()
         // .take(1)
         .map(|(i, s)| {
-            an.change_message(format!("Requesting page: {}", i + 1));
+            an.change_message(cformat!("Getting issue comments: <i, u>page: {}</>", i + 1));
             s
         })
         .fold((vec![], vec![]), async move |curr, act| {
@@ -115,9 +117,9 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
     let mut errors = Vec::with_capacity(comments.len() + 1);
 
     macro_rules! lazy_parse {
-        ($errors: expr, $text: expr, $default: expr) => {{
+        ($errors: expr, $text: expr, $default: expr, $prefix: literal) => {{
             let text = match $text.parse() {
-                Ok(s) => s,
+                Ok(s) => s.trim_end_matches("\n").to_string(),
                 Err(e) => {
                     $errors.push(e);
                     $text.to_owned().unwrap_or($default)
@@ -125,31 +127,40 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
             };
             
             text.lines()
-                .map(|s| {
+                .filter_map(|s| {
                     let content = s.get(2..).unwrap_or("");
-                    cformat!("    <dim>│</> {content}")
+                    Some(cformat!("<b, bold>{} </><b>│</> {content}", $prefix))
                 })
                 .collect::<Vec<_>>()
                 .join("\n")
         }};
     }
     
-    chunks.push(cformat!("\n<b, bold>  █ {}</>", &issue.title));
-    chunks.push(cformat!("<b, bold>█ </><dim>• {} - <y>{}</> <dim>•</>", issue.author, issue.created_at.to_human()).as_tip());
-    chunks.push(format!(""));
-    chunks.push(cformat!("    <dim>╭── issue{} </>", cformat!("#{}", issue.number).as_link(&issue.url)));
-    chunks.push(lazy_parse!(errors, issue.body, cformat!("<dim, i>no detail</>")));
-    chunks.push(cformat!("    <dim>╰──</> "));
+    chunks.push(cformat!("\n<b, bold> █ {}</> <i, dim>{}</>", &issue.title, cformat!("#{}", issue.number).as_link(&issue.url)));
+    chunks.push(cformat!("<b, bold> █"));
+    chunks.push(cformat!("<b, bold> █ </><b>╭──</> <green>{}</> <dim>- {}</>",issue.author, issue.created_at.to_human()));
+    chunks.push(lazy_parse!(errors, issue.body, cformat!("<dim, i>no detail</>"), " █"));
+    chunks.push(cformat!("<b, bold> █ </><b>╰──</> ")); 
     
-    for comment in &comments {
-        chunks.push(cformat!("     <m>│</>"));
-        chunks.push(cformat!("     <m, bold>🡫</>"));
-        chunks.push(cformat!("    <dim>╭── <green>{}</green> - {} - {}</>", comment.author, cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
-        chunks.push(lazy_parse!(errors, Some(comment.body.clone()), cformat!("<dim, i>no comment</>")));
-        chunks.push(cformat!("    <dim>╰──────</> "));
+    let length = comments.len();
+    for (index, comment) in (&comments).iter().enumerate() {
+        let gliph = if index == 0 { 
+            chunks.push(cformat!("\n <c>▌ Coments</>\n"));
+            "─" 
+        // } else { "╯" };
+        } else { "─" };
+        chunks.push(cformat!("  <b>╭{} </><green>{}</> <dim>- {} - {}</>", gliph, comment.author, cformat!("#{}", comment.id).as_link(&comment.url), comment.created_at.to_human()));
+        chunks.push(lazy_parse!(errors, Some(comment.body.clone()), cformat!("<dim, i>no comment</>"), " "));
+        
+        if length == (index +1) { chunks.push(cformat!("  <b>╰──</> ")); }
+        else {                 // chunks.push(cformat!("  <b>╰╮</> ")); 
+                                  chunks.push(cformat!("  <b>╰──</> \n"));
+            // chunks.push(cformat!("   <b>│</>"));
+            // chunks.push(cformat!("   <b>│</>"));
+        }
     }
     
-    if comments.is_empty() { chunks.push(format!("")) }
+    chunks.push(format!(""));
     
     (chunks, errors)
 }
