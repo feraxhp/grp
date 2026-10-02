@@ -31,4 +31,13 @@ impl Parsing {
                 cformat!("  <b><<{}>></>", url),
         }
     }
+    
+    pub fn issue_is_pull_request() -> Error {
+        make_error!{
+            etype!("issue_is_pull_request"), "Error parsing the issue",
+            2 of 
+                cformat!("<y>* The issue you are trying to parse is a pull_request</>"),
+                cformat!("<y>  You have to parse it to a PullRequest struct</>"),
+        }
+    }
 }

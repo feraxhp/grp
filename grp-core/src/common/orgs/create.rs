@@ -3,7 +3,7 @@ use crate::error::errors::request::Request;
 use crate::platform::Platform;
 use crate::error::structs::Error;
 use crate::config::Config;
-use crate::common::users::structs::User;
+use crate::structs::User;
 use crate::animation::Animation;
 use crate::specific::{gitea, gitlab};
 

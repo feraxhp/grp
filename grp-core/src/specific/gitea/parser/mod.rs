@@ -1,3 +1,7 @@
+pub mod comment;
+pub mod issue;
+pub mod user;
+
 use serde::Deserialize;
 use serde_json::Value;
 use chrono::Utc;
@@ -14,8 +18,9 @@ pub struct Repository {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Author {
+pub struct User {
     pub login: String,
+    pub html_url: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -23,7 +28,7 @@ pub struct Issue {
     pub number: u64,
     pub title: String,
     pub body: Option<String>,
-    pub user: Author,
+    pub user: User,
     pub pull_request: Option<Value>,
     pub html_url: String,
     pub state: String,
@@ -35,7 +40,7 @@ pub struct Issue {
 #[derive(Debug, Deserialize)]
 pub struct Comment {
     pub id: u64,
-    pub user: Author,
+    pub user: User,
     pub body: String,
     pub html_url: String,
     pub created_at: DateTime<Utc>,

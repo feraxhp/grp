@@ -4,7 +4,7 @@ use crate::animation::Animation;
 use crate::error::structs::Error;
 use crate::structs::PaginatorResult;
 use futures::{Stream, StreamExt};
-use crate::common::users::structs::User;
+use crate::structs::User;
 use crate::common::structs::{Context, RequestType};
 
 

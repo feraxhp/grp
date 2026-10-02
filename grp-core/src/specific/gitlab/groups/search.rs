@@ -1,12 +1,12 @@
 use std::future;
-
-use serde_json::Value;
 use futures::StreamExt;
 
+use crate::common::traits::Convert;
 use crate::json::JSON;
+use crate::specific::gitlab::parser::{Group};
 use crate::structs::{Context, RequestType};
 use crate::{config::Config, platform::Platform};
-use crate::common::users::structs::User;
+use crate::structs::User;
 use crate::error::structs::Error;
 
 
@@ -23,29 +23,23 @@ pub async fn by_full_path(name: &String, config: &Config) -> Result<Option<User>
     let mut user: Option<User> = None;
     
     let errors: Vec<Error> = platform.pagginate(url, config, context, 1)
-        .map(|result| -> Result<Vec<Value>, Error>{
+        .map(|result| -> Result<Vec<Group>, Error>{
             match result {
                 Ok(s) => JSON::from_str(&s.result),
                 Err(e) => Err(e),
             }
         })
         .take_while(|s| {
-            let json = match s {
+            let groups = match s {
                 Ok(s) => s,
                 Err(_) => return future::ready(false),
             };
             
-            if json.is_empty() { return future::ready(true) }
+            if groups.is_empty() { return future::ready(true) }
             
-            match json.iter().find(|u| u["full_path"].as_str().unwrap() == name) {
-                Some(json) => {
-                    let user_ = User {
-                        id: json["id"].as_u64().unwrap().to_string(),
-                        name: json["name"].as_str().unwrap().to_string(),
-                        path: Some(json["full_path"].as_str().unwrap().to_string()),
-                    };
-                    
-                    user = Some(user_);
+            match groups.iter().find(|group| group.full_path.as_str() == name) {
+                Some(group) => {
+                    user = Some(group.convert());
                     future::ready(false)
                 },
                 None => future::ready(true),

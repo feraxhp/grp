@@ -1,6 +1,6 @@
 use crate::animation::Animation;
 use crate::common::structs::{Context, RequestType};
-use crate::common::users::structs::User;
+use crate::structs::User;
 use crate::platform::Platform;
 use crate::error::structs::Error;
 use crate::config::Config;
