@@ -1784,9 +1784,9 @@ dependencies = [
 
 [[package]]
 name = "ink-md"
-version = "0.10.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c386284e674a4c7c13d8d3e0a8740746eb9275e15168faba51ccdefcfb1791fe"
+checksum = "5b5d80c4fef9abf0fae9435ff6904317a3437702742cfa886942a1b9359543be"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
