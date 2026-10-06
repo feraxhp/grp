@@ -53,6 +53,64 @@ impl Platform {
         )
     }
     
+    pub async fn list_user_assigned_issues<T, R, A>(&self,
+        config: &Config,
+        animation: &Box<A>
+    ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
+    where 
+        T: Into<String>, 
+        R: Display + AsRef<str>, 
+        A: Animation + ?Sized,
+    {
+        let owner = self.get_logged_user(config).await?;
+        let url = self.url_list_user_assigned_issues(&config.endpoint);
+        
+        let context = Context {
+            request_type: RequestType::ListIssues,
+            owner: Some(owner.name),
+            repo: None,
+            additional: None,
+        };
+        
+        animation.change_message("fetching issues...");
+        
+        Ok(
+            self.pagginate(url, &config, context, 1)
+                .map(|result| {
+                    self.get_issues(result)
+                })
+        )
+    }
+    
+    pub async fn list_all_user_issues<T, R, A>(&self,
+        config: &Config,
+        animation: &Box<A>
+    ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
+    where 
+        T: Into<String>, 
+        R: Display + AsRef<str>, 
+        A: Animation + ?Sized,
+    {
+        let owner = self.get_logged_user(config).await?;
+        let url = self.url_list_all_user_issues(&config.endpoint);
+        
+        let context = Context {
+            request_type: RequestType::ListIssues,
+            owner: Some(owner.name),
+            repo: None,
+            additional: None,
+        };
+        
+        animation.change_message("fetching issues...");
+        
+        Ok(
+            self.pagginate(url, &config, context, 1)
+                .map(|result| {
+                    self.get_issues(result)
+                })
+        )
+    }
+    
     pub fn get_issues(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Issue>>, Error> {
         let pagginator = response?;
         let issues = Issue::from_text_array(&pagginator.result, &self)?;
