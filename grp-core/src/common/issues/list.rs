@@ -53,13 +53,11 @@ impl Platform {
         )
     }
     
-    pub async fn list_user_assigned_issues<T, R, A>(&self,
+    pub async fn list_user_assigned_issues<A>(&self,
         config: &Config,
         animation: &Box<A>
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
     where 
-        T: Into<String>, 
-        R: Display + AsRef<str>, 
         A: Animation + ?Sized,
     {
         let owner = self.get_logged_user(config).await?;
@@ -82,13 +80,11 @@ impl Platform {
         )
     }
     
-    pub async fn list_all_user_issues<T, R, A>(&self,
+    pub async fn list_all_user_issues<A>(&self,
         config: &Config,
         animation: &Box<A>
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
     where 
-        T: Into<String>, 
-        R: Display + AsRef<str>, 
         A: Animation + ?Sized,
     {
         let owner = self.get_logged_user(config).await?;
