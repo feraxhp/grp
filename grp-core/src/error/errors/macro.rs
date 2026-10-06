@@ -4,7 +4,7 @@ macro_rules! empty_notes {
 }
 
 #[macro_export]
-macro_rules! make_error {
+    macro_rules! make_error {
     (
         $notes:ident, 
         $type:expr,
