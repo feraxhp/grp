@@ -2,7 +2,10 @@ pub mod comment;
 pub mod issue;
 pub mod user;
 
+use std::fmt::Debug;
+
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use serde_json::Value;
 use chrono::Utc;
 use chrono::DateTime;
@@ -46,4 +49,14 @@ pub struct Comment {
     pub html_url: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+
+#[derive(Debug, Deserialize)]
+#[serde(bound(deserialize = "T: DeserializeOwned"))]
+pub struct SearchResult<T> 
+where 
+    T: Debug,
+{
+    pub items: Vec<T>,
 }
