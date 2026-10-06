@@ -13,10 +13,13 @@ use crate::printables::show::Show;
 use crate::usettings::structs::{Pconf, Usettings};
 
 
-pub fn arguments() -> [Arg; 3] {
+pub fn arguments() -> [Arg; 4] {
     [
         Arguments::pconf(false, true),
         arg!(-a --assigned "Show only the assigned issues for the authenticated user")
+        ,
+        arg!(-i --involved "Show all the involved issues for the authenticated user (only: github)")
+            .conflicts_with_all(["assigned"])
         ,
         arg!(-s  --"show-errors" "Show the erros when they happen during paggination request")
             .required(false)
@@ -29,8 +32,13 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         Some(e) => e.clone(),
         None => usettings.get_default_pconf().or_exit(&animation),
     };
+
+    let mode = match true {
+        _ if args.get_flag("involved") => Mode::INVOLVED,
+        _ if args.get_flag("assigned") => Mode::ASSIGNED,
+        _ => Mode::ALL,
+    };
     
-    let assigned = args.get_flag("assigned");
     let show_errors = args.get_flag("show-errors");
     let platform = match Platform::matches(&pconf.r#type) {
         Ok(p) => p,
@@ -42,8 +50,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
-    let stream = match assigned {
-        true => match platform.list_user_assigned_issues(&config, &animation).await {
+    let stream = match mode {
+        Mode::ASSIGNED => match platform.list_user_assigned_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(&e.message);
@@ -51,7 +59,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 return;
             },
         },
-        false => match platform.list_all_user_issues(&config, &animation).await {
+        Mode::ALL => match platform.list_all_user_issues(&config, &animation).await {
+            Ok(s) => s.boxed(),
+            Err(e) => {
+                animation.finish_with_error(&e.message);
+                e.show();
+                return;
+            },
+        },
+        Mode::INVOLVED => match platform.list_all_involved_user_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(&e.message);
@@ -104,4 +120,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             }
         }
     }
+}
+
+enum Mode {
+    ALL,
+    ASSIGNED,
+    INVOLVED,
 }

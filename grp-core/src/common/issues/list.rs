@@ -94,7 +94,7 @@ impl Platform {
         A: Animation + ?Sized,
     {
         if !matches!(self, Github) {
-            return Err(Unsupported::action("list_all_involved_user_issues"));
+            return Err(Unsupported::action("list_all_involved_user_issues", self));
         }
         let owner = self.get_logged_user(config).await?;
         let url = self.url_list_all_involved_user_issues(&config.endpoint);

@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use hyper::HeaderMap;
 use reqwest::Response;
 
@@ -72,6 +74,18 @@ impl Platform {
             Platform::Forgejo |
             Platform::Gitea => { gitea::unwrap::unwrap(result, base_message.into(), config, context).await }
             Platform::Gitlab => { gitlab::unwrap::unwrap(result, base_message.into(), config, context).await }
+        }
+    }
+}
+
+impl Display for Platform {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Platform::Github => write!(f, "{}", "github"),
+            Platform::Gitea => write!(f, "{}", "gitea"),
+            Platform::Gitlab => write!(f, "{}", "gitlab"),
+            Platform::Codeberg => write!(f, "{}", "codeberg"),
+            Platform::Forgejo => write!(f, "{}", "forgejo"),
         }
     }
 }
