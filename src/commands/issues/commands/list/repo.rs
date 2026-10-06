@@ -1,23 +1,24 @@
 use std::process::exit;
 use futures::StreamExt;
 
-use clap::{arg, ArgMatches, Command};
+use clap::{arg, ArgMatches, Command, command};
 use color_print::{cformat, cprintln};
 use grp_core::animation::Animation;
 use grp_core::{Error, Platform};
 
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
-use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 use crate::printables::show::Show;
 use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
-    Commands::list("List the all the issues given repo")
+    command!()
+        .name("repo")
+        .about("list the issues from a repository")
         .args([
-            Arguments::repo_structure(true, true),
+            Arguments::repo_structure(false, true),
             arg!(-s  --"show-errors" "Show the erros when they happen during paggination request")
                 .required(false)
         ])
