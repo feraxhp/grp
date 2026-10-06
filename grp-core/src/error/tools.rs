@@ -35,7 +35,7 @@ where
     }
 
     fn as_tip(self) -> String {
-        cformat!("<g>✔</> {}", self)
+        cformat!("<g, bold>✓</> {}", self)
     }
     
     fn as_tip_cotinuation(self) -> String {

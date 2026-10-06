@@ -19,8 +19,8 @@ impl Unsupported {
         make_error!{
             etype!("action"), "This action is unsuported by the platform",
             2 of 
-                cformat!("<y> * The accion <m>{}</m> is not supported yet", action),
-                cformat!("  Platform: <m>{}</m>", platform)
+                cformat!("* The accion <b>{}</b> is not supported yet", action),
+                cformat!("  <g>Platform: <m>{}</m>", platform)
         }
     }
 }
