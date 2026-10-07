@@ -11,6 +11,7 @@ use crate::Platform;
 use crate::Platform::Github;
 use crate::animation::Animation;
 use crate::common::traits::Convert;
+use crate::common::utils::skip_empty;
 use crate::specific::github;
 use crate::specific::github::parser::SearchResult;
 use crate::error::errors::unsupported::Unsupported;
@@ -136,13 +137,7 @@ impl Platform {
                 let assigned_issues = self.list_user_assigned_issues(config, animation).await?;
                 
                 let union = select(todos, assigned_issues)
-                    .filter(|res| {
-                        let keep = match res {
-                            Ok(batch) => !batch.result.is_empty(),
-                            Err(_) => true,
-                        };
-                        futures::future::ready(keep)
-                    });
+                    .filter(skip_empty);
                 
                 Ok(union.boxed())
             },
@@ -152,32 +147,65 @@ impl Platform {
         }
     }
 
-    pub async fn list_all_user_issues<A>(&self,
-        config: &Config,
-        animation: &Box<A>
-    ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
+    pub async fn list_all_user_issues<'a, A>(&'a self,
+        config: &'a Config,
+        animation: &'a Box<A>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>> + Send + 'a>>, Error> 
     where 
         A: Animation + ?Sized,
     {
-        animation.change_message("getting user id...");
-        let owner = self.get_logged_user(config).await?;
-        let url = self.url_list_all_user_issues(&config.endpoint);
-        
-        let context = Context {
-            request_type: RequestType::ListIssues,
-            owner: Some(owner.name),
-            repo: None,
-            additional: None,
-        };
-        
-        animation.change_message("fetching issues...");
-        
-        Ok(
-            self.pagginate(url, &config, context, 1)
-                .map(|result| {
-                    self.get_issues(result)
-                })
-        )
+        match self {
+            Platform::Github |
+            Platform::Gitea |
+            Platform::Codeberg |
+            Platform::Forgejo => {
+                animation.change_message("getting user id...");
+                let owner = self.get_logged_user(config).await?;
+                let url = self.url_list_all_user_issues(&config.endpoint);
+                
+                let context = Context {
+                    request_type: RequestType::ListIssues,
+                    owner: Some(owner.name),
+                    repo: None,
+                    additional: None,
+                };
+                
+                animation.change_message("fetching issues...");
+                
+                Ok(
+                    self.pagginate(url, &config, context, 1)
+                        .map(|result| {
+                            self.get_issues(result)
+                        })
+                        .boxed()
+                )
+            },
+            Platform::Gitlab => {
+                let scopes = [ 
+                    gitlab::issues::list::Scope::AssignedToMe,
+                    gitlab::issues::list::Scope::CreatedByMe,
+                ];
+                
+                let mut stream = None;
+                for scope in scopes {
+                    let response = gitlab::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
+                    let response = response.map(|result | {
+                        let result = result?;
+                        let issues = result.result.iter().map(|s| s.convert()).collect();
+                        
+                        Ok(result.parse_result(issues))
+                    });
+                    
+                    match stream {
+                        Some(other) 
+                        => stream = Some(select(other, response).boxed()),
+                        None => stream = Some(response.boxed()),
+                    }
+                }
+                
+                Ok(stream.unwrap().filter(skip_empty).boxed())
+            },
+        }
     }
     
     pub fn get_issues(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Issue>>, Error> {
@@ -202,5 +230,3 @@ impl Platform {
         Ok(pagginator.parse_result(issues))
     }
 }
-
-
