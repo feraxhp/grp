@@ -1,6 +1,7 @@
 use std::fmt::Display;
 use std::pin::Pin;
 
+use futures::stream::select;
 use futures::{Stream, StreamExt};
 
 use crate::Config;
@@ -128,11 +129,22 @@ impl Platform {
                     let issues: Vec<Issue> = issues.into_iter().map(|b| {
                         b.target.convert()
                     }).collect();
-
+                    
                     Ok(result.parse_result(issues))
                 });
-
-                Ok(todos.boxed())
+                
+                let assigned_issues = self.list_user_assigned_issues(config, animation).await?;
+                
+                let union = select(todos, assigned_issues)
+                    .filter(|res| {
+                        let keep = match res {
+                            Ok(batch) => !batch.result.is_empty(),
+                            Err(_) => true,
+                        };
+                        futures::future::ready(keep)
+                    });
+                
+                Ok(union.boxed())
             },
             Platform::Gitea |
             Platform::Codeberg |
