@@ -31,6 +31,7 @@ impl Platform {
         R: Display + AsRef<str>, 
         A: Animation + ?Sized,
     {
+        animation.change_message("getting user id...");
         let owner = owner.map(|o| o.into());
         let mut owner = owner.unwrap_or(config.user.clone());
 
@@ -66,6 +67,7 @@ impl Platform {
     where 
         A: Animation + ?Sized,
     {
+        animation.change_message("getting user id...");
         let owner = self.get_logged_user(config).await?;
         let url = self.url_list_user_assigned_issues(&config.endpoint, &owner);
         
@@ -96,6 +98,7 @@ impl Platform {
         if !matches!(self, Github) {
             return Err(Unsupported::action("list_all_involved_user_issues", self));
         }
+        animation.change_message("getting user id...");
         let owner = self.get_logged_user(config).await?;
         let url = self.url_list_all_involved_user_issues(&config.endpoint);
         
@@ -123,6 +126,7 @@ impl Platform {
     where 
         A: Animation + ?Sized,
     {
+        animation.change_message("getting user id...");
         let owner = self.get_logged_user(config).await?;
         let url = self.url_list_all_user_issues(&config.endpoint);
         
