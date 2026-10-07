@@ -5,4 +5,5 @@ pub mod traits;
 pub mod issues;
 pub mod repos;
 pub mod users;
+pub mod utils;
 pub mod orgs;

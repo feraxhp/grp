@@ -58,7 +58,7 @@ impl Platform {
                 format!("{}/repos/issues/search?state=open&type=issues", self.get_base_url(endpoint))
             },
             Platform::Gitlab => {
-                format!("{}/issues?state=opened&scope=all", self.get_base_url(endpoint))
+                String::new()
             }
         }
     }
@@ -74,10 +74,10 @@ impl Platform {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                "".to_string()
+                String::new()
             },
             Platform::Gitlab => {
-                "".to_string()
+                String::new()
             }
         }
     }
