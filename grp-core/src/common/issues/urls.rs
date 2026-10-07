@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::Platform;
+use crate::{Platform, structs::User};
 
 
 
@@ -25,7 +25,7 @@ impl Platform {
         }
     }
     
-    pub(crate) fn url_list_user_assigned_issues<S>(&self, endpoint: &S) -> String 
+    pub(crate) fn url_list_user_assigned_issues<S>(&self, endpoint: &S, assignee: &User) -> String 
     where 
         S: AsRef<str>,
     {
@@ -36,10 +36,10 @@ impl Platform {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                format!("{}/issues?state=opened&scope=assigned_to_me", self.get_base_url(endpoint))
+                format!("{}/repos/issues/search?state=open&assigned=true&type=issues", self.get_base_url(endpoint))
             },
             Platform::Gitlab => {
-                format!("{}/repos/issues/search?state=open&assigned=true&type=issues", self.get_base_url(endpoint))
+                format!("{}/issues?state=opened&assignee_id={}", self.get_base_url(endpoint), assignee.id)
             }
         }
     }
@@ -55,10 +55,10 @@ impl Platform {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                format!("{}/issues?state=opened&scope=all", self.get_base_url(endpoint))
+                format!("{}/repos/issues/search?state=open&type=issues", self.get_base_url(endpoint))
             },
             Platform::Gitlab => {
-                format!("{}/repos/issues/search?state=open&type=issues", self.get_base_url(endpoint))
+                format!("{}/issues?state=opened&scope=all", self.get_base_url(endpoint))
             }
         }
     }

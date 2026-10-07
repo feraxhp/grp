@@ -67,7 +67,7 @@ impl Platform {
         A: Animation + ?Sized,
     {
         let owner = self.get_logged_user(config).await?;
-        let url = self.url_list_user_assigned_issues(&config.endpoint);
+        let url = self.url_list_user_assigned_issues(&config.endpoint, &owner);
         
         let context = Context {
             request_type: RequestType::ListIssues,
