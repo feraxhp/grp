@@ -3,7 +3,11 @@ pub mod issue;
 pub mod group;
 pub mod user;
 
+
+use std::fmt::Debug;
+
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use chrono::Utc;
 use chrono::DateTime;
 
@@ -52,4 +56,15 @@ pub struct Comment {
     pub body: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(bound(deserialize = "T: DeserializeOwned"))]
+#[allow(unused)]
+pub struct Todos<T> 
+where 
+    T: Debug,
+{
+    pub target_type: String,
+    pub target: T
 }

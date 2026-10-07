@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::pin::Pin;
 
 use futures::{Stream, StreamExt};
 
@@ -88,35 +89,55 @@ impl Platform {
         )
     }
     
-    pub async fn list_all_involved_user_issues<A>(&self,
-        config: &Config,
-        animation: &Box<A>
-    ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
+    pub async fn list_all_involved_user_issues<'a ,A>(&'a self,
+        config: &'a Config,
+        animation: &'a Box<A>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>> + Send + 'a>>, Error> 
     where 
         A: Animation + ?Sized,
     {
-        if !matches!(self, Github) {
-            return Err(Unsupported::action("list_all_involved_user_issues", self));
+        match self {
+            Github => {
+                let owner = self.get_logged_user(config).await?;
+                let url = self.url_list_all_involved_user_issues(&config.endpoint);
+                
+                let context = Context {
+                    request_type: RequestType::ListIssues,
+                    owner: Some(owner.name),
+                    repo: None,
+                    additional: None,
+                };
+                
+                animation.change_message("fetching issues...");
+                
+                Ok(
+                    self.pagginate(url, &config, context, 1)
+                        .map(|result| {
+                            self.get_seach_result(result)
+                        })
+                        .boxed()
+                )
+            },
+            Platform::Gitlab => {
+                let issues = gitlab::todo::list::list_todos::<gitlab::parser::Issue, A, &str>(self, Some("Issues"), config, animation).await?;
+                let todos = issues.map(|response| -> Result<PaginatorResult<Vec<Issue>>, Error> {
+                    // let result = parse::<gitlab::parser::Issue>(response)?;
+                    let result = response?;
+                    let issues = &result.result;
+                    
+                    let issues: Vec<Issue> = issues.into_iter().map(|b| {
+                        b.target.convert()
+                    }).collect();
+
+                    Ok(result.parse_result(issues))
+                });
+
+                Ok(todos.boxed())
+            },
+            Platform::Gitea |
+            Platform::Codeberg |
+            Platform::Forgejo => return Err(Unsupported::action("list_all_involved_user_issues", self)),
         }
-        animation.change_message("getting user id...");
-        let owner = self.get_logged_user(config).await?;
-        let url = self.url_list_all_involved_user_issues(&config.endpoint);
-        
-        let context = Context {
-            request_type: RequestType::ListIssues,
-            owner: Some(owner.name),
-            repo: None,
-            additional: None,
-        };
-        
-        animation.change_message("fetching issues...");
-        
-        Ok(
-            self.pagginate(url, &config, context, 1)
-                .map(|result| {
-                    self.get_seach_result(result)
-                })
-        )
     }
 
     pub async fn list_all_user_issues<A>(&self,
