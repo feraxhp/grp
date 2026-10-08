@@ -9,11 +9,9 @@ use crate::Platform;
 use crate::animation::Animation;
 use crate::common::traits::Convert;
 use crate::common::utils::skip_empty;
-use crate::specific::{gitea, gitlab};
-use crate::structs::Context;
+use crate::specific::{gitea, github, gitlab};
 use crate::structs::Issue;
 use crate::structs::PaginatorResult;
-use crate::structs::RequestType;
 
 
 impl Platform {
@@ -26,25 +24,22 @@ impl Platform {
     {
         match self {
             Platform::Github => {
-                animation.change_message("getting user id...");
-                let owner = self.get_logged_user(config).await?;
-                let url = self.url_list_all_user_issues(&config.endpoint);
-                
-                let context = Context {
-                    request_type: RequestType::ListIssues,
-                    owner: Some(owner.name),
-                    repo: None,
-                    additional: None,
-                };
-                
-                animation.change_message("fetching issues...");
-                
+                let issues = github::issues::list::list_issues_by_scope(
+                    self, 
+                    github::issues::list::Filter::All,
+                    config, 
+                    animation
+                ).await?;
+
                 Ok(
-                    self.pagginate(url, &config, context, 1)
-                        .map(|result| {
-                            self.get_issues(result)
-                        })
-                        .boxed()
+                issues
+                    .map(|result| { 
+                        let pagginator = result?;
+                        let issues = pagginator.result.iter().map(|s| s.convert()).collect();
+                        
+                        Ok(pagginator.parse_result(issues))
+                    })
+                    .boxed()
                 )
             },
             Platform::Gitlab => {

@@ -44,24 +44,6 @@ impl Platform {
         }
     }
     
-    pub(crate) fn url_list_all_user_issues<S>(&self, endpoint: &S) -> String 
-    where 
-        S: AsRef<str>,
-    {
-        match &self {
-            Platform::Github => {
-                format!("{}/user/issues?state=open&filter=all", self.get_base_url(endpoint))
-            },
-            Platform::Codeberg |
-            Platform::Forgejo |
-            Platform::Gitea => {
-                format!("{}/repos/issues/search?state=open&type=issues", self.get_base_url(endpoint))
-            },
-            Platform::Gitlab => {
-                String::new()
-            }
-        }
-    }
     
     pub(crate) fn url_list_all_involved_user_issues<S>(&self, endpoint: &S) -> String 
     where 
