@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::process::exit;
 use futures::StreamExt;
 
@@ -101,8 +102,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .await;
 
     animation.change_message("Removing duplicates...");
-    issues.sort_by_key(|i| i.id);
-    issues.dedup_by_key(|i| i.id);
+    let mut seen = HashSet::new();
+    issues.retain(|issue| seen.insert(issue.id));
     
     match (issues.is_empty(), errors.is_empty()) {
         (true, true) => { animation.finish_with_success("<i>No issues found</>"); },
