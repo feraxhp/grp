@@ -25,7 +25,7 @@ impl Platform {
         A: Animation + ?Sized,
     {
         match self {
-            Platform::Forgejo => {
+            Platform::Github => {
                 animation.change_message("getting user id...");
                 let owner = self.get_logged_user(config).await?;
                 let url = self.url_list_all_user_issues(&config.endpoint);
@@ -72,7 +72,7 @@ impl Platform {
                 
                 Ok(stream.unwrap().filter(skip_empty).boxed())
             },
-            Platform::Github |
+            Platform::Forgejo |
             Platform::Gitea |
             Platform::Codeberg => {
                 let scopes = [ 
