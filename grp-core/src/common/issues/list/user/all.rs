@@ -9,7 +9,7 @@ use crate::Platform;
 use crate::animation::Animation;
 use crate::common::traits::Convert;
 use crate::common::utils::skip_empty;
-use crate::specific::gitlab;
+use crate::specific::{gitea, gitlab};
 use crate::structs::Context;
 use crate::structs::Issue;
 use crate::structs::PaginatorResult;
@@ -25,10 +25,7 @@ impl Platform {
         A: Animation + ?Sized,
     {
         match self {
-            Platform::Github |
-            Platform::Gitea |
-            Platform::Codeberg |
-            Platform::Forgejo => {
+            Platform::Github => {
                 animation.change_message("getting user id...");
                 let owner = self.get_logged_user(config).await?;
                 let url = self.url_list_all_user_issues(&config.endpoint);
@@ -59,6 +56,34 @@ impl Platform {
                 let mut stream = None;
                 for scope in scopes {
                     let response = gitlab::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
+                    let response = response.map(|result | {
+                        let result = result?;
+                        let issues = result.result.iter().map(|s| s.convert()).collect();
+                        
+                        Ok(result.parse_result(issues))
+                    });
+                    
+                    match stream {
+                        Some(other) 
+                        => stream = Some(select(other, response).boxed()),
+                        None => stream = Some(response.boxed()),
+                    }
+                }
+                
+                Ok(stream.unwrap().filter(skip_empty).boxed())
+            },
+            Platform::Forgejo |
+            Platform::Gitea |
+            Platform::Codeberg => {
+                let scopes = [ 
+                    gitea::issues::list::Scope::AssignedToMe,
+                    gitea::issues::list::Scope::CreatedByMe,
+                    gitea::issues::list::Scope::Mentioned,
+                ];
+                
+                let mut stream = None;
+                for scope in scopes {
+                    let response = gitea::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
                     let response = response.map(|result | {
                         let result = result?;
                         let issues = result.result.iter().map(|s| s.convert()).collect();
