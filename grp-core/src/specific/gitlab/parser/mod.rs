@@ -38,6 +38,7 @@ pub struct Group {
 
 #[derive(Debug, Deserialize)]
 pub struct Issue {
+    pub id: u64,
     pub iid: u64,
     pub author: User,
     pub title: String,

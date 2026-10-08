@@ -16,9 +16,9 @@ use crate::usettings::structs::{Pconf, Usettings};
 pub fn arguments() -> [Arg; 4] {
     [
         Arguments::pconf(false, true),
-        arg!(-a --assigned "Show only the assigned issues for the authenticated user")
+        arg!(-a --assigned "Show only the assigned issues for the authenticated user (Experimental)")
         ,
-        arg!(-i --involved "Show all the involved issues for the authenticated user (only: github)")
+        arg!(-i --involved "Show all the involved issues for the authenticated user")
             .conflicts_with_all(["assigned"])
         ,
         arg!(-s  --"show-errors" "Show the erros when they happen during paggination request")
@@ -78,7 +78,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     let an = &animation;
-    let (repos, errors) = stream
+    let (mut issues, errors) = stream
         .enumerate()
         //.take(1)
         .map(|(i, s)| {
@@ -99,12 +99,16 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             (repos, errors)
         })
         .await;
+
+    animation.change_message("Removing duplicates...");
+    issues.sort_by_key(|i| i.id);
+    issues.dedup_by_key(|i| i.id);
     
-    match (repos.is_empty(), errors.is_empty()) {
+    match (issues.is_empty(), errors.is_empty()) {
         (true, true) => { animation.finish_with_success("<i>No issues found</>"); },
         (false,  true) => {
             animation.finish_with_success(cformat!("<y,i>list issues</y,i> <g>succeeded!</>"));
-            repos.print_pretty();
+            issues.print_pretty();
         },
         (true, false) => {
             let error = Error::collection(errors);
@@ -113,7 +117,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (false, false) => {
             animation.finish_with_warning(cformat!("<m,i>list issues</m,i> <y>finish with errors!</>"));
-            repos.print_pretty();
+            issues.print_pretty();
             if show_errors { errors.print_pretty(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");

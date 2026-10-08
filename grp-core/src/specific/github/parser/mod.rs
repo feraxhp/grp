@@ -29,6 +29,7 @@ pub struct User {
 
 #[derive(Debug, Deserialize)]
 pub struct Issue {
+    pub id: u64,
     pub number: u64,
     pub title: String,
     pub body: Option<String>,

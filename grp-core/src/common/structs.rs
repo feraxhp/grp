@@ -75,6 +75,7 @@ pub struct Context {
 
 #[derive(Clone, Debug)]
 pub struct Issue {
+    pub id: u64,
     pub author: User,
     pub number: u64,
     pub title: String,

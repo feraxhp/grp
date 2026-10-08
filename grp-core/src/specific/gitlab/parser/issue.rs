@@ -7,6 +7,7 @@ impl Convert for super::Issue {
 
     fn convert(&self) -> Self::Local {
         Self::Local {
+            id: self.id,
             author: self.author.convert(),
             number: self.iid.to_owned(),
             title: self.title.to_owned(),
