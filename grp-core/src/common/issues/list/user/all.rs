@@ -15,6 +15,16 @@ use crate::structs::PaginatorResult;
 
 
 impl Platform {
+    /// Allows you to retrieve all the issues assosiated with an acount. 
+    /// 1. for github uses the filter All
+    /// 2. for gitlab unifies the request from _AssignedToMe, CreatedByMe_ (this may return duplicates)
+    /// 3. for forgejo (and compatibles) unifies the request from _AssignedToMe, CreatedByMe, Mentioned_ (this may return duplicates)
+    /// 
+    /// __Every chunk is a page__ is only true on __github__, the other platforms due to the non unified enpoint to call, will return the first available 
+    /// page of the pool request, for the n request with filters
+    /// 
+    /// > I will love to get a better implementation of this in the future, if you have an idea of how to
+    /// > improve it, you are wellcome to contribute on github. (opening an issue or a pull request)
     pub async fn list_all_user_issues<'a, A>(&'a self,
         config: &'a Config,
         animation: &'a Box<A>
