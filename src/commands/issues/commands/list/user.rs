@@ -80,7 +80,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let an = &animation;
     let (repos, errors) = stream
         .enumerate()
-        .take(1)
+        //.take(1)
         .map(|(i, s)| {
             match &s {
             Ok(pr) if let Some(last) = pr.pager.last_number() => {

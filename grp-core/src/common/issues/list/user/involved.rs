@@ -65,7 +65,7 @@ impl Platform {
                     Ok(result.parse_result(issues))
                 });
                 
-                let assigned_issues = self.list_user_assigned_issues(config, animation).await?;
+                let assigned_issues = self.list_all_user_issues(config, animation).await?;
                 
                 let union = select(todos, assigned_issues)
                     .filter(skip_empty);
