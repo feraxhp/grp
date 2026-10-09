@@ -195,7 +195,15 @@ those ideas. More apps and stuff will be needed to reach that point.
 For now, the roadmap will be this simple list below.
 
 - [ ] better token security handling (WIP)
-- [ ] issues sub-command `list` `create` `add` `comment` `detail` `close` `reopen`
+- [ ] issues sub-command 
+    - [x] `list` (WIP - betta) 
+    - [x] `detail` 
+    - [ ] `add` 
+    - [ ] `close` 
+    - [ ] `create` 
+    - [ ] `reopen`
+    - [ ] `comment` 
+- [ ] releases
 - [ ] pull-requests
 
 ---
