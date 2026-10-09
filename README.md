@@ -194,8 +194,16 @@ ideas to implement, and I hope I have the time and motivation to go through all 
 those ideas. More apps and stuff will be needed to reach that point. 
 For now, the roadmap will be this simple list below.
 
-- [x] better token security handling (beta)
-- [ ] issues sub-command `list` `create` `add` `comment` `detail` `close` `reopen` (wip)
+- [ ] better token security handling (WIP)
+- [ ] issues sub-command 
+    - [x] `list` (WIP - betta) 
+    - [x] `detail` 
+    - [ ] `add` 
+    - [ ] `close` 
+    - [ ] `create` 
+    - [ ] `reopen`
+    - [ ] `comment` 
+- [ ] releases
 - [ ] pull-requests
 
 ---

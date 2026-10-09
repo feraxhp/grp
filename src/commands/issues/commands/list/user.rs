@@ -31,7 +31,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Fetch::new("Incializing list issues");
     let pconf = match args.get_one::<Pconf>("pconf") {
         Some(e) => e.clone(),
-        None => usettings.get_default_pconf().or_exit(&animation),
+        None => usettings.get_default_pconf(&animation).or_exit(&animation),
     };
 
     let mode = match true {
