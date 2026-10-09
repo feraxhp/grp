@@ -7,6 +7,7 @@
 - [ ] add delete issue command
 - [ ] add comment on issue
 - [ ] add edit comment on issue
+- [ ] update documentation
 
 # Pagination
 - [-] move stating page
