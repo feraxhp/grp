@@ -16,12 +16,12 @@ pub struct Pconf {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Usettings {
     pub default: String,
-    #[serde(rename = "pconf")]
-    pub pconfs: Vec<Pconf>,
     #[serde(default = "default_true")] // Keep compatibility to old settings
     pub keyring: bool,
     #[serde(default)] // Keep compatibility to old settings
     pub hidepass: bool,
+    #[serde(rename = "pconf")]
+    pub pconfs: Vec<Pconf>,
 }
 
 fn default_true() -> bool { true }

@@ -1,3 +1,4 @@
+pub mod password;
 pub mod cripto;
 pub mod list;
 pub mod path;
