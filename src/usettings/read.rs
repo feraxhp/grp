@@ -9,7 +9,7 @@ use crate::system::{directories::{Config, Directories}, file::File};
 
 
 impl Usettings {
-    pub fn unlock_pconf<A: Suspend>(&self, pconf: Option<&Pconf>, animation: &Box<A>) -> Result<Pconf, Error> {
+    pub fn unlock_pconf<A: Suspend + ?Sized>(&self, pconf: Option<&Pconf>, animation: &Box<A>) -> Result<Pconf, Error> {
         if pconf.is_none() { return Err(no_pconf(None)) }
 
         let pconf = pconf.unwrap();
@@ -19,14 +19,14 @@ impl Usettings {
         Ok(Pconf {
             name: pconf.name.to_owned(),
             owner: pconf.owner.to_owned(),
-            token: Cripto::decode(pconf.token, &password)?,
+            token: Cripto::decript(&pconf.token, &password)?,
             r#type: pconf.r#type.to_owned(),
             endpoint: pconf.endpoint.to_owned(),
             encripted: pconf.encripted.to_owned(),
         })
     }
     
-    pub fn get_pconf_by_name<A: Suspend>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
+    pub fn get_pconf_by_name<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
         if name == "*" { return self.get_default_pconf(animation) }
         
         let pconf = self.pconfs.iter()
@@ -35,16 +35,16 @@ impl Usettings {
         self.unlock_pconf(pconf, animation)
     }
     
-    pub fn get_default_pconf<A: Suspend>(&self, animation: &Box<A>) -> Result<Pconf, Error> {
+    pub fn get_default_pconf<A: Suspend + ?Sized>(&self, animation: &Box<A>) -> Result<Pconf, Error> {
         let pconf = self.pconfs.iter()
             .find(|pconf| pconf.name == self.default);
         
         self.unlock_pconf(pconf, animation)
     }
     
-    pub fn get_pconf_or_default<A: Suspend>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
+    pub fn get_pconf_or_default<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
         self.get_pconf_by_name(name, animation)
-            .or_else(|| self.get_default_pconf(animation))
+            .or_else(|_| self.get_default_pconf(animation))
     }
     
     pub fn read() -> Result<Usettings, Error> {
@@ -78,20 +78,23 @@ impl Usettings {
 }
 
 fn no_pconf(name: Option<&str>) -> Error {
-    let name_ = name.unwrap_or("default");
     let message = match name {
         Some(name) => cformat!("No pconf named <m>{}</>", name),
         None => cformat!("The <i>default</> pconf is not configured"),
     };
     
-    let file = Config::file()?;
+    let file = match Config::file() {
+        Ok(s) => s,
+        Err(e) => return e,
+    };
+    
     Error::new(
     "grp::ussetings::nopconf", 
         message, 
         "verify your configuration file", 
         vec![], 
         vec![
-            cformat!("config path: <b, i>{file}</>")
+            cformat!("config path: <b, i>{}</>", file.as_os_str().to_string_lossy())
         ]
     )
 }

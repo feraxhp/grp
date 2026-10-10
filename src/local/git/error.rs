@@ -5,8 +5,8 @@ use grp_core::Error;
 use grp_core::Formater;
 use grp_core::empty_notes;
 use grp_core::errors::Request;
+use crate::errors::ToError;
 use crate::local::structs::Git2Context;
-use crate::local::structs::ToError;
 
 use super::super::git::structs::Action;
 

@@ -12,7 +12,7 @@ macro_rules! etype {
 impl ToError for InquireError {
     type Context<'a> = ();
 
-    fn to_error<'a>(&self, context: Self::Context<'a>) -> grp_core::Error {
+    fn to_error<'a>(&self, _: Self::Context<'a>) -> grp_core::Error {
         match self {
             InquireError::NotTTY => {
                 Error::new(

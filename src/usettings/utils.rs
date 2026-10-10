@@ -42,12 +42,12 @@ impl Usettings {
             false => PasswordDisplayMode::Masked,
         };
 
-        let mut password_: Result<String, Error>;
+        let mut password_: Result<String, Error> = Ok(String::new());
         animation.suspend(|| { 
             ceprint!("<y>{}</>", &password.unwrap_err());
             
             let input = Password::new("Enter password:")
-                    .with_display_mode(PasswordDisplayMode::Masked)
+                    .with_display_mode(mode)
                     .prompt();
 
             password_ = input.map_err(|e| e.to_error(()));

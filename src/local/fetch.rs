@@ -66,12 +66,10 @@ impl Local {
         
         let pconf = match pconf {
             Some(e) => e,
-            None => usettings
-                    .get_pconf_or_default(&remote_name)
-                    .ok_or(Error::new(ErrorCode::NotFound, ErrorClass::Config, "no pconf"))?
+            None => usettings.get_pconf_or_default(&remote_name, animation)?,
         };
         
-        let config = pconf.to_config(animation)?;
+        let config = pconf.to_config();
         
         if options.dry_run {
             
