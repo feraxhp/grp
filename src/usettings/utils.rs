@@ -1,4 +1,3 @@
-use argon2::password_hash;
 use color_print::ceprint;
 use grp_core::{Config, Error};
 use inquire::{Password, PasswordDisplayMode};

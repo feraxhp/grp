@@ -29,16 +29,19 @@ impl Usettings {
         })
     }
 
-    pub fn get_pconf_name_by_name(&self, name: &str) -> Option<&Pconf> {
-        if name == "*" { return self.get_default_pconf_name() }
+    /// Gets the pconf without trying to decode the token
+    pub fn get_raw_pconf_by_name(&self, name: &str) -> Option<&Pconf> {
+        if name == "*" { return self.get_raw_default_pconf() }
         
         self.pconfs.iter().find(|pconf| pconf.name == name)
     }
 
-    pub fn get_default_pconf_name(&self) -> Option<&Pconf> {
+    /// Gets the pconf without trying to decode the token
+    pub fn get_raw_default_pconf(&self) -> Option<&Pconf> {
         self.pconfs.iter().find(|pconf| pconf.name == self.default)
     }
     
+    /// Gets the pconf trying to decode the token
     pub fn get_pconf_by_name<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
         if name == "*" { return self.get_default_pconf(animation) }
         
@@ -48,6 +51,7 @@ impl Usettings {
         self.unlock_pconf(pconf, animation)
     }
     
+    /// Gets the pconf trying to decode the token
     pub fn get_default_pconf<A: Suspend + ?Sized>(&self, animation: &Box<A>) -> Result<Pconf, Error> {
         let pconf = self.pconfs.iter()
             .find(|pconf| pconf.name == self.default);
@@ -55,6 +59,7 @@ impl Usettings {
         self.unlock_pconf(pconf, animation)
     }
     
+    /// Gets the pconf trying to decode the token
     pub fn get_pconf_or_default<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
         self.get_pconf_by_name(name, animation)
             .or_else(|_| self.get_default_pconf(animation))

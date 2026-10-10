@@ -53,7 +53,7 @@ impl Completer for RepoStructure {
                 
                 let pconf_owner = match Usettings::read() {
                     Ok(us) => us
-                        .get_pconf_name_by_name(pconf)
+                        .get_raw_pconf_by_name(pconf)
                         .map(|p| format!("{}/", p.owner))
                         .unwrap_or_default(),
                     Err(_) => todo!(),
