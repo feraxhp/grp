@@ -1,4 +1,4 @@
-// mod encript;
+
 
 
 use clap::{command, ArgMatches, Command};
@@ -7,9 +7,9 @@ use crate::commands::core::common::invalid;
 
 
 pub fn command() -> Command {
-    command!("cripto")
-        .aliases(["ct", "cipher"])
-        .about("Criper subcomands for grp")
+    command!("encript")
+        // .aliases(["ct", "cipher"])
+        .about("Encripts the given string of pconf")
         // .subcommand(path::command())
         // .subcommand(add::command())
         // .subcommand(list::command())

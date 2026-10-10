@@ -1,5 +1,3 @@
-// mod encript;
-
 
 use clap::{command, ArgMatches, Command};
 
