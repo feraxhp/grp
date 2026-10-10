@@ -94,7 +94,7 @@ impl Usettings {
         let mut modified = false;
         let index = animation.add();
         animation.set_total(index, self.pconfs.len() as u64, 
-            "{pos:.red} of {len:.blue}  {bar:30.green/blue} {elapsed_precise:.yellow}"
+            "{pos:.red} of {len:.blue}  {bar:30.green/blue} {elapsed_precise:.yellow}: {msg}"
         );
         
         for (position, pconf) in self.pconfs.iter_mut().enumerate() {

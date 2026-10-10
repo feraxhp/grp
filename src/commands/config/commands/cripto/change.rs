@@ -27,8 +27,9 @@ pub fn manager(_: &ArgMatches) {
         },
     };
 
+    let ns = Usettings { default: String::new(), keyring: false, hidepass: usettings.hidepass.clone(), pconfs: vec![]  };
     _ = animation.multi.println(cformat!("<y,i>insert</y,i> <m,i>old password</>").as_tip());
-    let old = match usettings.get_password(false, &animation) {
+    let old = match ns.get_password(false, &animation) {
         Ok(ps) => ps,
         Err(e) => {
             animation.finish_with_error(&e.message);
@@ -39,7 +40,6 @@ pub fn manager(_: &ArgMatches) {
     animation.suspend(||{ eprint!("\x1B[1A\x1B[0J"); });
 
     _ = animation.multi.println(cformat!("<y,i>insert</y,i> <m,i>new password</>").as_tip());
-    let ns = Usettings { default: String::new(), keyring: false, hidepass: usettings.hidepass.clone(), pconfs: vec![]  };
     let new = match ns.get_password(true, &animation) {
         Ok(ps) => ps,
         Err(e) => {
