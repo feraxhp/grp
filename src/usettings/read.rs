@@ -1,28 +1,50 @@
-use color_print::cprintln;
+use color_print::{cformat, cprintln};
 
 use grp_core::{Error, errors::Parsing};
 use grp_core::Formater;
+use crate::system::cripto::Cripto;
 use super::structs::{Pconf, Usettings};
+use crate::animations::animation::Suspend;
 use crate::system::{directories::{Config, Directories}, file::File};
 
 
 impl Usettings {
-    pub fn get_pconf_by_name(&self, name: &str) -> Option<Pconf> {
-        if name == "*" { return self.get_default_pconf(); }
-        self.pconfs.iter()
-            .find(|pconf| pconf.name == name)
-            .cloned()
+    pub fn unlock_pconf<A: Suspend>(&self, pconf: Option<&Pconf>, animation: &Box<A>) -> Result<Pconf, Error> {
+        if pconf.is_none() { return Err(no_pconf(None)) }
+
+        let pconf = pconf.unwrap();
+        if !pconf.encripted { return Ok(pconf.to_owned()); }
+        
+        let password = self.get_password(animation)?;
+        Ok(Pconf {
+            name: pconf.name.to_owned(),
+            owner: pconf.owner.to_owned(),
+            token: Cripto::decode(pconf.token, &password)?,
+            r#type: pconf.r#type.to_owned(),
+            endpoint: pconf.endpoint.to_owned(),
+            encripted: pconf.encripted.to_owned(),
+        })
     }
     
-    pub fn get_default_pconf(&self) -> Option<Pconf> {
-        self.pconfs.iter()
-            .find(|pconf| pconf.name == self.default)
-            .cloned()
+    pub fn get_pconf_by_name<A: Suspend>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
+        if name == "*" { return self.get_default_pconf(animation) }
+        
+        let pconf = self.pconfs.iter()
+            .find(|pconf| pconf.name == name);
+        
+        self.unlock_pconf(pconf, animation)
     }
     
-    pub fn get_pconf_or_default(&self, name: &str) -> Option<Pconf> {
-        self.get_pconf_by_name(name)
-            .or_else(|| self.get_default_pconf())
+    pub fn get_default_pconf<A: Suspend>(&self, animation: &Box<A>) -> Result<Pconf, Error> {
+        let pconf = self.pconfs.iter()
+            .find(|pconf| pconf.name == self.default);
+        
+        self.unlock_pconf(pconf, animation)
+    }
+    
+    pub fn get_pconf_or_default<A: Suspend>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
+        self.get_pconf_by_name(name, animation)
+            .or_else(|| self.get_default_pconf(animation))
     }
     
     pub fn read() -> Result<Usettings, Error> {
@@ -53,4 +75,23 @@ impl Usettings {
     
         Ok(config)
     }
+}
+
+fn no_pconf(name: Option<&str>) -> Error {
+    let name_ = name.unwrap_or("default");
+    let message = match name {
+        Some(name) => cformat!("No pconf named <m>{}</>", name),
+        None => cformat!("The <i>default</> pconf is not configured"),
+    };
+    
+    let file = Config::file()?;
+    Error::new(
+    "grp::ussetings::nopconf", 
+        message, 
+        "verify your configuration file", 
+        vec![], 
+        vec![
+            cformat!("config path: <b, i>{file}</>")
+        ]
+    )
 }
