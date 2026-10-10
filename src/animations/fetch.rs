@@ -86,6 +86,7 @@ impl Subprogress for Fetch {
         }
     }
 
+    fn println<M: AsRef<str>>(&self, message: M) { _ = self.multi.println(message); }
 }
 
 

@@ -85,6 +85,8 @@ impl Subprogress for Create {
             self.spinners[index].finish_and_clear();
         }
     }
+
+    fn println<M: AsRef<str>>(&self, message: M) { _ = self.multi.println(message); }
 }
 
 impl Suspend for Create {

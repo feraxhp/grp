@@ -19,6 +19,8 @@ pub(crate) trait Style {
 
 pub trait Subprogress {
     fn add(&mut self) -> usize;
+    /// Print a log line above all progress bars
+    fn println<M: AsRef<str>>(&self, message: M);
     fn set_total(&self, index: usize, total: u64, template: &str);
     fn set_state(&self, index: usize, current: u64);
     fn set_message<T: Into<String>>(&self, index: usize, message: T);

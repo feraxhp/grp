@@ -85,6 +85,7 @@ impl Subprogress for Process {
         }
     }
 
+    fn println<M: AsRef<str>>(&self, message: M) { _ = self.multi.println(message); }
 }
 
 impl Suspend for Process {

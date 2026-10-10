@@ -5,7 +5,7 @@ use color_print::cformat;
 use grp_core::Formater;
 use grp_core::animation::Animation;
 
-use crate::animations::animation::Suspend;
+use crate::animations::animation::{Subprogress, Suspend};
 use crate::usettings::structs::Usettings;
 use crate::animations::animation::Process;
 
@@ -28,7 +28,7 @@ pub fn manager(_: &ArgMatches) {
     };
 
     let ns = Usettings { default: String::new(), keyring: false, hidepass: usettings.hidepass.clone(), pconfs: vec![]  };
-    _ = animation.multi.println(cformat!("<y,i>insert</y,i> <m,i>old password</>").as_tip());
+    _ = animation.println(cformat!("<y,i>insert</y,i> <m,i>old password</>").as_tip());
     let old = match ns.get_password(false, &animation) {
         Ok(ps) => ps,
         Err(e) => {
@@ -37,34 +37,23 @@ pub fn manager(_: &ArgMatches) {
             exit(1);
         },
     };
-    animation.suspend(||{ eprint!("\x1B[1A\x1B[0J"); });
-
-    _ = animation.multi.println(cformat!("<y,i>insert</y,i> <m,i>new password</>").as_tip());
-    let new = match ns.get_password(true, &animation) {
-        Ok(ps) => ps,
-        Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
-            exit(1);
-        },
-    };
-    animation.suspend(||{ eprint!("\x1B[1A\x1B[0J"); });
-    
     animation.change_message("changing password...");
-    let outcome = usettings.change_password(&old, &new, &mut animation);
+    animation.suspend(||{ eprint!("\x1B[1A\x1B[0J \r"); });
+    
+    let outcome = usettings.change_password(&old, &mut animation);
 
     let error = match outcome {
-        Ok(true) => {
+        Ok(Some(pass)) => {
             match usettings.save() {
                 Ok(_) => {
-                    usettings.try_safe_password(&new);
+                    usettings.try_safe_password(&pass);
                     animation.finish_with_success(cformat!("<y,i>change password</y,i> <g>succeeded!</>"));
                     None
                 },
                 Err(e) => Some(e),
             }
         },
-        Ok(false) => {
+        Ok(_) => {
             animation.finish_with_warning("nothing to do");
             None
         },
