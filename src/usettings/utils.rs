@@ -1,9 +1,9 @@
 use color_print::ceprint;
 use grp_core::{Config, Error};
-use inquire::{Password, PasswordDisplayMode};
+use inquire::PasswordDisplayMode;
 
 use super::structs::Pconf;
-use crate::errors::ToError;
+use crate::system::input::Input;
 use crate::system::keiring::Keyring;
 use crate::usettings::structs::Usettings;
 use crate::animations::animation::Suspend;
@@ -45,20 +45,14 @@ impl Usettings {
         let mut password_: Result<String, Error> = Ok(String::new());
         animation.suspend(|| { 
             ceprint!("<y>{}</>\n", &password.unwrap_err());
-            
-            let input = Password::new("Enter password:")
-                    .with_display_mode(mode)
-                    .without_confirmation()
-                    .prompt();
-
-            password_ = input.map_err(|e| e.to_error(()));
-         });
-
-         password_
+            password_ = Input::get_password(mode, false)
+        });
+        
+        password_
     }
 
     pub fn try_safe_password(&self, password: &str) {
-         match self.keyring {
+        match self.keyring {
             false => (),
             true => _ = Keyring::set_password(&password),
         };
