@@ -8,7 +8,7 @@ use color_print::{ceprint, ceprintln, cformat};
 use grp_core::Platform;
 use grp_core::animation::Animation;
 use grp_core::structs::User;
-use crate::animations::animation::Delete;
+use crate::animations::animation::{Delete, Suspend};
 use crate::cache::structure::Uncacher;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::commands::core::args::Arguments;

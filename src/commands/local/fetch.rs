@@ -7,7 +7,8 @@ use grp_core::Error;
 use super::super::completions::structure::Completer;
 
 use crate::commands::completions::git::remote::Remote;
-use crate::local::structs::{ToError, Local};
+use crate::local::structs::Local;
+use crate::errors::ToError;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
@@ -73,7 +74,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     Error::from_git2(e, action, p.owner, &path, Some(&config), &usettings)
                 }
                 None => {
-                    let pconf = usettings.get_default_pconf();
+                    let pconf = usettings.get_default_pconf(&animation);
                     
                     if let Some(pconf) = pconf { 
                         Error::from_git2(e, action, &pconf.owner,&path, None, &usettings)

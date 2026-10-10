@@ -74,9 +74,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (false, None) => None
     };
     
-    let pconf = match repo.pconf.clone() {
-        Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        None => usettings.get_default_pconf().or_exit(&animation),
+    let pconf = match &repo.pconf {
+        Some(e) => usettings.get_pconf_by_name(e.as_str(), &animation).or_exit(&animation),
+        None => usettings.get_default_pconf(&animation).or_exit(&animation),
     };
 
     let owner = match repo.owner.clone() {
@@ -98,14 +98,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         exit(1)
     }
     
-    let config = match pconf.to_config() {
-        Ok(c) => c,
-        Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
-            exit(1)
-        },
-    };
+    let config = pconf.to_config();
     
     let repo = Repo {
         name: repo.path.clone(),

@@ -1,3 +1,4 @@
+use grp_core::animation;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
 pub(crate) struct Process { pub(crate) multi: MultiProgress, pub spinners: Vec<ProgressBar> }
@@ -28,4 +29,11 @@ pub trait Suspend {
     fn suspend<F, R>(&self, f: F) -> R
     where
         F: FnOnce() -> R;
+}
+
+impl Suspend for animation::None {
+    fn suspend<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce() -> R 
+    { f() }
 }

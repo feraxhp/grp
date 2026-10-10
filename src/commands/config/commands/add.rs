@@ -199,7 +199,7 @@ pub(crate) fn manager(add: &ArgMatches) {
         }
     };
 
-    let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint };
+    let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint, encripted: false };
     
     let mut usettings = match Usettings::read() {
         Ok(us) => us,

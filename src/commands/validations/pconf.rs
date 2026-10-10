@@ -1,3 +1,4 @@
+use grp_core::animation;
 use color_print::cformat;
 
 use crate::usettings::structs::{Pconf, Usettings};
@@ -18,14 +19,14 @@ impl Validations for Pconf {
             .flat_map( | p |  vec![cformat!("<g>{}</>, ", p.name.clone())])
             .collect();
         
-        match usettings.get_pconf_by_name(value) {
-            Some(e) => Ok(e),
-            
-            None if value.eq(".") && !usettings.default.is_empty() 
-            => Ok(usettings.get_default_pconf().unwrap()),
-            
-            None 
-            => Err(cformat!("\n* Posible values are [{posible_values}] and '<m>.</>' for default")),
+        match usettings.get_pconf_by_name(value, &Box::new(animation::None)) {
+            Ok(pconf) => Ok(pconf),
+            Err(error) => {
+                match error.get_type().as_str() {
+                    "grp::ussetings::nopconf" => Err(cformat!("\n* Posible values are {:?}", posible_values)),
+                    _ => Err(error.message)
+                }
+            },
         }
     }
     
@@ -38,9 +39,14 @@ impl Validations for Pconf {
         
         let posible_values: Vec<String> = usettings.pconfs.iter().map( | p |  cformat!("<g>{}</>", p.name.clone())).collect();
         
-        match usettings.get_pconf_by_name(value) {
-            Some(e) => Ok(e),
-            None => Err(cformat!("\n* Posible values are {:?}", posible_values)),
+        match usettings.get_pconf_by_name(value, &Box::new(animation::None)) {
+            Ok(pconf) => Ok(pconf),
+            Err(error) => {
+                match error.get_type().as_str() {
+                    "grp::ussetings::nopconf" => Err(cformat!("\n* Posible values are {:?}", posible_values)),
+                    _ => Err(error.message)
+                }
+            },
         }
     }
 }

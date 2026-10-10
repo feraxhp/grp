@@ -1,6 +1,7 @@
 use std::ffi::OsStr;
 
 use clap_complete::CompletionCandidate;
+use grp_core::animation;
 use grp_core::structs::Repo;
 
 use crate::cache::structure::Cacher;
@@ -53,7 +54,7 @@ impl Completer for RepoStructure {
                 
                 let pconf_owner = match Usettings::read() {
                     Ok(us) => us
-                        .get_pconf_by_name(pconf)
+                        .get_pconf_by_name(pconf, &Box::new(animation::None))
                         .map(|p| format!("{}/", p.owner))
                         .unwrap_or_default(),
                     Err(_) => todo!(),
