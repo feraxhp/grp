@@ -5,7 +5,7 @@ use chacha20poly1305::{
     aead::{Aead, KeyInit},
     ChaCha20Poly1305, Key, Nonce,
 };
-use grp_core::Error;
+use grp_core::{Error, empty_notes};
 
 use crate::errors::{cripto::CriptoError, general::GeneralError};
 
@@ -20,8 +20,17 @@ pub struct Cripto;
 #[allow(unused)]
 impl Cripto {
     pub fn decript(text: &str, password: &str) -> Result<String, Error> {
-        let payload = B64.decode(text)
-            .unwrap();
+        let payload = match B64.decode(text) {
+            Ok(pp) => pp,
+            Err(e) => {
+                return Err(Error::new(
+                "grp::base64", 
+                "base64 decoding failed", 
+                e, 
+                vec![], empty_notes!()
+                ))
+            },
+        };
         
         if payload.len() < SALT_LEN + NONCE_LEN {
             return Err(CriptoError::incomplete_payload(payload.len(), SALT_LEN + NONCE_LEN));
