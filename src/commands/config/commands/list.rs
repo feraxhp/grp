@@ -1,5 +1,5 @@
 use clap::{command, Command};
-use color_print::ceprintln;
+use color_print::{ceprintln, cformat};
 
 use crate::system::show::Show;
 use crate::usettings::structs::Usettings;
@@ -9,6 +9,7 @@ pub fn command() -> Command {
     command!("list")
         .aliases(["ls"])
         .about("Shows the list of configured pconfs")
+        .after_help(cformat!("<g>Green</> means it is encrypted, and <r>red</> otherwise."))
 }
 
 pub fn manager() {
