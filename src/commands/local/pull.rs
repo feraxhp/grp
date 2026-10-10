@@ -4,7 +4,6 @@ use clap::{arg, Arg, ArgMatches, Command, command};
 use color_print::cformat;
 
 use grp_core::animation::Animation;
-use grp_core::Error;
 
 use crate::commands::completions::git::branch::Branch;
 use crate::commands::completions::git::remote::Remote;
@@ -14,7 +13,7 @@ use crate::commands::core::args::Arguments;
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
 use crate::local::pull::PullAction;
-use crate::local::structs::Local;
+use crate::local::structs::{Git2Context, Local, LocalError};
 use crate::errors::ToError;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::animations::animation::Fetch;
@@ -107,16 +106,46 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             let error = match pconf {
                 Some(p) => {
                     let config = p.to_config();
-                    Error::from_git2(e, action, p.owner, &path, Some(&config), &usettings)
+                    let context = Git2Context {
+                        action,
+                        owner: &p.owner,
+                        repo: &path,
+                        config: Some(&config),
+                        usettings: &usettings,
+                    };
+                    
+                    match e {
+                        LocalError::Core(error) => error,
+                        LocalError::Git(error) => error.to_error(context),
+                    }
                 }
                 None => {
                     let pconf = usettings.get_default_pconf(&animation);
                     
-                    if let Some(pconf) = pconf { 
-                        Error::from_git2(e, action, &pconf.owner,&path, None, &usettings)
-                    }
-                    else {
-                        Error::from_git2(e, action, "no owner",&path, None, &usettings)
+                    let context = match pconf {
+                        Ok(p) => {
+                            Git2Context {
+                                action,
+                                owner: &p.owner.clone(),
+                                repo: &path,
+                                config: None,
+                                usettings: &usettings,
+                            }
+                        },
+                        Err(e) => {
+                            Git2Context {
+                                action,
+                                owner: &e.message.clone(),
+                                repo: &path,
+                                config: None,
+                                usettings: &usettings,
+                            }
+                        },
+                    };
+                    
+                    match e {
+                        LocalError::Core(error) => error,
+                        LocalError::Git(error) => error.to_error(context),
                     }
                 },
             };

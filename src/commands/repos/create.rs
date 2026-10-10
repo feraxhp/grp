@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::process::exit;
 use grp_core::animation::Animation;
 use grp_core::structs::Repo;
-use grp_core::{Error, Formater, Platform};
+use grp_core::{Formater, Platform};
 
 use clap::builder::ValueParser;
 use clap::{arg, ArgMatches, Command};
@@ -12,7 +12,8 @@ use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
-use crate::local::structs::Local;
+use crate::errors::ToError;
+use crate::local::structs::{Git2Context, Local};
 use crate::system::show::Show;
 use crate::local::git::structs::Action;
 use crate::system::directories::BasicDir;
@@ -143,7 +144,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         set_upstream_local = false;
                         let action =  Action::SetRemote(pconf.name.clone(), repo.git.clone());
                         let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
-                        let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
+                        let context = Git2Context {
+                            action,
+                            owner: &owner,
+                            repo: &path,
+                            config: Some(&config),
+                            usettings: &usettings,
+                        };
+                        let error = e.to_error(context);
                         finish_mode = FinishMode::WARNING(cformat!("Failed adding remote: <r>{}</>", &error.message));
                         
                         messages.push(cformat!("<m>2.</> <r>no remote added"));
@@ -167,7 +175,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                             Err(e) => {
                                 let action =  Action::SetUpstream;
                                 let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
-                                let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
+                                let context = Git2Context {
+                                    action,
+                                    owner: &owner,
+                                    repo: &path,
+                                    config: Some(&config),
+                                    usettings: &usettings,
+                                };
+                                let error = e.to_error(context);
                                 finish_mode = FinishMode::WARNING(cformat!("Failed setting upstream: <r>{}</>", &error.message));
                                 
                                 messages.push(cformat!("<m>3.</> <r>no upstream set"));

@@ -6,10 +6,11 @@ use reqwest::Url;
 
 use grp_core::animation::Animation;
 use grp_core::structs::Repo;
-use grp_core::{Platform, Error};
+use grp_core::Platform;
 
 use super::super::completions::structure::Completer;
-use crate::local::structs::Local;
+use crate::errors::ToError;
+use crate::local::structs::{Git2Context, Local};
 use crate::system::show::Show;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
@@ -126,7 +127,14 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
         },
         Err(e) => {
             let action =  Action::Clone;
-            let error = Error::from_git2(e, action, &repo.owner, &repo.path, Some(&config), &usettings);
+            let context = Git2Context {
+                action,
+                owner: &repo.owner,
+                repo: &repo.path,
+                config: Some(&config),
+                usettings: &usettings,
+            };
+            let error = e.to_error(context);
             
             animation.finish_with_error(&error.message);
             error.show();
@@ -184,7 +192,14 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
         Err(e) => {
             let action =  Action::Clone;
             let repo = format!("[{}]", url);
-            let error = Error::from_git2(e, action, &config.user, repo, Some(&config), &usettings);
+            let context = Git2Context {
+                action,
+                owner: &config.user,
+                repo: &repo,
+                config: Some(&config),
+                usettings: &usettings,
+            };
+            let error = e.to_error(context);
             
             animation.finish_with_error(&error.message);
             error.show();
