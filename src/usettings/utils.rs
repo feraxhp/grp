@@ -1,3 +1,4 @@
+use argon2::password_hash;
 use color_print::ceprint;
 use grp_core::{Config, Error};
 use inquire::{Password, PasswordDisplayMode};
@@ -55,5 +56,12 @@ impl Usettings {
          });
 
          password_
+    }
+
+    pub fn try_safe_password(&self, password: &str) {
+         match self.keyring {
+            false => (),
+            true => _ = Keyring::set_password(&password),
+        };
     }
 }

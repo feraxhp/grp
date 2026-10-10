@@ -16,10 +16,13 @@ impl Usettings {
         if !pconf.encripted { return Ok(pconf.to_owned()); }
         
         let password = self.get_password(animation)?;
+        let token = Cripto::decript(&pconf.token, &password)?;
+        
+        self.try_safe_password(&password);
         Ok(Pconf {
             name: pconf.name.to_owned(),
             owner: pconf.owner.to_owned(),
-            token: Cripto::decript(&pconf.token, &password)?,
+            token,
             r#type: pconf.r#type.to_owned(),
             endpoint: pconf.endpoint.to_owned(),
             encripted: pconf.encripted.to_owned(),
