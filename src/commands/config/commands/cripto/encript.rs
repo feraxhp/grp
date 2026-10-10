@@ -11,7 +11,7 @@ use crate::commands::core::args::Arguments;
 
 pub fn command() -> Command {
     command!("encript")
-        // .aliases(["ct", "cipher"])
+        .aliases(["lock"])
         .about("Encripts the given pconf")
         .args([
             Arguments::pconf(false, false)

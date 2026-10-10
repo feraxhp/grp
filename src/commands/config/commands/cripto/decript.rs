@@ -11,7 +11,7 @@ use crate::commands::core::args::Arguments;
 
 pub fn command() -> Command {
     command!("decript")
-        .aliases(["dc"])
+        .aliases(["unlock"])
         .about("Decripts the given pconf")
         .args([
             Arguments::pconf(false, false)
@@ -33,7 +33,7 @@ pub fn manager(args: &ArgMatches) {
         },
     };
     
-    let password = match usettings.get_password(true, &animation) {
+    let password = match usettings.get_password(false, &animation) {
         Ok(ps) => ps,
         Err(e) => {
             animation.finish_with_error(&e.message);

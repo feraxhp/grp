@@ -111,8 +111,8 @@ impl Show for Vec<Pconf> {
     
                 let body = self.into_iter().map(move |pconf| {
                     let state = match pconf.encripted {
-                        true  => cformat!("<r>false </>"),
-                        false => cformat!("<g>true  </>"),
+                        true  => cformat!("<g>true  </>"),
+                        false => cformat!("<r>false </>"),
                     };
                     format!(
                         "{:<max_name$}  {}  {:<max_endpoint$}",
