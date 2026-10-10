@@ -47,7 +47,7 @@ impl CriptoError {
             cformat!("Invalid password or corrupted data"), 
             format!("The payload can't be decripted"),
             vec![
-                cformat!("Please check your config file").as_tip()
+                // cformat!("Please check your config file").as_tip()
             ], 
             empty_notes!()
         )
