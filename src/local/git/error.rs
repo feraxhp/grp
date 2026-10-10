@@ -1,17 +1,14 @@
-use std::fmt::Display;
-
 use color_print::cformat;
 use git2::{ErrorClass, ErrorCode};
 
 use grp_core::Error;
-use grp_core::Config;
 use grp_core::Formater;
 use grp_core::empty_notes;
 use grp_core::errors::Request;
-use crate::usettings::structs::Usettings;
+use crate::local::structs::Git2Context;
+use crate::local::structs::ToError;
 
 use super::super::git::structs::Action;
-use super::super::structs::Git2Error;
 
 macro_rules! etype {
     ($lit:literal) => { concat!("git::", $lit) };
@@ -34,21 +31,19 @@ macro_rules! make_error {
     };
 }
 
-impl Git2Error for Error {
-    fn from_git2<
-        T: Display,
-        S: Display,
-    >(
-        ge: git2::Error, 
-        action: Action, 
-        owner: S,
-        repo: T, 
-        config: Option<&Config>,
-        usettings: &Usettings,
-    ) -> Error {
-        let code = ge.code();
-        let class_ = ge.class();
-        let message = ge.message();
+impl ToError for git2::Error {
+    type Context<'a> = Git2Context<'a>;
+    
+    fn to_error<'a>(&self, context: Self::Context<'a>) -> Error {
+        let action = context.action;
+        let owner = context.owner;
+        let repo = context.repo;
+        let config = context.config;
+        let usettings = context.usettings;
+        
+        let code = self.code();
+        let class_ = self.class();
+        let message = self.message();
         
         match (code, class_, message, action) {
             (ErrorCode::NotFound, ErrorClass::Repository, _, _) => {

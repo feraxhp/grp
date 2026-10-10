@@ -12,6 +12,7 @@ use super::git::options::{Methods, Options};
 use super::git::structs::GitUtils;
 use crate::animations::animation::Subprogress;
 use crate::local::structs::Local;
+use crate::local::structs::LocalError;
 use crate::usettings::structs::{Pconf, Usettings};
 
 
@@ -23,7 +24,7 @@ impl Local {
         options: Options,
         usettings: &Usettings,
         animation: &mut Box<A>
-    ) -> Result<(Vec<String>, bool), Error> {
+    ) -> Result<(Vec<String>, bool), LocalError> {
         animation.change_message("Getting the local repository ...");
         let repo = Repository::discover(path)?;
         
@@ -53,7 +54,7 @@ impl Local {
                     .ok_or(Error::new(ErrorCode::NotFound, ErrorClass::Config, "no pconf"))?
         };
         
-        let config = pconf.to_config();
+        let config = pconf.to_config("")?;
         
         if options.dry_run {
             

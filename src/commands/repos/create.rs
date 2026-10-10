@@ -12,7 +12,7 @@ use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
-use crate::local::structs::{Git2Error, Local};
+use crate::local::structs::Local;
 use crate::system::show::Show;
 use crate::local::git::structs::Action;
 use crate::system::directories::BasicDir;

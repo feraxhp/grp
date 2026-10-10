@@ -6,7 +6,7 @@ use indicatif::HumanBytes;
 
 use grp_core::animation::Animation;
 
-use crate::local::structs::Local;
+use crate::local::structs::{Local, LocalError};
 use super::git::structs::GitUtils;
 use super::git::options::{Methods, Options};
 use crate::animations::animation::Subprogress;
@@ -25,15 +25,15 @@ impl Local {
         options: Options,
         usettings: &Usettings, 
         animation: &mut Box<A>
-    ) -> Result<FetchResult<'repo>, Error> {
+    ) -> Result<FetchResult<'repo>, LocalError> {
         match options.method {
             Methods::ALL      |
             Methods::TAG(_)   |
             Methods::TAGS     |
             Methods::BRANCHES => {
-                return Err(
+                return Err(LocalError::Git(
                     Error::new(ErrorCode::Invalid, ErrorClass::Invalid, "Method not allowed for fetch")
-                );
+                ));
             }
             Methods::DEFAULT |
             Methods::UPSTREAM => (),
@@ -71,7 +71,7 @@ impl Local {
                     .ok_or(Error::new(ErrorCode::NotFound, ErrorClass::Config, "no pconf"))?
         };
         
-        let config = pconf.to_config();
+        let config = pconf.to_config("")?;
         
         if options.dry_run {
             
@@ -165,7 +165,7 @@ impl Local {
         options: Options, 
         usettings: &Usettings, 
         animation: &mut Box<A>
-    ) -> Result<Vec<String>, git2::Error> {
+    ) -> Result<Vec<String>, LocalError> {
         let repo = Repository::discover(path)?;
         
         let result = Local::fetch(&repo, pconf, options, usettings, animation)?;

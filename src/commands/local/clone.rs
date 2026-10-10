@@ -9,7 +9,7 @@ use grp_core::structs::Repo;
 use grp_core::{Platform, Error};
 
 use super::super::completions::structure::Completer;
-use crate::local::structs::{Git2Error, Local};
+use crate::local::structs::{ToError, Local};
 use crate::system::show::Show;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;

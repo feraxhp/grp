@@ -32,7 +32,8 @@ impl Usettings {
         if file.is_empty() {
             let void_config = Usettings {
                 default: "<repo-name>".to_string(),
-                pconfs: vec![]
+                pconfs: vec![],
+                keyring: Some(true),
             };
     
             let _ = void_config.save()?;

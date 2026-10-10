@@ -7,7 +7,7 @@ use grp_core::Error;
 use super::super::completions::structure::Completer;
 
 use crate::commands::completions::git::remote::Remote;
-use crate::local::structs::{Git2Error, Local};
+use crate::local::structs::{ToError, Local};
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;

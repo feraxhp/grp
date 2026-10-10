@@ -9,6 +9,7 @@ pub struct Pconf {
     #[serde(rename = "type")]
     pub r#type: String,
     pub endpoint: String,
+    pub encripted: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -16,4 +17,5 @@ pub struct Usettings {
     pub default: String,
     #[serde(rename = "pconf")]
     pub pconfs: Vec<Pconf>,
+    pub keyring: Option<bool>,
 }

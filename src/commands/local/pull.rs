@@ -14,7 +14,7 @@ use crate::commands::core::args::Arguments;
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
 use crate::local::pull::PullAction;
-use crate::local::structs::{Git2Error, Local};
+use crate::local::structs::{ToError, Local};
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::animations::animation::Fetch;
 

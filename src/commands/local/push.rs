@@ -10,7 +10,7 @@ use crate::commands::completions::git::remote::Remote;
 use crate::commands::completions::git::upstream::Upstream;
 use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
-use crate::local::structs::{Git2Error, Local};
+use crate::local::structs::{ToError, Local};
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::{structs::Action};
 use crate::local::git::options::{Methods, Options};
