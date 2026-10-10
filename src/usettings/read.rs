@@ -33,7 +33,8 @@ impl Usettings {
             let void_config = Usettings {
                 default: "<repo-name>".to_string(),
                 pconfs: vec![],
-                keyring: Some(true),
+                keyring: true,
+                hidepass: false
             };
     
             let _ = void_config.save()?;

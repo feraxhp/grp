@@ -9,7 +9,7 @@ use grp_core::animation::Animation;
 use crate::local::structs::{Local, LocalError};
 use super::git::structs::GitUtils;
 use super::git::options::{Methods, Options};
-use crate::animations::animation::Subprogress;
+use crate::animations::animation::{Subprogress, Suspend};
 use crate::usettings::structs::{Pconf, Usettings};
 
 pub struct FetchResult<'repo> {
@@ -19,7 +19,7 @@ pub struct FetchResult<'repo> {
 } 
 
 impl Local {
-    pub(crate) fn fetch<'repo, A: Animation + Subprogress + ?Sized>(
+    pub(crate) fn fetch<'repo, A: Animation + Subprogress + Suspend + ?Sized>(
         repo: &'repo Repository,
         pconf: Option<Pconf>, 
         options: Options,
@@ -71,7 +71,7 @@ impl Local {
                     .ok_or(Error::new(ErrorCode::NotFound, ErrorClass::Config, "no pconf"))?
         };
         
-        let config = pconf.to_config("")?;
+        let config = pconf.to_config(animation)?;
         
         if options.dry_run {
             
@@ -159,7 +159,7 @@ impl Local {
         return Ok(result);
     }
     
-    pub async fn fetch_repo<A: Animation + Subprogress + ?Sized>(
+    pub async fn fetch_repo<A: Animation + Subprogress + Suspend + ?Sized>(
         path: &PathBuf, 
         pconf: Option<Pconf>, 
         options: Options, 

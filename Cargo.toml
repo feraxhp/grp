@@ -32,6 +32,7 @@ base64 = "0.23.1"
 chacha20poly1305 = { version = "0.11.0", features = ["alloc"] }
 keyring = "4.2.0"
 rand = "0.10.2"
+inquire = "0.9.4"
 
 
 [[bin]]

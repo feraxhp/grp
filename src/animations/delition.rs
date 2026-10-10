@@ -1,7 +1,7 @@
 use std::time::Duration;
 use color_print::{cformat, ceprintln};
 use indicatif::{ProgressBar, ProgressStyle};
-use crate::animations::animation::Delete;
+use crate::animations::animation::{Delete, Suspend};
 use grp_core::animation::Animation;
 
 
@@ -49,11 +49,10 @@ impl Animation for Delete {
 }
 
 
-impl Delete {
-    pub fn suspend<F, R>(&self, f: F) -> R
+
+impl Suspend for Delete {
+    fn suspend<F, R>(&self, f: F) -> R
     where
         F: FnOnce() -> R 
-    {
-        self.spinner.suspend(f)
-    }
+    { self.spinner.suspend(f) }
 }

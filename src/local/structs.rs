@@ -26,12 +26,6 @@ pub enum LocalError {
     Git(git2::Error),
 }
 
-pub trait ToError {
-    type Context<'a>;
-    
-    fn to_error<'a>(&self, context: Self::Context<'a>) -> Error;
-}
-
 impl From<git2::Error> for LocalError {
     fn from(err: git2::Error) -> Self {
         LocalError::Git(err)

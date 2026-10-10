@@ -98,7 +98,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         exit(1)
     }
     
-    let config = pconf.to_config();
+    let config = match pconf.to_config() {
+        Ok(c) => c,
+        Err(e) => {
+            animation.finish_with_error(&e.message);
+            e.show();
+            exit(1)
+        },
+    };
     
     let repo = Repo {
         name: repo.path.clone(),

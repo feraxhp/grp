@@ -8,7 +8,7 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 use grp_core::structs::Repo;
 
-use crate::animations::animation::Delete;
+use crate::animations::animation::{Delete, Suspend};
 use crate::cache::structure::Uncacher;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
@@ -88,7 +88,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         exit(1)
     }
     
-    let config = pconf.to_config();
+    let config = pconf.to_config(&animation);
     
     match platform.delete_repo(&repo.owner, &repo.path, &config, !soft, &animation).await {
         Ok(_) => {

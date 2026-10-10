@@ -22,8 +22,10 @@ pub trait Subprogress {
     fn set_state(&self, index: usize, current: u64);
     fn set_message<T: Into<String>>(&self, index: usize, message: T);
     fn finish_all(&self);
+}
 
-    // fn suspend<F, R>(&self, f: F) -> R
-    // where
-    //     F: FnOnce() -> R;
+pub trait Suspend {
+    fn suspend<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce() -> R;
 }

@@ -11,6 +11,7 @@ use grp_core::animation::Animation;
 use super::git::options::{Methods, Options};
 use super::git::structs::GitUtils;
 use crate::animations::animation::Subprogress;
+use crate::animations::animation::Suspend;
 use crate::local::structs::Local;
 use crate::local::structs::LocalError;
 use crate::usettings::structs::{Pconf, Usettings};
@@ -18,7 +19,7 @@ use crate::usettings::structs::{Pconf, Usettings};
 
 impl Local {
     /// return: __logs__, true (_no errors on push_) - false (_some errors on push_)
-    pub(crate) fn push_repo<A: Animation + Subprogress + ?Sized>(
+    pub(crate) fn push_repo<A: Animation + Subprogress + Suspend + ?Sized>(
         path: &PathBuf,
         pconf: Option<Pconf>,
         options: Options,
@@ -54,7 +55,7 @@ impl Local {
                     .ok_or(Error::new(ErrorCode::NotFound, ErrorClass::Config, "no pconf"))?
         };
         
-        let config = pconf.to_config("")?;
+        let config = pconf.to_config(animation)?;
         
         if options.dry_run {
             

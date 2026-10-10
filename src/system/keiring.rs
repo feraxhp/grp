@@ -4,10 +4,10 @@ const SERVICE_NAME: &str = "rust::grp";
 const KEY_USER: &str = "dencriptor";
 
 #[allow(unused)]
-pub struct Keiring;
+pub struct Keyring;
 
 #[allow(unused)]
-impl Keiring {
+impl Keyring {
     pub fn get_password() -> Result<String, Error> {
         let entry = Entry::new(SERVICE_NAME, KEY_USER)?;
         Ok(entry.get_password()?)
