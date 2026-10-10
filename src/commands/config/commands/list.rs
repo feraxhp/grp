@@ -1,7 +1,9 @@
 use clap::{command, Command};
+use color_print::ceprintln;
 
+use crate::system::show::Show;
 use crate::usettings::structs::Usettings;
-use crate::system:: stdout;
+
 
 pub fn command() -> Command {
     command!("list")
@@ -11,11 +13,10 @@ pub fn command() -> Command {
 
 pub fn manager() {
     match Usettings::read() {
-        Ok(u) => {
-            for pconf in u.pconfs {
-                stdout::writeln(pconf.name);
-            }
+        Ok(u) => u.pconfs.print_pretty(),
+        Err(e) => {
+            ceprintln!("{}", &e.message);
+            e.show();
         },
-        Err(_) => todo!(),
     }
 }

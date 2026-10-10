@@ -4,6 +4,8 @@ use grp_core::structs::Repo;
 use grp_core::structs::User;
 use grp_core::Error;
 
+use crate::usettings::structs::Pconf;
+
 
 pub trait Show {
     fn print_pretty(&self) {
@@ -91,5 +93,36 @@ impl Show for Vec<Error> {
                 
                 [header, detail, blank]
             })
+    }
+}
+
+impl Show for Vec<Pconf> {
+    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+        let (max_name, max_endpoint) = self.into_iter().fold((4, 3), |(p, u), pconf| {
+            (p.max(pconf.name.len()), u.max(pconf.endpoint.len()))
+        });
+    
+        (!self.is_empty())
+            .then(move || {
+                let header = format!(
+                    "{:<max_name$}  {}  {:<max_endpoint$}",
+                    "NAME", "CIPHER", "ENDPOINT",
+                );
+    
+                let body = self.into_iter().map(move |pconf| {
+                    let state = match pconf.encripted {
+                        true  => cformat!("<r>false </>"),
+                        false => cformat!("<g>true  </>"),
+                    };
+                    format!(
+                        "{:<max_name$}  {}  {:<max_endpoint$}",
+                        pconf.name, state, pconf.endpoint
+                    )
+                });
+    
+                std::iter::once(header).chain(body)
+            })
+            .into_iter()
+            .flatten()
     }
 }
