@@ -98,25 +98,26 @@ impl Show for Vec<Error> {
 
 impl Show for Vec<Pconf> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        let (max_name, max_endpoint) = self.into_iter().fold((4, 3), |(p, u), pconf| {
-            (p.max(pconf.name.len()), u.max(pconf.endpoint.len()))
+        let (max_name, max_endpoint, max_user) = self.into_iter().fold((4, 8, 7), |(n, e, u), pconf| {
+            (n.max(pconf.name.len()), e.max(pconf.endpoint.len()), u.max(pconf.owner.len()))
         });
     
         (!self.is_empty())
             .then(move || {
                 let header = format!(
-                    "{:<max_name$}  {}  {:<max_endpoint$}",
-                    "NAME", "CIPHER", "ENDPOINT",
+                    "{:<max_name$}	{:<max_user$}	{:<max_endpoint$}",
+                    "NAME", "USER", "ENDPOINT",
                 );
     
                 let body = self.into_iter().map(move |pconf| {
-                    let state = match pconf.encripted {
-                        true  => cformat!("<g>true  </>"),
-                        false => cformat!("<r>false </>"),
+                    let name = match pconf.encripted {
+                        true  => cformat!("<g>{:<max_name$}</>", &pconf.name),
+                        false => cformat!("<r>{:<max_name$}</>", &pconf.name),
                     };
+                    
                     format!(
-                        "{:<max_name$}  {}  {:<max_endpoint$}",
-                        pconf.name, state, pconf.endpoint
+                        "{}	{:<max_user$}	{:<max_endpoint$}",
+                        name, pconf.owner.empty(), pconf.endpoint.empty()
                     )
                 });
     
@@ -124,5 +125,18 @@ impl Show for Vec<Pconf> {
             })
             .into_iter()
             .flatten()
+    }
+}
+
+trait Empty {
+    fn empty(&self) -> String;
+}
+
+impl Empty for String {
+    fn empty(&self) -> String {
+        match self.len() {
+            0 => cformat!("<dim,i><<empty>></dim,i>"),
+            _ => self.to_string(),
+        }
     }
 }
