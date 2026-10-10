@@ -1,5 +1,6 @@
 mod encript;
 mod decript;
+mod change;
 
 use clap::{command, ArgMatches, Command};
 
@@ -12,6 +13,7 @@ pub fn command() -> Command {
         .about("Criper subcomands for grp")
         .subcommand(encript::command())
         .subcommand(decript::command())
+        .subcommand(change::command())
 }
 
 pub fn manager(args: &ArgMatches) {
@@ -19,6 +21,7 @@ pub fn manager(args: &ArgMatches) {
         Some(sub) => match sub {
             ("encript", args) => encript::manager(args),
             ("decript", args) => decript::manager(args),
+            ("change", args) => change::manager(args),
             _ => invalid()
         },
         _ => invalid()
