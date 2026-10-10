@@ -20,8 +20,8 @@ pub fn manager(args: &ArgMatches) {
         Some(sub) => match sub {
             ("delete", _) => {
                 match Keyring::forget() {
-                    Ok(_) => ceprintln!("Password removed"),
-                    Err(e) => ceprintln!("{}", e),
+                    Ok(_) => ceprintln!("<g>Password <r, i>removed</>"),
+                    Err(e) => ceprintln!("<r>{}</>", e),
                 };
             },
             // ("list", _) => list::manager(),
