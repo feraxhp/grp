@@ -25,6 +25,16 @@ impl Usettings {
             encripted: pconf.encripted.to_owned(),
         })
     }
+
+    pub fn get_pconf_name_by_name(&self, name: &str) -> Option<&Pconf> {
+        if name == "*" { return self.get_default_pconf_name() }
+        
+        self.pconfs.iter().find(|pconf| pconf.name == name)
+    }
+
+    pub fn get_default_pconf_name(&self) -> Option<&Pconf> {
+        self.pconfs.iter().find(|pconf| pconf.name == self.default)
+    }
     
     pub fn get_pconf_by_name<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
         if name == "*" { return self.get_default_pconf(animation) }
