@@ -21,7 +21,7 @@ impl Pconf {
 }
 
 impl Usettings {
-    pub fn get_password<A>(&self, animation: &Box<A>) -> Result<String, Error>
+    pub fn get_password<A>(&self, confirm: bool, animation: &Box<A>) -> Result<String, Error>
     where 
         A: Suspend + ?Sized
     {
@@ -45,7 +45,7 @@ impl Usettings {
         let mut password_: Result<String, Error> = Ok(String::new());
         animation.suspend(|| { 
             ceprint!("<y>{}</>\n", &password.unwrap_err());
-            password_ = Input::get_password(mode, false)
+            password_ = Input::get_password(mode, confirm)
         });
         
         password_

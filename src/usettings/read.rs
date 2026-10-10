@@ -1,7 +1,8 @@
-use color_print::{cformat, cprintln};
+use color_print::cprintln;
 
 use grp_core::{Error, errors::Parsing};
 use grp_core::Formater;
+use crate::errors::usettings::UsettingsError;
 use crate::system::cripto::Cripto;
 use super::structs::{Pconf, Usettings};
 use crate::animations::animation::Suspend;
@@ -10,12 +11,12 @@ use crate::system::{directories::{Config, Directories}, file::File};
 
 impl Usettings {
     pub fn unlock_pconf<A: Suspend + ?Sized>(&self, pconf: Option<&Pconf>, animation: &Box<A>) -> Result<Pconf, Error> {
-        if pconf.is_none() { return Err(no_pconf(None)) }
-
+        if pconf.is_none() { return Err(UsettingsError::no_pconf(None)) }
+        
         let pconf = pconf.unwrap();
         if !pconf.encripted { return Ok(pconf.to_owned()); }
         
-        let password = self.get_password(animation)?;
+        let password = self.get_password(false, animation)?;
         let token = Cripto::decript(&pconf.token, &password)?;
         
         self.try_safe_password(&password);
@@ -93,26 +94,4 @@ impl Usettings {
     
         Ok(config)
     }
-}
-
-fn no_pconf(name: Option<&str>) -> Error {
-    let message = match name {
-        Some(name) => cformat!("No pconf named <m>{}</>", name),
-        None => cformat!("The <i>default</> pconf is not configured"),
-    };
-    
-    let file = match Config::file() {
-        Ok(s) => s,
-        Err(e) => return e,
-    };
-    
-    Error::new(
-    "grp::ussetings::nopconf", 
-        message, 
-        "verify your configuration file", 
-        vec![], 
-        vec![
-            cformat!("config path: <b, i>{}</>", file.as_os_str().to_string_lossy())
-        ]
-    )
 }

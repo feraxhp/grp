@@ -1,4 +1,4 @@
-
+pub mod usettings;
 pub mod fs_errors;
 pub mod inquire;
 pub mod general;
