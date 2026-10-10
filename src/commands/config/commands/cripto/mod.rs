@@ -1,5 +1,4 @@
-// mod encript;
-
+mod encript;
 
 use clap::{command, ArgMatches, Command};
 
@@ -10,19 +9,13 @@ pub fn command() -> Command {
     command!("cripto")
         .aliases(["ct", "cipher"])
         .about("Criper subcomands for grp")
-        // .subcommand(path::command())
-        // .subcommand(add::command())
-        // .subcommand(list::command())
-        // .subcommand(cripto::command())
+        .subcommand(encript::command())
 }
 
 pub fn manager(args: &ArgMatches) {
     match args.subcommand() {
         Some(sub) => match sub {
-            // ("add", add) => add::manager(add),
-            // ("list", _) => list::manager(),
-            // ("path" , _) => path::manager(),
-            // ("cripto" , _) => cripto::manager(),
+            ("encript", add) => encript::manager(add),
             _ => invalid()
         },
         _ => invalid()
