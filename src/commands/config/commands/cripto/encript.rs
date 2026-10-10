@@ -1,6 +1,7 @@
 use std::process::exit;
 
 use clap::{ArgMatches, Command, arg, command};
+use color_print::cformat;
 use grp_core::animation::Animation;
 
 use crate::usettings::structs::Pconf;
@@ -22,7 +23,7 @@ pub fn command() -> Command {
 }
 
 pub fn manager(args: &ArgMatches) {
-    let animation = Process::new("Reading user configuration...");
+    let mut animation = Process::new("Reading user configuration...");
     let all = args.get_flag("all");
     let mut usettings = match Usettings::read() {
         Ok(us) => us,
@@ -45,11 +46,11 @@ pub fn manager(args: &ArgMatches) {
     let outcome = match all {
         true => {
             animation.change_message("encripting all pconfs");
-            usettings.cipher_all_pconfs(&password)
+            usettings.cipher_all_pconfs(&password, &mut animation)
         },
         false => {
-            animation.change_message("encripting all pconfs");
             let pconf = args.get_one::<Pconf>("pconf").unwrap();
+            animation.change_message(cformat!("encripting pconf <i>{}</>", pconf.name));
             usettings.cipher_pconf(&pconf.name, &password)
         },
     };
@@ -59,7 +60,7 @@ pub fn manager(args: &ArgMatches) {
             match usettings.save() {
                 Ok(_) => {
                     usettings.try_safe_password(&password);
-                    animation.finish_with_success("done");
+                    animation.finish_with_success(cformat!("<y,i>encription</y,i> <g>succeeded!</>"));
                     None
                 },
                 Err(e) => Some(e),

@@ -19,7 +19,7 @@ pub(crate) trait Style {
 
 pub trait Subprogress {
     fn add(&mut self) -> usize;
-    fn set_total(&self, index: usize, current: u64, template: &str);
+    fn set_total(&self, index: usize, total: u64, template: &str);
     fn set_state(&self, index: usize, current: u64);
     fn set_message<T: Into<String>>(&self, index: usize, message: T);
     fn finish_all(&self);
