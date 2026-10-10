@@ -18,4 +18,10 @@ impl Keyring {
         entry.set_password(password)?;
         Ok(())
     }
+    
+    pub fn forget() -> Result<(), Error> {
+        let entry = Entry::new(SERVICE_NAME, KEY_USER)?;
+        entry.delete_credential()?;
+        Ok(())
+    }
 }
