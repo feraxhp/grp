@@ -6,6 +6,7 @@ use std::{io, process::exit};
 use clap::{arg, command, ArgMatches, Command};
 use color_print::{cformat, cprintln};
 use grp_core::SUPPORTED_REPOS;
+use inquire::PasswordDisplayMode;
 
 use crate::{system::input::Input, usettings::structs::{Pconf, Usettings}};
 
@@ -35,7 +36,6 @@ pub(crate) fn command() -> Command {
     command!("add")
         .aliases(["+"])
         .about("Add a new pconf interactively")
-        .arg(arg!(-q --quiet "Add pconf without much dialog"))
         .arg(arg!([type] "The platform type (github, gitea, [more planed])")
             .value_parser(posible_values)
         )
@@ -46,12 +46,14 @@ pub(crate) fn command() -> Command {
 }
 
 pub(crate) fn manager(add: &ArgMatches) {
-
-    let quiet = add.get_one::<bool>("quiet").unwrap_or(&false);
-    let quiet = *quiet;
-    let space = if quiet { "".to_string() } else { " ".repeat(4) };
-    let format_exp = format!("{}Something went wrong while reading the input", space);
-
+    let mut usettings = match Usettings::read() {
+        Ok(us) => us,
+        Err(e) => {
+            e.show();
+            exit(1);
+        },
+    };
+    
     let name = match add.get_one::<String>("name") {
         Some(name) => name.to_string(),
         None => {
@@ -66,137 +68,73 @@ pub(crate) fn manager(add: &ArgMatches) {
             }
         }
     };
-
+    
     let owner = match add.get_one::<String>("owner") {
         Some(owner) => owner.to_string(),
         None => {
-            if !quiet {
-                eprintln!("Owner|");
-                eprintln!("  Write the owner of the repo");
-                eprintln!("  This owner will be used as the default owner of the repo");
+            let description = cformat!("This owner will be used as the default owner of the repo");
+            match Input::identifier(cformat!("<y,i>owner</>"), Some(description)) {
+                Ok(s) => s,
+                Err(e) => {
+                    cprintln!("<r>{}</>", &e.message);
+                    e.show();
+                    exit(1)
+                },
             }
-
-            let mut owner: Option<String> = None;
-            while owner.is_none() {
-                eprint!("{}Owner: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { owner = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Owner cannot be empty"); } }
-            }
-
-            owner.unwrap()
         }
     };
-
+    
     let token = match add.get_one::<String>("token") {
         Some(token) => token.to_string(),
         None => {
-            if !quiet {
-                eprintln!("Token|");
-                eprintln!("  Write the token of the repo");
-                eprintln!("  This token will be used to authenticate the CLI with the repo");
+            let mode = match usettings.hidepass {
+                true => PasswordDisplayMode::Hidden,
+                false => PasswordDisplayMode::Masked,
+            };
+            let message = cformat!("<y,i>password</>");
+            let confirmation = Some(cformat!("<y,i>password</>"));
+            
+            match Input::password( message, confirmation, mode) {
+                Ok(s) => s,
+                Err(e) => {
+                    cprintln!("<r>{}</>", &e.message);
+                    e.show();
+                    exit(1)
+                },
             }
-            let mut token: Option<String> = None;
-            while token.is_none() {
-                eprint!("{}Token: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { token = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Token cannot be empty"); } }
-            }
-
-            token.unwrap()
         }
     };
-
+    
     let repo_type = match add.get_one::<String>("type") {
         Some(repo_type) => repo_type.to_string(),
         None => {
-            if !quiet {
-                eprintln!("type|");
-                eprintln!("  Write the type of the repo");
-                eprintln!("  options: ");
-                for type_ in SUPPORTED_REPOS.iter() {
-                    eprintln!("      {}) {}", type_.0, type_.2);
-                }
+            let description = cformat!("This owner will be used as the default owner of the repo");
+            let options = SUPPORTED_REPOS.iter().map(|s| s.2).collect();
+            
+            match Input::select(cformat!("<y>repo <i>type</i>:</>"), Some(description), options) {
+                Ok(s) => s,
+                Err(e) => {
+                    cprintln!("<r>{}</>", &e.message);
+                    e.show();
+                    exit(1)
+                },
             }
-
-            let mut repo: Option<String> = None;
-            while repo.is_none() {
-                eprint!("{}Type: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-                for type_ in SUPPORTED_REPOS.iter() {
-                    if input == type_.0 || input == type_.1 || input == type_.2 {
-                        repo = Some(type_.2.to_string());
-                        break;
-                    }
-                }
-
-                if repo.is_none() && !quiet {
-                    eprintln!("{space}It is not a valid option");
-                }
-            }
-
-            repo.unwrap()
         }
     };
-
+    
     let endpoint = match add.get_one::<String>("endpoint") {
         Some(endpoint) => endpoint.to_string(),
         None => {
-            let mut endpoint: Option<String> = match repo_type.as_str() {
+            let mut placeholder: Option<String> = match repo_type.as_str() {
                 "github" => Some("api.github.com".to_string()),
                 _ => None,
             };
-
-            if endpoint.is_none() && !quiet {
-                eprintln!("Endpoint|");
-                eprintln!("  Write the endpoint of the repo");
-                eprintln!("  This endpoint will be used to access the repo");
-            }
-
-            while endpoint.is_none() {
-                eprint!("{}Endpoint: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { endpoint = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Endpoint cannot be empty"); } }
-            }
-
-            endpoint.unwrap()
+            
+            
         }
     };
 
     let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint, encripted: false };
-    
-    let mut usettings = match Usettings::read() {
-        Ok(us) => us,
-        Err(e) => {
-            e.show();
-            exit(1);
-        },
-    };
     
     match usettings.add_pconf(pconf) {
         Ok(_) => cprintln!("<g>* Succes: pconf saved succesfully</>"),
