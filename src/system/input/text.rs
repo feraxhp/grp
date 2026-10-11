@@ -7,6 +7,7 @@ use regex::Regex;
 
 use crate::system::input::Input;
 use crate::errors::ToError;
+use crate::system::input::endpoint::input_empty;
 
 
 impl Input {
@@ -33,6 +34,11 @@ fn identifier_validator(input: &str) -> Result<Validation, CustomUserError> {
     let positions: Vec<usize> = re.find_iter(input)
         .map(|mat| mat.start())
         .collect();
+    
+    match input_empty(input)? {
+        Validation::Invalid(error_message) => return Ok(Validation::Invalid(error_message)),
+        Validation::Valid => (),
+    };
     
     match positions.len() {
         0 => Ok(Validation::Valid),

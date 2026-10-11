@@ -1,3 +1,4 @@
+pub mod endpoint;
 pub mod password;
 pub mod select;
 pub mod text;

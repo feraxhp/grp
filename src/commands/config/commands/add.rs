@@ -1,22 +1,35 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use std::{io, process::exit};
+use std::process::exit;
 
-use clap::{arg, command, ArgMatches, Command};
 use color_print::{cformat, cprintln};
-use grp_core::SUPPORTED_REPOS;
+use clap::{arg, command, ArgMatches, Command};
 use inquire::PasswordDisplayMode;
 
-use crate::{system::input::Input, usettings::structs::{Pconf, Usettings}};
+use grp_core::animation;
+use grp_core::SUPPORTED_REPOS;
+
+use crate::system::input::Input;
+use crate::system::cripto::Cripto;
+use crate::usettings::structs::Pconf;
+use crate::usettings::structs::Usettings;
+
+macro_rules! fail {
+    ($e: expr) => {{
+        cprintln!("<r>{}</>", &$e.message);
+        $e.show();
+        exit(1)
+    }};
+}
 
 
 pub(crate) fn command() -> Command {
+    let names = SUPPORTED_REPOS.iter().map(|repo| repo.2);
     let posible_values = |value: &str| {
         let names = SUPPORTED_REPOS.iter().map(|repo| repo.2.to_string()).collect::<Vec<String>>();
         let abbreviations = SUPPORTED_REPOS.iter().map(|repo| repo.1.to_string()).collect::<Vec<String>>();
-
-
+        
         match &value.to_string(){
             value if names.contains(&value) => Ok(value.to_string()),
             value if abbreviations.contains(&value) => {
@@ -36,7 +49,9 @@ pub(crate) fn command() -> Command {
     command!("add")
         .aliases(["+"])
         .about("Add a new pconf interactively")
-        .arg(arg!([type] "The platform type (github, gitea, [more planed])")
+        .arg(arg!(-e --encript "If pressent, it encripts the given token"))
+        .arg(arg!([type])
+            .help(cformat!("The platform type ({:?})", names))
             .value_parser(posible_values)
         )
         .arg(arg!([name] "The alias for the pconf"))
@@ -48,10 +63,7 @@ pub(crate) fn command() -> Command {
 pub(crate) fn manager(add: &ArgMatches) {
     let mut usettings = match Usettings::read() {
         Ok(us) => us,
-        Err(e) => {
-            e.show();
-            exit(1);
-        },
+        Err(e) => fail!(e),
     };
     
     let name = match add.get_one::<String>("name") {
@@ -60,11 +72,7 @@ pub(crate) fn manager(add: &ArgMatches) {
             let description = cformat!("This name will be used to identify the repo while using the CLI");
             match Input::identifier(cformat!("<y>pconf <i>name</i>:</>"), Some(description)) {
                 Ok(s) => s,
-                Err(e) => {
-                    cprintln!("<r>{}</>", &e.message);
-                    e.show();
-                    exit(1)
-                },
+                Err(e) => fail!(e),
             }
         }
     };
@@ -75,32 +83,24 @@ pub(crate) fn manager(add: &ArgMatches) {
             let description = cformat!("This owner will be used as the default owner of the repo");
             match Input::identifier(cformat!("<y,i>owner</>"), Some(description)) {
                 Ok(s) => s,
-                Err(e) => {
-                    cprintln!("<r>{}</>", &e.message);
-                    e.show();
-                    exit(1)
-                },
+                Err(e) => fail!(e),
             }
         }
     };
     
-    let token = match add.get_one::<String>("token") {
+    let mut token = match add.get_one::<String>("token") {
         Some(token) => token.to_string(),
         None => {
             let mode = match usettings.hidepass {
                 true => PasswordDisplayMode::Hidden,
                 false => PasswordDisplayMode::Masked,
             };
-            let message = cformat!("<y,i>password</>");
-            let confirmation = Some(cformat!("<y,i>password</>"));
+            let message = cformat!("<y,i>token</>");
+            let confirmation: Option<String> = None;
             
             match Input::password( message, confirmation, mode) {
                 Ok(s) => s,
-                Err(e) => {
-                    cprintln!("<r>{}</>", &e.message);
-                    e.show();
-                    exit(1)
-                },
+                Err(e) => fail!(e),
             }
         }
     };
@@ -108,16 +108,12 @@ pub(crate) fn manager(add: &ArgMatches) {
     let repo_type = match add.get_one::<String>("type") {
         Some(repo_type) => repo_type.to_string(),
         None => {
-            let description = cformat!("This owner will be used as the default owner of the repo");
             let options = SUPPORTED_REPOS.iter().map(|s| s.2).collect();
+            let description = cformat!("The API type to use when calling this pcong");
             
             match Input::select(cformat!("<y>repo <i>type</i>:</>"), Some(description), options) {
                 Ok(s) => s,
-                Err(e) => {
-                    cprintln!("<r>{}</>", &e.message);
-                    e.show();
-                    exit(1)
-                },
+                Err(e) => fail!(e),
             }
         }
     };
@@ -125,23 +121,31 @@ pub(crate) fn manager(add: &ArgMatches) {
     let endpoint = match add.get_one::<String>("endpoint") {
         Some(endpoint) => endpoint.to_string(),
         None => {
-            let mut placeholder: Option<String> = match repo_type.as_str() {
-                "github" => Some("api.github.com".to_string()),
-                _ => None,
-            };
+            let description = cformat!("The actual enpoint to reach the API");
             
-            
+            match Input::endpoint(cformat!("<y, i>endpoint:</>"), Some(description), &repo_type) {
+                Ok(s) => s,
+                Err(e) => fail!(e),
+            }
         }
     };
 
+    let encript = add.get_flag("endpoint");
+
+    if encript {
+        let password = match usettings.get_password(false, &Box::new(animation::None)) {
+            Ok(p) => p,
+            Err(e) => fail!(e),
+        };
+        token = match Cripto::encript(&token, &password) {
+            Ok(t) => t,
+            Err(e) => fail!(e),
+        }
+    }
     let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint, encripted: false };
     
     match usettings.add_pconf(pconf) {
-        Ok(_) => cprintln!("<g>* Succes: pconf saved succesfully</>"),
-        Err(e) => {
-            e.show();
-            exit(1);
-        },
+        Ok(_) => cformat!("<y,i>add pconf</y,i> <g>succeeded!</>"),
+        Err(e) => fail!(e),
     };
 }
-
