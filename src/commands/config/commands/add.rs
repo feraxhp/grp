@@ -43,13 +43,13 @@ pub(crate) fn command() -> Command {
         .about("Add a new pconf interactively")
         .arg(arg!(-e --encript "If pressent, it encripts the given token"))
         .arg(arg!(-d --"set-default" "If pressent, it sets the pconf as the default"))
+        .arg(arg!([name] "The alias for the pconf"))
+        .arg(arg!([owner] "The default owner to consult the platform"))
+        .arg(arg!([token] "The token to access the platform"))
         .arg(arg!([type])
             .help(cformat!("The platform type ({:?})", names))
             .value_parser(posible_values)
         )
-        .arg(arg!([name] "The alias for the pconf"))
-        .arg(arg!([owner] "The default owner to consult the platform"))
-        .arg(arg!([token] "The token to access the platform"))
         .arg(arg!([endpoint] "The client endpoint to access the platform"))
 }
 
