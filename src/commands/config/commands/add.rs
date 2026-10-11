@@ -135,7 +135,7 @@ pub(crate) fn manager(add: &ArgMatches) {
             Err(e) => fail!(e),
         }
     }
-    let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint, encripted: false };
+    let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint, encripted: encript };
     if add.get_flag("set-default") { usettings.default = pconf.name.clone() }
     
     match usettings.add_pconf(pconf) {
