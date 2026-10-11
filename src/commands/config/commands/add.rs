@@ -123,7 +123,7 @@ pub(crate) fn manager(add: &ArgMatches) {
         }
     };
 
-    let encript = add.get_flag("endpoint");
+    let encript = add.get_flag("encript");
 
     if encript {
         let password = match usettings.get_password(false, &Box::new(animation::None)) {
