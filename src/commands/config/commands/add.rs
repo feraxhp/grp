@@ -50,6 +50,7 @@ pub(crate) fn command() -> Command {
         .aliases(["+"])
         .about("Add a new pconf interactively")
         .arg(arg!(-e --encript "If pressent, it encripts the given token"))
+        .arg(arg!(-d --"set-default" "If pressent, it sets the pconf as the default"))
         .arg(arg!([type])
             .help(cformat!("The platform type ({:?})", names))
             .value_parser(posible_values)
@@ -143,6 +144,7 @@ pub(crate) fn manager(add: &ArgMatches) {
         }
     }
     let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint, encripted: false };
+    if add.get_flag("set-default") { usettings.default = pconf.name.clone() }
     
     match usettings.add_pconf(pconf) {
         Ok(_) => cformat!("<y,i>add pconf</y,i> <g>succeeded!</>"),
