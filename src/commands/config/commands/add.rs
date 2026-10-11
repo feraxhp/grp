@@ -4,10 +4,10 @@
 use std::{io, process::exit};
 
 use clap::{arg, command, ArgMatches, Command};
-use color_print::cprintln;
+use color_print::{cformat, cprintln};
 use grp_core::SUPPORTED_REPOS;
 
-use crate::usettings::structs::{Pconf, Usettings};
+use crate::{system::input::Input, usettings::structs::{Pconf, Usettings}};
 
 
 pub(crate) fn command() -> Command {
@@ -55,26 +55,15 @@ pub(crate) fn manager(add: &ArgMatches) {
     let name = match add.get_one::<String>("name") {
         Some(name) => name.to_string(),
         None => {
-            if !quiet {
-                eprintln!("Name|");
-                eprintln!("  Write the name of the repo");
-                eprintln!("  This name will be used to identify the repo while using the CLI");
+            let description = cformat!("This name will be used to identify the repo while using the CLI");
+            match Input::identifier(cformat!("<y>pconf <i>name</i>:</>"), Some(description)) {
+                Ok(s) => s,
+                Err(e) => {
+                    cprintln!("<r>{}</>", &e.message);
+                    e.show();
+                    exit(1)
+                },
             }
-            let mut name: Option<String> = None;
-            while name.is_none() {
-                eprint!("{}Name: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { name = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Owner cannot be empty"); } }
-            }
-
-            name.unwrap()
         }
     };
 
