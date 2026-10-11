@@ -1,27 +1,19 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use std::process::exit;
-
-use color_print::{cformat, cprintln};
+use color_print::cformat;
 use clap::{arg, command, ArgMatches, Command};
 use inquire::PasswordDisplayMode;
 
 use grp_core::animation;
 use grp_core::SUPPORTED_REPOS;
 
+use crate::fail;
+use crate::success;
 use crate::system::input::Input;
 use crate::system::cripto::Cripto;
 use crate::usettings::structs::Pconf;
 use crate::usettings::structs::Usettings;
-
-macro_rules! fail {
-    ($e: expr) => {{
-        cprintln!("<r>{}</>", &$e.message);
-        $e.show();
-        exit(1)
-    }};
-}
 
 
 pub(crate) fn command() -> Command {
@@ -147,7 +139,7 @@ pub(crate) fn manager(add: &ArgMatches) {
     if add.get_flag("set-default") { usettings.default = pconf.name.clone() }
     
     match usettings.add_pconf(pconf) {
-        Ok(_) => cformat!("<y,i>add pconf</y,i> <g>succeeded!</>"),
+        Ok(_) => success!("add pconf"),
         Err(e) => fail!(e),
     };
 }
