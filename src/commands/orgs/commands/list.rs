@@ -3,11 +3,12 @@ use std::process::exit;
 use futures::StreamExt;
 
 use clap::{arg, ArgMatches, Command};
-use color_print::{cformat, cprintln};
+use color_print::cprintln;
 use grp_core::animation::Animation;
 use grp_core::{Error, Platform};
 
 use crate::cache::structure::Cacher;
+use crate::{success, warning};
 use crate::system::show::Show;
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
@@ -73,16 +74,16 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             animation.finish_with_success("<i>No orgs found</>");
         },
         (_, true) => {
-            animation.finish_with_success(cformat!("<y,i>list orgs</y,i> <g>succeeded!</>"));
+            animation.finish_with_success(success!(np "list orgs"));
             orgs.print_pretty();
         },
         (true, _) => {
             let error = Error::collection(errors);
-            animation.finish_with_error(format!("{}", error.message));
+            animation.finish_with_error(&error.message);
             error.show();
         },
         (false, false) => {
-            animation.finish_with_warning(cformat!("<m,i>list orgs</m,i> <y>finish with errors!</>"));
+            animation.finish_with_warning(warning!(np "list orgs"));
             orgs.print_pretty();
             if show_errors { errors.print_pretty(); } 
             else {
