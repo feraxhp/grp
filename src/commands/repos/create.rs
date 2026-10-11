@@ -14,6 +14,7 @@ use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 use crate::errors::ToError;
 use crate::local::structs::{Git2Context, Local};
+use crate::success;
 use crate::system::show::Show;
 use crate::local::git::structs::Action;
 use crate::system::directories::BasicDir;
@@ -205,7 +206,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             }
             
             match finish_mode {
-                FinishMode::SUCCESS => animation.finish_with_success(cformat!("<y,i>repo creation</y,i> <g>succeeded!</>")),
+                FinishMode::SUCCESS => animation.finish_with_success(success!(np "repo creation")),
                 FinishMode::WARNING(msg) => animation.finish_with_warning(msg),
             };
             

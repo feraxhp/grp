@@ -14,6 +14,7 @@ use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
+use crate::success;
 use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
@@ -93,10 +94,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             let message = match (soft, platform) {
                 (true, Platform::Gitlab) => cformat!("repo <m,i>mark</> <g>for delition!</>"),
                 (true, _) => vec![
-                    cformat!("<y,i>repo delition</y,i> <g>succeeded!</>"),
-                    cformat!("<y>* <i>soft delition</i> only wotks with <m>gitlab</>")
+                    success!(np "repo delition"),
+                    cformat!("<y>* <i>soft delition</i> only wotks with <m>gitlab</>"),
                 ].join("\n"),
-                (false, _) => cformat!("<y,i>repo delition</y,i> <g>succeeded!</>"),
+                (false, _) => success!(np "repo delition"),
             };
             
             let _ = Repo::remove(&pconf.name, &repo.path);

@@ -15,6 +15,7 @@ use crate::local::git::structs::Action;
 use crate::local::pull::PullAction;
 use crate::local::structs::{Git2Context, Local, LocalError};
 use crate::errors::ToError;
+use crate::{success, warning};
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::animations::animation::Fetch;
 
@@ -88,15 +89,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let logs = match result {
         Ok((logs, true)) => {
             let message = match "" {
-                _ if dry_run => cformat!("<y,i>dry-run</y,i> <g>finish without errors</>"),
-                _ => cformat!("<y,i>pull</y,i> <g>succeeded!</>")
+                _ if dry_run => success!(np "dry-run" "finish without errors"),
+                _ => success!(np "pull"),
             };
             
             animation.finish_with_success(message);
             logs
         },
         Ok((logs, false)) => {
-            animation.finish_with_warning(cformat!("<m,i>pull</m,i> <y>finish with errors!</>"));
+            animation.finish_with_warning(warning!(np "pull"));
             logs
         },
         Err(e) => {

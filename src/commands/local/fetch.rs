@@ -1,6 +1,5 @@
 use std::path::PathBuf;
 use clap::{ArgMatches, Command, arg, command};
-use color_print::cformat;
 use grp_core::animation::Animation;
 
 use super::super::completions::structure::Completer;
@@ -8,6 +7,7 @@ use super::super::completions::structure::Completer;
 use crate::commands::completions::git::remote::Remote;
 use crate::local::structs::{Git2Context, Local, LocalError};
 use crate::errors::ToError;
+use crate::success;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
@@ -56,8 +56,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     match result {
         Ok(logs) => {
             let message = match "" {
-                _ if dry_run => cformat!("<y,i>dry-run</y,i> <g>finish without errors</>"),
-                _ => cformat!("<y,i>fecth</y,i> <g>succeeded!</>")
+                _ if dry_run => success!(np "dry-run" "finish without errors"),
+                _ => success!(np "fetch"),
             };
             
             animation.finish_with_success(message);

@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 use std::process::exit;
 use clap::{Arg, ArgMatches, Command, arg, command};
-use color_print::cformat;
 use reqwest::Url;
 
 use grp_core::animation::Animation;
@@ -11,6 +10,7 @@ use grp_core::Platform;
 use super::super::completions::structure::Completer;
 use crate::errors::ToError;
 use crate::local::structs::{Git2Context, Local};
+use crate::success;
 use crate::system::show::Show;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
@@ -122,7 +122,7 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
     
     match platform.clone_repo(&repo.owner, &repo.path, &options, &config, animation).await {
         Ok(r) => {
-            animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
+            animation.finish_with_success(success!(np "clone"));
             vec![r].print_pretty();
         },
         Err(e) => {
@@ -177,7 +177,7 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
     
     match Local::clone_by_url(&url_string, &options, &config,  animation).await {
         Ok(_) => {
-            animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
+            animation.finish_with_success(success!(np "clone"));
             let repo = Repo {
                 name: "".to_string(),
                 path: repo_,
