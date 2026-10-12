@@ -15,8 +15,8 @@ impl Usettings {
         let mut modified = false;
         
         for pconf in self.pconfs.iter_mut() {
-            if pconf.encripted { break; }
             if pconf.name != name { continue; }
+            if pconf.encripted { break; }
             
             let token = Cripto::encript(&pconf.token, password)?;
             
@@ -56,8 +56,8 @@ impl Usettings {
         let mut modified = false;
         
         for pconf in self.pconfs.iter_mut() {
-            if !pconf.encripted { break; }
             if pconf.name != name { continue; }
+            if !pconf.encripted { break; }
             
             let token = Cripto::decript(&pconf.token, password)?;
             

@@ -14,7 +14,7 @@ pub fn command() -> Command {
         .aliases(["def"])
         .about("Sets or shows the default pconf")
         .args([
-            Arguments::pconf(false, false),
+            Arguments::raw_pconf(false, false),
         ])
         .subcommand(Commands::list("List all the pconfs, selecting the deafult"))
 }
