@@ -62,8 +62,10 @@ impl Usettings {
     
     /// Gets the pconf trying to decode the token
     pub fn get_pconf_or_default<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
-        self.get_pconf_by_name(name, animation)
-            .or_else(|_| self.get_default_pconf(animation))
+        let pconf = self.get_raw_pconf_by_name(name)
+            .or_else(|| self.get_raw_default_pconf());
+        
+        self.unlock_pconf(pconf, animation)
     }
     
     pub fn read() -> Result<Usettings, Error> {
