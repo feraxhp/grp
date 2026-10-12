@@ -88,8 +88,8 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
     usettings: Usettings
 ) {
     let pconf = match &repo.pconf {
-        Some(e) => usettings.get_pconf_by_name(e.as_str(), animation).unwrap(),
-        None => usettings.get_default_pconf(animation).or_exit(&animation),
+        Some(e) => usettings.get_pconf_by_name(e.as_str(), animation).or_exit(animation),
+        None => usettings.get_default_pconf(animation).or_exit(animation),
     };
     
     let path = match path {
@@ -164,7 +164,7 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
         }
     };
     
-    let pconf = usettings.get_pconf_by_name(pconf.as_str(), animation).unwrap();
+    let pconf = usettings.get_pconf_by_name(pconf.as_str(), animation).or_exit(animation);
     
     let config = pconf.to_config();
     let url_string = url.to_string();
