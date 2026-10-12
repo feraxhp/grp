@@ -19,7 +19,7 @@ impl Usettings {
         let password = self.get_password(false, animation)?;
         let token = Cripto::decript(&pconf.token, &password)?;
         
-        self.try_safe_password(&password);
+        self.try_save_password(&password);
         Ok(Pconf {
             name: pconf.name.to_owned(),
             owner: pconf.owner.to_owned(),

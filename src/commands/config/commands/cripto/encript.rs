@@ -59,7 +59,7 @@ pub fn manager(args: &ArgMatches) {
         Ok(true) => {
             match usettings.save() {
                 Ok(_) => {
-                    usettings.try_safe_password(&password);
+                    usettings.try_save_password(&password);
                     animation.finish_with_success(cformat!("<y,i>encription</y,i> <g>succeeded!</>"));
                     None
                 },

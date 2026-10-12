@@ -18,7 +18,7 @@ pub fn command() -> Command {
             Arguments::pconf(false, false)
                 .required_unless_present("all")
             ,
-            arg!(-a --all "Encripts all the pconfs")
+            arg!(-a --all "Decripts all the pconfs")
         ])
 }
 
@@ -59,7 +59,7 @@ pub fn manager(args: &ArgMatches) {
         Ok(true) => {
             match usettings.save() {
                 Ok(_) => {
-                    usettings.try_safe_password(&password);
+                    usettings.try_save_password(&password);
                     animation.finish_with_success(cformat!("<y,i>decription</y,i> <g>succeeded!</>"));
                     None
                 },

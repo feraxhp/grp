@@ -46,7 +46,7 @@ pub fn manager(_: &ArgMatches) {
         Ok(Some(pass)) => {
             match usettings.save() {
                 Ok(_) => {
-                    usettings.try_safe_password(&pass);
+                    usettings.try_save_password(&pass);
                     animation.finish_with_success(cformat!("<y,i>change password</y,i> <g>succeeded!</>"));
                     None
                 },

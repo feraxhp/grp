@@ -1,5 +1,5 @@
 pub mod directories;
-pub mod keiring;
+pub mod keyring;
 pub mod cripto;
 pub mod stdout;
 pub mod input;

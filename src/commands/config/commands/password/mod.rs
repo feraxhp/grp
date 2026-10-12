@@ -2,7 +2,7 @@
 use clap::{command, ArgMatches, Command};
 use color_print::ceprintln;
 
-use crate::{commands::core::{commands::Commands, common::invalid}, system::keiring::Keyring};
+use crate::{commands::core::{commands::Commands, common::invalid}, system::keyring::Keyring};
 
 
 pub fn command() -> Command {

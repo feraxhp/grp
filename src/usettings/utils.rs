@@ -4,7 +4,7 @@ use inquire::PasswordDisplayMode;
 
 use super::structs::Pconf;
 use crate::system::input::Input;
-use crate::system::keiring::Keyring;
+use crate::system::keyring::Keyring;
 use crate::usettings::structs::Usettings;
 use crate::animations::animation::Suspend;
 
@@ -51,7 +51,7 @@ impl Usettings {
         password_
     }
 
-    pub fn try_safe_password(&self, password: &str) {
+    pub fn try_save_password(&self, password: &str) {
         match self.keyring {
             false => (),
             true => _ = Keyring::set_password(&password),

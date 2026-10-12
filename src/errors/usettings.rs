@@ -19,7 +19,7 @@ impl UsettingsError {
         };
         
         Error::new(
-        "grp::ussetings::nopconf", 
+        "grp::usetings::nopconf", 
             message, 
             "verify your configuration file", 
             vec![], 

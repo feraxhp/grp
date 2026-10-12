@@ -1,7 +1,7 @@
 use keyring::{Entry, Error};
 
 const SERVICE_NAME: &str = "rust::grp";
-const KEY_USER: &str = "dencriptor";
+const KEY_USER: &str = "decriptor";
 
 #[allow(unused)]
 pub struct Keyring;
