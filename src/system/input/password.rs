@@ -2,13 +2,14 @@ use color_print::cformat;
 use grp_core::Error;
 use inquire::Password;
 use inquire::PasswordDisplayMode;
+use zeroize::Zeroizing;
 
 use crate::errors::ToError;
 use crate::system::input::Input;
 
 
 impl Input {
-    pub fn get_password(mode: PasswordDisplayMode, confirm: bool) -> Result<String, Error> {
+    pub fn get_password(mode: PasswordDisplayMode, confirm: bool) -> Result<Zeroizing<String>, Error> {
         let msg = cformat!("<y,i>password</>");
         let confirmation = match confirm {
             true => Some(cformat!("<y,i>password</>")),
@@ -20,7 +21,7 @@ impl Input {
         password
     }
     
-    pub fn password<M, S>(message : M, confirmation: Option<S>, mode: PasswordDisplayMode) -> Result<String, Error> 
+    pub fn password<M, S>(message : M, confirmation: Option<S>, mode: PasswordDisplayMode) -> Result<Zeroizing<String>, Error> 
     where 
         M: AsRef<str>,
         S: AsRef<str>,
@@ -33,6 +34,7 @@ impl Input {
         }
         else { prompt = prompt.without_confirmation() }
         
-        prompt.prompt().map_err(|e| e.to_error(()))
+        let password = prompt.prompt().map_err(|e| e.to_error(()))?;
+        Ok(Zeroizing::new(password))
     }
 }

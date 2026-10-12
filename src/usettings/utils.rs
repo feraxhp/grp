@@ -1,6 +1,7 @@
 use color_print::ceprint;
 use grp_core::{Config, Error};
 use inquire::PasswordDisplayMode;
+use zeroize::Zeroizing;
 
 use super::structs::Pconf;
 use crate::system::input::Input;
@@ -14,18 +15,18 @@ impl Pconf {
         Config::new(
             self.name.to_owned(),
             self.owner.to_owned(),
-            self.token.to_owned(),
+            (*self.token).clone(),
             self.endpoint.to_owned(),
         )
     }
 }
 
 impl Usettings {
-    pub fn get_password<A>(&self, confirm: bool, animation: &Box<A>) -> Result<String, Error>
+    pub fn get_password<A>(&self, confirm: bool, animation: &Box<A>) -> Result<Zeroizing<String>, Error>
     where 
         A: Suspend + ?Sized
     {
-        let password: Result<String, String> = match self.keyring {
+        let password: Result<Zeroizing<String>, String> = match self.keyring {
             false => Err( "Skiping keyring...".to_string() ),
             true => {
                 match Keyring::get_password() {
@@ -42,7 +43,7 @@ impl Usettings {
             false => PasswordDisplayMode::Masked,
         };
 
-        let mut password_: Result<String, Error> = Ok(String::new());
+        let mut password_: Result<Zeroizing<String>, Error> = Ok(Zeroizing::new(String::new()));
         animation.suspend(|| { 
             ceprint!("<y>{}</>\n", &password.unwrap_err());
             password_ = Input::get_password(mode, confirm)

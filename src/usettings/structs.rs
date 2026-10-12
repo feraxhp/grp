@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
+use zeroize::Zeroizing;
 
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Pconf {
     pub name: String,
     pub owner: String,
-    pub token: String,
+    pub token: Zeroizing<String>,
     #[serde(rename = "type")]
     pub r#type: String,
     pub endpoint: String,

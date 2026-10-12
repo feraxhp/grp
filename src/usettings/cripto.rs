@@ -3,6 +3,7 @@ use grp_core::Error;
 use grp_core::Formater;
 use grp_core::animation::Animation;
 use grp_core::empty_notes;
+use zeroize::Zeroizing;
 
 use crate::animations::animation::Suspend;
 use crate::animations::animation::Subprogress;
@@ -20,7 +21,7 @@ impl Usettings {
             
             let token = Cripto::encript(&pconf.token, password)?;
             
-            pconf.token = token;
+            pconf.token = Zeroizing::new(token);
             pconf.encripted = true;
             
             modified = true;
@@ -41,7 +42,7 @@ impl Usettings {
             if pconf.encripted { continue; }
             let token = Cripto::encript(&pconf.token, password)?;
             
-            pconf.token = token;
+            pconf.token = Zeroizing::new(token);
             pconf.encripted = true;
             
             modified = true;
@@ -94,12 +95,12 @@ impl Usettings {
         Ok(modified)
     } 
     
-    pub fn change_password<A>(&mut self, old: &str, animation: &mut Box<A>) -> Result<Option<String>, Error> 
+    pub fn change_password<A>(&mut self, old: &str, animation: &mut Box<A>) -> Result<Option<Zeroizing<String>>, Error> 
     where 
         A: Animation + Subprogress + Suspend + ?Sized,
     {
         let mut modified = false;
-        let mut password = None;
+        let mut password: Option<Zeroizing<String>> = None;
         let index = animation.add();
         let length = self.pconfs.len() as u64;
         
@@ -115,7 +116,7 @@ impl Usettings {
                 let new = ns.get_password(true, &animation)?;
                 animation.suspend(||{ eprint!("\x1B[1A\x1B[0J \r"); });
                 
-                if new == old { 
+                if *new == old { 
                     return Err(Error::new(
                         "ussettings::password::change", "The password is identical", 
                         "You can not set the same password!", vec![], empty_notes!()
@@ -131,7 +132,7 @@ impl Usettings {
             animation.change_message("Decripting old secret");
             let token = Cripto::encript(&token, password.as_ref().unwrap())?;
             
-            pconf.token = token;
+            pconf.token = Zeroizing::new(token);
             pconf.encripted = true;
             
             modified = true;

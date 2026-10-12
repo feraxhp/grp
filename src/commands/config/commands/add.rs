@@ -4,6 +4,7 @@
 use color_print::cformat;
 use clap::{arg, command, ArgMatches, Command};
 use inquire::PasswordDisplayMode;
+use zeroize::Zeroizing;
 
 use grp_core::animation;
 use grp_core::SUPPORTED_REPOS;
@@ -82,7 +83,7 @@ pub(crate) fn manager(add: &ArgMatches) {
     };
     
     let mut token = match add.get_one::<String>("token") {
-        Some(token) => token.to_string(),
+        Some(token) => Zeroizing::new(token.to_string()),
         None => {
             let mode = match usettings.hidepass {
                 true => PasswordDisplayMode::Hidden,
@@ -131,7 +132,7 @@ pub(crate) fn manager(add: &ArgMatches) {
             Err(e) => fail!(e),
         };
         token = match Cripto::encript(&token, &password) {
-            Ok(t) => t,
+            Ok(t) => Zeroizing::new(t),
             Err(e) => fail!(e),
         }
     }

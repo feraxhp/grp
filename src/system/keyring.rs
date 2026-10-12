@@ -1,4 +1,5 @@
 use keyring::{Entry, Error};
+use zeroize::Zeroizing;
 
 const SERVICE_NAME: &str = "rust::grp";
 const KEY_USER: &str = "decriptor";
@@ -8,9 +9,9 @@ pub struct Keyring;
 
 #[allow(unused)]
 impl Keyring {
-    pub fn get_password() -> Result<String, Error> {
+    pub fn get_password() -> Result<Zeroizing<String>, Error> {
         let entry = Entry::new(SERVICE_NAME, KEY_USER)?;
-        Ok(entry.get_password()?)
+        Ok(Zeroizing::new(entry.get_password()?))
     }
     
     pub fn set_password(password: &str) -> Result<(), Error> {
