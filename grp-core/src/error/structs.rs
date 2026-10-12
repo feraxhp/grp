@@ -118,6 +118,7 @@ impl Error {
     }
     
     pub fn get_type(&self) -> String { self.etype.to_owned() }
+    pub fn eq(&self, other: &str) -> bool { self.etype == other }
     
     pub fn show(&self) { self.show_with_offset(0); }
     pub fn show_with_offset(&self, offset: usize) {

@@ -4,26 +4,28 @@ use std::path::PathBuf;
 use color_print::cformat;
 use git2::IntoCString;
 use indicatif::HumanBytes;
-use git2::{Error, ErrorClass, ErrorCode, PushOptions, Repository};
+use git2::{PushOptions, Repository};
 
 use grp_core::animation::Animation;
 
 use super::git::options::{Methods, Options};
 use super::git::structs::GitUtils;
 use crate::animations::animation::Subprogress;
+use crate::animations::animation::Suspend;
 use crate::local::structs::Local;
+use crate::local::structs::LocalError;
 use crate::usettings::structs::{Pconf, Usettings};
 
 
 impl Local {
     /// return: __logs__, true (_no errors on push_) - false (_some errors on push_)
-    pub(crate) fn push_repo<A: Animation + Subprogress + ?Sized>(
+    pub(crate) fn push_repo<A: Animation + Subprogress + Suspend + ?Sized>(
         path: &PathBuf,
         pconf: Option<Pconf>,
         options: Options,
         usettings: &Usettings,
         animation: &mut Box<A>
-    ) -> Result<(Vec<String>, bool), Error> {
+    ) -> Result<(Vec<String>, bool), LocalError> {
         animation.change_message("Getting the local repository ...");
         let repo = Repository::discover(path)?;
         
@@ -48,9 +50,7 @@ impl Local {
         
         let pconf = match pconf {
             Some(e) => e,
-            None => usettings
-                    .get_pconf_or_default(&remote_name)
-                    .ok_or(Error::new(ErrorCode::NotFound, ErrorClass::Config, "no pconf"))?
+            None => usettings.get_pconf_or_default(&remote_name, animation)?
         };
         
         let config = pconf.to_config();

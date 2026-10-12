@@ -19,6 +19,11 @@ the basic config structure looks like this:
 }
 ```
 
+#### optional settings
+
+- **keyring**: boolean to disable the keyring when set to false. (optional: defaults to **_true_**)
+- **hidepass**: boolean to disable the featback on the password input prompt. (optional: defaults to **_false_**)
+
 ### Explanation
 grp manage the platforms in objets called pcofs. in every pconf you have to add
 
@@ -26,6 +31,7 @@ grp manage the platforms in objets called pcofs. in every pconf you have to add
 - **owner**: Is the username that will use by default to request in the platform.
 - **token**: Is a user generated token used to authenticate the request.
 - **type**: type of the platform. currently allows `github`, `gitea` and `gitlab`.
+- **encripted**: a boolean to know if the pconf is encripted of not. (optional: defaults to **_false_**)
 - **endpoint**: the endpoint to make the request 
   - examples:
     - `api.github.com`: for GitHub.
@@ -39,7 +45,7 @@ grp manage the platforms in objets called pcofs. in every pconf you have to add
 {
   "default": "gh",
   "pconf": [
-      {
+    {
       "name": "gh",
       "owner": "feraxhp",
       "token": "<token generated>",

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::process::exit;
 use grp_core::animation::Animation;
 use grp_core::structs::Repo;
-use grp_core::{Error, Formater, Platform};
+use grp_core::{Formater, Platform};
 
 use clap::builder::ValueParser;
 use clap::{arg, ArgMatches, Command};
@@ -12,7 +12,9 @@ use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
-use crate::local::structs::{Git2Error, Local};
+use crate::errors::ToError;
+use crate::local::structs::{Git2Context, Local};
+use crate::success;
 use crate::system::show::Show;
 use crate::local::git::structs::Action;
 use crate::system::directories::BasicDir;
@@ -74,9 +76,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (false, None) => None
     };
     
-    let pconf = match repo.pconf.clone() {
-        Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        None => usettings.get_default_pconf().or_exit(&animation),
+    let pconf = match &repo.pconf {
+        Some(e) => usettings.get_pconf_by_name(e.as_str(), &animation).or_exit(&animation),
+        None => usettings.get_default_pconf(&animation).or_exit(&animation),
     };
 
     let owner = match repo.owner.clone() {
@@ -143,7 +145,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         set_upstream_local = false;
                         let action =  Action::SetRemote(pconf.name.clone(), repo.git.clone());
                         let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
-                        let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
+                        let context = Git2Context {
+                            action,
+                            owner: &owner,
+                            repo: &path,
+                            config: Some(&config),
+                            usettings: &usettings,
+                        };
+                        let error = e.to_error(context);
                         finish_mode = FinishMode::WARNING(cformat!("Failed adding remote: <r>{}</>", &error.message));
                         
                         messages.push(cformat!("<m>2.</> <r>no remote added"));
@@ -167,7 +176,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                             Err(e) => {
                                 let action =  Action::SetUpstream;
                                 let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
-                                let error = Error::from_git2(e, action, &owner, &path, Some(&config), &usettings);
+                                let context = Git2Context {
+                                    action,
+                                    owner: &owner,
+                                    repo: &path,
+                                    config: Some(&config),
+                                    usettings: &usettings,
+                                };
+                                let error = e.to_error(context);
                                 finish_mode = FinishMode::WARNING(cformat!("Failed setting upstream: <r>{}</>", &error.message));
                                 
                                 messages.push(cformat!("<m>3.</> <r>no upstream set"));
@@ -190,7 +206,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             }
             
             match finish_mode {
-                FinishMode::SUCCESS => animation.finish_with_success(cformat!("<y,i>repo creation</y,i> <g>succeeded!</>")),
+                FinishMode::SUCCESS => animation.finish_with_success(success!(np "repo creation")),
                 FinishMode::WARNING(msg) => animation.finish_with_warning(msg),
             };
             

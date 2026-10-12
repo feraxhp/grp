@@ -2,27 +2,70 @@ use color_print::cprintln;
 
 use grp_core::{Error, errors::Parsing};
 use grp_core::Formater;
+use crate::errors::usettings::UsettingsError;
+use crate::system::cripto::Cripto;
 use super::structs::{Pconf, Usettings};
+use crate::animations::animation::Suspend;
 use crate::system::{directories::{Config, Directories}, file::File};
 
 
 impl Usettings {
-    pub fn get_pconf_by_name(&self, name: &str) -> Option<Pconf> {
-        if name == "*" { return self.get_default_pconf(); }
-        self.pconfs.iter()
-            .find(|pconf| pconf.name == name)
-            .cloned()
+    pub fn unlock_pconf<A: Suspend + ?Sized>(&self, pconf: Option<&Pconf>, animation: &Box<A>) -> Result<Pconf, Error> {
+        if pconf.is_none() { return Err(UsettingsError::no_pconf(None)) }
+        
+        let pconf = pconf.unwrap();
+        if !pconf.encripted { return Ok(pconf.to_owned()); }
+        
+        let password = self.get_password(false, animation)?;
+        let token = Cripto::decript(&pconf.token, &password)?;
+        
+        self.try_save_password(&password);
+        Ok(Pconf {
+            name: pconf.name.to_owned(),
+            owner: pconf.owner.to_owned(),
+            token,
+            r#type: pconf.r#type.to_owned(),
+            endpoint: pconf.endpoint.to_owned(),
+            encripted: pconf.encripted.to_owned(),
+        })
+    }
+
+    /// Gets the pconf without trying to decode the token
+    pub fn get_raw_pconf_by_name(&self, name: &str) -> Option<&Pconf> {
+        if name == "*" { return self.get_raw_default_pconf() }
+        
+        self.pconfs.iter().find(|pconf| pconf.name == name)
+    }
+
+    /// Gets the pconf without trying to decode the token
+    pub fn get_raw_default_pconf(&self) -> Option<&Pconf> {
+        self.pconfs.iter().find(|pconf| pconf.name == self.default)
     }
     
-    pub fn get_default_pconf(&self) -> Option<Pconf> {
-        self.pconfs.iter()
-            .find(|pconf| pconf.name == self.default)
-            .cloned()
+    /// Gets the pconf trying to decode the token
+    pub fn get_pconf_by_name<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
+        if name == "*" { return self.get_default_pconf(animation) }
+        
+        let pconf = self.pconfs.iter()
+            .find(|pconf| pconf.name == name);
+        
+        self.unlock_pconf(pconf, animation)
     }
     
-    pub fn get_pconf_or_default(&self, name: &str) -> Option<Pconf> {
-        self.get_pconf_by_name(name)
-            .or_else(|| self.get_default_pconf())
+    /// Gets the pconf trying to decode the token
+    pub fn get_default_pconf<A: Suspend + ?Sized>(&self, animation: &Box<A>) -> Result<Pconf, Error> {
+        let pconf = self.pconfs.iter()
+            .find(|pconf| pconf.name == self.default);
+        
+        self.unlock_pconf(pconf, animation)
+    }
+    
+    /// Gets the pconf trying to decode the token
+    pub fn get_pconf_or_default<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
+        let pconf = self.get_raw_pconf_by_name(name)
+            .or_else(|| self.get_raw_default_pconf());
+        
+        self.unlock_pconf(pconf, animation)
     }
     
     pub fn read() -> Result<Usettings, Error> {
@@ -32,7 +75,9 @@ impl Usettings {
         if file.is_empty() {
             let void_config = Usettings {
                 default: "<repo-name>".to_string(),
-                pconfs: vec![]
+                pconfs: vec![],
+                keyring: true,
+                hidepass: false
             };
     
             let _ = void_config.save()?;

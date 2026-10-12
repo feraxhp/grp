@@ -8,11 +8,13 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 use grp_core::structs::Repo;
 
-use crate::animations::animation::Delete;
+use crate::animations::animation::{Delete, Suspend};
 use crate::cache::structure::Uncacher;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
+use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
+use crate::success;
 use crate::usettings::structs::Usettings;
 
 pub fn command() -> Command {
@@ -34,10 +36,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let repo = args.get_one::<RepoStructure>("repo").unwrap();
     
     let pconf = match repo.pconf.clone() {
-        Some(e) 
-        if !matches!(usettings.get_pconf_by_name(e.as_str()), None) 
-        => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        
+        Some(e) => usettings.get_pconf_by_name(e.as_str(), &animation).or_exit(&animation),
         _ => {
             animation.finish_with_error(cformat!("For security reasons you have to proviede explicitly the <m>pconf name</>"));
             return;
@@ -95,10 +94,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             let message = match (soft, platform) {
                 (true, Platform::Gitlab) => cformat!("repo <m,i>mark</> <g>for delition!</>"),
                 (true, _) => vec![
-                    cformat!("<y,i>repo delition</y,i> <g>succeeded!</>"),
-                    cformat!("<y>* <i>soft delition</i> only wotks with <m>gitlab</>")
+                    success!(np "repo delition"),
+                    cformat!("<y>* <i>soft delition</i> only wotks with <m>gitlab</>"),
                 ].join("\n"),
-                (false, _) => cformat!("<y,i>repo delition</y,i> <g>succeeded!</>"),
+                (false, _) => success!(np "repo delition"),
             };
             
             let _ = Repo::remove(&pconf.name, &repo.path);

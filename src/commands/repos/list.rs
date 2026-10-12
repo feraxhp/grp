@@ -2,7 +2,7 @@ use std::process::exit;
 use futures::StreamExt;
 
 use clap::{arg, ArgMatches, Command};
-use color_print::{cformat, cprintln};
+use color_print::cprintln;
 use grp_core::animation::Animation;
 use grp_core::{Error, Platform};
 
@@ -11,6 +11,7 @@ use crate::cache::structure::Cacher;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
+use crate::{success, warning};
 use crate::system::show::Show;
 use crate::usettings::structs::{Pconf, Usettings};
 
@@ -29,7 +30,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let pconf = match args.get_one::<Pconf>("pconf") {
         Some(e) => e.clone(),
-        None => usettings.get_default_pconf().or_exit(&animation),
+        None => usettings.get_default_pconf(&animation).or_exit(&animation),
     };
     
     let owner = args.get_one::<String>("owner");
@@ -79,7 +80,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     match (repos.is_empty(), errors.is_empty()) {
         (true, true) => { animation.finish_with_success("<i>No repos found</>"); },
         (false,  true) => {
-            animation.finish_with_success(cformat!("<y,i>list repos</y,i> <g>succeeded!</>"));
+            animation.finish_with_success(success!(np "list repos"));
             repos.print_pretty();
         },
         (true, false) => {
@@ -88,7 +89,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             error.show();
         },
         (false, false) => {
-            animation.finish_with_warning(cformat!("<m,i>list repos</m,i> <y>finish with errors!</>"));
+            animation.finish_with_warning(warning!(np "list repos"));
             repos.print_pretty();
             if show_errors { errors.print_pretty(); } 
             else {

@@ -1,21 +1,27 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use std::{io, process::exit};
-
+use color_print::cformat;
 use clap::{arg, command, ArgMatches, Command};
-use color_print::cprintln;
+use inquire::PasswordDisplayMode;
+
+use grp_core::animation;
 use grp_core::SUPPORTED_REPOS;
 
-use crate::usettings::structs::{Pconf, Usettings};
+use crate::fail;
+use crate::success;
+use crate::system::input::Input;
+use crate::system::cripto::Cripto;
+use crate::usettings::structs::Pconf;
+use crate::usettings::structs::Usettings;
 
 
 pub(crate) fn command() -> Command {
+    let names = SUPPORTED_REPOS.iter().map(|repo| repo.2);
     let posible_values = |value: &str| {
         let names = SUPPORTED_REPOS.iter().map(|repo| repo.2.to_string()).collect::<Vec<String>>();
         let abbreviations = SUPPORTED_REPOS.iter().map(|repo| repo.1.to_string()).collect::<Vec<String>>();
-
-
+        
         match &value.to_string(){
             value if names.contains(&value) => Ok(value.to_string()),
             value if abbreviations.contains(&value) => {
@@ -35,186 +41,105 @@ pub(crate) fn command() -> Command {
     command!("add")
         .aliases(["+"])
         .about("Add a new pconf interactively")
-        .arg(arg!(-q --quiet "Add pconf without much dialog"))
-        .arg(arg!([type] "The platform type (github, gitea, [more planed])")
-            .value_parser(posible_values)
-        )
+        .arg(arg!(-e --encript "If pressent, it encripts the given token"))
+        .arg(arg!(-d --"set-default" "If pressent, it sets the pconf as the default"))
         .arg(arg!([name] "The alias for the pconf"))
         .arg(arg!([owner] "The default owner to consult the platform"))
         .arg(arg!([token] "The token to access the platform"))
+        .arg(arg!([type])
+            .help(cformat!("The platform type ({:?})", names))
+            .value_parser(posible_values)
+        )
         .arg(arg!([endpoint] "The client endpoint to access the platform"))
 }
 
 pub(crate) fn manager(add: &ArgMatches) {
-
-    let quiet = add.get_one::<bool>("quiet").unwrap_or(&false);
-    let quiet = *quiet;
-    let space = if quiet { "".to_string() } else { " ".repeat(4) };
-    let format_exp = format!("{}Something went wrong while reading the input", space);
-
+    let mut usettings = match Usettings::read() {
+        Ok(us) => us,
+        Err(e) => fail!(e),
+    };
+    
     let name = match add.get_one::<String>("name") {
         Some(name) => name.to_string(),
         None => {
-            if !quiet {
-                eprintln!("Name|");
-                eprintln!("  Write the name of the repo");
-                eprintln!("  This name will be used to identify the repo while using the CLI");
+            let description = cformat!("This name will be used to identify the repo while using the CLI");
+            match Input::identifier(cformat!("<y>pconf <i>name</i>:</>"), Some(description)) {
+                Ok(s) => s,
+                Err(e) => fail!(e),
             }
-            let mut name: Option<String> = None;
-            while name.is_none() {
-                eprint!("{}Name: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { name = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Owner cannot be empty"); } }
-            }
-
-            name.unwrap()
         }
     };
-
+    
     let owner = match add.get_one::<String>("owner") {
         Some(owner) => owner.to_string(),
         None => {
-            if !quiet {
-                eprintln!("Owner|");
-                eprintln!("  Write the owner of the repo");
-                eprintln!("  This owner will be used as the default owner of the repo");
+            let description = cformat!("This owner will be used as the default owner of the repo");
+            match Input::identifier(cformat!("<y,i>owner</>"), Some(description)) {
+                Ok(s) => s,
+                Err(e) => fail!(e),
             }
-
-            let mut owner: Option<String> = None;
-            while owner.is_none() {
-                eprint!("{}Owner: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { owner = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Owner cannot be empty"); } }
-            }
-
-            owner.unwrap()
         }
     };
-
-    let token = match add.get_one::<String>("token") {
+    
+    let mut token = match add.get_one::<String>("token") {
         Some(token) => token.to_string(),
         None => {
-            if !quiet {
-                eprintln!("Token|");
-                eprintln!("  Write the token of the repo");
-                eprintln!("  This token will be used to authenticate the CLI with the repo");
+            let mode = match usettings.hidepass {
+                true => PasswordDisplayMode::Hidden,
+                false => PasswordDisplayMode::Masked,
+            };
+            let message = cformat!("<y,i>token</>");
+            let confirmation: Option<String> = None;
+            
+            match Input::password( message, confirmation, mode) {
+                Ok(s) => s,
+                Err(e) => fail!(e),
             }
-            let mut token: Option<String> = None;
-            while token.is_none() {
-                eprint!("{}Token: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { token = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Token cannot be empty"); } }
-            }
-
-            token.unwrap()
         }
     };
-
+    
     let repo_type = match add.get_one::<String>("type") {
         Some(repo_type) => repo_type.to_string(),
         None => {
-            if !quiet {
-                eprintln!("type|");
-                eprintln!("  Write the type of the repo");
-                eprintln!("  options: ");
-                for type_ in SUPPORTED_REPOS.iter() {
-                    eprintln!("      {}) {}", type_.0, type_.2);
-                }
+            let options = SUPPORTED_REPOS.iter().map(|s| s.2).collect();
+            let description = cformat!("The API type to use when calling this pcong");
+            
+            match Input::select(cformat!("<y>repo <i>type</i>:</>"), Some(description), options) {
+                Ok(s) => s,
+                Err(e) => fail!(e),
             }
-
-            let mut repo: Option<String> = None;
-            while repo.is_none() {
-                eprint!("{}Type: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-                for type_ in SUPPORTED_REPOS.iter() {
-                    if input == type_.0 || input == type_.1 || input == type_.2 {
-                        repo = Some(type_.2.to_string());
-                        break;
-                    }
-                }
-
-                if repo.is_none() && !quiet {
-                    eprintln!("{space}It is not a valid option");
-                }
-            }
-
-            repo.unwrap()
         }
     };
-
+    
     let endpoint = match add.get_one::<String>("endpoint") {
         Some(endpoint) => endpoint.to_string(),
         None => {
-            let mut endpoint: Option<String> = match repo_type.as_str() {
-                "github" => Some("api.github.com".to_string()),
-                _ => None,
-            };
-
-            if endpoint.is_none() && !quiet {
-                eprintln!("Endpoint|");
-                eprintln!("  Write the endpoint of the repo");
-                eprintln!("  This endpoint will be used to access the repo");
+            let description = cformat!("The actual enpoint to reach the API");
+            
+            match Input::endpoint(cformat!("<y, i>endpoint:</>"), Some(description), &repo_type) {
+                Ok(s) => s,
+                Err(e) => fail!(e),
             }
-
-            while endpoint.is_none() {
-                eprint!("{}Endpoint: ", space);
-                let mut input = String::new();
-                io::stdin()
-                    .read_line(&mut input)
-                    .expect(format_exp.as_str());
-
-                let input = input.trim();
-
-                if !input.is_empty() { endpoint = Some(input.to_string()); }
-                else { if !quiet { eprintln!("{space}Endpoint cannot be empty"); } }
-            }
-
-            endpoint.unwrap()
         }
     };
 
-    let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint };
-    
-    let mut usettings = match Usettings::read() {
-        Ok(us) => us,
-        Err(e) => {
-            e.show();
-            exit(1);
-        },
-    };
+    let encript = add.get_flag("encript");
+
+    if encript {
+        let password = match usettings.get_password(true, &Box::new(animation::None)) {
+            Ok(p) => p,
+            Err(e) => fail!(e),
+        };
+        token = match Cripto::encript(&token, &password) {
+            Ok(t) => t,
+            Err(e) => fail!(e),
+        }
+    }
+    let pconf = Pconf { name, owner, token, r#type: repo_type , endpoint, encripted: encript };
+    if add.get_flag("set-default") { usettings.default = pconf.name.clone() }
     
     match usettings.add_pconf(pconf) {
-        Ok(_) => cprintln!("<g>* Succes: pconf saved succesfully</>"),
-        Err(e) => {
-            e.show();
-            exit(1);
-        },
+        Ok(_) => success!("add pconf"),
+        Err(e) => fail!(e),
     };
 }
-

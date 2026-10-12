@@ -6,6 +6,7 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 
 
+use crate::{success, warning};
 use crate::system::show::Show;
 use crate::animations::animation::Create;
 use crate::commands::core::args::Arguments;
@@ -36,7 +37,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let pconf = match args.get_one::<Pconf>("pconf") {
         Some(e) => e.clone(),
-        None => usettings.get_default_pconf().or_exit(&animation),
+        None => usettings.get_default_pconf(&animation).or_exit(&animation),
     };
     
     let name = args.get_one::<String>("name").unwrap();
@@ -58,11 +59,11 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             animation.finish_with_warning("No actions performed...");
         }
         (false, true) => {
-            animation.finish_with_success(cformat!("<y,i>org creation</y,i> <g>succeeded!</>"));
+            animation.finish_with_success(success!(np "org creation"));
             users.print_pretty();
         }
         (false, false) => {
-            animation.finish_with_warning(cformat!("<m,i>org creation</m,i> <y>aborted!</>"));
+            animation.finish_with_warning(warning!(np "org creation"));
             cprintln!("* Some groups where created!");
             users.print_pretty();
             if show_errors { errors.print_pretty(); } 
