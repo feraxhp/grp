@@ -67,7 +67,7 @@ impl CriptoError {
 
     pub fn from_argon2(error: argon2::Error) -> Error {
         macro_rules! etype_argon2 {
-            ($literal:literal) => { concat!(etype!("argon2::error"), $literal) };
+            ($literal:literal) => { concat!(etype!("argon2::error::"), $literal) };
         }
         
         match error {

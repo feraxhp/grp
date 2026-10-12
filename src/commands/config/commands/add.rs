@@ -126,7 +126,7 @@ pub(crate) fn manager(add: &ArgMatches) {
     let encript = add.get_flag("encript");
 
     if encript {
-        let password = match usettings.get_password(false, &Box::new(animation::None)) {
+        let password = match usettings.get_password(true, &Box::new(animation::None)) {
             Ok(p) => p,
             Err(e) => fail!(e),
         };
