@@ -1,0 +1,8 @@
+{
+  "id": 1,
+  "username": "gitlab_user",
+  "name": "GitLab User",
+  "state": "active",
+  "avatar_url": "https://gitlab.example/avatar.png",
+  "web_url": "https://gitlab.example/gitlab_user"
+}

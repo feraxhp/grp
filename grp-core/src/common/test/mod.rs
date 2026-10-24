@@ -15,6 +15,21 @@ pub struct Endpoint<const N:usize > {
     pub path: &'static str,
     pub status: u16,
     pub body: Value,
+    pub query: Option<(&'static str, &'static str)>,
+    pub calls: u64,
+}
+
+impl<const N: usize> Endpoint<N> {
+    pub fn query(mut self, key: &'static str, val: &'static str) -> Self {
+        self.query = Some((key, val));
+        self
+    }
+    
+    #[allow(dead_code)]
+    pub fn calls(mut self, n: u64) -> Self {
+        self.calls = n;
+        self
+    }
 }
 
 
@@ -36,42 +51,43 @@ impl Server {
         let mut mock = Mock::given(method(value.method)).and(path(value.path));
         for header in value.headers { mock = mock.and(header); }
         if let Some(payload) = value.payload { mock = mock.and(body_json(payload)) }
+        if let Some((k, v)) = value.query { mock = mock.and(wiremock::matchers::query_param(k, v)); }
         
         let mut response = ResponseTemplate::new(value.status);
         if value.status != 204 {
             response = response.set_body_json(value.body);
         }
-        mock.respond_with(response).expect(1).mount(self).await
+        mock.respond_with(response).expect(value.calls).mount(self).await
     }
 }
 
 #[macro_export]
 macro_rules! get  { 
     ($status:literal, $path:literal, $body:expr $(, $header:literal: $value:literal )* $(,)?) => { 
-        Endpoint { path: $path, payload: None, method: "GET", status: $status, body: $body, headers: [ $( wiremock::matchers::header($header, $value), )* ] } 
+        Endpoint { path: $path, payload: None, method: "GET", status: $status, body: $body, headers: [ $( wiremock::matchers::header($header, $value), )* ], query: None, calls: 1 } 
     }; 
     ($status:literal, $path:literal, $body:expr, $headers:expr) => { 
-        Endpoint { path: $path, payload: None, method: "GET", status: $status, body: $body, headers: $headers } 
+        Endpoint { path: $path, payload: None, method: "GET", status: $status, body: $body, headers: $headers, query: None, calls: 1 } 
     }; 
 }
 
 #[macro_export]
 macro_rules! post { 
     ($status:literal, $path:literal, $payload:expr, $body:expr $(, $header:literal: $value:literal )* $(,)?) => { 
-        Endpoint { path: $path, payload: Some($payload), method: "POST", status: $status, body: $body, headers: [ $( wiremock::matchers::header($header, $value), )* ]  } 
+        Endpoint { path: $path, payload: Some($payload), method: "POST", status: $status, body: $body, headers: [ $( wiremock::matchers::header($header, $value), )* ], query: None, calls: 1 } 
     }; 
     ($status:literal, $path:literal, $payload:expr, $body:expr, $headers:expr) => { 
-        Endpoint { path: $path, payload: Some($payload), method: "POST", status: $status, body: $body, headers: $headers } 
+        Endpoint { path: $path, payload: Some($payload), method: "POST", status: $status, body: $body, headers: $headers, query: None, calls: 1 } 
     }; 
 }
 
 #[macro_export]
 macro_rules! delete { 
     ($status:literal, $path:literal $(, $header:literal: $value:literal )* $(,)?) => { 
-        Endpoint { path: $path, payload: None, method: "DELETE", status: $status, body: serde_json::json!({}), headers: [ $( wiremock::matchers::header($header, $value), )* ] } 
+        Endpoint { path: $path, payload: None, method: "DELETE", status: $status, body: serde_json::json!({}), headers: [ $( wiremock::matchers::header($header, $value), )* ], query: None, calls: 1 } 
     }; 
     ($status:literal, $path:literal, $headers:expr) => { 
-        Endpoint { path: $path, payload: None, method: "DELETE", status: $status, body: serde_json::json!({}), headers: $headers } 
+        Endpoint { path: $path, payload: None, method: "DELETE", status: $status, body: serde_json::json!({}), headers: $headers, query: None, calls: 1 } 
     }; 
 }
 
@@ -104,12 +120,17 @@ macro_rules! auth {
         wiremock::matchers::header("User-Agent", "reqwest > rust > grp"),
         wiremock::matchers::header("authorization", "Bearer my-token"),
     ] }; 
+    (gl) => { [
+        wiremock::matchers::header("User-Agent", "reqwest > rust > grp"),
+        wiremock::matchers::header("authorization", "Bearer my-token"),
+    ] }; 
 }
 
 #[macro_export]
 macro_rules! config { 
     (gh $server:expr) => { Config::new_unsafe("internal", "octocat", "my-token", $server.address().to_string()) }; 
     (fj $server:expr) => { Config::new_unsafe("internal", "forgejo_user", "my-token", $server.address().to_string()) }; 
+    (gl $server:expr) => { Config::new_unsafe("internal", "gitlab_user", "my-token", $server.address().to_string()) }; 
 }
 
 #[tokio::test]

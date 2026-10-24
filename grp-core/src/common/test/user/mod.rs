@@ -1,5 +1,6 @@
 pub mod forgejo;
 pub mod github;
+pub mod gitlab;
 
 pub use crate::value;
 pub use crate::auth;
