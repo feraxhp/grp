@@ -1,78 +1,79 @@
-use crate::structs::UserType;
 use crate::platform::Platform;
+use crate::structs::UserType;
+use crate::Config;
 
 
 impl Platform {
-    pub(crate) async fn url_list_repos<S: AsRef<str>>(&self, user_type: &UserType, endpoint: &S) -> String {
+    pub(crate) async fn url_list_repos(&self, user_type: &UserType, config: &Config) -> String {
         match (user_type, self) {
             (UserType::LoggedUser(_), Platform::Gitea) |
             (UserType::LoggedUser(_), Platform::Codeberg) |
             (UserType::LoggedUser(_), Platform::Forgejo) |
             (UserType::LoggedUser(_), Platform::Github) => {
-                format!("{}/user/repos", self.get_base_url(endpoint))
+                format!("{}/user/repos", self.get_base_url(config))
             }
             (UserType::LoggedOrg(user), Platform::Gitea) |
             (UserType::LoggedOrg(user), Platform::Codeberg) |
             (UserType::LoggedOrg(user), Platform::Forgejo) |
             (UserType::LoggedOrg(user), Platform::Github) => {
-                format!("{}/orgs/{}/repos", self.get_base_url(endpoint), user.name)
+                format!("{}/orgs/{}/repos", self.get_base_url(config), user.name)
             }
             (UserType::UnloggedUser(user), Platform::Gitea) |
             (UserType::UnloggedUser(user), Platform::Codeberg) |
             (UserType::UnloggedUser(user), Platform::Forgejo) |
             (UserType::UnloggedUser(user), Platform::Github) => {
-                format!("{}/users/{}/repos", self.get_base_url(endpoint), user.name)
+                format!("{}/users/{}/repos", self.get_base_url(config), user.name)
             }
             (UserType::LoggedUser(_), Platform::Gitlab) => {
-                format!("{}/projects?membership=true", self.get_base_url(endpoint))
+                format!("{}/projects?membership=true", self.get_base_url(config))
             }
             (UserType::LoggedOrg(u), Platform::Gitlab) |
             (UserType::UnloggedOrg(u), Platform::Gitlab)  => {
-                format!("{}/groups/{}/projects", self.get_base_url(endpoint), u.id)
+                format!("{}/groups/{}/projects", self.get_base_url(config), u.id)
             }
             (UserType::UnloggedUser(u), Platform::Gitlab) => {
-                format!("{}/users/{}/projects", self.get_base_url(endpoint), u.id)
+                format!("{}/users/{}/projects", self.get_base_url(config), u.id)
             }
             _ => todo!("Not implemented")
         }
     }
     
-    pub(crate) async fn url_create_repo<S: AsRef<str>>(&self, user_type: &UserType, endpoint: &S) -> String {
+    pub(crate) async fn url_create_repo(&self, user_type: &UserType, config: &Config) -> String {
         match (user_type, self) {
             (UserType::LoggedUser(_), Platform::Gitea) |
             (UserType::LoggedUser(_), Platform::Codeberg) |
             (UserType::LoggedUser(_), Platform::Forgejo) |
             (UserType::LoggedUser(_), Platform::Github) => {
-                format!("{}/user/repos", self.get_base_url(endpoint))
+                format!("{}/user/repos", self.get_base_url(config))
             }
             (UserType::LoggedOrg(user), Platform::Gitea) |
             (UserType::LoggedOrg(user), Platform::Codeberg) |
             (UserType::LoggedOrg(user), Platform::Forgejo) |
             (UserType::LoggedOrg(user), Platform::Github) => {
-                format!("{}/orgs/{}/repos", self.get_base_url(endpoint), user.name)
+                format!("{}/orgs/{}/repos", self.get_base_url(config), user.name)
             }
             (UserType::UnloggedUser(user), Platform::Gitea) |
             (UserType::UnloggedUser(user), Platform::Codeberg) |
             (UserType::UnloggedUser(user), Platform::Forgejo) |
             (UserType::UnloggedUser(user), Platform::Github) => {
-                format!("{}/users/{}/repos", self.get_base_url(endpoint), user.name)
+                format!("{}/users/{}/repos", self.get_base_url(config), user.name)
             }
             (utype, Platform::Gitlab) => {
                 let u = utype.get_user();
-                format!("{}/projects?namespace_id={}", self.get_base_url(endpoint), u.id)
+                format!("{}/projects?namespace_id={}", self.get_base_url(config), u.id)
             }
             _ => todo!("Not implemented")
         }
     }
     
-    pub async fn url_delete_repo<S: AsRef<str>>(&self, owner: &S, repo: &S, endpoint: &S) -> String {
+    pub async fn url_delete_repo<S: AsRef<str>>(&self, owner: &S, repo: &S, config: &Config) -> String {
         match self {
             Platform::Github |
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => format!("{}/repos/{}/{}", self.get_base_url(endpoint), owner.as_ref(), repo.as_ref()),
+            Platform::Gitea => format!("{}/repos/{}/{}", self.get_base_url(config), owner.as_ref(), repo.as_ref()),
             Platform::Gitlab => {
-                format!("{}/projects/{}", self.get_base_url(endpoint), owner.as_ref())
+                format!("{}/projects/{}", self.get_base_url(config), owner.as_ref())
             },
         }
     }

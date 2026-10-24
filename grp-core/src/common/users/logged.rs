@@ -24,7 +24,7 @@ impl Platform {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => { 
-               format!("{}/user", self.get_base_url(&conf.endpoint))
+               format!("{}/user", self.get_base_url(&conf))
             },
         };
         

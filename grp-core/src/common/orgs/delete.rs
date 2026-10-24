@@ -35,7 +35,7 @@ impl Platform {
         }
         
         animation.change_message("generating url ...");
-        let url = self.url_delete_org(&name, &config.endpoint);
+        let url = self.url_delete_org(&name, &config);
         
         animation.change_message("Deleting organization ...");
         let result = self.delete(&url, config).await?;

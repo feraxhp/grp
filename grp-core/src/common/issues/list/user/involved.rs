@@ -32,7 +32,7 @@ impl Platform {
         match self {
             Github => {
                 let owner = self.get_logged_user(config).await?;
-                let url = self.url_list_all_involved_user_issues(&config.endpoint);
+                let url = self.url_list_all_involved_user_issues(config);
                 
                 let context = Context {
                     request_type: RequestType::ListIssues,

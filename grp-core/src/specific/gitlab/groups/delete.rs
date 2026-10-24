@@ -13,7 +13,7 @@ pub async fn premanently_remove(platform: &Platform, user: &User, config: &Confi
     let path = user.path.unwrap();
     let path = encode(&path);
     
-    let url = format!("{}/groups/{}?full_path={}&permanently_remove=true", platform.get_base_url(&config.endpoint), &id, path);
+    let url = format!("{}/groups/{}?full_path={}&permanently_remove=true", platform.get_base_url(&config), &id, path);
     let result = platform.delete(&url, config).await?;
     
     let context = Context {

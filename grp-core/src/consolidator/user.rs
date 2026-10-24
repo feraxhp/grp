@@ -1,5 +1,5 @@
 use crate::common::traits::Convert;
-use crate::specific::{gitea, github, gitlab};
+use crate::specific::{forgejo, github, gitlab};
 use crate::structs::User;
 use crate::error::structs::Error;
 use crate::platform::Platform;
@@ -22,7 +22,7 @@ impl User {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let user: gitea::parser::User = JSON::from_str(text)?;
+                let user: forgejo::parser::User = JSON::from_str(text)?;
                 user.convert()
             },
             Platform::Gitlab => {
@@ -50,7 +50,7 @@ impl User {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let users: Vec<gitea::parser::User> = JSON::from_str(text)?;
+                let users: Vec<forgejo::parser::User> = JSON::from_str(text)?;
                 users.into_iter().map(|u| u.convert()).collect()
             },
             Platform::Gitlab => {

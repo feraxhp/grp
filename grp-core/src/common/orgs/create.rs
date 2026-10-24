@@ -5,7 +5,7 @@ use crate::error::structs::Error;
 use crate::config::Config;
 use crate::structs::User;
 use crate::animation::Animation;
-use crate::specific::{gitea, gitlab};
+use crate::specific::{forgejo, gitlab};
 
 
 impl Platform {
@@ -35,7 +35,7 @@ impl Platform {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let result = gitea::orgs::create::create(self, &name, config, animation).await;
+                let result = forgejo::orgs::create::create(self, &name, config, animation).await;
                 match result {
                     Ok(u)  => (vec![u], vec![]),
                     Err(e) => (vec![], vec![e]),

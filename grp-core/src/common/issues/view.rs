@@ -37,7 +37,7 @@ impl Platform {
             owner = project.id.to_string();
         }
         
-        let url = self.url_repo_issues_comments(&config.endpoint, &owner, &repo_path, issue);
+        let url = self.url_repo_issues_comments(&config, &owner, &repo_path, issue);
         
         let context = Context {
             request_type: RequestType::ListIssuesComments,
@@ -84,7 +84,7 @@ impl Platform {
             owner = project.id.to_string();
         }
         
-        let url = self.url_detailed_issue(&config.endpoint, &owner, &repo_path, issue);
+        let url = self.url_detailed_issue(&config, &owner, &repo_path, issue);
         let result = self.get(url, true, config).await?;
         let context = Context {
             request_type: RequestType::ListIssuesComments,

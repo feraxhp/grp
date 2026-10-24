@@ -12,7 +12,7 @@ use crate::error::structs::Error;
 
 pub async fn by_full_path(name: &String, config: &Config) -> Result<Option<User>, Error> {
     let platform = Platform::Gitlab;
-    let url = format!("{}/groups?search={}", platform.get_base_url(&config.endpoint), name);
+    let url = format!("{}/groups?search={}", platform.get_base_url(&config), name);
     
     let context = Context {
         request_type: RequestType::ListOrg,

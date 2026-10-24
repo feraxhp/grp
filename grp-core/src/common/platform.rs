@@ -9,7 +9,7 @@ use crate::error::structs::Error;
 use crate::common::structs::Context;
 use crate::config::Config;
 use crate::platform::Platform;
-use crate::specific::{gitea, github, gitlab};
+use crate::specific::{forgejo, github, gitlab};
 
 impl Platform {
     /// # Return
@@ -38,19 +38,20 @@ impl Platform {
             Platform::Github => { github::header::get_auth_header(token) }
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => { gitea::header::get_auth_header(token) }
+            Platform::Gitea => { forgejo::header::get_auth_header(token) }
             Platform::Gitlab => { gitlab::header::get_auth_header(token) }
         }
     }
 
-    pub(crate) fn get_base_url<S: AsRef<str>>(&self, endpoint: &S) -> String {
-        let endpoint = endpoint.as_ref();
+    pub(crate) fn get_base_url(&self, config: &Config) -> String {
+        let endpoint = &config.endpoint;
+        let https = if config.unsafed { "http" } else { "https" };
         match self {
-            Platform::Github => { format!("https://{}", endpoint) }
+            Platform::Github => { format!("{https}://{}", endpoint) }
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => { format!("https://{}/api/v1", endpoint) }
-            Platform::Gitlab => { format!("https://{}/api/v4", endpoint) }
+            Platform::Gitea => { format!("{https}://{}/api/v1", endpoint) }
+            Platform::Gitlab => { format!("{https}://{}/api/v4", endpoint) }
         }
     }
 
@@ -72,7 +73,7 @@ impl Platform {
             Platform::Github => { github::unwrap::unwrap(result, base_message.into(), config, context).await }
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => { gitea::unwrap::unwrap(result, base_message.into(), config, context).await }
+            Platform::Gitea => { forgejo::unwrap::unwrap(result, base_message.into(), config, context).await }
             Platform::Gitlab => { gitlab::unwrap::unwrap(result, base_message.into(), config, context).await }
         }
     }

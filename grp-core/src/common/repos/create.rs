@@ -34,7 +34,7 @@ impl Platform {
         let json = repo.as_json(&self);
         
         animation.change_message("creating repository...");
-        let url = self.url_create_repo(&user_type, &config.endpoint).await;
+        let url = self.url_create_repo(&user_type, &config).await;
         let result = self.post(url, true, config, &json).await?;
         
         let context = Context {

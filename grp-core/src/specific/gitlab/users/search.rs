@@ -11,7 +11,7 @@ use crate::config::Config;
 pub async fn by_name(platform: &Platform, name: &String, conf: &Config) -> Result<Option<User>, Error> {
     let url = match platform {
         Platform::Gitlab => {
-            format!("{}/users?username={}", platform.get_base_url(&conf.endpoint), name)
+            format!("{}/users?username={}", platform.get_base_url(&conf), name)
         },
         _ => unimplemented!("This platform is not supported for fetching users by name")
     };

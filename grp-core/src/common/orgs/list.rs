@@ -26,7 +26,7 @@ impl Platform {
         config: &Config, 
         animation: &Box<A>
     ) -> impl Stream<Item = Result<PaginatorResult<Vec<User>>, Error>> {
-        let url = self.url_list_orgs(&config.endpoint);
+        let url = self.url_list_orgs(&config);
         
         let context = Context {
             request_type: RequestType::ListOrg,

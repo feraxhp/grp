@@ -7,3 +7,5 @@ pub mod repos;
 pub mod users;
 pub mod utils;
 pub mod orgs;
+#[cfg(test)]
+mod test;

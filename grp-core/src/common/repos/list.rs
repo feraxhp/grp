@@ -21,7 +21,7 @@ impl Platform {
         animation.change_message("getting user type");
         let user_type = self.get_user_type(&owner, &config).await?;
         
-        let url = self.url_list_repos(&user_type, &config.endpoint).await;
+        let url = self.url_list_repos(&user_type, &config).await;
         
         let context = Context {
             request_type: RequestType::List,

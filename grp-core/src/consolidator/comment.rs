@@ -2,7 +2,7 @@ use crate::Error;
 use crate::JSON;
 use crate::Platform;
 use crate::common::traits::Convert;
-use crate::specific::gitea;
+use crate::specific::forgejo;
 use crate::specific::github;
 use crate::specific::gitlab;
 use crate::structs::Comment;
@@ -24,7 +24,7 @@ impl Comment {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let comment: gitea::parser::Comment = JSON::from_str(text)?;
+                let comment: forgejo::parser::Comment = JSON::from_str(text)?;
                 comment.convert()
             },
             Platform::Gitlab => {
@@ -52,7 +52,7 @@ impl Comment {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let comments: Vec<gitea::parser::Comment> = JSON::from_str(text)?;
+                let comments: Vec<forgejo::parser::Comment> = JSON::from_str(text)?;
                 comments.into_iter().map(|c| c.convert()).collect()
             },
             Platform::Gitlab => {

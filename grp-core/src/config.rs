@@ -17,6 +17,7 @@
 /// 
 #[derive(Clone)]
 pub struct Config {
+    pub(crate) unsafed: bool,
     pub pconf: String,
     pub user: String,
     pub token: String,
@@ -24,11 +25,37 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new<T: Into<String>>(
-        pconf: T, user: T,
-        token: T, endpoint: T
-    ) -> Self {
+    pub fn new<P, U, T, E>(
+        pconf: P, user: U,
+        token: T, endpoint: E
+    ) -> Self
+    where 
+        P: Into<String>,
+        U: Into<String>,
+        T: Into<String>,
+        E: Into<String>,
+    {
         Config {
+            unsafed: false,
+            pconf: pconf.into(),
+            user: user.into(),
+            token: token.into(),
+            endpoint: endpoint.into()
+        }
+    }
+    
+    pub fn new_unsafe<P, U, T, E>(
+        pconf: P, user: U,
+        token: T, endpoint: E
+    ) -> Self 
+    where 
+        P: Into<String>,
+        U: Into<String>,
+        T: Into<String>,
+        E: Into<String>,
+    {
+        Config {
+            unsafed: true,
             pconf: pconf.into(),
             user: user.into(),
             token: token.into(),

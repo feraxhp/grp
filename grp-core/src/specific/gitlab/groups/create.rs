@@ -64,7 +64,7 @@ async fn create<A: Animation + ?Sized>(
     assert!(matches!(platform, Platform::Gitlab));
     
     animation.change_message("generating url ...");
-    let url = format!("{}/groups", platform.get_base_url(&config.endpoint));
+    let url = format!("{}/groups", platform.get_base_url(&config));
     
     let group = Group {
         parent_id: parent.clone().map(|p| p.id),

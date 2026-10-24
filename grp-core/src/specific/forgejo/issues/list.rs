@@ -7,7 +7,7 @@ use crate::Error;
 use crate::JSON;
 use crate::Platform;
 use crate::animation::Animation;
-use crate::specific::gitea::parser::Issue;
+use crate::specific::forgejo::parser::Issue;
 use crate::structs::Context;
 use crate::structs::PaginatorResult;
 use crate::structs::RequestType;
@@ -48,7 +48,7 @@ pub async fn list_issues_by_scope<A>(
 where 
     A: Animation + ?Sized,
 {
-    let url = format!("{}/repos/issues/search?state=open&type=issues&{}", platform.get_base_url(&config.endpoint), scope.filter());
+    let url = format!("{}/repos/issues/search?state=open&type=issues&{}", platform.get_base_url(&config), scope.filter());
 
     let context = Context {
         request_type: RequestType::List,

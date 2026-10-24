@@ -20,7 +20,7 @@ impl Platform {
     {
         animation.change_message("getting user id...");
         let owner = self.get_logged_user(config).await?;
-        let url = self.url_list_user_assigned_issues(&config.endpoint, &owner);
+        let url = self.url_list_user_assigned_issues(&config, &owner);
         
         let context = Context {
             request_type: RequestType::ListIssues,

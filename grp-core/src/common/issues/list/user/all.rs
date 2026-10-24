@@ -9,7 +9,7 @@ use crate::Platform;
 use crate::animation::Animation;
 use crate::common::traits::Convert;
 use crate::common::utils::skip_empty;
-use crate::specific::{gitea, github, gitlab};
+use crate::specific::{forgejo, github, gitlab};
 use crate::structs::Issue;
 use crate::structs::PaginatorResult;
 
@@ -81,14 +81,14 @@ impl Platform {
             Platform::Gitea |
             Platform::Codeberg => {
                 let scopes = [ 
-                    gitea::issues::list::Scope::AssignedToMe,
-                    gitea::issues::list::Scope::CreatedByMe,
-                    gitea::issues::list::Scope::Mentioned,
+                    forgejo::issues::list::Scope::AssignedToMe,
+                    forgejo::issues::list::Scope::CreatedByMe,
+                    forgejo::issues::list::Scope::Mentioned,
                 ];
                 
                 let mut stream = None;
                 for scope in scopes {
-                    let response = gitea::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
+                    let response = forgejo::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
                     let response = response.map(|result | {
                         let result = result?;
                         let issues = result.result.iter().map(|s| s.convert()).collect();

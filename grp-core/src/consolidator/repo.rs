@@ -2,7 +2,7 @@ use crate::error::structs::Error;
 use crate::json::JSON;
 use crate::platform::Platform;
 use crate::common::structs::Repo;
-use crate::specific::{gitea, github, gitlab};
+use crate::specific::{forgejo, github, gitlab};
 
 
 impl Repo {
@@ -55,7 +55,7 @@ impl Repo {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => { 
-                let repo: gitea::parser::Repository = JSON::from_str(text)?;
+                let repo: forgejo::parser::Repository = JSON::from_str(text)?;
                 
                 Repo {
                     name: repo.name.clone(),
@@ -111,7 +111,7 @@ impl Repo {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let tmp: Vec<gitea::parser::Repository> = JSON::from_str(text)?;
+                let tmp: Vec<forgejo::parser::Repository> = JSON::from_str(text)?;
                 
                 let repos = tmp.iter().map(|repo| {
                     Repo {

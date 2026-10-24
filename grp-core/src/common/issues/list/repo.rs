@@ -35,7 +35,7 @@ impl Platform {
             owner = project.id.to_string();
         }
         
-        let url = self.url_list_repo_issues(&config.endpoint, &owner, &repo_path);
+        let url = self.url_list_repo_issues(config, &owner, &repo_path);
         
         let context = Context {
             request_type: RequestType::ListIssues,

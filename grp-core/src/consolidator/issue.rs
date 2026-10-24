@@ -3,7 +3,7 @@ use crate::JSON;
 use crate::Platform;
 use crate::common::traits::Convert;
 use crate::errors::Parsing;
-use crate::specific::gitea;
+use crate::specific::forgejo;
 use crate::specific::github;
 use crate::specific::gitlab;
 use crate::structs::Issue;
@@ -28,7 +28,7 @@ impl Issue {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let issue: gitea::parser::Issue = JSON::from_str(text)?;
+                let issue: forgejo::parser::Issue = JSON::from_str(text)?;
                 match &issue.pull_request {
                     Some(_) => return Err(Parsing::issue_is_pull_request()),
                     None => issue.convert(),
@@ -64,7 +64,7 @@ impl Issue {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let issues: Vec<gitea::parser::Issue> = JSON::from_str(text)?;
+                let issues: Vec<forgejo::parser::Issue> = JSON::from_str(text)?;
                 issues.into_iter().filter_map(|i| {
                     match &i.pull_request {
                         Some(_) => None,

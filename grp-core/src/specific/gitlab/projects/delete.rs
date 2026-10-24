@@ -11,7 +11,7 @@ pub async fn premanently_remove(platform: &Platform, project: &Project, config: 
     let id = project.id.to_string();
     let path = encode(&project.path_with_namespace.as_str());
     
-    let url = format!("{}/projects/{}?full_path={}&permanently_remove=true", platform.get_base_url(&config.endpoint), &id, path);
+    let url = format!("{}/projects/{}?full_path={}&permanently_remove=true", platform.get_base_url(&config), &id, path);
     let result = platform.delete(&url, config).await?;
     
     let context = Context {
