@@ -15,12 +15,12 @@ use crate::error::tools::Notes;
 /// 
 /// ## Example 1
 /// ~~~
-/// use grp_core::{ErrorType, Error};
-/// 
-/// Error::new(
-///     ErrorType::ResponseParsing,
-///     vec!["description", "{}"]
-/// );
+/// // use grp_core::{ErrorType, Error};
+/// // 
+/// // Error::new(
+/// //     ErrorType::ResponseParsing,
+/// //     vec!["description", "{}"]
+/// // );
 /// ~~~
 /// 
 /// Error contains a vector to emulate various parameter to allow a more 
@@ -30,12 +30,12 @@ use crate::error::tools::Notes;
 /// 
 /// ## Example 2
 /// ~~~
-/// use grp_core::{ErrorType, Error};
-/// 
-/// Error::new_custom(
-///     "Custom error message",
-///     vec!["something whent wrong after...", "don't be afraid"] // here, every item is trated as a new line (if printed)
-/// );
+/// // use grp_core::Error;
+/// // 
+/// // Error::new_custom(
+/// //     "Custom error message",
+/// //     vec!["something whent wrong after...", "don't be afraid"] // here, every item is trated as a new line (if printed)
+/// // );
 /// ~~~
 /// 
 /// You also can create custom errors using the _build in_ method _new_custom_ 
@@ -46,19 +46,19 @@ use crate::error::tools::Notes;
 /// 
 /// ## Example 3
 /// ~~~
-/// use grp_core::{ErrorType, Error};
+/// use grp_core::Error;
 /// 
-/// let normal_error = Error::new(
-///     ErrorType::ResponseParsing,
-///     vec!["description", "{}"]
-/// );
+/// // let normal_error = Error::new(
+/// //     ErrorType::ResponseParsing,
+/// //     vec!["description", "{}"]
+/// // );
 /// 
-/// let error_custom = Error::new_custom(
-///     "Custom error message",
-///     vec!["something whent wrong after...", "don't be afraid"] // here, every item is trated as a new line (if printed)
-/// );
-/// 
-/// let collection_error = Error::colection(vec![normal_error, error_custom]);
+/// // let error_custom = Error::new(
+/// //     "Custom error message",
+/// //     vec!["something whent wrong after...", "don't be afraid"] // here, every item is trated as a new line (if printed)
+/// // );
+/// // 
+/// // let collection_error = Error::collection(vec![normal_error, error_custom]);
 /// ~~~
 /// 
 /// There is a 3 type and is a collection, this allows to return multiple errors 
