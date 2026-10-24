@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "name": "forgejo_org",
+    "username": "forgejo_org",
+    "full_name": "Forgejo Organization",
+    "avatar_url": "https://example.com/avatar.png",
+    "description": "An organization in Forgejo"
+  }
+]

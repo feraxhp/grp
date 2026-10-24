@@ -100,10 +100,17 @@ macro_rules! auth {
         wiremock::matchers::header("X-GitHub-Api-Version", "2022-11-28"),
         wiremock::matchers::header("Authorization", "Bearer my-token")
     ] }; 
+    (fj) => { [
+        wiremock::matchers::header("User-Agent", "reqwest > rust > grp"),
+        wiremock::matchers::header("authorization", "Bearer my-token"),
+    ] }; 
 }
 
 #[macro_export]
-macro_rules! config { (gh $server:expr) => { Config::new_unsafe("internal", "octocat", "my-token", $server.address().to_string()) }; }
+macro_rules! config { 
+    (gh $server:expr) => { Config::new_unsafe("internal", "octocat", "my-token", $server.address().to_string()) }; 
+    (fj $server:expr) => { Config::new_unsafe("internal", "forgejo_user", "my-token", $server.address().to_string()) }; 
+}
 
 #[tokio::test]
 #[allow(unused)]

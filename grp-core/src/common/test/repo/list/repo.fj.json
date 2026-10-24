@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "name": "Hello-Forgejo",
+    "full_name": "forgejo_user/Hello-Forgejo",
+    "private": false,
+    "html_url": "https://forgejo.example/forgejo_user/Hello-Forgejo",
+    "clone_url": "https://forgejo.example/forgejo_user/Hello-Forgejo.git",
+    "description": "My first Forgejo repo!"
+  }
+]

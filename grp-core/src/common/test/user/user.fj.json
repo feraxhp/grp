@@ -1,0 +1,9 @@
+{
+  "id": 1,
+  "login": "forgejo_user",
+  "name": "forgejo_user",
+  "full_name": "Forgejo User",
+  "email": "forgejo_user@example.com",
+  "avatar_url": "https://example.com/avatar.png",
+  "username": "forgejo_user"
+}
