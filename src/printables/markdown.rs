@@ -1,6 +1,11 @@
 use color_print::cformat;
-use grp_core::{Error, empty_notes};
-use ink_md::{Args, render::plain::render_plain};
+use ink_md::render::plain::render_plain;
+use ink_md::Width::Columns;
+use ink_md::Args;
+
+use grp_core::Error;
+use grp_core::empty_notes;
+
 
 
 pub trait Markdown {
@@ -12,7 +17,7 @@ impl Markdown for String {
         let args = Args {
             inputs: vec![],
             theme: "terminal".to_string(),
-            width: Some(80),
+            width: Columns(80),
             slides: true,
             plain: true,
             watch: false,

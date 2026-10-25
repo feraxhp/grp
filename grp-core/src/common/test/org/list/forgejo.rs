@@ -21,7 +21,7 @@ async fn list_forgejo_orgs() {
     
     let stream = Forgejo.list_orgs(&config, &an);
     tokio::pin!(stream);
-    let orgs = stream.next().await.unwrap().unwrap();
+    let orgs = stream.next().await.unwrap().unwrap().result;
 
     assert_eq!(orgs.len(), 1);
     assert_eq!(&orgs[0].name, "forgejo_org");

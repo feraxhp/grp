@@ -21,7 +21,7 @@ async fn list_gitlab_orgs() {
     
     let stream = Gitlab.list_orgs(&config, &an);
     tokio::pin!(stream);
-    let orgs = stream.next().await.unwrap().unwrap();
+    let orgs = stream.next().await.unwrap().unwrap().result;
 
     assert_eq!(orgs.len(), 1);
     assert_eq!(&orgs[0].name, "gitlab_group");

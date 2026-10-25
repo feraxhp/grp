@@ -25,7 +25,7 @@ async fn get_forgejo_repo() {
     
     let stream = Forgejo.list_repos(None::<String>, &config, &an).await.unwrap();
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap();
+    let repos = stream.next().await.unwrap().unwrap().result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Forgejo");
@@ -44,7 +44,7 @@ async fn list_forgejo_repos_for_org() {
     
     let stream = Forgejo.list_repos(Some("forgejo_org"), &config, &an).await.unwrap();
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap();
+    let repos = stream.next().await.unwrap().unwrap().result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Forgejo");
@@ -63,7 +63,7 @@ async fn list_forgejo_repos_for_unlogged_user() {
     
     let stream = Forgejo.list_repos(Some("other_user"), &config, &an).await.unwrap();
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap();
+    let repos = stream.next().await.unwrap().unwrap().result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Forgejo");

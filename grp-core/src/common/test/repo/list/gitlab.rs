@@ -25,7 +25,7 @@ async fn get_gitlab_repo() {
     
     let stream = Gitlab.list_repos(None::<String>, &config, &an).await.unwrap();
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap();
+    let repos = stream.next().await.unwrap().unwrap().result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Gitlab");
@@ -44,7 +44,7 @@ async fn list_gitlab_repos_for_org() {
     
     let stream = Gitlab.list_repos(Some("gitlab_group"), &config, &an).await.unwrap();
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap();
+    let repos = stream.next().await.unwrap().unwrap().result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Gitlab");
