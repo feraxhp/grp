@@ -21,7 +21,7 @@ use crate::local::git::structs::Action;
 use crate::commands::core::args::Arguments;
 use crate::animations::animation::{Process, Subprogress, Suspend};
 
-const DEFNAME: &'static str = "defname";
+const DEFNAME: &str = "defname";
 
 pub fn command() -> Command {
     command!("clone").aliases(["cl"])
@@ -43,11 +43,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let mut animation = Process::new("Initializing repository cloning...");
     
     let path = args.get_one::<PathBuf>("path");
-    
-    let branch = match args.get_one::<String>("branch") {
-        Some(value) => Some(value.clone()),
-        None => None
-    };
+    let branch = args.get_one::<String>("branch").cloned();
     
     let bare = args.get_flag("bare");
     
@@ -112,13 +108,9 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
         e.show();
         exit(1)
     }
-    let config = pconf.to_config();
     
-    let options = CloneOptions {
-        path: path,
-        branch: branch,
-        bare: bare,
-    };
+    let config = pconf.to_config();
+    let options = CloneOptions { path, branch, bare, };
     
     match platform.clone_repo(&repo.owner, &repo.path, &options, &config, animation).await {
         Ok(r) => {
@@ -169,11 +161,7 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
     let config = pconf.to_config();
     let url_string = url.to_string();
     
-    let options = CloneOptions {
-        path: path.clone(),
-        branch: branch,
-        bare: bare,
-    };
+    let options = CloneOptions { path: path.clone(), branch, bare };
     
     match Local::clone_by_url(&url_string, &options, &config,  animation).await {
         Ok(_) => {

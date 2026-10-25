@@ -41,7 +41,7 @@ impl Platform {
                     Err(e) => (vec![], vec![e]),
                 }
             },
-            Platform::Gitlab => gitlab::groups::create::create_group(self, &name, &config, recursive, animation).await
+            Platform::Gitlab => gitlab::groups::create::create_group(self, &name, config, recursive, animation).await
         }
     }
 }

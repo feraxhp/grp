@@ -50,7 +50,7 @@ fn identifier_validator(input: &str) -> Result<Validation, CustomUserError> {
                 .fold(
                     String::with_capacity(input.len() + (positions.len() * 11) + 19), 
                     |mut string, (index, ch)| {
-                        if index == 0 { string.push_str(&cformat!("<c>invalid: </>").as_str()); } // width: 19
+                        if index == 0 { string.push_str(cformat!("<c>invalid: </>").as_str()); } // width: 19
                         
                         match (positions.contains(&index), ch) {
                             (true, ' ') => string.push_str(cformat!("<R> </>").as_str()),

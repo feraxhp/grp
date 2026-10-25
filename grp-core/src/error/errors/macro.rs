@@ -44,7 +44,7 @@ macro_rules! empty_notes {
         $crate::error::structs::Error {
             etype: $type.to_string(),
             message: $message.to_string(),
-            content: content,
+            content,
         }
     }};
 }

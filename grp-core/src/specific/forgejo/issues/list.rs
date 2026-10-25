@@ -48,7 +48,7 @@ pub async fn list_issues_by_scope<A>(
 where 
     A: Animation + ?Sized,
 {
-    let url = format!("{}/repos/issues/search?state=open&type=issues&{}", platform.get_base_url(&config), scope.filter());
+    let url = format!("{}/repos/issues/search?state=open&type=issues&{}", platform.get_base_url(config), scope.filter());
 
     let context = Context {
         request_type: RequestType::List,

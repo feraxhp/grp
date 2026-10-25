@@ -123,7 +123,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 None => unreachable!(),
             };
 
-            let mut finish_mode = FinishMode::SUCCESS;
+            let mut finish_mode = FinishMode::Success;
             let mut messages = vec![
                 cformat!("<m>1.</> <g>created repo:"),
                 format!(
@@ -148,12 +148,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         let context = Git2Context {
                             action,
                             owner: &owner,
-                            repo: &path,
+                            repo: path,
                             config: Some(&config),
                             usettings: &usettings,
                         };
                         let error = e.to_error(context);
-                        finish_mode = FinishMode::WARNING(cformat!("Failed adding remote: <r>{}</>", &error.message));
+                        finish_mode = FinishMode::Warning(cformat!("Failed adding remote: <r>{}</>", &error.message));
                         
                         messages.push(cformat!("<m>2.</> <r>no remote added"));
                         messages.extend(
@@ -179,12 +179,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                                 let context = Git2Context {
                                     action,
                                     owner: &owner,
-                                    repo: &path,
+                                    repo: path,
                                     config: Some(&config),
                                     usettings: &usettings,
                                 };
                                 let error = e.to_error(context);
-                                finish_mode = FinishMode::WARNING(cformat!("Failed setting upstream: <r>{}</>", &error.message));
+                                finish_mode = FinishMode::Warning(cformat!("Failed setting upstream: <r>{}</>", &error.message));
                                 
                                 messages.push(cformat!("<m>3.</> <r>no upstream set"));
                                 messages.extend(
@@ -206,8 +206,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             }
             
             match finish_mode {
-                FinishMode::SUCCESS => animation.finish_with_success(success!(np "repo creation")),
-                FinishMode::WARNING(msg) => animation.finish_with_warning(msg),
+                FinishMode::Success => animation.finish_with_success(success!(np "repo creation")),
+                FinishMode::Warning(msg) => animation.finish_with_warning(msg),
             };
             
             messages.iter().for_each(|e| {
@@ -222,8 +222,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
 }
 
 enum FinishMode {
-    SUCCESS,
-    WARNING(String),
+    Success,
+    Warning(String),
 }
 
 #[test]

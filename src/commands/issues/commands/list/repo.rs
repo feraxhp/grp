@@ -62,7 +62,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .map(|(i, s)| {
             match &s {
             Ok(pr) if let Some(last) = pr.pager.last_number() => {
-                    an.change_message(format!("Requesting page: {} of {}", i + 1, &last))
+                    an.change_message(format!("Requesting page: {} of {}", i + 1, last))
                 },
                 _ => an.change_message(format!("Requesting page: {}", i + 1)),
             }
@@ -86,7 +86,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (true, false) => {
             let error = Error::collection(errors);
-            animation.finish_with_error(format!("{}", error.message));
+            animation.finish_with_error(error.message.to_string());
             error.show();
         },
         (false, false) => {

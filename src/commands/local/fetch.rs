@@ -31,7 +31,7 @@ pub fn command() -> Command {
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let mut animation = Process::new("Initializing repository fetching...");
     
-    let pconf = args.get_one::<Pconf>("pconf").map(| p| p.clone());
+    let pconf = args.get_one::<Pconf>("pconf").cloned();
     
     let dry_run = args.get_flag("dry-run");
     
@@ -40,13 +40,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         None => std::env::current_dir().unwrap()
     };
     
-    let remote = match args.get_one::<String>("remote") {
-        None => None,
-        Some(e) => Some(e.to_owned())
-    };
+    let remote = args.get_one::<String>("remote").map(|e| e.to_owned());
     
     let options = Options {
-        method: Methods::DEFAULT ,
+        method: Methods::Default ,
         remote, branch: None,
         force: false, dry_run
     };
@@ -73,7 +70,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     let context = Git2Context {
                         action,
                         owner: &p.owner,
-                        repo: &path,
+                        repo: path,
                         config: Some(&config),
                         usettings: &usettings,
                     };
@@ -91,7 +88,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                             Git2Context {
                                 action,
                                 owner: &p.owner.clone(),
-                                repo: &path,
+                                repo: path,
                                 config: None,
                                 usettings: &usettings,
                             }
@@ -100,7 +97,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                             Git2Context {
                                 action,
                                 owner: &e.message.clone(),
-                                repo: &path,
+                                repo: path,
                                 config: None,
                                 usettings: &usettings,
                             }
@@ -116,7 +113,6 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             
             animation.finish_with_error(&error.message);
             error.show();
-            return;
         }
     };
 }

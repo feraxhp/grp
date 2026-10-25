@@ -103,7 +103,7 @@ impl Platform {
             };
             
             let response_headers = response.headers().clone();
-            let string = match self.unwrap(response,  "Faild getting reponse", &config, context.clone()).await {
+            let string = match self.unwrap(response,  "Faild getting reponse", config, context.clone()).await {
                 Ok(s) => s,
                 Err(e) => {
                     yield Err(e);
@@ -151,13 +151,13 @@ fn extract_next(link_header: Option<&HeaderValue>) -> Result<Pager, Error> {
     if next_url.is_none() { return Ok(Pager::none()) };
     let url = next_url.unwrap();
     let url = Url::parse(&url)
-        .map(|e| Some(e))
+        .map(Some)
         .map_err(|e| Parsing::url(e, &url) )?;
 
     match last_url {
         Some(last_url) => {
             let last_url = Url::parse(&last_url)
-                .map(|e| Some(e))
+                .map(Some)
                 .map_err(|e| Parsing::url(e, &last_url) )?;
             
             Ok(Pager{ next: url, last: last_url })
@@ -182,7 +182,7 @@ impl Pager {
         });
         
         match last {
-            Some(Some(Ok(number))) => Some(number.clone()),
+            Some(Some(Ok(number))) => Some(number),
             _ => None,
         }
     }

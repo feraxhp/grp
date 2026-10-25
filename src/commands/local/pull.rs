@@ -46,7 +46,7 @@ pub(crate) fn command() -> Command {
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let mut animation = Fetch::new("Fetching the repository ...");
     
-    let pconf = args.get_one::<Pconf>("pconf").map(| p| p.clone());
+    let pconf = args.get_one::<Pconf>("pconf").cloned();
     
     let force = args.get_flag("force");
     let dry_run = args.get_flag("dry-run");
@@ -56,15 +56,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         None => std::env::current_dir().unwrap()
     };
     
-    let mut remote = match args.get_one::<String>("remote") {
-        None => None,
-        Some(e) => Some(e.to_owned())
-    };
+    let mut remote = args.get_one::<String>("remote").map(|e| e.to_owned());
 
-    let mut branch = match args.get_one::<String>("branch") {
-        None => None,
-        Some(e) => Some(e.to_owned())
-    };
+    let mut branch = args.get_one::<String>("branch").map(|e| e.to_owned());
     
     let up_stream = if let Some(values) = args.get_many::<String>("set-upstream") {
         let mut values_iter = values.clone();
@@ -74,14 +68,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     } else { false };
     
     let options = Options {
-        method: if up_stream { Methods::UPSTREAM } else { Methods::DEFAULT },
+        method: if up_stream { Methods::Upstream } else { Methods::Default },
         remote, branch,
         force, dry_run
     };
     
     let action = match args.get_flag("rebase") {
-        true => PullAction::REBASE,
-        false => PullAction::MERGE,
+        true => PullAction::Rebase,
+        false => PullAction::Merge,
     };
     
     let result = Local::pull_repo(&path, options, pconf.clone(), action, &usettings, &mut animation);
@@ -110,7 +104,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     let context = Git2Context {
                         action,
                         owner: &p.owner,
-                        repo: &path,
+                        repo: path,
                         config: Some(&config),
                         usettings: &usettings,
                     };
@@ -128,7 +122,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                             Git2Context {
                                 action,
                                 owner: &p.owner.clone(),
-                                repo: &path,
+                                repo: path,
                                 config: None,
                                 usettings: &usettings,
                             }
@@ -137,7 +131,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                             Git2Context {
                                 action,
                                 owner: &e.message.clone(),
-                                repo: &path,
+                                repo: path,
                                 config: None,
                                 usettings: &usettings,
                             }

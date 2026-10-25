@@ -27,27 +27,27 @@ impl Local {
         animation: &mut Box<A>
     ) -> Result<FetchResult<'repo>, LocalError> {
         match options.method {
-            Methods::ALL      |
-            Methods::TAG(_)   |
-            Methods::TAGS     |
-            Methods::BRANCHES => {
+            Methods::All      |
+            Methods::Tag(_)   |
+            Methods::Tags     |
+            Methods::Branches => {
                 return Err(LocalError::Git(
                     Error::new(ErrorCode::Invalid, ErrorClass::Invalid, "Method not allowed for fetch")
                 ));
             }
-            Methods::DEFAULT |
-            Methods::UPSTREAM => (),
+            Methods::Default |
+            Methods::Upstream => (),
         };
         
         animation.change_message("Getting the branch and remote ...");
         let (
             branch_name,
             remote_name
-        ) = GitUtils::get_repo_branch_and_remote(&repo, &options)?;
+        ) = GitUtils::get_repo_branch_and_remote(repo, &options)?;
         
-        if options.method == Methods::UPSTREAM && !options.dry_run.clone() {
+        if options.method == Methods::Upstream && !options.dry_run {
             animation.change_message("Setting upstream ...");
-            let _ = options.method.set_upstream(&repo, &branch_name, &remote_name)?;
+            options.method.set_upstream(repo, &branch_name, &remote_name)?;
         };
         
         animation.change_message("Preparing ref_specs ...");
@@ -78,7 +78,7 @@ impl Local {
             ];
             
             let mut step_count: u8 = 2;
-            if matches!(options.method, Methods::UPSTREAM) {
+            if matches!(options.method, Methods::Upstream) {
                 logs.push(cformat!("{}. Set upstream", step_count));
                 logs.push(cformat!("  <g>⁕</> <y>{}</> to branch: <y>{}</>", &remote_name, branch_name));
                 step_count += 1;
@@ -138,7 +138,7 @@ impl Local {
         let bbranches = GitUtils::get_branches_by_remote(repo, &remote_name)?;
         
         animation.change_message("Fetching repository ...");
-        let _ = remote.fetch(&ref_specs, Some(&mut fetch_options), None)?;
+        remote.fetch(&ref_specs, Some(&mut fetch_options), None)?;
         
         let abranches = GitUtils::get_branches_by_remote(repo, &remote_name)?;
         
@@ -154,7 +154,7 @@ impl Local {
             branch: branch_name.clone(),
         };
         
-        return Ok(result);
+        Ok(result)
     }
     
     pub async fn fetch_repo<A: Animation + Subprogress + Suspend + ?Sized>(

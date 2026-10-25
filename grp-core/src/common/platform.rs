@@ -82,11 +82,11 @@ impl Platform {
 impl Display for Platform {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Platform::Github => write!(f, "{}", "github"),
-            Platform::Gitea => write!(f, "{}", "gitea"),
-            Platform::Gitlab => write!(f, "{}", "gitlab"),
-            Platform::Codeberg => write!(f, "{}", "codeberg"),
-            Platform::Forgejo => write!(f, "{}", "forgejo"),
+            Platform::Github => write!(f, "github"),
+            Platform::Gitea => write!(f, "gitea"),
+            Platform::Gitlab => write!(f, "gitlab"),
+            Platform::Codeberg => write!(f, "codeberg"),
+            Platform::Forgejo => write!(f, "forgejo"),
         }
     }
 }

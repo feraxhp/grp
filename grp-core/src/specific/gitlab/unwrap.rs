@@ -33,7 +33,7 @@ pub async fn unwrap(
         
         401 => Request::unauthorized(
             &config.pconf,
-            &context.owner.expect("The owner  must be provided in the context"),
+            context.owner.expect("The owner  must be provided in the context"),
             empty_notes!()
         ),
         status => {
@@ -41,7 +41,7 @@ pub async fn unwrap(
                 .unwrap_or_else(|_| {
                     ErrorDeserialize {
                         message: None,
-                        text: Some(format!("{}", text))
+                        text: Some(text.to_string())
                     }
                 }
             );

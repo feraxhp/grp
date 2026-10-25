@@ -27,9 +27,7 @@ impl ToError for InquireError {
                 "Prompt configuration is not valid", 
                 "Please report this error", 
                 vec![], 
-                vec![
-                    format!("{}", e),
-                ]
+                vec![e.to_string()]
             ),
             InquireError::IO(error) => Error::new(
                 etype!("IO"), 

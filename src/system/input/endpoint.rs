@@ -25,7 +25,7 @@ impl Input {
             _ => ""
         };
         
-        if default.len() > 0 { promp = promp.with_autocomplete(Completer(default)).with_placeholder(default) }
+        if default.is_empty() { promp = promp.with_autocomplete(Completer(default)).with_placeholder(default) }
         else { promp = promp.with_placeholder("example.com") }
         
         promp.prompt()
@@ -48,7 +48,7 @@ impl Autocomplete for Completer<&str> {
         input: &str,
         _: Option<String>,
     ) -> Result<inquire::autocompletion::Replacement, inquire::CustomUserError> {
-        if input.len() == 0 { return Ok(Some(self.0.to_string())) }
+        if input.is_empty() { return Ok(Some(self.0.to_string())) }
         
         if self.0.starts_with(input) { return Ok(Some(self.0.to_string())) }
 

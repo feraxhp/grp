@@ -29,10 +29,10 @@ impl Local {
     ) -> Result<Repo, Error> {
         
         animation.change_message("Preparing clone ...");
-        let url = self.generate_clone_url(&config.endpoint, &owner, &repo);
+        let url = self.generate_clone_url(&config.endpoint, owner, repo);
         
         Self::clone_by_url(&url, options, config, animation).await.map(|_| Repo {
-            path: format!("{}/{}", owner, &repo),
+            path: format!("{}/{}", owner, repo),
             name: repo.clone(),
             private: None,
             url: options.path.as_os_str().to_str().unwrap_or("{{ Broken path }}").to_string(),
@@ -42,7 +42,7 @@ impl Local {
     }
     
     pub async fn clone_by_url<A: Animation + Subprogress + ?Sized>(
-        url: &String, 
+        url: &str, 
         options: &CloneOptions,
         config: &Config,
         animation: &mut Box<A>
@@ -85,21 +85,21 @@ impl Local {
 
         match options.branch.clone() {
             Some(value) => { builder.branch(value.as_str()); },
-            None => { }
+            None => (),
         };
         
         builder.remote_create(
             |r, _, url| r.remote(config.pconf.as_str(), url)
         );
         
-        builder.bare(options.bare.clone());
+        builder.bare(options.bare);
         
         animation.change_message("Cloning repository ...");
-        match builder.clone(url.as_str(), options.path.as_path()) {
+        match builder.clone(url, options.path.as_path()) {
             Ok(r) => {
                 match GitUtils::get_branch_name(&r) {
                     Ok(b) => {
-                        let _ = Methods::UPSTREAM
+                        let _ = Methods::Upstream
                             .set_upstream(&r, &b, config.pconf.as_str());
                     }
                     Err(_) => todo!(),

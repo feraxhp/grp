@@ -7,7 +7,7 @@ pub(crate) async fn get_latest_version() -> Result<Version, Error> {
     let platform = Platform::Github;
     let config = Config::new("internal", "grp", "", "api.github.com");
     
-    let url = format!("https://{}/repos/feraxhp/grp/releases/latest", &config.endpoint);
+    let url = format!("https://{}/repos/feraxhp/grp/releases/latest", config.endpoint);
 
     let result = platform.get(url, false, &config).await?;
     

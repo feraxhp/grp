@@ -6,7 +6,7 @@ use super::super::structure::Completer;
 pub struct Remote;
 
 
-impl<'a> Completer for Remote {
+impl Completer for Remote {
     fn canditates(current: &OsStr) -> Vec<String> {
         let prefix = current.to_string_lossy();
         let path = match env::current_dir() {
@@ -24,7 +24,7 @@ impl<'a> Completer for Remote {
             Err(_) => return vec![],
         };
         
-        if remotes.len() == 0 { return vec![] }
+        if remotes.is_empty() { return vec![] }
         
         remotes
             .iter()

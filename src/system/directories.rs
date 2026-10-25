@@ -52,7 +52,7 @@ pub struct BasicDir;
 impl BasicDir {
     pub fn current() -> Result<PathBuf, Error> {
         std::env::current_dir()
-            .map_err(|e| FSErrors::READING.directory("CURRENT_DIR", e))
+            .map_err(|e| FSErrors::Reading.directory("CURRENT_DIR", e))
     }
 }
 
@@ -75,8 +75,8 @@ pub trait Directories {
         match location.exists() {
             true => Ok(()),
             false => {
-                create_dir_all(&location).map_err(|e| {
-                    FSErrors::CREATION.directory(location.display(), e)
+                create_dir_all(location).map_err(|e| {
+                    FSErrors::Creation.directory(location.display(), e)
                 })?;
                 
                 Ok(())
@@ -88,8 +88,8 @@ pub trait Directories {
         match path.exists() {
             true => Ok(()),
             false => {
-                File::create(&path).map_err(|e| {
-                    FSErrors::CREATION.file(path.display(), e)
+                File::create(path).map_err(|e| {
+                    FSErrors::Creation.file(path.display(), e)
                 })?;
                 Ok(())
             },

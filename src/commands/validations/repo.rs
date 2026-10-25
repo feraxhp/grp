@@ -72,7 +72,7 @@ impl RepoStructure {
         let mut parts: Vec<String> = intermediate.split("/").map(|s| s.to_string()).collect();
         
         let len: usize = parts.len();
-        let repo: String = parts.pop().unwrap_or(String::new());
+        let repo: String = parts.pop().unwrap_or_default();
         let owner: String = parts.join("/");
         
         if owner.is_empty() || owner.starts_with("/") { return Err(ParseError::NoOwner); }
@@ -86,7 +86,7 @@ impl RepoStructure {
         })
     }
     
-    pub fn is_supported(&self, platform: &Platform) -> bool { self.len <= platform.max_repo_depth() as usize }
+    pub fn is_supported(&self, platform: &Platform) -> bool { self.len <= platform.max_repo_depth() }
     pub fn is_unsupported(&self, platform: &Platform) -> Result<(), Error> { 
         if ! self.is_supported(platform) {
             Err(

@@ -95,7 +95,7 @@ impl Repo {
             Platform::Github => {
                 let tmp: Vec<github::parser::Repository> = JSON::from_str(text)?;
                 
-                let repos = tmp.iter().map(|repo| {
+                tmp.iter().map(|repo| {
                     Repo {
                         name: repo.name.clone(),
                         path:  repo.full_name.clone(),
@@ -104,16 +104,14 @@ impl Repo {
                         git:   repo.clone_url.clone(),
                         description: repo.description.clone(),
                     }
-                }).collect();
-                
-                repos
+                }).collect()
             },
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
                 let tmp: Vec<forgejo::parser::Repository> = JSON::from_str(text)?;
                 
-                let repos = tmp.iter().map(|repo| {
+                tmp.iter().map(|repo| {
                     Repo {
                         name: repo.name.clone(),
                         path:  repo.full_name.clone(),
@@ -122,14 +120,12 @@ impl Repo {
                         git:   repo.clone_url.clone(),
                         description: repo.description.clone(),
                     }
-                }).collect();
-                
-                repos
+                }).collect()
             },
             Platform::Gitlab => {
                 let tmp: Vec<gitlab::parser::Repository> = JSON::from_str(text)?;
                 
-                let repos = tmp.iter().map(|repo| {
+                tmp.iter().map(|repo| {
                     Repo {
                         name: repo.path.clone(),
                         path:  repo.path_with_namespace.clone(),
@@ -138,9 +134,7 @@ impl Repo {
                         git:   repo.http_url_to_repo.clone(),
                         description: repo.description.clone(),
                     }
-                }).collect();
-                
-                repos
+                }).collect()
             }
         };
         

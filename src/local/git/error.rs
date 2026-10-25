@@ -52,7 +52,7 @@ impl ToError for git2::Error {
                     "The repository can not be found", 
                     "Is this directory a git repository?",
                     cformat!("  <b><<{}>></>", repo),
-                    format!(""),
+                    String::new(),
                     "To create a new repo you can run".as_tip(),
                     "git init".as_command(),
                 }
@@ -80,7 +80,7 @@ impl ToError for git2::Error {
                     "Error setting a new remote",
                     cformat!("The remote already exist"),
                     "You may want to run the command:".as_tip(),
-                    format!("git remote set-url {} {}", &name, &url).as_command(),
+                    format!("git remote set-url {} {}", name, url).as_command(),
                 }
             }
             (ErrorCode::GenericError, ErrorClass::Http, _, Action::Clone) => {

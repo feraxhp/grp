@@ -79,8 +79,8 @@ impl Usettings {
                 keyring: true,
                 hidepass: false
             };
-    
-            let _ = void_config.save()?;
+            
+            void_config.save()?;
             
             cprintln!("* The config file has been created at <i,u,b>{}</>", path.as_mut_os_str().to_str().unwrap());
             cprintln!("  To configure it run");

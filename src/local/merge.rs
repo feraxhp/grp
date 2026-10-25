@@ -53,8 +53,8 @@ impl Local {
             a if a.is_normal() => {
                 animation.change_message("Performing normal merge ...");
                 let head_commit = repo.reference_to_annotated_commit(&repo.head()?)?;
-                if !rebase { Ok((GitUtils::merge(&repo, &head_commit, &fetch_commit)?, true)) }
-                else { Ok((GitUtils::rebase(&repo, &head_commit, &fetch_commit)?, true)) } 
+                if !rebase { Ok((GitUtils::merge(repo, &head_commit, &fetch_commit)?, true)) }
+                else { Ok((GitUtils::rebase(repo, &head_commit, &fetch_commit)?, true)) } 
             },
 
             a if a.is_unborn() => {

@@ -8,7 +8,7 @@ impl Usettings {
         let path = Config::file()?;
         
         let contents = serde_json::to_string_pretty(self)
-            .map_err(|e| FSErrors::CREATION.file(path.display(), e))?;
+            .map_err(|e| FSErrors::Creation.file(path.display(), e))?;
         
         File::write(&path, &contents)
     }

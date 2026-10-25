@@ -44,7 +44,7 @@ impl Platform {
                 animation.change_message("fetching issues...");
                 
                 Ok(
-                    self.pagginate(url, &config, context, 1)
+                    self.pagginate(url, config, context, 1)
                         .map(|result| {
                             self.get_seach_result(result)
                         })
@@ -58,7 +58,7 @@ impl Platform {
                     let result = response?;
                     let issues = &result.result;
                     
-                    let issues: Vec<Issue> = issues.into_iter().map(|b| {
+                    let issues: Vec<Issue> = issues.iter().map(|b| {
                         b.target.convert()
                     }).collect();
                     
@@ -74,7 +74,7 @@ impl Platform {
             },
             Platform::Gitea |
             Platform::Codeberg |
-            Platform::Forgejo => return Err(Unsupported::action("list_all_involved_user_issues", self)),
+            Platform::Forgejo => Err(Unsupported::action("list_all_involved_user_issues", self)),
         }
     }
     

@@ -23,8 +23,8 @@ pub(crate) fn command() -> Command {
         let abbreviations = SUPPORTED_REPOS.iter().map(|repo| repo.1.to_string()).collect::<Vec<String>>();
         
         match &value.to_string(){
-            value if names.contains(&value) => Ok(value.to_string()),
-            value if abbreviations.contains(&value) => {
+            value if names.contains(value) => Ok(value.to_string()),
+            value if abbreviations.contains(value) => {
                 let index = abbreviations.iter().position(|r| r.eq(value)).unwrap();
                 Ok(names[index].to_string())
             },

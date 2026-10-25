@@ -11,7 +11,7 @@ impl Validations for Pconf {
     fn value_parcer(value: &str) -> Result<Self::Output, String> {
         let usettings = Usettings::read().map_err(|e| e.message)?;
         
-        if usettings.pconfs.len() == 0 { 
+        if usettings.pconfs.is_empty() { 
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         
@@ -33,7 +33,7 @@ impl Validations for Pconf {
     fn strict_value_parcer(value: &str) -> Result<Self::Output, String> {
         let usettings = Usettings::read().map_err(|e| e.message)?;
         
-        if usettings.pconfs.len() == 0 { 
+        if usettings.pconfs.is_empty() { 
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         
@@ -57,7 +57,7 @@ impl Validations for Raw<Pconf> {
     fn value_parcer(value: &str) -> Result<Self::Output, String> {
         let usettings = Usettings::read().map_err(|e| e.message)?;
         
-        if usettings.pconfs.len() == 0 { 
+        if usettings.pconfs.is_empty() { 
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         
@@ -74,7 +74,7 @@ impl Validations for Raw<Pconf> {
     fn strict_value_parcer(value: &str) -> Result<Self::Output, String> {
         let usettings = Usettings::read().map_err(|e| e.message)?;
         
-        if usettings.pconfs.len() == 0 { 
+        if usettings.pconfs.is_empty() { 
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         

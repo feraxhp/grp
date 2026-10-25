@@ -54,7 +54,7 @@ impl Usettings {
     pub fn try_save_password(&self, password: &str) {
         match self.keyring {
             false => (),
-            true => _ = Keyring::set_password(&password),
+            true => _ = Keyring::set_password(password),
         };
     }
 }

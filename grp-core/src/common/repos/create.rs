@@ -28,13 +28,13 @@ impl Platform {
         let owner = owner.unwrap_or(config.user.clone());
         
         animation.change_message("getting user type");
-        let user_type = self.get_user_type(&owner, &config).await?;
+        let user_type = self.get_user_type(&owner, config).await?;
         
         animation.change_message("Serializing repository...");
-        let json = repo.as_json(&self);
+        let json = repo.as_json(self);
         
         animation.change_message("creating repository...");
-        let url = self.url_create_repo(&user_type, &config).await;
+        let url = self.url_create_repo(&user_type, config).await;
         let result = self.post(url, true, config, &json).await?;
         
         let context = Context {
@@ -44,8 +44,8 @@ impl Platform {
         };
         
         let base_message = "Failed to create repository";
-        let reponse = self.unwrap(result, base_message, &config, context).await?;
+        let reponse = self.unwrap(result, base_message, config, context).await?;
         
-        Repo::from_text(&reponse, &self)
+        Repo::from_text(&reponse, self)
     }
 }

@@ -37,30 +37,30 @@ pub async fn unwrap(
         404 if matches!(context.request_type, RequestType::Delete) 
             => NotFound::repository(
                 &config.pconf, 
-                &context.owner.expect("The owner  must be provided in the context"), 
-                &context.repo.expect("The repo name must be provided in the context")
+                context.owner.expect("The owner  must be provided in the context"), 
+                context.repo.expect("The repo name must be provided in the context")
             ),
         404 if matches!(context.request_type, RequestType::DeleteOrg) 
             => NotFound::organization(
-                &context.owner.expect("The owner  must be provided in the context"), 
+                context.owner.expect("The owner  must be provided in the context"), 
                 empty_notes!()
             ),
         409 if matches!(context.request_type, RequestType::Create) 
             => AlreadyExist::repository(
                 &config.pconf, 
-                &context.owner.expect("The owner  must be provided in the context"), 
-                &context.repo.expect("The repo name must be provided in the context")
+                context.owner.expect("The owner  must be provided in the context"), 
+                context.repo.expect("The repo name must be provided in the context")
             ),
         422 if matches!(context.request_type, RequestType::CreateOrg) 
             => AlreadyExist::organization(
-                &context.owner.expect("The owner  must be provided in the context"), 
+                context.owner.expect("The owner  must be provided in the context"), 
                 empty_notes!()
             ),
         status => {
             let error: ErrorDeserialize = serde_json::from_str(&text)
                 .unwrap_or_else(|_| {
                     ErrorDeserialize {
-                        message: format!("{}", text),
+                        message: text.to_string(),
                         status: status.to_string(),
                     }
                 }
@@ -70,26 +70,26 @@ pub async fn unwrap(
                 "user does not exist [uid: 0, name: ]" 
                     => Request::unauthorized(
                         &config.pconf,
-                        &context.owner.expect("The owner  must be provided in the context"),
+                        context.owner.expect("The owner  must be provided in the context"),
                         empty_notes!()
                     ),
                 "GetOrgByName" if matches!(context.request_type, RequestType::Create) 
                     => NotFound::repository(
                         &config.pconf, 
-                        &context.owner.expect("The owner  must be provided in the context"), 
-                        &context.repo.expect("The repo name must be provided in the context")
+                       context.owner.expect("The owner  must be provided in the context"), 
+                        context.repo.expect("The repo name must be provided in the context")
                     ),
                 _ if 
                     error.message.starts_with("{\"message\":\"Must be an organization owner\"") && 
                     matches!(context.request_type, RequestType::DeleteOrg) 
                     => Request::unauthorized(
                         &config.pconf, 
-                        &context.owner.expect("The owner must be provided in the context"),
+                        context.owner.expect("The owner must be provided in the context"),
                         vec!["The token must be an organization owner"]
                     ),
                 _ if error.message.starts_with("user redirect does not exist [name: ") 
                     => NotFound::user(
-                        &context.owner.expect("The owner  must be provided in the context"), 
+                        context.owner.expect("The owner  must be provided in the context"), 
                         empty_notes!()
                     ),
                 _ if error.message.starts_with("token does not have at least one of required scope(s):") 

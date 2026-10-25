@@ -26,7 +26,7 @@ impl Platform {
         config: &Config, 
         animation: &Box<A>
     ) -> impl Stream<Item = Result<PaginatorResult<Vec<User>>, Error>> {
-        let url = self.url_list_orgs(&config);
+        let url = self.url_list_orgs(config);
         
         let context = Context {
             request_type: RequestType::ListOrg,
@@ -44,7 +44,7 @@ impl Platform {
     
     pub fn get_user(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<User>>, Error> {
         let pagginator = response?;
-        let users = User::from_text_array(&pagginator.result, &self)?;
+        let users = User::from_text_array(&pagginator.result, self)?;
         Ok(pagginator.parse_result(users))
     }
 }

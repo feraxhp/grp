@@ -7,14 +7,14 @@ use crate::error::structs::Error;
 use crate::config::Config;
 
 pub async fn get_group_with_path(platform: &Platform, path: &str, config: &Config) -> Result<User, Error> {
-    let path  = encode(&path);
-    let url = format!("{}/groups/{}", platform.get_base_url(&config), path);
+    let path  = encode(path);
+    let url = format!("{}/groups/{}", platform.get_base_url(config), path);
     
     get_group(platform, &url, config).await
 }
 
 pub async fn get_group_by_id(platform: &Platform, id: &str, config: &Config) -> Result<User, Error> {
-    let url = format!("{}/groups/{}", platform.get_base_url(&config), id);
+    let url = format!("{}/groups/{}", platform.get_base_url(config), id);
     
     get_group(platform, &url, config).await
 }

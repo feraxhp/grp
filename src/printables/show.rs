@@ -23,7 +23,7 @@ pub trait Show {
 
 impl Show for Vec<Repo> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        let (max_path, max_url) = self.into_iter().fold((4, 3), |(p, u), repo| {
+        let (max_path, max_url) = self.iter().fold((4, 3), |(p, u), repo| {
             (p.max(repo.path.len()), u.max(repo.url.len()))
         });
     
@@ -38,7 +38,7 @@ impl Show for Vec<Repo> {
                     width_url = max_url
                 );
     
-                let body = self.into_iter().map(move |repo| {
+                let body = self.iter().map(move |repo| {
                     let state = match repo.private {
                         Some(true)  => cformat!("<r>priv </>"),
                         Some(false) => cformat!("<g>pub  </>"),
@@ -70,7 +70,7 @@ impl Show for Vec<User> {
                     None => "NAME".to_string(),
                 };
     
-                let body = self.into_iter().map(|user| {
+                let body = self.iter().map(|user| {
                     match &user.path {
                         Some(path) => path.to_string(),
                         None => user.name.to_string(),
@@ -103,7 +103,7 @@ impl Show for Vec<Error> {
 
 impl Show for Vec<Pconf> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        let (max_name, max_endpoint, max_user) = self.into_iter().fold((4, 8, 7), |(n, e, u), pconf| {
+        let (max_name, max_endpoint, max_user) = self.iter().fold((4, 8, 7), |(n, e, u), pconf| {
             (n.max(pconf.name.len()), e.max(pconf.endpoint.len()), u.max(pconf.owner.len()))
         });
     
@@ -114,7 +114,7 @@ impl Show for Vec<Pconf> {
                     "NAME", "USER", "ENDPOINT",
                 );
     
-                let body = self.into_iter().map(move |pconf| {
+                let body = self.iter().map(move |pconf| {
                     let name = match pconf.encripted {
                         true  => cformat!("<g>{:<max_name$}</>", &pconf.name),
                         false => cformat!("<r>{:<max_name$}</>", &pconf.name),
@@ -157,7 +157,7 @@ impl Empty for &String {
 
 impl Show for Vec<Issue> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        let (max_number, max_autor) = self.into_iter().fold((2, 6), |(number, author), issue| {
+        let (max_number, max_autor) = self.iter().fold((2, 6), |(number, author), issue| {
             (
                 number.max(issue.number.to_string().len() + 1),
                 author.max(issue.author.name.to_string().len()),
@@ -171,7 +171,7 @@ impl Show for Vec<Issue> {
                     "ID", "AUTHOR", "TITLE",
                 );
     
-                let body = self.into_iter().map(move |issue| {
+                let body = self.iter().map(move |issue| {
                     format!(
                         "{:<max_number$}  {:<max_autor$}  {}",
                         format!("#{}", issue.number).as_link(&issue.url),
@@ -191,11 +191,9 @@ impl Show for Vec<Comment> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
         (!self.is_empty())
             .then(move || {
-                let body = self.into_iter().map(move |comment| {
+                self.iter().map(move |comment| {
                     cformat!("<dim>--</>\n<g>{}</> <dim>#{} - {}</> \n{}\n\n", comment.author.to_link(), comment.id.as_link(&comment.url), &comment.created_at.to_human(), &comment.body )
-                });
-                
-                body
+                })
             })
             .into_iter()
             .flatten()
@@ -204,6 +202,6 @@ impl Show for Vec<Comment> {
 
 impl Show for Vec<String> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        self.into_iter().map(|s| s.to_owned())
+        self.iter().map(|s| s.to_owned())
     }
 }

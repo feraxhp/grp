@@ -43,8 +43,8 @@ impl GitUtils {
     ) -> Result<String, Error> {
         let mut rebase_options = git2::RebaseOptions::new();
         let mut rebase = repo.rebase(
-            Some(&local),
-            Some(&upstream),
+            Some(local),
+            Some(upstream),
             None,
             Some(&mut rebase_options),
         )?;

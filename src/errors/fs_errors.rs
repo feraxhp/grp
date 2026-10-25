@@ -9,25 +9,25 @@ macro_rules! etype {
 }
 
 pub enum FSErrors {
-    CREATION,
-    READING,
-    WRITING,
+    Creation,
+    Reading,
+    Writing,
 }
 
 impl FSErrors {
     fn etype(&self) -> &'static str {
         match self {
-            FSErrors::CREATION => etype!("create"),
-            FSErrors::READING => etype!("read"),
-            FSErrors::WRITING => etype!("write"),
+            FSErrors::Creation => etype!("create"),
+            FSErrors::Reading => etype!("read"),
+            FSErrors::Writing => etype!("write"),
         }
     }
     
     fn name_past(&self) -> &'static str {
         match self {
-            FSErrors::CREATION => "created",
-            FSErrors::READING => "readed",
-            FSErrors::WRITING => "writed",
+            FSErrors::Creation => "created",
+            FSErrors::Reading => "readed",
+            FSErrors::Writing => "writed",
         }
     }
     

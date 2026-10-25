@@ -19,7 +19,7 @@ pub(crate) async fn create<A: Animation + ?Sized>(
     );
     
     animation.change_message("generating url ...");
-    let url = format!("{}/orgs", platform.get_base_url(&config));
+    let url = format!("{}/orgs", platform.get_base_url(config));
     let json = serde_json::json!({
         "username": name,
     });

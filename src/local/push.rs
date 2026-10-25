@@ -35,9 +35,9 @@ impl Local {
             remote_name
         ) = GitUtils::get_repo_branch_and_remote(&repo, &options)?;
         
-        if options.method == Methods::UPSTREAM && !options.dry_run.clone() {
+        if options.method == Methods::Upstream && !options.dry_run {
             animation.change_message("Setting upstream ...");
-            let _ = options.method.set_upstream(&repo, &branch_name, &remote_name)?;
+            options.method.set_upstream(&repo, &branch_name, &remote_name)?;
         };
         
         animation.change_message("Preparing ref_specs ...");
@@ -62,7 +62,7 @@ impl Local {
             ];
             
             let mut step_count: u8 = 2;
-            if matches!(options.method, Methods::UPSTREAM) {
+            if matches!(options.method, Methods::Upstream) {
                 logs.push(cformat!("{}. Set upstream", step_count));
                 logs.push(cformat!("  <g>⁕</> <y>{}</> to branch: <y>{}</>", &remote_name, branch_name));
                 step_count += 1;
@@ -166,7 +166,7 @@ impl Local {
         
         callbacks.push_negotiation(|n| {
             
-            let _ref = if n.len() > 0 { 
+            let _ref = if !n.is_empty() { 
                 n.last().unwrap()
                     .src_refname()
                     .unwrap_or_default()
@@ -185,7 +185,7 @@ impl Local {
         remote.push(&ref_specs, Some(&mut push_options))?;
         
         let final_logs = logs.lock().unwrap().clone();
-        let final_perfect = perfect.lock().unwrap().clone();
+        let final_perfect = *perfect.lock().unwrap();
 
         Ok((final_logs, final_perfect))
     }

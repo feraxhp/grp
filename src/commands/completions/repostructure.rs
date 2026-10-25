@@ -27,7 +27,7 @@ impl Completer for RepoStructure {
                     prefix.to_string()
                 };
                 
-                let candidates = Usettings::canditates(&OsStr::new(real_current.as_str()));
+                let candidates = Usettings::canditates(OsStr::new(real_current.as_str()));
                 let candidates_len = candidates.len();
                 candidates
                     .into_iter()
@@ -48,7 +48,7 @@ impl Completer for RepoStructure {
                 
                 if parts.len() > 2 { return vec![] }
                 
-                let pconf = *parts.get(0).unwrap();
+                let pconf = *parts.first().unwrap();
                 let body = *parts.get(1).unwrap_or(&"");
                 
                 let pconf_owner = match Usettings::read() {

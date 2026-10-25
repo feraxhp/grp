@@ -19,9 +19,9 @@ impl Platform {
         let owner = owner.unwrap_or(config.user.clone());
         
         animation.change_message("getting user type");
-        let user_type = self.get_user_type(&owner, &config).await?;
+        let user_type = self.get_user_type(&owner, config).await?;
         
-        let url = self.url_list_repos(&user_type, &config).await;
+        let url = self.url_list_repos(&user_type, config).await;
         
         let context = Context {
             request_type: RequestType::List,
@@ -33,7 +33,7 @@ impl Platform {
         animation.change_message("fetching repositories...");
         
         Ok(
-            self.pagginate(url, &config, context, 1)
+            self.pagginate(url, config, context, 1)
                 .map(|result| {
                     self.get_repos(result)
                 })
@@ -42,7 +42,7 @@ impl Platform {
     
     pub fn get_repos(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Repo>>, Error> {
         let pagginator = response?;
-        let repos = Repo::from_text_array(&pagginator.result, &self)?;
+        let repos = Repo::from_text_array(&pagginator.result, self)?;
         Ok(pagginator.parse_result(repos))
     }
 }

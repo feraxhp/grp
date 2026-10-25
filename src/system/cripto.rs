@@ -40,12 +40,12 @@ impl Cripto {
         let nonce_bytes = &payload[SALT_LEN..SALT_LEN + NONCE_LEN];
         let ciphertext = &payload[SALT_LEN + NONCE_LEN..];
     
-        let key_bytes = Self::derive_key(&password, salt)?;
+        let key_bytes = Self::derive_key(password, salt)?;
         let key: Key = Key::from_iter(key_bytes);
         
         let cipher = ChaCha20Poly1305::new(&key);
         let nonce = Nonce::try_from(nonce_bytes)
-            .map_err(|e| CriptoError::nonce_error(e))?;
+            .map_err(CriptoError::nonce_error)?;
     
         let decrypted = cipher
             .decrypt(&nonce, ciphertext)
@@ -53,7 +53,7 @@ impl Cripto {
         
         // The decripted text is assert to be valid UTF-8
         let text = String::from_utf8(decrypted)
-            .map_err(|e| GeneralError::invalid_utf8(e))?;
+            .map_err(GeneralError::invalid_utf8)?;
         
         Ok(text)
     }
@@ -64,15 +64,14 @@ impl Cripto {
         rand::fill(&mut salt);
         rand::fill(&mut nonce_bytes);
         
-        let key_bytes = Self::derive_key(&password, &salt)?;
+        let key_bytes = Self::derive_key(password, &salt)?;
         let key: Key = Key::from_iter(key_bytes);
         let cipher = ChaCha20Poly1305::new(&key);
-        let nonce = Nonce::try_from(nonce_bytes)
-            .map_err(|e| CriptoError::nonce_error(e))?;
-            
+        let nonce = From::from(nonce_bytes);
+        
         let ciphertext = cipher
             .encrypt(&nonce, text.as_bytes())
-            .map_err(|e| CriptoError::encrypt(e))?;
+            .map_err(CriptoError::encrypt)?;
         
         let mut payload = Vec::with_capacity(SALT_LEN + NONCE_LEN + ciphertext.len());
         payload.extend_from_slice(&salt);
@@ -86,7 +85,7 @@ impl Cripto {
         let mut key = [0u8; 32];
         Argon2::default()
             .hash_password_into(password.as_bytes(), salt, &mut key)
-            .map_err(|e| CriptoError::from_argon2(e))?;
+            .map_err(CriptoError::from_argon2)?;
         
         Ok(key)
     }

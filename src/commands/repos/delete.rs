@@ -63,7 +63,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     .expect("Something went wrong while reading the input");
                 let input = input.trim();
                 if input.to_lowercase() == "n" { break; }
-                confirmation = input == format!("{}/{}", &repo.owner, &repo.path);
+                confirmation = input == format!("{}/{}", repo.owner, repo.path);
             }
         })
     }
@@ -93,7 +93,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         Ok(_) => {
             let message = match (soft, platform) {
                 (true, Platform::Gitlab) => cformat!("repo <m,i>mark</> <g>for delition!</>"),
-                (true, _) => vec![
+                (true, _) => [
                     success!(np "repo delition"),
                     cformat!("<y>* <i>soft delition</i> only wotks with <m>gitlab</>"),
                 ].join("\n"),

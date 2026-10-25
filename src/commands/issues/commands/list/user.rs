@@ -35,9 +35,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
 
     let mode = match true {
-        _ if args.get_flag("involved") => Mode::INVOLVED,
-        _ if args.get_flag("assigned") => Mode::ASSIGNED,
-        _ => Mode::ALL,
+        _ if args.get_flag("involved") => Mode::Involved,
+        _ if args.get_flag("assigned") => Mode::Assigned,
+        _ => Mode::All,
     };
     
     let show_errors = args.get_flag("show-errors");
@@ -52,7 +52,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let config = pconf.to_config();
     
     let stream = match mode {
-        Mode::ASSIGNED => match platform.list_user_assigned_issues(&config, &animation).await {
+        Mode::Assigned => match platform.list_user_assigned_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(&e.message);
@@ -60,7 +60,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 return;
             },
         },
-        Mode::ALL => match platform.list_all_user_issues(&config, &animation).await {
+        Mode::All => match platform.list_all_user_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(&e.message);
@@ -68,7 +68,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 return;
             },
         },
-        Mode::INVOLVED => match platform.list_all_involved_user_issues(&config, &animation).await {
+        Mode::Involved => match platform.list_all_involved_user_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(&e.message);
@@ -85,7 +85,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .map(|(i, s)| {
             match &s {
             Ok(pr) if let Some(last) = pr.pager.last_number() => {
-                    an.change_message(format!("Requesting page: {} of {}", i + 1, &last))
+                    an.change_message(format!("Requesting page: {} of {}", i + 1, last))
                 },
                 _ => an.change_message(format!("Requesting page: {}", i + 1)),
             }
@@ -113,7 +113,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (true, false) => {
             let error = Error::collection(errors);
-            animation.finish_with_error(format!("{}", error.message));
+            animation.finish_with_error(error.message.to_string());
             error.show();
         },
         (false, false) => {
@@ -128,7 +128,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
 }
 
 enum Mode {
-    ALL,
-    ASSIGNED,
-    INVOLVED,
+    All,
+    Assigned,
+    Involved,
 }

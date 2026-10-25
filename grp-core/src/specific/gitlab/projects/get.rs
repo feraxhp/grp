@@ -16,13 +16,13 @@ pub struct Project {
 pub async fn get_project_with_path(platform: &Platform, owner: &str, repo: &str, config: &Config) -> Result<Project, Error> {
     let path = format!("{}/{}", owner, repo);
     let path  = encode(&path);
-    let url = format!("{}/projects/{}", platform.get_base_url(&config), path);
+    let url = format!("{}/projects/{}", platform.get_base_url(config), path);
     
     get_project(platform, &url, config).await
 }
 
 pub async fn get_project_with_id(platform: &Platform, id: &str, config: &Config) -> Result<Project, Error> {
-    let url = format!("{}/projects/{}", platform.get_base_url(&config), id);
+    let url = format!("{}/projects/{}", platform.get_base_url(config), id);
     
     get_project(platform, &url, config).await
 }

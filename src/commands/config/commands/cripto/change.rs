@@ -27,8 +27,8 @@ pub fn manager(_: &ArgMatches) {
         },
     };
 
-    let ns = Usettings { default: String::new(), keyring: false, hidepass: usettings.hidepass.clone(), pconfs: vec![]  };
-    _ = animation.println(cformat!("<y,i>insert</y,i> <m,i>old password</>").as_tip());
+    let ns = Usettings { default: String::new(), keyring: false, hidepass: usettings.hidepass, pconfs: vec![]  };
+    animation.println(cformat!("<y,i>insert</y,i> <m,i>old password</>").as_tip());
     let old = match ns.get_password(false, &animation) {
         Ok(ps) => ps,
         Err(e) => {

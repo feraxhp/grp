@@ -104,7 +104,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (true, false) => {
             let error = Error::collection(errors);
-            animation.finish_with_error(format!("{}", error.message));
+            animation.finish_with_error(error.message.to_string());
             error.show();
         },
         (false, false) => {
@@ -149,7 +149,7 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
     chunks.push(cformat!("<b, bold> █ </><b>╰──</> ")); 
     
     let length = comments.len();
-    for (index, comment) in (&comments).iter().enumerate() {
+    for (index, comment) in (comments).iter().enumerate() {
         let gliph = if index == 0 { 
             chunks.push(cformat!("\n <c>▌ Coments</>\n"));
             "─" 
@@ -166,7 +166,7 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
         }
     }
     
-    chunks.push(format!(""));
+    chunks.push(String::new());
     
     (chunks, errors)
 }

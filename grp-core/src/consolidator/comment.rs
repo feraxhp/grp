@@ -59,7 +59,7 @@ impl Comment {
                 let comments: Vec<gitlab::parser::Comment> = JSON::from_str(text)?;
                 comments.into_iter().map(|c| {
                     let mut cm = c.convert();
-                    cm.url = format!("https://gitlab.com/{}/-/work_items/1#note_{}", repo, &c.id);
+                    cm.url = format!("https://gitlab.com/{}/-/work_items/1#note_{}", repo, c.id);
                     cm
                 }).collect()
             },

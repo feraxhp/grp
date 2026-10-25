@@ -5,16 +5,16 @@ use crate::local::git::options::Methods;
 impl Methods {
     pub fn get_fetch_refs(&self, _branch: &String, remote: &Remote) -> Result<Vec<String>, Error> {
         let vec = match self {
-            Methods::ALL      |
-            Methods::TAG(_)   |
-            Methods::TAGS     |
-            Methods::BRANCHES => {
+            Methods::All      |
+            Methods::Tag(_)   |
+            Methods::Tags     |
+            Methods::Branches => {
                 return Err(
                     Error::new(ErrorCode::Invalid, ErrorClass::Invalid, "Method not allowed for fetch")
                 );
             }
-            Methods::DEFAULT |
-            Methods::UPSTREAM  => {
+            Methods::Default |
+            Methods::Upstream  => {
                 let refs = remote.refspecs();
                 let mut specs: Vec<String> = Vec::new();
                 for i in refs {

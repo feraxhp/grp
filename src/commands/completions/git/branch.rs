@@ -8,7 +8,7 @@ use super::super::structure::Completer;
 pub struct Branch;
 
 
-impl<'a> Completer for Branch {
+impl Completer for Branch {
     fn canditates(current: &OsStr) -> Vec<String> {
         let prefix = current.to_string_lossy();
         let path = match env::current_dir() {

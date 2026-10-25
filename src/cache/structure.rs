@@ -30,7 +30,7 @@ pub trait Cacher {
         let data = self.put(pconf, union)?;
         
         let contents = serde_json::to_string_pretty(&data)
-            .map_err(|e| FSErrors::CREATION.file(path.to_string_lossy(), e))?;
+            .map_err(|e| FSErrors::Creation.file(path.to_string_lossy(), e))?;
         
         File::write(&path, &contents)
     }
@@ -49,7 +49,7 @@ where
         };
         
         let contents = serde_json::to_string_pretty(&data)
-            .map_err(|e| FSErrors::CREATION.file(path.to_string_lossy(), e))?;
+            .map_err(|e| FSErrors::Creation.file(path.to_string_lossy(), e))?;
         
         File::write(&path, &contents)?;
         Ok(true)

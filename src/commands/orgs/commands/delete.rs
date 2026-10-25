@@ -60,7 +60,7 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
                 let input = input.trim();
                 if input.to_lowercase() == "n" { break; }
                 
-                confirmation = input == format!("{}", name);
+                confirmation = input == name;
             }
         })
     }
@@ -84,7 +84,7 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
         Ok(_) => {
             let message = match (soft, &platform) {
                 (true, Platform::Gitlab) => cformat!("group <m,i>marked</> <g>for delition!</>"),
-                (true, _) => vec![
+                (true, _) => [
                     success!(np "org delition"),
                     cformat!("<y>* <i>soft delition</i> only wotks with <m>gitlab</>")
                 ].join("\n"),
@@ -92,7 +92,7 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
                 (false, _) => success!(np "org delition"),
             };
             
-            let _ = User::remove(&pconf.name, &name);
+            let _ = User::remove(&pconf.name, name);
             animation.finish_with_success(message);
         },
         Err(e) => {

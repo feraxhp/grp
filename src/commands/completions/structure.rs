@@ -11,7 +11,7 @@ pub(crate) trait Completer: 'static {
     fn complete() -> ArgValueCompleter { ArgValueCompleter::new(Self::ccanditates) }
     fn ccanditates(current: &OsStr) -> Vec<CompletionCandidate> {
         Self::canditates(current).iter()
-            .map(|s| CompletionCandidate::new(s))
+            .map(CompletionCandidate::new)
             .collect()
     }
     fn canditates(current: &OsStr) -> Vec<String>;

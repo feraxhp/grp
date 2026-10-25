@@ -3,12 +3,12 @@ use git2::{Error, Repository};
 
 #[derive(PartialEq, Clone)]
 pub(crate) enum Methods {
-    ALL,
-    TAG(String),
-    TAGS,
-    DEFAULT,
-    BRANCHES,
-    UPSTREAM
+    All,
+    Tag(String),
+    Tags,
+    Default,
+    Branches,
+    Upstream
 }
 
 #[derive(Clone)]
@@ -24,13 +24,13 @@ pub(crate) struct Options {
 impl Methods {
     pub(crate) fn set_upstream(&self, repo: &Repository ,branch_name: &str, remote_name: &str) -> Result<(), Error> {
         match self {
-            Methods::UPSTREAM => {
+            Methods::Upstream => {
                 let mut conf = repo.config()?;
 
-                let merge_ref = format!("refs/heads/{}", &branch_name);
+                let merge_ref = format!("refs/heads/{}", branch_name);
 
-                conf.set_str(&format!("branch.{}.remote", &branch_name), &remote_name)?;
-                conf.set_str(&format!("branch.{}.merge", &branch_name), &merge_ref)?;
+                conf.set_str(&format!("branch.{}.remote", branch_name), remote_name)?;
+                conf.set_str(&format!("branch.{}.merge", branch_name), &merge_ref)?;
                 Ok(())
             }
             _ => { panic!("Not support method"); }

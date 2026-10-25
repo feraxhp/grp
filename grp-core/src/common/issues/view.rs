@@ -33,11 +33,11 @@ impl Platform {
         
         if matches!(self, Platform::Gitlab) {
             animation.change_message("getting project id");
-            let project = gitlab::projects::get::get_project_with_path(&self, &owner, repo_path.as_ref(), config).await?;
+            let project = gitlab::projects::get::get_project_with_path(self, &owner, repo_path.as_ref(), config).await?;
             owner = project.id.to_string();
         }
         
-        let url = self.url_repo_issues_comments(&config, &owner, &repo_path, issue);
+        let url = self.url_repo_issues_comments(config, &owner, &repo_path, issue);
         
         let context = Context {
             request_type: RequestType::ListIssuesComments,
@@ -49,7 +49,7 @@ impl Platform {
         animation.change_message("fetching issue comments...");
         
         Ok(
-            self.pagginate(url, &config, context, 1)
+            self.pagginate(url, config, context, 1)
                 .map(move |result| {
                     let repo = repo.clone();
                     self.get_comments(result, repo)
@@ -59,7 +59,7 @@ impl Platform {
 
     pub fn get_comments(&self, response: Result<PaginatorResult<String>, Error>, repo: String) -> Result<PaginatorResult<Vec<Comment>>, Error> {
         let pagginator = response?;
-        let comments = Comment::from_text_array(&pagginator.result, &self, repo)?;
+        let comments = Comment::from_text_array(&pagginator.result, self, repo)?;
         Ok(pagginator.parse_result(comments))
     }
     
@@ -80,11 +80,11 @@ impl Platform {
 
         if matches!(self, Platform::Gitlab) {
             animation.change_message("getting project id");
-            let project = gitlab::projects::get::get_project_with_path(&self, &owner, repo_path.as_ref(), config).await?;
+            let project = gitlab::projects::get::get_project_with_path(self, &owner, repo_path.as_ref(), config).await?;
             owner = project.id.to_string();
         }
         
-        let url = self.url_detailed_issue(&config, &owner, &repo_path, issue);
+        let url = self.url_detailed_issue(config, &owner, &repo_path, issue);
         let result = self.get(url, true, config).await?;
         let context = Context {
             request_type: RequestType::ListIssuesComments,
@@ -94,7 +94,7 @@ impl Platform {
         };
         
         let base_message = "Failed to fetch issue";
-        let result = self.unwrap(result, base_message, &config, context).await?;
+        let result = self.unwrap(result, base_message, config, context).await?;
         
         Ok(
             Issue::from_text_array(&format!("[{result}]"), self)?[0].clone()

@@ -6,7 +6,7 @@ use crate::commands::completions::git::{branch::Branch, remote::Remote};
 
 pub struct Upstream;
 
-impl<'a> Completer for Upstream {
+impl Completer for Upstream {
     fn canditates(current: &OsStr) -> Vec<String> {
         let len: usize = env::args().len();
         let index: Option<usize> = env::args()

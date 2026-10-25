@@ -110,9 +110,9 @@ impl Usettings {
             
             let token = Cripto::decript(&pconf.token, old)?;
             if password.is_none() { 
-                _ = animation.println(cformat!("<y,i>insert</y,i> <m,i>new password</>").as_tip());
-                let ns = Usettings { default: String::new(), keyring: false, hidepass: self.hidepass.clone(), pconfs: vec![] };
-                let new = ns.get_password(true, &animation)?;
+                animation.println(cformat!("<y,i>insert</y,i> <m,i>new password</>").as_tip());
+                let ns = Usettings { default: String::new(), keyring: false, hidepass: self.hidepass, pconfs: vec![] };
+                let new = ns.get_password(true, animation)?;
                 animation.suspend(||{ eprint!("\x1B[1A\x1B[0J \r"); });
                 
                 if new == old { 

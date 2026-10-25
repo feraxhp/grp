@@ -11,8 +11,8 @@ use crate::usettings::structs::{Pconf, Usettings};
 
 
 pub enum PullAction {
-    MERGE,
-    REBASE
+    Merge,
+    Rebase
 }
 
 
@@ -32,8 +32,8 @@ impl Local {
         let result = Local::fetch(&repo, pconf, options.clone(), usettings, animation)?;
         
         let rebase = match action {
-            PullAction::MERGE => false,
-            PullAction::REBASE => true,
+            PullAction::Merge => false,
+            PullAction::Rebase => true,
         };
         
         let mut logs = result.logs;

@@ -27,8 +27,8 @@ where
     D: Display,
 {
     let url = match target {
-        Some(s) => format!("{}/todos?target_type={}", platform.get_base_url(&config), s),
-        None => format!("{}/todos", platform.get_base_url(&config)),
+        Some(s) => format!("{}/todos?target_type={}", platform.get_base_url(config), s),
+        None => format!("{}/todos", platform.get_base_url(config)),
     };
     
     let context = Context {

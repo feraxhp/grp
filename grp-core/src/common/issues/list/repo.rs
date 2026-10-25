@@ -31,7 +31,7 @@ impl Platform {
 
         if matches!(self, Platform::Gitlab) {
             animation.change_message("getting project id");
-            let project = gitlab::projects::get::get_project_with_path(&self, &owner, repo_path.as_ref(), config).await?;
+            let project = gitlab::projects::get::get_project_with_path(self, &owner, repo_path.as_ref(), config).await?;
             owner = project.id.to_string();
         }
         
@@ -47,7 +47,7 @@ impl Platform {
         animation.change_message("fetching issues...");
         
         Ok(
-            self.pagginate(url, &config, context, 1)
+            self.pagginate(url, config, context, 1)
                 .map(|result| {
                     self.get_issues(result)
                 })

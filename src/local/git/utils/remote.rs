@@ -13,7 +13,7 @@ impl GitUtils {
                 (ErrorCode::NotFound, ErrorClass::Config)
             ) ) => {
                 let remotes = repo.remotes()?;
-                if remotes.len() == 0 {
+                if remotes.is_empty() {
                     Err(
                         Error::new(
                             git2::ErrorCode::NotFound,

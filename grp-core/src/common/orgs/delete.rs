@@ -35,7 +35,7 @@ impl Platform {
         }
         
         animation.change_message("generating url ...");
-        let url = self.url_delete_org(&name, &config);
+        let url = self.url_delete_org(&name, config);
         
         animation.change_message("Deleting organization ...");
         let result = self.delete(&url, config).await?;
@@ -44,7 +44,7 @@ impl Platform {
             (Platform::Gitlab, 202 | 400) if permanent => {
                 animation.change_message("Permamently deleting gitlab group ...");
                 let user = gitlab::groups::get::get_group_by_id(self, &name, config).await?;
-                let _ = gitlab::groups::delete::premanently_remove(&self, &user, config).await?;
+                gitlab::groups::delete::premanently_remove(self, &user, config).await?;
                 Ok(())
             },
             (
@@ -61,7 +61,7 @@ impl Platform {
                 };
                 
                 let base_message = "Error deleting organization";
-                Err(self.unwrap(result, base_message, &config, context).await.unwrap_err())
+                Err(self.unwrap(result, base_message, config, context).await.unwrap_err())
             }
         }
     }

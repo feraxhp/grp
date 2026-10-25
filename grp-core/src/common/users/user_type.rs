@@ -13,8 +13,8 @@ impl Platform {
     /// 
     /// # Error
     /// a `grp_core::Error` containing the detail of the error. 
-    pub async fn get_user_type(&self, name: &String, conf: &Config) -> Result<UserType, Error> {
-        let name = name.clone();
+    pub async fn get_user_type(&self, name: &str, conf: &Config) -> Result<UserType, Error> {
+        let name = name.to_owned();
         
         let logged_user = self.get_logged_user(conf).await?;
         if name == logged_user.name { return Ok(UserType::LoggedUser(logged_user)); }
@@ -29,7 +29,7 @@ impl Platform {
                 if orgs.iter().any(|org| org.name == name) { 
                     return Ok(UserType::LoggedOrg(user));
                 }
-                return Ok(UserType::UnloggedUser(user));
+                Ok(UserType::UnloggedUser(user))
             },
             Platform::Gitlab => {
                 let orgs = self.get_logged_orgs(conf).await?;
@@ -41,13 +41,13 @@ impl Platform {
                     let user = orgs.iter().find(|org| org.path.clone().unwrap() == name).unwrap().to_owned();
                     return Ok(UserType::LoggedOrg(user.clone()));
                 }
-                match gitlab::users::search::by_name(&self, &name, conf).await? {
+                match gitlab::users::search::by_name(self, &name, conf).await? {
                     Some(u) => return Ok(UserType::UnloggedUser(u)),
                     None => (),
                 }
                 match gitlab::groups::search::by_full_path(&name, conf).await? {
                     Some(u) => Ok(UserType::UnloggedOrg(u)),
-                    None => return Err(NotFound::user(name, empty_notes!())),
+                    None => Err(NotFound::user(name, empty_notes!())),
                 }
             },
         }

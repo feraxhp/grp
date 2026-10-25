@@ -57,19 +57,19 @@ pub(crate) async fn create_group<A: Animation + ?Sized>(
 async fn create<A: Animation + ?Sized>(
     platform: &Platform,
     parent: &Option<User>,
-    name: &String,
+    name: &str,
     config: &Config,
     animation: &Box<A>
 ) -> Result<User, Error> {
     assert!(matches!(platform, Platform::Gitlab));
     
     animation.change_message("generating url ...");
-    let url = format!("{}/groups", platform.get_base_url(&config));
+    let url = format!("{}/groups", platform.get_base_url(config));
     
     let group = Group {
         parent_id: parent.clone().map(|p| p.id),
-        name: name.clone(),
-        path: name.clone(),
+        name: name.to_owned(),
+        path: name.to_owned(),
     };
     
     let json = serde_json::to_value(group).unwrap();
@@ -81,7 +81,7 @@ async fn create<A: Animation + ?Sized>(
     let context = Context {
         request_type: RequestType::CreateOrg,
         owner: None, repo: None,
-        additional: Some(name.clone()),
+        additional: Some(name.to_owned()),
     };
     
     let base_message = "Error creating group ...";

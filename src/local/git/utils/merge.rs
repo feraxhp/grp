@@ -22,7 +22,7 @@ impl GitUtils {
                     (ErrorCode::NotFound, ErrorClass::Merge) => {
                         Error::new(
                             ErrorCode::NotFound, ErrorClass::Merge, 
-                            format!("r:{} l:{}", &from, &to))
+                            format!("r:{} l:{}", from, to))
                     }
                     _ => e
                 }

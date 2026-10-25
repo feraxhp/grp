@@ -13,7 +13,7 @@ impl GitUtils {
     pub(crate) fn get_repo_branch_and_remote(repo: &Repository, options: &Options) -> Result<(String, String), Error> {
         let branch_name = match &options.branch {
             Some(name) => name.clone(),
-            None => GitUtils::get_branch_name(&repo)?,
+            None => GitUtils::get_branch_name(repo)?,
         };
 
         if branch_name.is_empty() {
@@ -26,7 +26,7 @@ impl GitUtils {
         let branch = repo.find_branch(&branch_name, BranchType::Local)?;
 
         let remote_name = match &options.remote {
-            None => GitUtils::get_remote_from_branch(&repo, &branch)?,
+            None => GitUtils::get_remote_from_branch(repo, &branch)?,
             Some(name) => name.clone(),
         };
 

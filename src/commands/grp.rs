@@ -82,7 +82,7 @@ fn print_version(v:  Result<(bool, Version), Error>, new_line: bool) {
     match v {
         Ok((true, _)) => (),
         Ok((false, version)) => {
-            if new_line { eprintln!(""); }
+            if new_line { eprintln!(); }
             eprintln!("🎉 New version available!!");
             cprintln!("   → Latest  version: <g>{}</>", version.name.clone());
             cprintln!("   → Current version: <g>v{}</>", crate_version!());
