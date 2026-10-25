@@ -1,0 +1,7 @@
+unstable_features = true
+imports_granularity = "Item"
+
+# where direction
+brace_style = "SameLineWhere"
+where_single_line = false
+indent_style = "Block"
