@@ -44,6 +44,7 @@ mod request;
 mod config;
 mod system;
 mod common;
+mod nerror;
 mod error;
 mod json;
 
@@ -53,10 +54,7 @@ pub use platform::Platform;
 pub use error::structs::Error;
 pub use error::tools::Formater;
 
-pub mod errors {
-    pub use crate::error::errors::request::Request;
-    pub use crate::error::errors::parsing::Parsing;
-}
+pub use nerror::ErrorType;
 
 pub mod structs {
     pub use super::common::structs::*;

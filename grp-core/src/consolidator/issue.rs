@@ -2,7 +2,7 @@ use crate::Error;
 use crate::JSON;
 use crate::Platform;
 use crate::common::traits::Convert;
-use crate::errors::Parsing;
+use crate::error::errors::parsing::Parsing;
 use crate::specific::forgejo;
 use crate::specific::github;
 use crate::specific::gitlab;
