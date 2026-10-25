@@ -3,7 +3,8 @@ use color_print::cformat;
 
 use crate::commands::validations::repo::RepoStructure;
 
-
+#[allow(dead_code)]
+pub struct Raw<T>(T);
 pub trait Validations {
     type Output;
     

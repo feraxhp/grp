@@ -1,11 +1,12 @@
 use std::path::PathBuf;
 
-use git2::{Error, Repository};
+use git2::Repository;
 use grp_core::animation::Animation;
 
 use super::structs::Local;
 use crate::local::git::options::Options;
-use crate::animations::animation::Subprogress;
+use crate::animations::animation::{Subprogress, Suspend};
+use crate::local::structs::LocalError;
 use crate::usettings::structs::{Pconf, Usettings};
 
 
@@ -17,14 +18,14 @@ pub enum PullAction {
 
 #[allow(dead_code)]
 impl Local {
-    pub(crate) fn pull_repo<A: Animation + Subprogress + ?Sized>(
+    pub(crate) fn pull_repo<A: Animation + Subprogress + Suspend + ?Sized>(
         path: &PathBuf, 
         options: Options,
         pconf: Option<Pconf>, 
         action: PullAction,
         usettings: &Usettings, 
         animation: &mut Box<A>
-    ) -> Result<(Vec<String>, bool), Error> {
+    ) -> Result<(Vec<String>, bool), LocalError> {
         animation.change_message("Getting the local repository ...");
         let repo = Repository::discover(path)?;
         

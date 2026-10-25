@@ -1,7 +1,13 @@
 use clap::{command, ArgMatches, Command};
 
-use crate::commands::core::common::invalid;
-use super::commands::{add,path,list};
+use crate::commands::config::commands::default;
+
+use super::super::config::commands::password;
+use super::super::core::common::invalid;
+use super::commands::list;
+use super::commands::path;
+use super::commands::add;
+use super::commands::cripto;
 
 
 pub fn command() -> Command {
@@ -11,6 +17,9 @@ pub fn command() -> Command {
         .subcommand(path::command())
         .subcommand(add::command())
         .subcommand(list::command())
+        .subcommand(cripto::command())
+        .subcommand(password::command())
+        .subcommand(default::command())
 }
 
 pub fn manager(args: &ArgMatches) {
@@ -19,6 +28,9 @@ pub fn manager(args: &ArgMatches) {
             ("add", add) => add::manager(add),
             ("list", _) => list::manager(),
             ("path" , _) => path::manager(),
+            ("cripto" , matches) => cripto::manager(matches),
+            ("password" , matches) => password::manager(matches),
+            ("default" , matches) => default::manager(matches),
             _ => invalid()
         },
         _ => invalid()

@@ -8,8 +8,9 @@ use color_print::{ceprint, ceprintln, cformat};
 use grp_core::Platform;
 use grp_core::animation::Animation;
 use grp_core::structs::User;
-use crate::animations::animation::Delete;
+use crate::animations::animation::{Delete, Suspend};
 use crate::cache::structure::Uncacher;
+use crate::success;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
@@ -65,7 +66,7 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
     }
     
      if !confirmation {
-        animation.finish_with_success(cformat!("<y,i>org delition</y,i> <r>canceled!</>"));
+        animation.finish_with_success(success!(np "org delition"));
         exit(0)
     }
     
@@ -84,11 +85,11 @@ pub async fn manager(args: &ArgMatches, _usettings: Usettings) {
             let message = match (soft, &platform) {
                 (true, Platform::Gitlab) => cformat!("group <m,i>marked</> <g>for delition!</>"),
                 (true, _) => vec![
-                    cformat!("<y,i>org delition</y,i> <g>succeeded!</>"),
+                    success!(np "org delition"),
                     cformat!("<y>* <i>soft delition</i> only wotks with <m>gitlab</>")
                 ].join("\n"),
-                (false, Platform::Gitlab) => cformat!("<y,i>group delition</y,i> <g>succeeded!</>"),
-                (false, _) => cformat!("<y,i>org delition</y,i> <g>succeeded!</>"),
+                (false, Platform::Gitlab) => success!(np "group delition"),
+                (false, _) => success!(np "org delition"),
             };
             
             let _ = User::remove(&pconf.name, &name);

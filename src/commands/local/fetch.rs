@@ -1,13 +1,13 @@
 use std::path::PathBuf;
 use clap::{ArgMatches, Command, arg, command};
-use color_print::cformat;
 use grp_core::animation::Animation;
-use grp_core::Error;
 
 use super::super::completions::structure::Completer;
 
 use crate::commands::completions::git::remote::Remote;
-use crate::local::structs::{Git2Error, Local};
+use crate::local::structs::{Git2Context, Local, LocalError};
+use crate::errors::ToError;
+use crate::success;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
@@ -56,8 +56,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     match result {
         Ok(logs) => {
             let message = match "" {
-                _ if dry_run => cformat!("<y,i>dry-run</y,i> <g>finish without errors</>"),
-                _ => cformat!("<y,i>fecth</y,i> <g>succeeded!</>")
+                _ if dry_run => success!(np "dry-run" "finish without errors"),
+                _ => success!(np "fetch"),
             };
             
             animation.finish_with_success(message);
@@ -70,16 +70,46 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             let error = match pconf {
                 Some(p) => {
                     let config = p.to_config();
-                    Error::from_git2(e, action, p.owner, &path, Some(&config), &usettings)
+                    let context = Git2Context {
+                        action,
+                        owner: &p.owner,
+                        repo: &path,
+                        config: Some(&config),
+                        usettings: &usettings,
+                    };
+                    
+                    match e {
+                        LocalError::Core(error) => error,
+                        LocalError::Git(error) => error.to_error(context),
+                    }
                 }
                 None => {
-                    let pconf = usettings.get_default_pconf();
+                    let pconf = usettings.get_default_pconf(&animation);
                     
-                    if let Some(pconf) = pconf { 
-                        Error::from_git2(e, action, &pconf.owner,&path, None, &usettings)
-                    }
-                    else {
-                        Error::from_git2(e, action, "no owner",&path, None, &usettings)
+                    let context = match pconf {
+                        Ok(p) => {
+                            Git2Context {
+                                action,
+                                owner: &p.owner.clone(),
+                                repo: &path,
+                                config: None,
+                                usettings: &usettings,
+                            }
+                        },
+                        Err(e) => {
+                            Git2Context {
+                                action,
+                                owner: &e.message.clone(),
+                                repo: &path,
+                                config: None,
+                                usettings: &usettings,
+                            }
+                        },
+                    };
+                    
+                    match e {
+                        LocalError::Core(error) => error,
+                        LocalError::Git(error) => error.to_error(context),
                     }
                 },
             };

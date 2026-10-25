@@ -6,10 +6,10 @@ use indicatif::HumanBytes;
 
 use grp_core::animation::Animation;
 
-use crate::local::structs::Local;
+use crate::local::structs::{Local, LocalError};
 use super::git::structs::GitUtils;
 use super::git::options::{Methods, Options};
-use crate::animations::animation::Subprogress;
+use crate::animations::animation::{Subprogress, Suspend};
 use crate::usettings::structs::{Pconf, Usettings};
 
 pub struct FetchResult<'repo> {
@@ -19,21 +19,21 @@ pub struct FetchResult<'repo> {
 } 
 
 impl Local {
-    pub(crate) fn fetch<'repo, A: Animation + Subprogress + ?Sized>(
+    pub(crate) fn fetch<'repo, A: Animation + Subprogress + Suspend + ?Sized>(
         repo: &'repo Repository,
         pconf: Option<Pconf>, 
         options: Options,
         usettings: &Usettings, 
         animation: &mut Box<A>
-    ) -> Result<FetchResult<'repo>, Error> {
+    ) -> Result<FetchResult<'repo>, LocalError> {
         match options.method {
             Methods::ALL      |
             Methods::TAG(_)   |
             Methods::TAGS     |
             Methods::BRANCHES => {
-                return Err(
+                return Err(LocalError::Git(
                     Error::new(ErrorCode::Invalid, ErrorClass::Invalid, "Method not allowed for fetch")
-                );
+                ));
             }
             Methods::DEFAULT |
             Methods::UPSTREAM => (),
@@ -66,9 +66,7 @@ impl Local {
         
         let pconf = match pconf {
             Some(e) => e,
-            None => usettings
-                    .get_pconf_or_default(&remote_name)
-                    .ok_or(Error::new(ErrorCode::NotFound, ErrorClass::Config, "no pconf"))?
+            None => usettings.get_pconf_or_default(&remote_name, animation)?,
         };
         
         let config = pconf.to_config();
@@ -159,13 +157,13 @@ impl Local {
         return Ok(result);
     }
     
-    pub async fn fetch_repo<A: Animation + Subprogress + ?Sized>(
+    pub async fn fetch_repo<A: Animation + Subprogress + Suspend + ?Sized>(
         path: &PathBuf, 
         pconf: Option<Pconf>, 
         options: Options, 
         usettings: &Usettings, 
         animation: &mut Box<A>
-    ) -> Result<Vec<String>, git2::Error> {
+    ) -> Result<Vec<String>, LocalError> {
         let repo = Repository::discover(path)?;
         
         let result = Local::fetch(&repo, pconf, options, usettings, animation)?;

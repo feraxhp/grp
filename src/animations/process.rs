@@ -1,7 +1,7 @@
 use std::time::Duration;
 use color_print::{cformat, ceprintln};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
-use crate::animations::animation::{Process, Style, Subprogress};
+use crate::animations::animation::{Process, Style, Subprogress, Suspend};
 use grp_core::animation::Animation;
 
 
@@ -85,8 +85,12 @@ impl Subprogress for Process {
         }
     }
 
-    // fn suspend<F, R>(&self, f: F) -> R
-    // where
-    //     F: FnOnce() -> R 
-    // { self.multi.suspend(f) }
+    fn println<M: AsRef<str>>(&self, message: M) { _ = self.multi.println(message); }
+}
+
+impl Suspend for Process {
+    fn suspend<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce() -> R 
+    { self.multi.suspend(f) }
 }

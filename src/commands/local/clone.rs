@@ -1,15 +1,16 @@
 use std::path::PathBuf;
 use std::process::exit;
 use clap::{Arg, ArgMatches, Command, arg, command};
-use color_print::cformat;
 use reqwest::Url;
 
 use grp_core::animation::Animation;
 use grp_core::structs::Repo;
-use grp_core::{Platform, Error};
+use grp_core::Platform;
 
 use super::super::completions::structure::Completer;
-use crate::local::structs::{Git2Error, Local};
+use crate::errors::ToError;
+use crate::local::structs::{Git2Context, Local};
+use crate::success;
 use crate::system::show::Show;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
@@ -18,7 +19,7 @@ use crate::local::clone::CloneOptions;
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::structs::Action;
 use crate::commands::core::args::Arguments;
-use crate::animations::animation::{Process, Subprogress};
+use crate::animations::animation::{Process, Subprogress, Suspend};
 
 const DEFNAME: &'static str = "defname";
 
@@ -79,7 +80,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     }
 }
 
-async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStructure, 
+async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &RepoStructure, 
     bare: bool,
     path: Option<&PathBuf>, 
     branch: Option<String>, 
@@ -87,8 +88,8 @@ async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStruct
     usettings: Usettings
 ) {
     let pconf = match &repo.pconf {
-        Some(e) => usettings.get_pconf_by_name(e.as_str()).unwrap(),
-        None => usettings.get_default_pconf().or_exit(&animation),
+        Some(e) => usettings.get_pconf_by_name(e.as_str(), animation).or_exit(animation),
+        None => usettings.get_default_pconf(animation).or_exit(animation),
     };
     
     let path = match path {
@@ -121,12 +122,19 @@ async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStruct
     
     match platform.clone_repo(&repo.owner, &repo.path, &options, &config, animation).await {
         Ok(r) => {
-            animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
+            animation.finish_with_success(success!(np "clone"));
             vec![r].print_pretty();
         },
         Err(e) => {
             let action =  Action::Clone;
-            let error = Error::from_git2(e, action, &repo.owner, &repo.path, Some(&config), &usettings);
+            let context = Git2Context {
+                action,
+                owner: &repo.owner,
+                repo: &repo.path,
+                config: Some(&config),
+                usettings: &usettings,
+            };
+            let error = e.to_error(context);
             
             animation.finish_with_error(&error.message);
             error.show();
@@ -134,7 +142,7 @@ async fn by_repostructure<A: Animation + Subprogress + ?Sized>(repo: &RepoStruct
     }
 }
 
-async fn by_url<A: Animation + Subprogress + ?Sized>(url: Url, 
+async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url, 
     bare: bool,
     path: Option<&PathBuf>, pconf: String,
     branch: Option<String>, 
@@ -156,7 +164,7 @@ async fn by_url<A: Animation + Subprogress + ?Sized>(url: Url,
         }
     };
     
-    let pconf = usettings.get_pconf_by_name(pconf.as_str()).unwrap();
+    let pconf = usettings.get_pconf_by_name(pconf.as_str(), animation).or_exit(animation);
     
     let config = pconf.to_config();
     let url_string = url.to_string();
@@ -169,7 +177,7 @@ async fn by_url<A: Animation + Subprogress + ?Sized>(url: Url,
     
     match Local::clone_by_url(&url_string, &options, &config,  animation).await {
         Ok(_) => {
-            animation.finish_with_success(cformat!("<y,i>clone</y,i> <g>succeeded!</>"));
+            animation.finish_with_success(success!(np "clone"));
             let repo = Repo {
                 name: "".to_string(),
                 path: repo_,
@@ -184,7 +192,14 @@ async fn by_url<A: Animation + Subprogress + ?Sized>(url: Url,
         Err(e) => {
             let action =  Action::Clone;
             let repo = format!("[{}]", url);
-            let error = Error::from_git2(e, action, &config.user, repo, Some(&config), &usettings);
+            let context = Git2Context {
+                action,
+                owner: &config.user,
+                repo: &repo,
+                config: Some(&config),
+                usettings: &usettings,
+            };
+            let error = e.to_error(context);
             
             animation.finish_with_error(&error.message);
             error.show();

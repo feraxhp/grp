@@ -4,7 +4,7 @@ use color_print::cformat;
 use super::structure::OrExit;
 
 use crate::usettings::structs::Pconf;
-use grp_core::animation::Animation;
+use grp_core::{Error, animation::Animation};
 
 
 impl OrExit for Option<Pconf> {
@@ -15,6 +15,21 @@ impl OrExit for Option<Pconf> {
             Some(pconf) => pconf.clone(),
             None => {
                 animation.finish_with_error(cformat!("No default <i,m>pconf</i,m> <r>configured</>"));
+                exit(1)
+            },
+        }
+    } 
+}
+
+impl OrExit for Result<Pconf, Error> {
+    type Output = Pconf;
+    
+    fn or_exit<A: Animation + ?Sized>(&self, animation: &Box<A>) -> Self::Output {
+        match self {
+            Ok(p) => p.to_owned(),
+            Err(e) => {
+                animation.finish_with_error(&e.message);
+                e.show();
                 exit(1)
             },
         }

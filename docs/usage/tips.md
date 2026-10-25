@@ -59,3 +59,8 @@ COMPLETE=fish grp | source
 __grp__ in the version 0.12.0 and above has splited into a [rust crate](https://crates.io/crates/grp-core) called _grp-core_. 
 
 > grp-core does not include any git command, just exposes the interaction with the platforms.
+
+### Per pconf password
+
+If you deside to disable the keyring, you will be able to add a password by 
+pconf, but, you will have to remember all of them...

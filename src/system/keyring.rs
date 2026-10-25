@@ -1,0 +1,27 @@
+use keyring::{Entry, Error};
+
+const SERVICE_NAME: &str = "rust::grp";
+const KEY_USER: &str = "decriptor";
+
+#[allow(unused)]
+pub struct Keyring;
+
+#[allow(unused)]
+impl Keyring {
+    pub fn get_password() -> Result<String, Error> {
+        let entry = Entry::new(SERVICE_NAME, KEY_USER)?;
+        Ok(entry.get_password()?)
+    }
+    
+    pub fn set_password(password: &str) -> Result<(), Error> {
+        let entry = Entry::new(SERVICE_NAME, KEY_USER)?;
+        entry.set_password(password)?;
+        Ok(())
+    }
+    
+    pub fn forget() -> Result<(), Error> {
+        let entry = Entry::new(SERVICE_NAME, KEY_USER)?;
+        entry.delete_credential()?;
+        Ok(())
+    }
+}

@@ -1,3 +1,4 @@
+use grp_core::animation;
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
 pub(crate) struct Process { pub(crate) multi: MultiProgress, pub spinners: Vec<ProgressBar> }
@@ -18,12 +19,23 @@ pub(crate) trait Style {
 
 pub trait Subprogress {
     fn add(&mut self) -> usize;
-    fn set_total(&self, index: usize, current: u64, template: &str);
+    /// Print a log line above all progress bars
+    fn println<M: AsRef<str>>(&self, message: M);
+    fn set_total(&self, index: usize, total: u64, template: &str);
     fn set_state(&self, index: usize, current: u64);
     fn set_message<T: Into<String>>(&self, index: usize, message: T);
     fn finish_all(&self);
+}
 
-    // fn suspend<F, R>(&self, f: F) -> R
-    // where
-    //     F: FnOnce() -> R;
+pub trait Suspend {
+    fn suspend<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce() -> R;
+}
+
+impl Suspend for animation::None {
+    fn suspend<F, R>(&self, f: F) -> R
+    where
+        F: FnOnce() -> R 
+    { f() }
 }
