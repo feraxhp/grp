@@ -1,4 +1,4 @@
-use crate::error::structs::Error;
+use mynox::Error;
 use crate::json::JSON;
 use crate::platform::Platform;
 use crate::common::structs::Repo;

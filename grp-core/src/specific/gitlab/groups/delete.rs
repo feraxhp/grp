@@ -1,10 +1,10 @@
+use mynox::Error;
 use urlencoding::encode;
 
-use crate::common::structs::{Context, RequestType};
-use crate::structs::User;
-use crate::config::Config;
+use crate::common::structs::RequestType;
 use crate::platform::Platform;
-use crate::error::structs::Error;
+use crate::config::Config;
+use crate::structs::User;
 
 
 pub async fn premanently_remove(platform: &Platform, user: &User, config: &Config) -> Result<(), Error> {
@@ -16,15 +16,10 @@ pub async fn premanently_remove(platform: &Platform, user: &User, config: &Confi
     let url = format!("{}/groups/{}?full_path={}&permanently_remove=true", platform.get_base_url(config), id, path);
     let result = platform.delete(&url, config).await?;
     
-    let context = Context {
-        request_type: RequestType::DeletePermanent,
-        owner: None, repo: Some(id),
-        additional: None
-    };
-    
+    let context = RequestType::DeleteOrg; // This sould be permanent
     let base_message = "Error deleting group";
     
     if result.status().as_u16() == 202 { return Ok(()); }
     
-    Err(platform.unwrap(result, base_message, config, context).await.unwrap_err())
+    Err(platform.unwrap(result, base_message, config, &context).await.unwrap_err())
 }

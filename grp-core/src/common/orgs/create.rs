@@ -1,11 +1,13 @@
-use crate::empty_notes;
-use crate::error::errors::request::Request;
+use mynox::Error;
+use mynox::Formater;
+
+use crate::specific::{forgejo, gitlab};
+use crate::structs::RequestType;
+use crate::animation::Animation;
 use crate::platform::Platform;
-use crate::error::structs::Error;
 use crate::config::Config;
 use crate::structs::User;
-use crate::animation::Animation;
-use crate::specific::{forgejo, gitlab};
+use crate::helpers;
 
 
 impl Platform {
@@ -30,7 +32,12 @@ impl Platform {
         match self {
             Platform::Github => (
                 vec![],
-                vec![ Request::unsuported(self.name(), "Create orgs", empty_notes!()) ]
+                vec![ 
+                    helpers::unsuported(self, RequestType::CreateOrg.as_ref())
+                        .extend_notes([
+                            "you have to create the _org manualy on github_".as_tip()
+                        ]),
+                ]
             ),
             Platform::Codeberg |
             Platform::Forgejo |

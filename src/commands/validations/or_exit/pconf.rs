@@ -4,7 +4,8 @@ use color_print::cformat;
 use super::structure::OrExit;
 
 use crate::usettings::structs::Pconf;
-use grp_core::{Error, animation::Animation};
+use grp_core::animation::Animation;
+use mynox::Error;
 
 
 impl OrExit for Option<Pconf> {
@@ -28,8 +29,8 @@ impl OrExit for Result<Pconf, Error> {
         match self {
             Ok(p) => p.to_owned(),
             Err(e) => {
-                animation.finish_with_error(&e.message);
-                e.show();
+                animation.finish_with_error(e.message());
+                e.eprint();
                 exit(1)
             },
         }

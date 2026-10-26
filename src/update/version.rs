@@ -1,6 +1,6 @@
 use std::fs;
 use clap::crate_version;
-use grp_core::Error;
+use mynox::Error;
 
 use crate::update::structs::Version;
 use crate::update::check::get_latest_version;

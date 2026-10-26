@@ -2,7 +2,6 @@ use std::process::exit;
 
 use clap::{ArgMatches, Command, command};
 use color_print::cformat;
-use grp_core::Formater;
 use grp_core::animation::Animation;
 
 use crate::animations::animation::{Subprogress, Suspend};
@@ -21,19 +20,19 @@ pub fn manager(_: &ArgMatches) {
     let mut usettings = match Usettings::read() {
         Ok(us) => us,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1);
         },
     };
 
     let ns = Usettings { default: String::new(), keyring: false, hidepass: usettings.hidepass, pconfs: vec![]  };
-    animation.println(cformat!("<y,i>insert</y,i> <m,i>old password</>").as_tip());
+    animation.println(cformat!("✓ <y,i>insert</y,i> <m,i>old password</>"));
     let old = match ns.get_password(false, &animation) {
         Ok(ps) => ps,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1);
         },
     };
@@ -61,7 +60,8 @@ pub fn manager(_: &ArgMatches) {
     };
     
     if let Some(error) = error {
-        animation.finish_with_error(&error.message);
-        error.show();
+        animation.finish_with_error(error.message());
+        error.eprint();
+        exit(1)
     }
 }

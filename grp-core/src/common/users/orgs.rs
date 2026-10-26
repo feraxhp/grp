@@ -2,7 +2,7 @@ use std::{future, vec};
 use futures::StreamExt;
 
 use crate::animation;
-use crate::error::structs::Error;
+use mynox::Error;
 use crate::structs::User;
 use crate::config::Config;
 use crate::platform::Platform;

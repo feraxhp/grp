@@ -1,11 +1,12 @@
+use mynox::Error;
+
+use crate::common::structs::RequestType;
 use crate::common::traits::Convert;
-use crate::error::structs::Error;
-use crate::common::structs::{Context, RequestType};
-use crate::json::JSON;
 use crate::platform::Platform;
 use crate::specific::gitlab;
-use crate::structs::User;
 use crate::config::Config;
+use crate::structs::User;
+use crate::json::JSON;
 
 
 pub async fn by_name(platform: &Platform, name: &String, conf: &Config) -> Result<Option<User>, Error> {
@@ -18,13 +19,8 @@ pub async fn by_name(platform: &Platform, name: &String, conf: &Config) -> Resul
     
     let result = platform.get(url, true, conf).await?;
     
-    let context = Context {
-        request_type: RequestType::UserList,
-        owner: None, repo: None, additional: None,
-    };
-    
     let base = "Failed during fetch of logged user";
-    let text = platform.unwrap(result, base,conf, context).await?;
+    let text = platform.unwrap(result, base,conf, &RequestType::ListUser).await?;
     
     let users: Vec<gitlab::parser::User> = JSON::from_str(&text)?;
     if users.is_empty() { return Ok(None) }

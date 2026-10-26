@@ -2,7 +2,7 @@ pub mod repo;
 pub mod user;
 
 
-use crate::Error;
+use mynox::Error;
 use crate::Platform;
 use crate::structs::Issue;
 use crate::structs::PaginatorResult;

@@ -1,24 +1,23 @@
 use std::pin::Pin;
 
-use futures::stream::select;
 use futures::{Stream, StreamExt};
+use futures::stream::select;
+use mynox::Error;
 
-use crate::Config;
-use crate::Error;
-use crate::JSON;
-use crate::Platform;
-use crate::Platform::Github;
-use crate::animation::Animation;
-use crate::common::traits::Convert;
-use crate::common::utils::skip_empty;
-use crate::specific::github;
+use crate::helpers::unsuported;
 use crate::specific::github::parser::SearchResult;
-use crate::error::errors::unsupported::Unsupported;
-use crate::specific::gitlab;
-use crate::structs::Context;
-use crate::structs::Issue;
+use crate::common::utils::skip_empty;
 use crate::structs::PaginatorResult;
+use crate::common::traits::Convert;
+use crate::animation::Animation;
 use crate::structs::RequestType;
+use crate::Platform::Github;
+use crate::specific::github;
+use crate::specific::gitlab;
+use crate::structs::Issue;
+use crate::Platform;
+use crate::Config;
+use crate::JSON;
 
 
 impl Platform {
@@ -34,17 +33,9 @@ impl Platform {
                 let owner = self.get_logged_user(config).await?;
                 let url = self.url_list_all_involved_user_issues(config);
                 
-                let context = Context {
-                    request_type: RequestType::ListIssues,
-                    owner: Some(owner.name),
-                    repo: None,
-                    additional: None,
-                };
-                
                 animation.change_message("fetching issues...");
-                
                 Ok(
-                    self.pagginate(url, config, context, 1)
+                    self.pagginate(url, config, RequestType::ListIssues, 1)
                         .map(|result| {
                             self.get_seach_result(result)
                         })
@@ -74,7 +65,7 @@ impl Platform {
             },
             Platform::Gitea |
             Platform::Codeberg |
-            Platform::Forgejo => Err(Unsupported::action("list_all_involved_user_issues", self)),
+            Platform::Forgejo => Err(unsuported(self, "list_all_involved_user_issues")),
         }
     }
     

@@ -1,6 +1,6 @@
 use std::{fs::{read_to_string, write}, path::Path};
 
-use grp_core::Error;
+use mynox::Error;
 
 use crate::errors::fs_errors::FSErrors;
 

@@ -1,18 +1,18 @@
 use std::fmt::Debug;
 use std::fmt::Display;
 
-use futures::{Stream, StreamExt};
 use serde::de::DeserializeOwned;
+use futures::StreamExt;
+use futures::Stream;
+use mynox::Error;
 
-use crate::Config;
-use crate::Error;
-use crate::JSON;
-use crate::Platform;
-use crate::animation::Animation;
 use crate::specific::gitlab::parser::Todos;
-use crate::structs::Context;
 use crate::structs::PaginatorResult;
+use crate::animation::Animation;
 use crate::structs::RequestType;
+use crate::Platform;
+use crate::Config;
+use crate::JSON;
 
 
 pub async fn list_todos<T, A, D>(
@@ -31,17 +31,10 @@ where
         None => format!("{}/todos", platform.get_base_url(config)),
     };
     
-    let context = Context {
-        request_type: RequestType::List,
-        owner: None,
-        repo: None,
-        additional: None,
-    };
-
     animation.change_message("requesting todo items...");
     Ok(
         platform
-            .pagginate(url, config, context, 1)
+            .pagginate(url, config, RequestType::ListTodos, 1)
             .map(|result| {
                 parse(result)
             })

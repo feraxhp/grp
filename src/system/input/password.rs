@@ -1,5 +1,5 @@
 use color_print::cformat;
-use grp_core::Error;
+use mynox::Error;
 use inquire::Password;
 use inquire::PasswordDisplayMode;
 

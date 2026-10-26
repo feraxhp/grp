@@ -1,12 +1,13 @@
-use crate::Error;
-use crate::JSON;
-use crate::Platform;
+use mynox::Error;
+
+use crate::helpers::parsing::parsing_pull_request_as_issue;
 use crate::common::traits::Convert;
-use crate::error::errors::parsing::Parsing;
 use crate::specific::forgejo;
 use crate::specific::github;
 use crate::specific::gitlab;
 use crate::structs::Issue;
+use crate::Platform;
+use crate::JSON;
 
 
 impl Issue {
@@ -21,7 +22,7 @@ impl Issue {
             Platform::Github => {
                 let issue: github::parser::Issue = JSON::from_str(text)?;
                 match &issue.pull_request {
-                    Some(_) => return Err(Parsing::issue_is_pull_request()),
+                    Some(_) => return Err(parsing_pull_request_as_issue()),
                     None => issue.convert(),
                 }
             },
@@ -30,7 +31,7 @@ impl Issue {
             Platform::Gitea => {
                 let issue: forgejo::parser::Issue = JSON::from_str(text)?;
                 match &issue.pull_request {
-                    Some(_) => return Err(Parsing::issue_is_pull_request()),
+                    Some(_) => return Err(parsing_pull_request_as_issue()),
                     None => issue.convert(),
                 }
             },

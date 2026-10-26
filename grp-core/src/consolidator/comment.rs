@@ -1,4 +1,4 @@
-use crate::Error;
+use mynox::Error;
 use crate::JSON;
 use crate::Platform;
 use crate::common::traits::Convert;

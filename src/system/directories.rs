@@ -2,7 +2,8 @@ use std::fs::{File, create_dir_all};
 use std::path::{Path, PathBuf};
 
 use directories::ProjectDirs;
-use grp_core::{Error, empty_notes};
+use mynox::Error;
+use mynox::error;
 
 use crate::errors::fs_errors::FSErrors;
 
@@ -62,12 +63,10 @@ pub trait Directories {
     
     fn new() -> Result<ProjectDirs, Error> {
         let project = ProjectDirs::from("", "", "girep");
-        project.ok_or(Error::new(
+        project.ok_or(error!(
             "not_found::directories", 
             "Internal error", 
-            "The system directories can not be determined", 
-            vec![],
-            empty_notes!()
+            "The system directories can not be determined"
         ))
     }
     

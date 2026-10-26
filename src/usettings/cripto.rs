@@ -1,13 +1,14 @@
-use color_print::cformat;
-use grp_core::Error;
-use grp_core::Formater;
-use grp_core::animation::Animation;
-use grp_core::empty_notes;
+use mynox::Error;
+use mynox::Formater;
 
-use crate::animations::animation::Suspend;
+use grp_core::animation::Animation;
+use color_print::cformat;
+use mynox::empty_iter;
+
 use crate::animations::animation::Subprogress;
-use crate::system::cripto::Cripto;
+use crate::animations::animation::Suspend;
 use crate::usettings::structs::Usettings;
+use crate::system::cripto::Cripto;
 
 
 impl Usettings {
@@ -117,8 +118,11 @@ impl Usettings {
                 
                 if new == old { 
                     return Err(Error::new(
-                        "ussettings::password::change", "The password is identical", 
-                        "You can not set the same password!", vec![], empty_notes!()
+                        "ussettings::password::change", 
+                        "The password is identical", 
+                        "You can not set the same password!", 
+                        empty_iter![], 
+                        empty_iter!()
                     ))
                 }
                 

@@ -1,11 +1,11 @@
 use futures::{Stream, StreamExt};
+use mynox::Error;
 
-use crate::animation::Animation;
-use crate::config::Config;
-use crate::platform::Platform;
-use crate::error::structs::Error;
-use crate::common::structs::{Context, Repo, RequestType};
+use crate::common::structs::{Repo, RequestType};
 use crate::structs::PaginatorResult;
+use crate::animation::Animation;
+use crate::platform::Platform;
+use crate::config::Config;
 
 impl Platform {
     /// list all the repos for the given owner, if not present, returns all the repos for the default user (config).
@@ -23,17 +23,10 @@ impl Platform {
         
         let url = self.url_list_repos(&user_type, config).await;
         
-        let context = Context {
-            request_type: RequestType::List,
-            owner: Some(user_type.get_user().name),
-            repo: None,
-            additional: None,
-        };
-        
         animation.change_message("fetching repositories...");
         
         Ok(
-            self.pagginate(url, config, context, 1)
+            self.pagginate(url, config, RequestType::ListRepo { owner }, 1)
                 .map(|result| {
                     self.get_repos(result)
                 })

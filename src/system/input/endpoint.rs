@@ -1,4 +1,4 @@
-use grp_core::Error;
+use mynox::Error;
 use inquire::validator::Validation;
 use inquire::{Autocomplete, CustomUserError, Text};
 

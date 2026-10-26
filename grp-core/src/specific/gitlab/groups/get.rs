@@ -1,10 +1,10 @@
+use mynox::Error;
 use urlencoding::encode;
 
-use crate::common::structs::{Context, RequestType};
-use crate::structs::User;
+use crate::common::structs::RequestType;
 use crate::platform::Platform;
-use crate::error::structs::Error;
 use crate::config::Config;
+use crate::structs::User;
 
 pub async fn get_group_with_path(platform: &Platform, path: &str, config: &Config) -> Result<User, Error> {
     let path  = encode(path);
@@ -23,13 +23,7 @@ pub async fn get_group(platform: &Platform, url: &str, config: &Config) -> Resul
     let result = platform.get(url, true, config).await?;
     
     let base_message = "Error geting the project id";
-    
-    let context = Context {
-        request_type: RequestType::RepositoryDetails,
-        owner: None, repo: None, additional: None
-    };
-    
-    let result = platform.unwrap(result, base_message, config, context).await?;
+    let result = platform.unwrap(result, base_message, config, &RequestType::ListOrg).await?;
     
     let pj: User = User::from_text(&result, platform)?;
     

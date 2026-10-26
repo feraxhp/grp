@@ -1,6 +1,8 @@
 use color_print::ceprint;
-use grp_core::{Config, Error};
+
 use inquire::PasswordDisplayMode;
+use grp_core::Config;
+use mynox::Error;
 
 use super::structs::Pconf;
 use crate::system::input::Input;

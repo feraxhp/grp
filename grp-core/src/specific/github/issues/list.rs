@@ -1,16 +1,15 @@
 use std::fmt::Display;
 
 use futures::{Stream, StreamExt};
+use mynox::Error;
 
-use crate::Config;
-use crate::Error;
-use crate::JSON;
-use crate::Platform;
-use crate::animation::Animation;
 use crate::specific::github::parser::Issue;
-use crate::structs::Context;
 use crate::structs::PaginatorResult;
+use crate::animation::Animation;
 use crate::structs::RequestType;
+use crate::Platform;
+use crate::Config;
+use crate::JSON;
 
 
 #[allow(unused)]
@@ -60,17 +59,10 @@ where
 {
     let url = format!("{}/issues?state=open&{}", platform.get_base_url(config), scope.filter());
 
-    let context = Context {
-        request_type: RequestType::List,
-        owner: None,
-        repo: None,
-        additional: None,
-    };
-
     animation.change_message(format!("requesting {} issues...", scope));
     Ok(
         platform
-            .pagginate(url, config, context, 1)
+            .pagginate(url, config, RequestType::ListIssues, 1)
             .map(parse)
     )
 }

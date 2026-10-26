@@ -6,8 +6,8 @@ pub fn invalid() {
 #[macro_export]
 macro_rules! fail {
     ($e: expr) => {{
-        color_print::ceprintln!("<r>◉ {}</>", &$e.message);
-        $e.show();
+        color_print::ceprintln!("<r>◉ {}</>", $e.message());
+        $e.eprint();
         std::process::exit(1)
     }};
 }

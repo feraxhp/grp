@@ -1,4 +1,6 @@
-use grp_core::{Formater, structs::User};
+use grp_core::structs::User;
+
+use crate::printables::FormatTools;
 
 pub trait Stylizer {
     fn to_link(&self) -> String;

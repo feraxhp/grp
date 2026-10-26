@@ -1,23 +1,41 @@
+use std::sync::OnceLock;
+
 use async_stream::stream;
 use futures::Stream;
+
 use hyper::header::HeaderValue;
-use reqwest::{Client, IntoUrl, RequestBuilder, Response, Url};
+
+use mynox::Extend;
+use mynox::Error;
+
+use reqwest::RequestBuilder;
+use reqwest::Response;
+use reqwest::Client;
+use reqwest::IntoUrl;
+use reqwest::Url;
+
 use serde::Serialize;
 
-use crate::error::errors::parsing::Parsing;
-use crate::error::errors::request::Request;
-use crate::structs::{Context, Pager, PaginatorResult};
+use crate::helpers::request::RequestError;
+use crate::helpers::parsing::ParsingUrl;
+use crate::structs::PaginatorResult;
+use crate::structs::RequestType;
+use crate::structs::Pager;
 
-use super::config::Config;
 use super::platform::Platform;
-use super::error::structs::Error;
+use super::config::Config;
+
+
+pub fn client() -> &'static Client {
+    static CLIENT: OnceLock<Client> = OnceLock::new();
+    CLIENT.get_or_init(|| { Client::new() })
+}
+
 
 impl Platform {
-    async fn send(req: RequestBuilder) -> Result<Response, Error> {
-        req.send().await.map_err( |e| Request::fetch(e, vec!["Please check your ethernet conection"]))
-    }
+    async fn send(req: RequestBuilder) -> Result<Response, Error> { req.send().await.fetch("Please check your ethernet conection") }
     pub async fn get<U: IntoUrl>(&self, url: U, auth: bool, config: &Config) -> Result<Response, Error> {
-        let client = Client::new();
+        let client = client();
         let mut header = self.get_auth_header(&config.token);
         
         if !auth {
@@ -39,7 +57,7 @@ impl Platform {
         U: IntoUrl,
         T: Serialize + ?Sized,
     {
-        let client = Client::new();
+        let client = client();
         
         let mut request = client
             .post(url)
@@ -54,7 +72,7 @@ impl Platform {
     }
     
     pub async fn delete<U: IntoUrl>(&self, url: U, config: &Config) -> Result<Response, Error> {
-        let client = Client::new();
+        let client = client();
         
         let req = client
             .delete(url)
@@ -76,14 +94,14 @@ impl Platform {
     pub fn pagginate(&self, 
         url: String, 
         config: &Config, 
-        context: Context, 
+        request_type: RequestType, 
         page: u64,
     ) -> impl Stream<Item = Result<PaginatorResult<String>, Error>> { stream! {
-        let client = Client::new();
+        let client = client();
         let headers = self.get_auth_header(&config.token);
-    
+        
         let size = 50;
-        let mut url = Url::parse(&url).map_err(|e| Parsing::url(e, &url) )?;
+        let mut url = Url::parse(&url).as_parsing_url_error(&url)?;
         
         url.query_pairs_mut()
             .append_pair("page", &page.to_string())
@@ -93,24 +111,17 @@ impl Platform {
         let mut last = None;
         
         while let Some(url) = next {
-    
-            let response = match client.get(url).headers(headers.clone()).send().await {
-                Ok(response) => response,
-                Err(e) => {
-                    yield Err(Request::fetch("Error during paggination", vec![e]));
-                    return;
-                }
-            };
+            
+            let notes = [format!("url: `'{url}'`")];
+            
+            let response = client.get(url.clone()).headers(headers.clone()).send().await
+                    .fetch("Error during paggination")
+                    .notes(notes)
+            ?;
             
             let response_headers = response.headers().clone();
-            let string = match self.unwrap(response,  "Faild getting reponse", config, context.clone()).await {
-                Ok(s) => s,
-                Err(e) => {
-                    yield Err(e);
-                    return;
-                },
-            };
-
+            let string = self.unwrap(response,  "Faild getting reponse", config, &request_type).await?;
+            
             let mut pagger = extract_next(response_headers.get("link"))?;
             if pagger.last.is_some() { last = pagger.last.clone() }
             else if last.is_some() { pagger.last = last.clone() }
@@ -150,15 +161,13 @@ fn extract_next(link_header: Option<&HeaderValue>) -> Result<Pager, Error> {
     
     if next_url.is_none() { return Ok(Pager::none()) };
     let url = next_url.unwrap();
-    let url = Url::parse(&url)
-        .map(Some)
-        .map_err(|e| Parsing::url(e, &url) )?;
+    let url = Url::parse(&url).map(Some)
+            .as_parsing_url_error(&url)?;
 
     match last_url {
         Some(last_url) => {
-            let last_url = Url::parse(&last_url)
-                .map(Some)
-                .map_err(|e| Parsing::url(e, &last_url) )?;
+            let last_url = Url::parse(&last_url).map(Some)
+                .as_parsing_url_error(&last_url)?;
             
             Ok(Pager{ next: url, last: last_url })
         },

@@ -96,16 +96,16 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
     let platform = match Platform::matches(&pconf.r#type) {
         Ok(p) => p,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1)
         },
     };
     
     let platform = Local(platform);
     if let Err(e) = repo.is_unsupported(&platform) {
-        animation.finish_with_error(&e.message);
-        e.show();
+        animation.finish_with_error(e.message());
+        e.eprint();
         exit(1)
     }
     
@@ -128,8 +128,8 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
             };
             let error = e.to_error(context);
             
-            animation.finish_with_error(&error.message);
-            error.show();
+            animation.finish_with_error(error.message());
+            error.eprint();
         },
     }
 }
@@ -189,8 +189,8 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
             };
             let error = e.to_error(context);
             
-            animation.finish_with_error(&error.message);
-            error.show();
+            animation.finish_with_error(error.message());
+            error.eprint();
         },
     }
 }

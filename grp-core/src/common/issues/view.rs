@@ -1,17 +1,16 @@
 use std::fmt::Display;
 
 use futures::{Stream, StreamExt};
+use mynox::Error;
 
-use crate::Config;
+use crate::structs::PaginatorResult;
 use crate::animation::Animation;
+use crate::structs::RequestType;
 use crate::specific::gitlab;
 use crate::structs::Comment;
-use crate::structs::Context;
-use crate::Platform;
-use crate::Error;
 use crate::structs::Issue;
-use crate::structs::PaginatorResult;
-use crate::structs::RequestType;
+use crate::Platform;
+use crate::Config;
 
 
 impl Platform {
@@ -39,17 +38,10 @@ impl Platform {
         
         let url = self.url_repo_issues_comments(config, &owner, &repo_path, issue);
         
-        let context = Context {
-            request_type: RequestType::ListIssuesComments,
-            owner: Some(owner.clone()),
-            repo: None,
-            additional: None,
-        };
-        
         animation.change_message("fetching issue comments...");
         
         Ok(
-            self.pagginate(url, config, context, 1)
+            self.pagginate(url, config, RequestType::ListIssuesComments, 1)
                 .map(move |result| {
                     let repo = repo.clone();
                     self.get_comments(result, repo)
@@ -86,19 +78,12 @@ impl Platform {
         
         let url = self.url_detailed_issue(config, &owner, &repo_path, issue);
         let result = self.get(url, true, config).await?;
-        let context = Context {
-            request_type: RequestType::ListIssuesComments,
-            owner: Some(owner.clone()),
-            repo: None,
-            additional: None,
-        };
         
         let base_message = "Failed to fetch issue";
-        let result = self.unwrap(result, base_message, config, context).await?;
+        let result = self.unwrap(result, base_message, config, &RequestType::ListIssuesComments).await?;
         
         Ok(
             Issue::from_text_array(&format!("[{result}]"), self)?[0].clone()
         )
     }
 }
-

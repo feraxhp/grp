@@ -1,13 +1,12 @@
-use color_print::cformat;
 use serde::Serialize;
+use mynox::Error;
 
-use crate::common::structs::{Context, RequestType};
-use crate::structs::User;
-use crate::config::Config;
-use crate::error::structs::Error;
-use crate::platform::Platform;
-use crate::animation::Animation;
 use crate::specific::gitlab::groups::utils::search::get_closest_parent_and_stack;
+use crate::common::structs::RequestType;
+use crate::animation::Animation;
+use crate::platform::Platform;
+use crate::config::Config;
+use crate::structs::User;
 
 #[derive(Serialize)]
 struct Group {
@@ -37,7 +36,7 @@ pub(crate) async fn create_group<A: Animation + ?Sized>(
     let mut groups = vec![];
     
     for (i, name) in stack.iter().rev().enumerate() {
-        animation.change_message(cformat!("Creating <m>{}/{}</m><y> groups ...</>", i, stack.len()));
+        animation.change_message(format!("Creating <m>{}/{}</m><y> groups ...</>", i, stack.len()));
         let p_ = match create(platform, &parent, name, config, animation).await {
             Ok(u) => {
                 groups.push(u.clone());
@@ -78,14 +77,8 @@ async fn create<A: Animation + ?Sized>(
     let result = platform.post(url, true, config, &json).await?;
     
     animation.change_message("unwraping response ...");
-    let context = Context {
-        request_type: RequestType::CreateOrg,
-        owner: None, repo: None,
-        additional: Some(name.to_owned()),
-    };
-    
     let base_message = "Error creating group ...";
-    let result = platform.unwrap(result, base_message, config, context).await?;
+    let result = platform.unwrap(result, base_message, config, &RequestType::CreateOrg).await?;
     
     User::from_text(&result, platform)
 }

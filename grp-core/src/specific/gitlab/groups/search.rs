@@ -1,28 +1,30 @@
-use std::future;
 use futures::StreamExt;
+use std::future;
 
+use mynox::Error;
+
+use crate::specific::gitlab::parser::Group;
 use crate::common::traits::Convert;
-use crate::json::JSON;
-use crate::specific::gitlab::parser::{Group};
-use crate::structs::{Context, RequestType};
-use crate::{config::Config, platform::Platform};
+use crate::structs::RequestType;
+use crate::platform::Platform;
+use crate::config::Config;
 use crate::structs::User;
-use crate::error::structs::Error;
+use crate::json::JSON;
 
 
 pub async fn by_full_path(name: &String, config: &Config) -> Result<Option<User>, Error> {
     let platform = Platform::Gitlab;
     let url = format!("{}/groups?search={}", platform.get_base_url(config), name);
     
-    let context = Context {
-        request_type: RequestType::ListOrg,
-        owner: None,
-        repo: None,
-        additional: Some(format!("Error finding {} id", name)),
-    };
+    // let context = Context {
+    //     request_type: RequestType::OrgList,
+    //     owner: None,
+    //     repo: None,
+    //     additional: Some(format!("Error finding {} id", name)),
+    // };
     let mut user: Option<User> = None;
     
-    let errors: Vec<Error> = platform.pagginate(url, config, context, 1)
+    let errors: Vec<Error> = platform.pagginate(url, config, RequestType::ListOrg, 1)
         .map(|result| -> Result<Vec<Group>, Error>{
             match result {
                 Ok(s) => JSON::from_str(&s.result),
@@ -60,5 +62,6 @@ pub async fn by_full_path(name: &String, config: &Config) -> Result<Option<User>
     if user.is_some() { return Ok(user); }
     if errors.is_empty() { return Ok(None); }
     
-    Err(Error::collection(errors))
+    todo!();
+    // Err(errors.into_iter().collect::<OptionError>().into_option().unwrap();)
 }

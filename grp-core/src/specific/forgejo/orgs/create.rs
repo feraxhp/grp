@@ -1,9 +1,10 @@
+use mynox::Error;
+
+use crate::common::structs::RequestType;
 use crate::animation::Animation;
-use crate::common::structs::{Context, RequestType};
-use crate::structs::User;
 use crate::platform::Platform;
-use crate::error::structs::Error;
 use crate::config::Config;
+use crate::structs::User;
 
 
 pub(crate) async fn create<A: Animation + ?Sized>(
@@ -28,14 +29,8 @@ pub(crate) async fn create<A: Animation + ?Sized>(
     let result = platform.post(url, true, config, &json).await?;
     
     animation.change_message("unwraping response ...");
-    let context = Context {
-        request_type: RequestType::CreateOrg,
-        owner: None, repo: None,
-        additional: Some(name.clone()),
-    };
-    
     let base_message = "Error creating orgs";
-    let result = platform.unwrap(result, base_message, config, context).await?;
+    let result = platform.unwrap(result, base_message, config, &RequestType::CreateOrg).await?;
     
     User::from_text(&result, platform)
 }

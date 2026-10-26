@@ -1,8 +1,11 @@
 
-use std::fmt::Display;
 use color_print::cformat;
+use std::fmt::Display;
 
-use grp_core::{Error, Platform, empty_notes};
+use mynox::empty_iter;
+use mynox::Error;
+
+use grp_core::Platform;
 
 
 #[derive(Debug, Clone)]
@@ -93,9 +96,9 @@ impl RepoStructure {
                 Error::new(
                     "repostructure::ivalid", 
                     "The repo path is longer than the supported length",
-                    cformat!("* <m>{}</> does not suport repos of lenght <r>{}</>", platform.name(), self.len),
-                    vec![cformat!("The max nested lenght is {}", self.len)],
-                    empty_notes!()
+                    format!("`{}` does not suport repos of lenght -{}-", platform.name(), self.len),
+                    [cformat!("The max nested lenght is +{}+", self.len)],
+                    empty_iter!()
                 )
             )
         } else { Ok(()) }

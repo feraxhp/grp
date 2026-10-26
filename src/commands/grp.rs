@@ -3,8 +3,10 @@ use std::process::exit;
 use color_print::{cprintln,cformat};
 use clap::{ArgMatches, arg, command, crate_version};
 
-use grp_core::{SUPPORTED_REPOS, Error};
+use mynox::Error;
+
 use grp_core::animation::Animation;
+use grp_core::SUPPORTED_REPOS;
 
 use crate::commands::local::fetch;
 
@@ -51,8 +53,8 @@ pub async fn mannager(matches: &ArgMatches) {
     match matches.subcommand() {
         Some(sub) => {
             let usettings = Usettings::read().unwrap_or_else(|e| {
-                cprintln!("* <y,i>usettings:</> <r>{}</>", e.message);
-                e.show();
+                cprintln!("* <y,i>usettings:</> <r>{}</>", e.message());
+                e.eprint();
                 exit(1);
             });
             match sub {

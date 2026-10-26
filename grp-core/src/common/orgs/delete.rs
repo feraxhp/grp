@@ -1,9 +1,10 @@
-use crate::platform::Platform;
-use crate::error::structs::Error;
-use crate::config::Config;
+use mynox::Error;
+
 use crate::common::structs::{Context, RequestType};
 use crate::animation::Animation;
+use crate::platform::Platform;
 use crate::specific::gitlab;
+use crate::config::Config;
 
 
 impl Platform {
@@ -53,15 +54,10 @@ impl Platform {
                 , 204
             ) | (_, 202) => Ok(()),
             (_, _) => {
-                let context = Context {
-                    request_type: RequestType::DeleteOrg,
-                    owner: Some(name_copy),
-                    repo: None,
-                    additional: None
-                };
+                let context = RequestType::DeleteOrg; // no-permanent
                 
                 let base_message = "Error deleting organization";
-                Err(self.unwrap(result, base_message, config, context).await.unwrap_err())
+                Err(self.unwrap(result, base_message, config, &context).await.unwrap_err())
             }
         }
     }

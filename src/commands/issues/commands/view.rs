@@ -5,13 +5,16 @@ use clap::{arg, ArgMatches, Command};
 use color_print::{cformat, cprintln};
 use grp_core::animation::Animation;
 use grp_core::structs::{Comment, Issue};
-use grp_core::{Error, Formater, Platform};
+use grp_core::Platform;
+use mynox::OptionError;
+use mynox::Error;
 
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::issues::IssueStructure;
 use crate::commands::validations::or_exit::structure::OrExit;
+use crate::printables::FormatTools;
 use crate::printables::humanize::Humanize;
 use crate::printables::markdown::Markdown;
 use crate::printables::show::Show;
@@ -42,8 +45,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let platform = match Platform::matches(&pconf.r#type) {
         Ok(p) => p,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1)
         },
     };
@@ -53,8 +56,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let issue_detail = match platform.issue(owner, &issue.repo.path, &issue.number, &config, &animation).await {
         Ok(s) => s,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             return;
         },
     };
@@ -63,8 +66,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let stream = match platform.list_issue_comments(owner, &issue.repo.path, &issue.number, &config, &animation).await {
         Ok(s) => s,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             return;
         },
     };
@@ -95,22 +98,22 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let (chunks, errors__) = print_issue(&issue_detail, comments);
     
     errors.extend(errors__);
-    
-    match (chunks.is_empty(), errors.is_empty()) {
+    let errors = errors.into_iter().collect::<OptionError>().into_option();
+    match (chunks.is_empty(), errors.is_none()) {
         (true, true) => { unreachable!("This must be unrechable") },
         (false,  true) => {
             animation.finish_with_success(cformat!("<y,i>issues fetch</y,i> <g>succeeded!</>"));
             chunks.print_pretty();
         },
         (true, false) => {
-            let error = Error::collection(errors);
-            animation.finish_with_error(error.message.to_string());
-            error.show();
+            let error = errors.unwrap();
+            animation.finish_with_error(error.message().to_string());
+            error.eprint();
         },
         (false, false) => {
             animation.finish_with_warning(cformat!("<m,i>{}</m,i> <y>finish with errors!</>", issue_detail.title));
             chunks.print_pretty();
-            if show_errors { errors.print_pretty(); } 
+            if show_errors { errors.unwrap().eprint(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");
             }

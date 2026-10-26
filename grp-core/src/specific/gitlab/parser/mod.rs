@@ -11,6 +11,7 @@ use serde::de::DeserializeOwned;
 use chrono::Utc;
 use chrono::DateTime;
 
+
 #[derive(Deserialize)]
 pub struct Repository {
     pub path: String,
@@ -68,4 +69,10 @@ where
 {
     pub target_type: String,
     pub target: T
+}
+
+#[derive(Deserialize)]
+pub(crate) struct ErrorDeserialize {
+    // pub(crate) message: Option<Value>,
+    pub(crate) text: Option<String>,
 }

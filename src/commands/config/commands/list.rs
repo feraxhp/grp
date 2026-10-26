@@ -1,3 +1,5 @@
+use std::process::exit;
+
 use clap::{command, Command};
 use color_print::{ceprintln, cformat};
 
@@ -16,8 +18,9 @@ pub fn manager() {
     match Usettings::read() {
         Ok(u) => u.pconfs.print_pretty(),
         Err(e) => {
-            ceprintln!("{}", &e.message);
-            e.show();
+            ceprintln!("{}", e.message());
+            e.eprint();
+            exit(1)
         },
     }
 }

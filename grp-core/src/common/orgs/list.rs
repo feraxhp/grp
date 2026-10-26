@@ -1,11 +1,12 @@
-use crate::config::Config;
-use crate::platform::Platform;
-use crate::animation::Animation;
-use crate::error::structs::Error;
-use crate::structs::PaginatorResult;
 use futures::{Stream, StreamExt};
+use mynox::Error;
+
+use crate::common::structs::RequestType;
+use crate::structs::PaginatorResult;
+use crate::animation::Animation;
+use crate::platform::Platform;
+use crate::config::Config;
 use crate::structs::User;
-use crate::common::structs::{Context, RequestType};
 
 
 impl Platform {
@@ -28,15 +29,8 @@ impl Platform {
     ) -> impl Stream<Item = Result<PaginatorResult<Vec<User>>, Error>> {
         let url = self.url_list_orgs(config);
         
-        let context = Context {
-            request_type: RequestType::ListOrg,
-            owner: None,
-            repo: None,
-            additional: None,
-        };
-
         animation.change_message("getting organizations ...");
-        self.pagginate(url, config, context, 1)
+        self.pagginate(url, config, RequestType::ListOrg, 1)
             .map(|result| {
                 self.get_user(result)
             })

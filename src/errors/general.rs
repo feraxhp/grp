@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use grp_core::{Error, empty_notes};
+use mynox::{Error, empty_iter};
 
 macro_rules! etype {
     ($literal:literal) => { concat!("grp::general::", $literal) };
@@ -17,8 +17,8 @@ impl GeneralError {
             etype, 
             format!("Invalid UTF-8 string parsing"), 
             format!("{error}"),
-            vec![], 
-            empty_notes!()
+            empty_iter![], 
+            empty_iter!()
         )
     }
 }

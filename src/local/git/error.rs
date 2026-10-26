@@ -1,12 +1,12 @@
-use color_print::cformat;
-use git2::{ErrorClass, ErrorCode};
+use git2::ErrorClass;
+use git2::ErrorCode;
 
-use grp_core::Error;
-use grp_core::Formater;
-use grp_core::empty_notes;
-use grp_core::errors::Request;
-use crate::errors::ToError;
+use mynox::Formater;
+use mynox::Error;
+use mynox::error;
+
 use crate::local::structs::Git2Context;
+use crate::errors::ToError;
 
 use super::super::git::structs::Action;
 
@@ -14,27 +14,10 @@ macro_rules! etype {
     ($lit:literal) => { concat!("git::", $lit) };
 }
 
-macro_rules! make_error {
-    (
-        $type:expr,
-        $message:expr,
-        $detail:expr,
-        $( $explain:expr, )* $(,)?
-    ) => {
-        Error::new(
-            etype!($type), $message, $detail, 
-            vec![
-                $( $explain, ) *
-            ],
-            empty_notes!()
-        )
-    };
-}
-
 impl ToError for git2::Error {
     type Context<'a> = Git2Context<'a>;
     
-    fn to_error<'a>(&self, context: Self::Context<'a>) -> Error {
+    fn to_error<'a>(self, context: Self::Context<'a>) -> Error {
         let action = context.action;
         let owner = context.owner;
         let repo = context.repo;
@@ -47,38 +30,41 @@ impl ToError for git2::Error {
         
         match (code, class_, message, action) {
             (ErrorCode::NotFound, ErrorClass::Repository, _, _) => {
-                make_error!{
-                    "not_found::repository::local", 
+                error!{
+                    etype!("not_found::repository::local"), 
                     "The repository can not be found", 
                     "Is this directory a git repository?",
-                    cformat!("  <b><<{}>></>", repo),
-                    String::new(),
+                    format!("» **repo**: _{repo}_"),
+                    => 
                     "To create a new repo you can run".as_tip(),
                     "git init".as_command(),
                 }
             }
             (ErrorCode::NotFound, ErrorClass::Config, msg, action) if msg.starts_with("-u ") => {
-                make_error!{
-                    "not_found::upstream",
+                error!{
+                    etype!("not_found::upstream"),
                     "No upstream set",
-                    cformat!("The current branch has no <i>upstream</> set"),
+                    format!("The current branch has no _upstream_ set"),
+                    =>
                     "You can set it by running the command:".as_tip(),
                     format!("grp {} {}", action, msg).as_command(),
                 }
             }
             (ErrorCode::Exists, ErrorClass::Invalid, msg,Action::Clone) if msg.ends_with("exists and is not an empty directory") => {
-                make_error!{
-                    "already_exist::directory",
+                error!{
+                    etype!("already_exist::directory"),
                     "Error cloning the remote",
-                    cformat!("The directory already exist: <g>{}</>", &repo),
+                    format!("The directory already exist: +{repo}+"),
+                    =>
                     "You may want to delete or especify a difrent directory.".as_tip(),
                 }
             }
             (ErrorCode::Exists, ErrorClass::Config, _,Action::SetRemote(name, url)) => {
-                make_error!{
-                    "already_exist::remote",
+                error!{
+                    etype!("already_exist::remote"),
                     "Error setting a new remote",
-                    cformat!("The remote already exist"),
+                    format!("The remote already exist"),
+                    =>
                     "You may want to run the command:".as_tip(),
                     format!("git remote set-url {} {}", name, url).as_command(),
                 }
@@ -86,115 +72,131 @@ impl ToError for git2::Error {
             (ErrorCode::GenericError, ErrorClass::Http, _, Action::Clone) => {
                 let pconf = config.map_or_else(|| { &usettings.default }, |e| &e.pconf);
                 
-                make_error!{
-                    "not_found::repository::remote",
+                error!{
+                    etype!("not_found::repository::remote"),
                     "Error cloning the repository",
-                    cformat!("The repository does not exist"),
+                    format!("The repository does not exist"),
+                    =>
                     if !repo.to_string().contains("[") { 
-                        cformat!("  <b><<{}:{}/{}>></>", pconf, owner, repo) 
+                        format!("**<<{}:{}/{}>>**", pconf, owner, repo) 
                     }
                     else { 
-                        cformat!("  <b>{}</>", repo) 
+                        format!("**{}**", repo) 
                     },
                 }
             }
             (ErrorCode::GenericError, ErrorClass::Os, message, _) if message == "failed to send request: The server name or address could not be resolved" => {
-                Request::fetch("Please check your internet connection", empty_notes!())
+                error!{
+                    etype!("request::error"),
+                    "Error getting the configuration",
+                    "The server name or address could not be resolved",
+                    =>
+                    "Please check your internet connection".as_tip(),
+                }
             }
             (ErrorCode::NotFound, ErrorClass::Config, "no pconf", _) if message == "request failed with status code: 404" => {
-                make_error!{
-                    "not_found::config::default::pconf",
+                error!{
+                    etype!("not_found::config::default::pconf"),
                     "Error getting the configuration",
-                    cformat!("There is no default pconf configured"),
+                    format!("There is no default pconf configured"),
                 }
             }
             (ErrorCode::GenericError, ErrorClass::Http, "too many redirects or authentication replays", _) => {
                 let pconf = config.map_or_else(|| { &usettings.default }, |e| &e.pconf);
                 
-                Request::unauthorized(pconf, owner, empty_notes!())
+                error!{
+                    etype!("unauthorized"),
+                    "too many redirects or authentication replays",
+                    "Please check your token and the repo access",
+                    =>
+                    format!("pconf: **{pconf}**"),
+                    format!("owner: **{owner}**"),
+                }
             }
             (ErrorCode::NotFastForward, ErrorClass::Reference, _, Action::Push) => {
-                make_error!{
-                    "conflict::remote",
+                error!{
+                    etype!("conflict::remote"),
                     "No fast-forward push",
                     "The branch conflicts with the remote",
-                    cformat!("  you have to solved it fist"),
-                    cformat!("  or <i,m>add the <r>--force</r> tag</>"),
+                    =>
+                    format!("you have to solved it fist"),
+                    format!("or _`add the- ----force- tag`_"),
                 }
             }
             (ErrorCode::Conflict, ErrorClass::Merge, _, Action::Pull) => {
-                make_error!{
-                    "conflict::local",
+                error!{
+                    etype!("conflict::local"),
                     "No fast-forward pull",
                     "The remote branch conflicts with local changes",
-                    cformat!("  you have to solved it fist"),
-                    cformat!("  or <i,m>add the <r>--force</r> tag</>"),
+                    =>
+                    format!("you have to solved it fist"),
+                    format!("or _`add the- ----force- tag`_"),
                 }
             }
             (ErrorCode::Unmerged, ErrorClass::Rebase, "unstaged changes exist in workdir", Action::Pull) => {
-                make_error!{
-                    "conflict::rebase",
+                error!{
+                    etype!("conflict::rebase"),
                     "Rebase operation conflict",
                     "The remote branch conflicts with local changes",
-                    cformat!("  you can finish the rebase as you"),
-                    cformat!("  normaly does"),
-                    cformat!(""),
+                    =>
+                    format!("you can finish the rebase as you").as_tip(),
+                    format!("normaly does").as_tip_cotinuation(),
+                    String::new(),
                     "You can abort it by runing the command:".as_tip(),
                     "git rebase --abort".as_command(),
                 }
             }
             (ErrorCode::Locked, ErrorClass::Merge, m, Action::Pull) => {
                 let files = m.split(",")
-                    .map(|f| cformat!("  <g>→</g> <m,i>{}</>", f.trim()))
+                    .map(|f| format!("  +→+ _`{}`_", f.trim()))
                     .collect::<Vec<_>>();
                 
-                let mut messages = Vec::with_capacity(files.len() + 2);
+                let mut messages = Vec::with_capacity(files.len());
                 messages.extend(files);
-                messages.push(cformat!("<y>* Please <m,i>commit</m,i> or <m,i>stash</m,i> them</>"));
-                messages.push(cformat!("<y>  or <m,i>add the <r>--force</r> tag</m,i> to override them</>"));
                 
                 Error::new(
                     etype!("conflict::merge"),
                     "No fast-forward merge",
                     "The merge operation was locked by:",
                     messages,
-                    empty_notes!()
+                    [
+                        "Please _`commit`_ or _`stash`_ them",
+                        "or _`add the- ----force- tag`_ to override them",
+                    ],
                 )
             }
             (ErrorCode::NotFound, ErrorClass::Config, m, _) => {
-                make_error!{
-                    "not_found::config",
-                    "Git interaction error",
-                    m,
+                error!{
+                    etype!("not_found::config"),
+                    "Git interaction error", m,
                 }
             }
             (ErrorCode::NotFound, ErrorClass::Reference, m, _) => { 
-                make_error!{
-                    "not_found::reference",
-                    "Git interaction error",
-                    m,
+                error!{
+                    etype!("not_found::reference"),
+                    "Git interaction error", m,
                 }
             }
             (ErrorCode::NotFound, ErrorClass::Merge, m, Action::Pull) if m.contains("r:") => {
-                make_error!{
-                    "not_found::branch::local",
+                error!{
+                    etype!("not_found::branch::local"),
                     "No base found to merge",
-                    "This happens when the <m,i>local</m,i> and <m,i>remote",
-                    cformat!("<y>  banches don't share a common ancestor.</>"),
-                    cformat!(""),
-                    "Manually resolve this by cloning the remote repository".as_tip(),
-                    "and then copying your local changes into it.".as_tip_cotinuation(),
+                    "This happens when the _`local`_ and _`remote`_",
+                    "banches don't share a common ancestor",
+                    =>
+                    "Manually resolve this by *cloning the remote repository*".as_tip(),
+                    "and then *copying your +local changes+* into it.".as_tip_cotinuation(),
                 }
             }
             (code, class_, message,action) => {
-                make_error!{
-                    "unmapped",
+                error!{
+                    etype!("unmapped"),
                     "Unmaped error happends",
                     message,
-                    cformat!("repo: <c>{}</>", repo).as_tip(),
-                    cformat!("code: <g,i>{:?}</>", code).as_tip(),
-                    cformat!("clas: <m,i>{:?}</>", class_).as_tip(),
-                    cformat!("actn: <g,i>{}</>", action).as_tip(),
+                    format!("repo: *{}*", repo).as_tip(),
+                    format!("code: _+{:?}+_", code).as_tip(),
+                    format!("clas: _`{:?}`_", class_).as_tip(),
+                    format!("actn: _+{}+_", action).as_tip(),
                 }
             }
         }

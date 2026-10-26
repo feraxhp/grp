@@ -76,14 +76,14 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let platform = match Platform::matches(&pconf.r#type) {
         Ok(p) => p,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1)
         },
     };
     if let Err(e) = repo.is_unsupported(&platform) {
-        animation.finish_with_error(&e.message);
-        e.show();
+        animation.finish_with_error(e.message());
+        e.eprint();
         exit(1)
     }
     
@@ -104,8 +104,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             animation.finish_with_success(message);
         },
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
+            exit(1)
         },
     };
 }

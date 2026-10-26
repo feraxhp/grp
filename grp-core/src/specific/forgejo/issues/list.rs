@@ -1,16 +1,16 @@
 use std::fmt::Display;
 
 use futures::{Stream, StreamExt};
+use mynox::Error;
 
-use crate::Config;
-use crate::Error;
-use crate::JSON;
-use crate::Platform;
-use crate::animation::Animation;
 use crate::specific::forgejo::parser::Issue;
-use crate::structs::Context;
 use crate::structs::PaginatorResult;
+use crate::animation::Animation;
 use crate::structs::RequestType;
+use crate::structs::Context;
+use crate::Platform;
+use crate::Config;
+use crate::JSON;
 
 
 pub enum Scope {
@@ -49,18 +49,10 @@ where
     A: Animation + ?Sized,
 {
     let url = format!("{}/repos/issues/search?state=open&type=issues&{}", platform.get_base_url(config), scope.filter());
-
-    let context = Context {
-        request_type: RequestType::List,
-        owner: None,
-        repo: None,
-        additional: None,
-    };
-
     animation.change_message(format!("requesting {} issues...", scope));
     Ok(
         platform
-            .pagginate(url, config, context, 1)
+            .pagginate(url, config, RequestType::ListIssues, 1)
             .map(parse)
     )
 }

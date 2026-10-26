@@ -1,4 +1,6 @@
-use grp_core::{Error, empty_notes};
+use mynox::Error;
+use mynox::empty_iter;
+
 use inquire::InquireError;
 
 use crate::errors::ToError;
@@ -12,44 +14,53 @@ macro_rules! etype {
 impl ToError for InquireError {
     type Context<'a> = ();
 
-    fn to_error<'a>(&self, _: Self::Context<'a>) -> grp_core::Error {
-        match self {
-            InquireError::NotTTY => {
-                Error::new(
-                    etype!("NotTTY"), 
-                    "The input device is not a TTY", 
-                    "imposible to enable raw mode on the terminal", 
-                    vec![], empty_notes!()
-                )
-            },
-            InquireError::InvalidConfiguration(e) => Error::new(
-                etype!("InvalidConfiguration"), 
-                "Prompt configuration is not valid", 
-                "Please report this error", 
-                vec![], 
-                vec![e.to_string()]
+    fn to_error<'a>(self, _: Self::Context<'a>) -> mynox::Error {
+        let (etype, message, details, notes) = match &self {
+            InquireError::NotTTY => (
+                etype!("NotTTY"),
+                "The input device is not a TTY",
+                "imposible to enable raw mode on the terminal".to_string(),
+                Vec::new(),
             ),
-            InquireError::IO(error) => Error::new(
-                etype!("IO"), 
-                "Error while executing IO operations", 
-                error, 
-                vec![], empty_notes!()
+            InquireError::InvalidConfiguration(e) => (
+                etype!("InvalidConfiguration"),
+                "Prompt configuration is not valid",
+                "Please report this error".to_string(),
+                vec![e.clone()],
             ),
-            InquireError::OperationCanceled => Error::new(
-                etype!("OperationCanceled"), 
-                "Readding input canceled", 
-                "You cancel the operation", vec![], empty_notes!()
+            InquireError::IO(error) => (
+                etype!("IO"),
+                "Error while executing IO operations",
+                error.to_string(),
+                Vec::new(),
             ),
-            InquireError::OperationInterrupted => Error::new(
-                etype!("OperationInterrupted"), 
-                "Readding input canceled", 
-                "You kill the operation", vec![], empty_notes!()
+            InquireError::OperationCanceled => (
+                etype!("OperationCanceled"),
+                "Readding input canceled",
+                "You cancel the operation".to_string(),
+                Vec::new(),
             ),
-            InquireError::Custom(error) => Error::new(
-                etype!("Custom"), 
-                "Custom error from Inquire", 
-                error, vec![], empty_notes!()
+            InquireError::OperationInterrupted => (
+                etype!("OperationInterrupted"),
+                "Readding input canceled",
+                "You kill the operation".to_string(),
+                Vec::new(),
             ),
-        }
+            InquireError::Custom(error) => (
+                etype!("Custom"),
+                "Custom error from Inquire",
+                error.to_string(),
+                Vec::new(),
+            ),
+        };
+        
+        Error::from(
+            self,
+            etype,
+            message,
+            details,
+            empty_iter![],
+            notes,
+        )
     }
 }

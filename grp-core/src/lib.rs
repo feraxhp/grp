@@ -44,17 +44,14 @@ mod request;
 mod config;
 mod system;
 mod common;
-mod nerror;
 mod error;
 mod json;
 
 pub use platform::SUPPORTED_REPOS;
 pub use platform::Platform;
 
-pub use error::structs::Error;
-pub use error::tools::Formater;
-
-pub use nerror::ErrorType;
+pub use error::ErrorType;
+pub(crate) use error::helpers;
 
 pub mod structs {
     pub use super::common::structs::*;

@@ -4,7 +4,7 @@ use futures::stream::select;
 use futures::{Stream, StreamExt};
 
 use crate::Config;
-use crate::Error;
+use mynox::Error;
 use crate::Platform;
 use crate::animation::Animation;
 use crate::common::traits::Convert;

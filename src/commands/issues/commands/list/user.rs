@@ -5,7 +5,8 @@ use futures::StreamExt;
 use clap::{Arg, ArgMatches, arg};
 use color_print::{cformat, cprintln};
 use grp_core::animation::Animation;
-use grp_core::{Error, Platform};
+use grp_core::Platform;
+use mynox::OptionError;
 
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
@@ -44,8 +45,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let platform = match Platform::matches(&pconf.r#type) {
         Ok(p) => p,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1)
         },
     };
@@ -55,24 +56,24 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         Mode::Assigned => match platform.list_user_assigned_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
-                animation.finish_with_error(&e.message);
-                e.show();
+                animation.finish_with_error(e.message());
+                e.eprint();
                 return;
             },
         },
         Mode::All => match platform.list_all_user_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
-                animation.finish_with_error(&e.message);
-                e.show();
+                animation.finish_with_error(e.message());
+                e.eprint();
                 return;
             },
         },
         Mode::Involved => match platform.list_all_involved_user_issues(&config, &animation).await {
             Ok(s) => s.boxed(),
             Err(e) => {
-                animation.finish_with_error(&e.message);
-                e.show();
+                animation.finish_with_error(e.message());
+                e.eprint();
                 return;
             },
         },
@@ -104,22 +105,23 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     animation.change_message("Removing duplicates...");
     let mut seen = HashSet::new();
     issues.retain(|issue| seen.insert(issue.id));
-    
-    match (issues.is_empty(), errors.is_empty()) {
+
+    let errors = errors.into_iter().collect::<OptionError>().into_option();
+    match (issues.is_empty(), errors.is_none()) {
         (true, true) => { animation.finish_with_success("<i>No issues found</>"); },
         (false,  true) => {
             animation.finish_with_success(cformat!("<y,i>list issues</y,i> <g>succeeded!</>"));
             issues.print_pretty();
         },
         (true, false) => {
-            let error = Error::collection(errors);
-            animation.finish_with_error(error.message.to_string());
-            error.show();
+            let error = errors.unwrap();
+            animation.finish_with_error(error.message().to_string());
+            error.eprint();
         },
         (false, false) => {
             animation.finish_with_warning(cformat!("<m,i>list issues</m,i> <y>finish with errors!</>"));
             issues.print_pretty();
-            if show_errors { errors.print_pretty(); } 
+            if show_errors { errors.unwrap().eprint(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");
             }

@@ -1,15 +1,17 @@
 use std::fmt::Display;
+use std::iter::once;
 
-use hyper::HeaderMap;
 use reqwest::Response;
+use hyper::HeaderMap;
 
-use crate::empty_notes;
-use crate::error::errors::request::Request;
-use crate::error::structs::Error;
-use crate::common::structs::Context;
-use crate::config::Config;
-use crate::platform::Platform;
+use mynox::Error;
+use mynox::error;
+
 use crate::specific::{forgejo, github, gitlab};
+use crate::{ErrorType, SUPPORTED_REPOS};
+use crate::structs::RequestType;
+use crate::platform::Platform;
+use crate::config::Config;
 
 impl Platform {
     /// # Return
@@ -25,7 +27,18 @@ impl Platform {
             "codeberg" => Platform::Codeberg,
             "forgejo" => Platform::Forgejo,
             name => {
-                return Err(Request::unsuported(name, "Platform variant", empty_notes!()));
+                return Err(error!(
+                    ErrorType::unsuported::variant,
+                    "Unsuported platform",
+                    "The given platform is not supoted",
+                    => format!("Given platform: -{}-", name),
+                ).extend_notes_with(|| {
+                    once("Suported repos: ".to_string()).chain(
+                        SUPPORTED_REPOS.iter().map(|s| {
+                            format!("  - {}", s.2)
+                        })
+                    )
+                }));
             }
         };
 
@@ -67,14 +80,14 @@ impl Platform {
         result: Response,
         base_message: T,
         config: &Config,
-        context: Context,
+        request_type: &RequestType,
     ) -> Result<String, Error> {
         match self {
-            Platform::Github => { github::unwrap::unwrap(result, base_message.into(), config, context).await }
+            Platform::Github => { github::unwrap::unwrap(result, base_message.into(), config, request_type).await }
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => { forgejo::unwrap::unwrap(result, base_message.into(), config, context).await }
-            Platform::Gitlab => { gitlab::unwrap::unwrap(result, base_message.into(), config, context).await }
+            Platform::Gitea => { forgejo::unwrap::unwrap(result, base_message.into(), config, request_type).await }
+            Platform::Gitlab => { gitlab::unwrap::unwrap(result, base_message.into(), config, request_type).await }
         }
     }
 }

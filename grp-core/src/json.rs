@@ -1,4 +1,8 @@
-use super::error::structs::Error;
+use mynox::Context;
+use mynox::Extend;
+use mynox::Error;
+
+use crate::ErrorType;
 
 /// default implementation for deserialize a json, returning a _grp_core::Error_ directly, 
 /// very usefull for use _?_ in an already returning _Result<T, Error>_
@@ -28,6 +32,8 @@ impl JSON {
         S: AsRef<str>,
     {
         let text = text.as_ref();
-        serde_json::from_str(text).map_err(Error::from_serde(&text.to_string()))
+        serde_json::from_str(text)
+                    .context(ErrorType::parsing::serde, "The provided text is not valid json")
+                    .note(format!("**text**: `<raw>{text}</raw>`"))
     }
 }

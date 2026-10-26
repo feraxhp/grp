@@ -1,10 +1,10 @@
 use urlencoding::encode;
+use mynox::Error;
 
-use crate::common::structs::{Context, RequestType};
-use crate::config::Config;
-use crate::platform::Platform;
-use crate::error::structs::Error;
 use crate::specific::gitlab::projects::get::Project;
+use crate::common::structs::RequestType;
+use crate::platform::Platform;
+use crate::config::Config;
 
 
 pub async fn premanently_remove(platform: &Platform, project: &Project, config: &Config) -> Result<(), Error> {
@@ -14,15 +14,13 @@ pub async fn premanently_remove(platform: &Platform, project: &Project, config: 
     let url = format!("{}/projects/{}?full_path={}&permanently_remove=true", platform.get_base_url(config), id, path);
     let result = platform.delete(&url, config).await?;
     
-    let context = Context {
-        request_type: RequestType::DeletePermanent,
-        owner: None, repo: Some(id),
-        additional: None
-    };
-    
     let base_message = "Error deleting repository";
     
     if result.status().as_u16() == 202 { return Ok(()); }
     
-    Err(platform.unwrap(result, base_message, config, context).await.unwrap_err())
+    Err(platform.unwrap(result, base_message, config, &RequestType::DeleteRepo { 
+        permanent: true, 
+        owner: project.namespace.full_path.to_string(), 
+        repo: project.name.to_string(), 
+    }).await.unwrap_err())
 }

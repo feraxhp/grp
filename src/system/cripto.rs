@@ -1,13 +1,19 @@
 use argon2::Argon2;
+
 use base64::engine::general_purpose::STANDARD as B64;
 use base64::Engine;
-use chacha20poly1305::{
-    aead::{Aead, KeyInit},
-    ChaCha20Poly1305, Key, Nonce,
-};
-use grp_core::{Error, empty_notes};
 
-use crate::errors::{cripto::CriptoError, general::GeneralError};
+use chacha20poly1305::ChaCha20Poly1305;
+use chacha20poly1305::aead::KeyInit;
+use chacha20poly1305::aead::Aead;
+use chacha20poly1305::Nonce;
+use chacha20poly1305::Key;
+
+use mynox::empty_iter;
+use mynox::Error;
+
+use crate::errors::general::GeneralError;
+use crate::errors::cripto::CriptoError;
 
 const SALT_LEN: usize = 16;
 const NONCE_LEN: usize = 12;
@@ -27,7 +33,7 @@ impl Cripto {
                 "grp::base64", 
                 "base64 decoding failed", 
                 e, 
-                vec![], empty_notes!()
+                empty_iter![], empty_iter!()
                 ))
             },
         };

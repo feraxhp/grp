@@ -1,12 +1,17 @@
 use color_print::cprintln;
 
-use grp_core::{Error, errors::Parsing};
-use grp_core::Formater;
+use mynox::Formater;
+use grp_core::JSON;
+use mynox::Error;
+
 use crate::errors::usettings::UsettingsError;
-use crate::system::cripto::Cripto;
-use super::structs::{Pconf, Usettings};
+use crate::system::directories::Directories;
 use crate::animations::animation::Suspend;
-use crate::system::{directories::{Config, Directories}, file::File};
+use crate::system::directories::Config;
+use crate::system::cripto::Cripto;
+use super::structs::Usettings;
+use crate::system::file::File;
+use super::structs::Pconf;
 
 
 impl Usettings {
@@ -89,9 +94,17 @@ impl Usettings {
             return Ok(void_config);
         } 
     
-        let config: Usettings = match serde_json::from_str(&file) {
+        let config: Usettings = match JSON::from_str(&file) {
             Ok(json) => json,
-            Err(e) => return Err(Parsing::serde(e, &file))
+            Err(e) => {
+                return Err(Error::new(
+                    e.etype(), 
+                    e.message(), 
+                    e.details().get(1).unwrap(), 
+                    e.details().iter().skip(1), 
+                    [format!("**file**: `{}`", path.display())]
+                ))
+            }
         };
     
         Ok(config)

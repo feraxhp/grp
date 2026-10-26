@@ -1,6 +1,8 @@
 
+use mynox::Error;
+use grp_core::Platform;
+use grp_core::Config;
 use std::ops::Deref;
-use grp_core::{Config, Error, Platform};
 
 use crate::usettings::structs::Usettings;
 

@@ -1,4 +1,4 @@
-use grp_core::Error;
+use mynox::Error;
 use grp_core::structs::Repo;
 use std::collections::{HashMap, HashSet};
 

@@ -1,11 +1,11 @@
 use color_print::cformat;
+
 use ink_md::render::plain::render_plain;
 use ink_md::Width::Columns;
 use ink_md::Args;
 
-use grp_core::Error;
-use grp_core::empty_notes;
-
+use mynox::Context;
+use mynox::Error;
 
 
 pub trait Markdown {
@@ -29,16 +29,9 @@ impl Markdown for String {
             mouse_capture: false,
             clipboard: ink_md::clipboard::ClipboardMode::Off,
         };
-        
-        render_plain(self, &args).map_err(|e| {
-            Error::new(
-                "grp::markdown::ink_md", 
-                "The markdown parsing whent wrong", 
-                cformat!("<y>{e}</>"), 
-                vec![],
-                empty_notes!()
-            )
-        })
+
+        render_plain(self, &args)
+            .context_display("grp::markdown::ink_md", "The markdown parsing whent wrong")
     }
 }
 

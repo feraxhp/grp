@@ -1,16 +1,16 @@
 use std::fmt::Display;
 
 use futures::{Stream, StreamExt};
+use mynox::Error;
 
-use crate::Config;
-use crate::Error;
-use crate::Platform;
+use crate::structs::PaginatorResult;
+use crate::structs::RequestType;
 use crate::animation::Animation;
 use crate::specific::gitlab;
 use crate::structs::Context;
 use crate::structs::Issue;
-use crate::structs::PaginatorResult;
-use crate::structs::RequestType;
+use crate::Platform;
+use crate::Config;
 
 
 impl Platform {
@@ -36,18 +36,10 @@ impl Platform {
         }
         
         let url = self.url_list_repo_issues(config, &owner, &repo_path);
-        
-        let context = Context {
-            request_type: RequestType::ListIssues,
-            owner: Some(owner),
-            repo: None,
-            additional: None,
-        };
-        
         animation.change_message("fetching issues...");
         
         Ok(
-            self.pagginate(url, config, context, 1)
+            self.pagginate(url, config, RequestType::ListIssues, 1)
                 .map(|result| {
                     self.get_issues(result)
                 })

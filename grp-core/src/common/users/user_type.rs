@@ -1,11 +1,12 @@
-use crate::empty_notes;
-use crate::error::errors::not_found::NotFound;
-use crate::error::structs::Error;
+use mynox::Error;
+
+use crate::helpers::not_found;
 use crate::structs::User;
 use crate::structs::UserType;
 use crate::config::Config;
 use crate::platform::Platform;
 use crate::specific::gitlab;
+
 
 impl Platform {
     /// # Return
@@ -47,7 +48,7 @@ impl Platform {
                 }
                 match gitlab::groups::search::by_full_path(&name, conf).await? {
                     Some(u) => Ok(UserType::UnloggedOrg(u)),
-                    None => Err(NotFound::user(name, empty_notes!())),
+                    None => Err(not_found::user(&conf.pconf, &name)),
                 }
             },
         }

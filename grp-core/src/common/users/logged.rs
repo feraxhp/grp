@@ -1,8 +1,10 @@
-use crate::error::structs::Error;
-use crate::common::structs::{Context, RequestType};
-use crate::structs::User;
-use crate::config::Config;
+use mynox::Error;
+
+use crate::common::structs::RequestType;
 use crate::platform::Platform;
+use crate::config::Config;
+use crate::structs::User;
+
 
 impl Platform {
     /// # Return
@@ -10,14 +12,7 @@ impl Platform {
     /// 
     /// # Error
     /// a `grp_core::Error` containing the detail of the error. 
-    pub async fn get_logged_user(&self, conf: &Config) -> Result<User, Error> {
-        let context = Context {
-            request_type: RequestType::UserList,
-            owner: Some(conf.user.clone()),
-            repo: None,
-            additional: None,
-        };
-        
+    pub async fn get_logged_user(&self, conf: &Config) -> Result<User, Error> {        
         let url = match &self {
             Platform::Github |
             Platform::Gitlab |
@@ -32,7 +27,7 @@ impl Platform {
         
         let text = self.unwrap(
             result, "Failed during fetch of logged user",
-            conf, context
+            conf, &RequestType::ListUser
         ).await?;
 
         User::from_text(&text, self)

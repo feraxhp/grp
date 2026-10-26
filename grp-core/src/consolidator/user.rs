@@ -1,8 +1,9 @@
-use crate::common::traits::Convert;
+use mynox::Error;
+
 use crate::specific::{forgejo, github, gitlab};
-use crate::structs::User;
-use crate::error::structs::Error;
+use crate::common::traits::Convert;
 use crate::platform::Platform;
+use crate::structs::User;
 use crate::json::JSON;
 
 

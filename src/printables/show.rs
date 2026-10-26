@@ -1,15 +1,14 @@
 use color_print::cformat;
 
-use grp_core::Formater;
 use grp_core::structs::Comment;
 use grp_core::structs::Issue;
 use grp_core::structs::Repo;
 use grp_core::structs::User;
-use grp_core::Error;
 
-use crate::usettings::structs::Pconf;
+use crate::printables::FormatTools;
 use crate::printables::humanize::Humanize;
 use crate::printables::stylizer::Stylizer;
+use crate::usettings::structs::Pconf;
 
 
 pub trait Show {
@@ -81,23 +80,6 @@ impl Show for Vec<User> {
             })
             .into_iter()
             .flatten()
-    }
-}
-
-impl Show for Vec<Error> {
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        self.iter()
-            .enumerate()
-            .flat_map(|(i, error)| {
-                let idx = i + 1;
-                let len = idx.to_string().len() + 2;
-                
-                let header = cformat!("<r>{}: {}</>", idx, error.message);
-                let detail = error.to_string_iter(&(len.clone())).collect();
-                let blank = String::new();
-                
-                [header, detail, blank]
-            })
     }
 }
 

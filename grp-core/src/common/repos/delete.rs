@@ -1,9 +1,10 @@
-use crate::platform::Platform;
-use crate::error::structs::Error;
-use crate::config::Config;
-use crate::common::structs::{Context, RequestType};
+use mynox::Error;
+
+use crate::common::structs::RequestType;
 use crate::animation::Animation;
+use crate::platform::Platform;
 use crate::specific::gitlab;
+use crate::config::Config;
 
 
 impl Platform {
@@ -49,21 +50,18 @@ impl Platform {
             ) => Ok(()),
             (Platform::Gitlab, 202 | 400) if permanent => {
                 animation.change_message("Permamently deleting gitlab project ...");
-                let project = gitlab::projects::get::get_project_with_id(self, &owner, config).await?;
+                let project = gitlab::projects::get::get_project_with_id(self, &owner, &owner_copy, &repo, config).await?;
                 gitlab::projects::delete::premanently_remove(self, &project, config).await?;
                 Ok(())
             },
             (Platform::Gitlab, 202) => Ok(()),
-            (_, _) => {
-                let context = Context {
-                    request_type: RequestType::Delete,
-                    owner: Some(owner_copy),
-                    repo: Some(repo),
-                    additional: None
-                };
-                
+            (_, _) => {                
                 let base_message = "Error deleting repository";
-                Err(self.unwrap(result, base_message, config, context).await.unwrap_err())
+                Err(self.unwrap(result, base_message, config, &RequestType::DeleteRepo { 
+                    permanent: false, 
+                    owner: owner_copy.to_string(),
+                    repo
+                }).await.unwrap_err())
             }
         }
     }

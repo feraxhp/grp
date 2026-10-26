@@ -1,7 +1,10 @@
 use std::fmt::Display;
 
-use color_print::cformat;
-use grp_core::{Error, Formater, empty_notes};
+use mynox::Formater;
+use mynox::Error;
+use mynox::empty_iter;
+use mynox::error;
+
 
 macro_rules! etype {
     ($literal:literal) => { concat!("cripto::", $literal) };
@@ -16,26 +19,23 @@ impl CriptoError {
         
         Error::new(
             etype, 
-            cformat!("Try to decript an <i>incomplete payload</>"), 
+            format!("Try to decript an _incomplete payload_"), 
             format!("The given payload length is {length} < {expected}"),
             vec![
-                cformat!("Please check your config file").as_tip()
+                format!("Please check your config file").as_tip()
             ], 
-            empty_notes!()
+            empty_iter!()
         )
     }
     
     pub fn nonce_error<D: Display>(e: D) -> Error {
         let etype = etype!("nonce");
         
-        Error::new(
-            etype, 
-            cformat!("Error while trying to get the <i>nonce</>"), 
+        error!(
+            etype,
+            "Error while trying to get the _nonce_",
             format!("{e}"),
-            vec![
-                cformat!("Please check your config file").as_tip()
-            ], 
-            empty_notes!()
+            => format!("Please check your config file").as_tip()
         )
     }
     
@@ -44,12 +44,10 @@ impl CriptoError {
         
         Error::new(
             etype, 
-            cformat!("Invalid password or corrupted data"), 
+            format!("Invalid password or corrupted data"), 
             format!("The payload can't be decripted"),
-            vec![
-                // cformat!("Please check your config file").as_tip()
-            ], 
-            empty_notes!()
+            empty_iter!(),
+            empty_iter!(),
         )
     }
 
@@ -60,8 +58,8 @@ impl CriptoError {
             etype, 
             format!("The encription did not succeed"), 
             format!("{e}"),
-            vec![], 
-            empty_notes!()
+            empty_iter![], 
+            empty_iter!()
         )
     }
 
@@ -72,56 +70,61 @@ impl CriptoError {
         
         match error {
             argon2::Error::PwdTooLong => {
-                Error::new(
+                Error::from(
+                    error,
                     etype_argon2!("pwd_too_long"), 
                     format!("The provided password is to long"), 
                     format!("Consider adding a shorter one"),
-                    vec![], 
-                    empty_notes!()
+                    empty_iter![], 
+                    empty_iter!()
                 )
             },
             argon2::Error::SaltTooShort => {
-                Error::new(
+                Error::from(
+                    error,
                     etype_argon2!("salt_too_short"), 
                     format!("This error must be unrechable"), 
                     format!("The salt is too short to be used as salt"),
+                    empty_iter!(),
                     vec![
-                        cformat!("Please report these error: <y>{error}</>").as_tip()
+                        format!("Please report these error: ={error}=").as_tip()
                     ], 
-                    empty_notes!()
                 )
             },
             argon2::Error::SaltTooLong => {
-                Error::new(
+                Error::from(
+                    error,
                     etype_argon2!("salt_too_long"), 
                     format!("This error must be unrechable"), 
                     format!("The salt is too long to be used as salt"),
+                    empty_iter!(),
                     vec![
-                        cformat!("Please report these error: <y>{error}</>").as_tip()
+                        format!("Please report these error: ={error}=").as_tip()
                     ], 
-                    empty_notes!()
                 )
             },
             argon2::Error::OutputTooShort => {
-                Error::new(
+                Error::from(
+                    error,
                     etype_argon2!("output_too_short"),
                     format!("This error must be unreachable"),
                     format!("The requested output buffer is too short"),
+                    empty_iter!(),
                     vec![
-                        cformat!("Please report this error: <y>{error}</>").as_tip()
+                        format!("Please report this error: ={error}=").as_tip()
                     ],
-                    empty_notes!()
                 )
             },
             argon2::Error::OutputTooLong => {
-                Error::new(
+                Error::from(
+                    error,
                     etype_argon2!("output_too_long"),
                     format!("This error must be unreachable"),
                     format!("The requested output buffer is too long"),
+                    empty_iter!(),
                     vec![
-                        cformat!("Please report this error: <y>{error}</>").as_tip()
+                        format!("Please report this error: ={error}=").as_tip()
                     ],
-                    empty_notes!()
                 )
             },
             argon2::Error::AdTooLong |
@@ -136,14 +139,15 @@ impl CriptoError {
             argon2::Error::TimeTooSmall |
             argon2::Error::VersionInvalid |
             argon2::Error::OutOfMemory => {
-                Error::new(
+                Error::from(
+                    error,
                     etype_argon2!("unrechable"), 
                     format!("This error must be unrechable"), 
                     format!("{error}"),
+                    empty_iter!(),
                     vec![
-                        cformat!("Please report these error: <y>{error}</>").as_tip()
+                        format!("Please report these error: ={error}=").as_tip()
                     ], 
-                    empty_notes!()
                 )
             },
         }

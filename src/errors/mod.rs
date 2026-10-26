@@ -8,5 +8,5 @@ pub mod cripto;
 pub trait ToError {
     type Context<'a>;
     
-    fn to_error<'a>(&self, context: Self::Context<'a>) -> grp_core::Error;
+    fn to_error<'a>(self, context: Self::Context<'a>) -> mynox::Error;
 }

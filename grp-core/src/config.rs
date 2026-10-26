@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 
 /// # Config
 /// is the configuration needed to interact with any platform 
@@ -61,5 +62,17 @@ impl Config {
             token: token.into(),
             endpoint: endpoint.into()
         }
+    }
+}
+
+impl Debug for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Config")
+            .field("unsafed", &self.unsafed)
+            .field("pconf", &self.pconf)
+            .field("user", &self.user)
+            .field("token", &"[REDACTED]")
+            .field("endpoint", &self.endpoint)
+            .finish()
     }
 }

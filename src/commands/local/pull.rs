@@ -130,7 +130,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         Err(e) => {
                             Git2Context {
                                 action,
-                                owner: &e.message.clone(),
+                                owner: &e.message().clone(),
                                 repo: path,
                                 config: None,
                                 usettings: &usettings,
@@ -145,8 +145,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 },
             };
             
-            animation.finish_with_error(&error.message);
-            error.show();
+            animation.finish_with_error(&error.message());
+            error.eprint();
             return;
         },
     };

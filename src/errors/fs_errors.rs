@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
-use color_print::cformat;
-use grp_core::{Error, empty_notes};
+use mynox::empty_iter;
+use mynox::Error;
 
 
 macro_rules! etype {
@@ -37,9 +37,9 @@ impl FSErrors {
             format!("The file could not be {}", self.name_past()), 
             error,
             vec![
-                cformat!("  <<{}>>", path)
+                format!("  _*<{}>*_", path)
             ], 
-            empty_notes!()
+            empty_iter!()
         )
     }
     
@@ -49,9 +49,9 @@ impl FSErrors {
             format!("The directory could not be {}", self.name_past()), 
             error,
             vec![
-                cformat!("  <<{}>>", path)
+                format!("  _*<{}>*_", path)
             ],
-            empty_notes!()
+            empty_iter!()
         )
     }
 }

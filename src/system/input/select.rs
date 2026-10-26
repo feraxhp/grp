@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use grp_core::Error;
+use mynox::Error;
 use inquire::Select;
 
 use crate::system::input::Input;

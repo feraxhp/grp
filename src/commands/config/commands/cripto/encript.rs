@@ -28,8 +28,8 @@ pub fn manager(args: &ArgMatches) {
     let mut usettings = match Usettings::read() {
         Ok(us) => us,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1);
         },
     };
@@ -37,8 +37,8 @@ pub fn manager(args: &ArgMatches) {
     let password = match usettings.get_password(true, &animation) {
         Ok(ps) => ps,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1);
         },
     };
@@ -74,7 +74,8 @@ pub fn manager(args: &ArgMatches) {
     };
     
     if let Some(error) = error {
-        animation.finish_with_error(&error.message);
-        error.show();
+        animation.finish_with_error(error.message());
+        error.eprint();
+        exit(1)
     }
 }

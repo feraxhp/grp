@@ -1,4 +1,4 @@
-use grp_core::Error;
+use mynox::Error;
 
 use super::structs::Usettings;
 use crate::{errors::fs_errors::FSErrors, system::{directories::{Config, Directories}, file::File}};

@@ -1,8 +1,9 @@
+use mynox::Error;
+
+use crate::common::structs::{Repo, RequestType};
 use crate::animation::Animation;
-use crate::common::structs::{Context, Repo, RequestType};
-use crate::config::Config;
-use crate::error::structs::Error;
 use crate::platform::Platform;
+use crate::config::Config;
 
 
 impl Platform {
@@ -36,15 +37,11 @@ impl Platform {
         animation.change_message("creating repository...");
         let url = self.url_create_repo(&user_type, config).await;
         let result = self.post(url, true, config, &json).await?;
-        
-        let context = Context {
-            request_type: RequestType::Create,
-            owner: Some(user_type.get_user().name),
-            repo: Some(repo.name), additional: None,
-        };
+
+        let context = RequestType::CreateRepo { owner, repo: repo.name };
         
         let base_message = "Failed to create repository";
-        let reponse = self.unwrap(result, base_message, config, context).await?;
+        let reponse = self.unwrap(result, base_message, config, &context).await?;
         
         Repo::from_text(&reponse, self)
     }

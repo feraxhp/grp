@@ -2,7 +2,8 @@ use std::path::PathBuf;
 use std::process::exit;
 use grp_core::animation::Animation;
 use grp_core::structs::Repo;
-use grp_core::{Formater, Platform};
+use grp_core::Platform;
+use mynox::Formater;
 
 use clap::builder::ValueParser;
 use clap::{arg, ArgMatches, Command};
@@ -67,8 +68,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (true, _) => match BasicDir::current() {
             Ok(path) => Some(path),
             Err(e) => {
-                animation.finish_with_error(&e.message);
-                e.show();
+                animation.finish_with_error(e.message());
+                e.eprint();
                 return;
             },
         },
@@ -88,15 +89,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let platform = match Platform::matches(&pconf.r#type) {
         Ok(p) => p,
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(e.message());
+            e.eprint();
             exit(1)
         },
     };
     let platform = Local(platform);
     if let Err(e) = repo.is_unsupported(&platform) {
-        animation.finish_with_error(&e.message);
-        e.show();
+        animation.finish_with_error(e.message());
+        e.eprint();
         exit(1)
     }
     
@@ -153,11 +154,11 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                             usettings: &usettings,
                         };
                         let error = e.to_error(context);
-                        finish_mode = FinishMode::Warning(cformat!("Failed adding remote: <r>{}</>", &error.message));
+                        finish_mode = FinishMode::Warning(cformat!("Failed adding remote: <r>{}</>", error.message()));
                         
                         messages.push(cformat!("<m>2.</> <r>no remote added"));
                         messages.extend(
-                            error.to_string_iter(&3)
+                            error.render_std_out_auto().map(|e| format!("   {e}"))
                         );
                     },
                 }
@@ -184,11 +185,11 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                                     usettings: &usettings,
                                 };
                                 let error = e.to_error(context);
-                                finish_mode = FinishMode::Warning(cformat!("Failed setting upstream: <r>{}</>", &error.message));
+                                finish_mode = FinishMode::Warning(cformat!("Failed setting upstream: <r>{}</>", error.message()));
                                 
                                 messages.push(cformat!("<m>3.</> <r>no upstream set"));
                                 messages.extend(
-                                    error.to_string_iter(&3)
+                                    error.render_std_out_auto().map(|e| format!("   {e}"))
                                 );
                             },
                         };
@@ -215,8 +216,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             });
         },
         Err(e) => {
-            animation.finish_with_error(&e.message);
-            e.show();
+            animation.finish_with_error(&e.message());
+            e.eprint();
         }
     }
 }

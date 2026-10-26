@@ -103,15 +103,25 @@ pub struct Comment {
 ///  
 #[derive(Clone, Debug)]
 pub enum RequestType {
-    List,
-    Create,
-    Delete,
-    DeletePermanent,
-    UserList,
+    RepositoryDetails{
+        owner: String,
+        repo: String,
+    },
+    ListRepo { owner: String },
+    CreateRepo {
+        owner: String,
+        repo: String,
+    },
+    DeleteRepo {
+        permanent: bool,
+        owner: String,
+        repo: String,
+    },
+    ListUser,
     ListOrg,
     CreateOrg,
     DeleteOrg,
-    RepositoryDetails,
     ListIssues,
     ListIssuesComments,
+    ListTodos,
 }
