@@ -1,6 +1,7 @@
 use reqwest::Response;
 use mynox::Error;
 
+use crate::helpers::not_found::not_found;
 use crate::helpers::request::{RequestError, unauthorized};
 use crate::common::structs::RequestType;
 use crate::helpers::request::unknown;
@@ -13,7 +14,7 @@ use super::parser::ErrorDeserialize;
 pub async fn unwrap(
     result: Response,
     base_message: String,
-    _config: &Config,
+    config: &Config,
     request_type: &RequestType,
 ) -> Result<String, Error> {
 
@@ -32,6 +33,7 @@ pub async fn unwrap(
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
         => return Ok(text),
         (401, _) => unauthorized(request_type),
+        (404, _) => not_found(&config.pconf, request_type),
         (status, _) => {
             let error: ErrorDeserialize = JSON::from_str(&text)?;
             unknown(status, base_message, error.text, request_type)

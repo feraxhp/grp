@@ -1,4 +1,5 @@
 use mynox::Error;
+use crate::Config;
 use crate::JSON;
 use crate::Platform;
 use crate::common::traits::Convert;
@@ -43,7 +44,7 @@ impl Comment {
     /// 
     /// # Error
     /// a `grp_core::Error` of type `grp_core::ErrorType::ResponseParsing`.
-    pub fn from_text_array(text: &String, platform: &Platform, repo: String) -> Result<Vec<Self>, Error> {
+    pub fn from_text_array(text: &String, platform: &Platform, repo: String, config: &Config, issue: u64) -> Result<Vec<Self>, Error> {
         let comments: Vec<Self> = match platform {
             Platform::Github => {
                 let comments: Vec<github::parser::Comment> = JSON::from_str(text)?;
@@ -59,7 +60,7 @@ impl Comment {
                 let comments: Vec<gitlab::parser::Comment> = JSON::from_str(text)?;
                 comments.into_iter().map(|c| {
                     let mut cm = c.convert();
-                    cm.url = format!("https://gitlab.com/{}/-/work_items/1#note_{}", repo, c.id);
+                    cm.url = format!("{}/{}/-/work_items/{}#note_{}", platform.get_base_url(config), repo, issue, c.id);
                     cm
                 }).collect()
             },

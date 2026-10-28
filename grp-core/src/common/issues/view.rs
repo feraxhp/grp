@@ -44,14 +44,14 @@ impl Platform {
             self.pagginate(url, config, RequestType::ListIssuesComments { owner, repo: repo.clone(), number: *issue }, 1)
                 .map(move |result| {
                     let repo = repo.clone();
-                    self.get_comments(result, repo)
+                    self.get_comments(result, repo, config, issue)
                 })
         )
     }
 
-    pub fn get_comments(&self, response: Result<PaginatorResult<String>, Error>, repo: String) -> Result<PaginatorResult<Vec<Comment>>, Error> {
+    pub fn get_comments(&self, response: Result<PaginatorResult<String>, Error>, repo: String, config: &Config, issue: &u64) -> Result<PaginatorResult<Vec<Comment>>, Error> {
         let pagginator = response?;
-        let comments = Comment::from_text_array(&pagginator.result, self, repo)?;
+        let comments = Comment::from_text_array(&pagginator.result, self, repo, config, *issue)?;
         Ok(pagginator.parse_result(comments))
     }
     
@@ -82,8 +82,6 @@ impl Platform {
         let base_message = "Failed to fetch issue";
         let result = self.unwrap(result, base_message, config, &RequestType::ListIssuesComments{ owner, repo: repo_path.to_string(), number: *issue }).await?;
         
-        Ok(
-            Issue::from_text_array(&format!("[{result}]"), self)?[0].clone()
-        )
+        Ok(Issue::from_text(&result, self)?)
     }
 }
