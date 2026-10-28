@@ -1,0 +1,13 @@
+[
+  {
+    "id": 101,
+    "html_url": "https://forgejo.example/forgejo_user/Hello-Forgejo/issues/1#issuecomment-101",
+    "user": {
+      "login": "forgejo_user",
+      "html_url": "https://forgejo.example/forgejo_user"
+    },
+    "body": "Thanks for reporting this issue! We're looking into it.",
+    "created_at": "2024-01-15T09:15:30Z",
+    "updated_at": "2024-01-15T09:20:00Z"
+  }
+]

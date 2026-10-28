@@ -27,6 +27,7 @@ pub async fn unwrap(
         | (200, RequestType::ListOrg{ way: _ })
         | (200, RequestType::ListIssues)
         | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
+        | (200, RequestType::ListTodos)
         | (201, RequestType::CreateOrg { name: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
         => return Ok(text),
