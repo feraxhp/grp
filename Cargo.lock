@@ -1784,7 +1784,7 @@ dependencies = [
 
 [[package]]
 name = "girep"
-version = "0.13.2"
+version = "0.15.0"
 dependencies = [
  "argon2",
  "base64 0.23.1",
@@ -1830,7 +1830,7 @@ dependencies = [
 
 [[package]]
 name = "grp-core"
-version = "0.3.0"
+version = "0.5.0"
 dependencies = [
  "async-stream",
  "chrono",
