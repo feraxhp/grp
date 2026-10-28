@@ -17,6 +17,7 @@ pub fn not_found(conf_name: &str, request_type: &RequestType) -> Error {
         RequestType::CreateOrg { name: _ } => resource(conf_name, request_type),
         RequestType::DeleteOrg { permanent: _, name: _ } => resource(conf_name, request_type),
         RequestType::ListIssues => resource(conf_name, request_type),
+        RequestType::IssueDetails { owner, repo, number } => issue(conf_name, owner, repo, number),
         RequestType::ListIssuesComments { owner, repo, number } => issue(conf_name, owner, repo, number),
         RequestType::ListTodos => resource(conf_name, request_type),
     }

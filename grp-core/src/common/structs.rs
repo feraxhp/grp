@@ -134,6 +134,11 @@ pub enum RequestType {
     CreateOrg { name: String } ,
     DeleteOrg { permanent: bool, name: String } ,
     ListIssues,
+    IssueDetails {
+        owner: String,
+        repo: String,
+        number: u64,
+    },
     ListIssuesComments {
         owner: String,
         repo: String,

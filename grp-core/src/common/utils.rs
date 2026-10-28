@@ -44,6 +44,7 @@ impl Display for RequestType {
                 Ok(())
             },
             RequestType::ListIssues => write!(f, "listing issues"),
+            RequestType::IssueDetails { owner, repo, number } => write!(f, "getting details for `{owner}/{repo}#{number}`"),
             RequestType::ListIssuesComments { owner, repo, number } => write!(f, "listing comments for `{owner}/{repo}#{number}`"),
             RequestType::ListTodos => write!(f, "listing todos"),
         }
@@ -62,6 +63,7 @@ impl AsRef<str> for RequestType {
             RequestType::CreateOrg { name: _ } => "create_org",
             RequestType::DeleteOrg { permanent: _, name: _ } => "delete_org",
             RequestType::ListIssues => "list_issues",
+            RequestType::IssueDetails { owner: _, repo: _, number: _ } => "issue_details",
             RequestType::ListIssuesComments { owner: _, repo: _, number: _ } => "list_issues_comments",
             RequestType::ListTodos => "list_todos",
         }

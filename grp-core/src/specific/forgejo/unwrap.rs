@@ -31,6 +31,7 @@ pub async fn unwrap(
         | (200, RequestType::GetLoggedUser)
         | (200, RequestType::ListOrg{ way: _ })
         | (200, RequestType::ListIssues)
+        | (200, RequestType::IssueDetails { owner: _, repo: _, number: _ })
         | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
         | (201, RequestType::CreateOrg { name: _ })
@@ -79,64 +80,5 @@ pub async fn unwrap(
         }
     };
     
-    // let error = match status.as_u16() {
-    //     
-    //     status => {
-    //         let error: ErrorDeserialize = serde_json::from_str(&text)
-    //             .unwrap_or_else(|_| {
-    //                 ErrorDeserialize {
-    //                     message: text.to_string(),
-    //                     status: status.to_string(),
-    //                 }
-    //             }
-    //         );
-    //         
-    //         match error.message.as_str() {
-    //             
-    //             "GetOrgByName" if matches!(context.request_type, RequestType::CreateRepo) 
-    //                 => NotFound::repository(
-    //                     &config.pconf, 
-    //                    context.owner.expect("The owner  must be provided in the context"), 
-    //                     context.repo.expect("The repo name must be provided in the context")
-    //                 ),
-    //             _ if 
-    //                 error.message.starts_with("{\"message\":\"Must be an organization owner\"") && 
-    //                 matches!(context.request_type, RequestType::DeleteOrg) 
-    //                 => Request::unauthorized(
-    //                     &config.pconf, 
-    //                     context.owner.expect("The owner must be provided in the context"),
-    //                     vec!["The token must be an organization owner"]
-    //                 ),
-    //             _ if error.message.starts_with("user redirect does not exist [name: ") 
-    //                 => NotFound::user(
-    //                     context.owner.expect("The owner  must be provided in the context"), 
-    //                     empty_notes!()
-    //                 ),
-    //             _ if error.message.starts_with("token does not have at least one of required scope(s):") 
-    //                 => {
-    //                     let scopes_index = (error.message.find("[").unwrap() + 1)..error.message.find("]").unwrap();
-    //                     let scopes = error.message[scopes_index].split(",");
-    //                     
-    //                     Request::bad_token_scope(
-    //                         &config.pconf, 
-    //                         scopes.collect()
-    //                     )
-    //                 }
-    //             _ => {
-    //                 Error::new(
-    //                     "unknown",
-    //                     base_message,
-    //                     "Something went wrong:",
-    //                     vec![
-    //                         cformat!("  » Code: <r,i>{}</>", status),
-    //                         cformat!("  » Error: {}", error.message)
-    //                     ],
-    //                     empty_notes!()
-    //                 )
-    //             }
-    //         }
-    //     }
-    // };
-    // 
     Err(error)
 }

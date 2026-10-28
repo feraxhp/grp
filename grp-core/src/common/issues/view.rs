@@ -80,7 +80,7 @@ impl Platform {
         let result = self.get(url, true, config).await?;
         
         let base_message = "Failed to fetch issue";
-        let result = self.unwrap(result, base_message, config, &RequestType::ListIssuesComments{ owner, repo: repo_path.to_string(), number: *issue }).await?;
+        let result = self.unwrap(result, base_message, config, &RequestType::IssueDetails { owner, repo: repo_path.to_string(), number: *issue }).await?;
         
         Ok(Issue::from_text(&result, self)?)
     }
