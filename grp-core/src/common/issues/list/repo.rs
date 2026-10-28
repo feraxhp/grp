@@ -7,7 +7,6 @@ use crate::structs::PaginatorResult;
 use crate::structs::RequestType;
 use crate::animation::Animation;
 use crate::specific::gitlab;
-use crate::structs::Context;
 use crate::structs::Issue;
 use crate::Platform;
 use crate::Config;

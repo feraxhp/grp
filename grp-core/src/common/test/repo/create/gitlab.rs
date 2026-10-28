@@ -14,7 +14,7 @@ use crate::Platform::Gitlab;
 use crate::animation;
 
 #[tokio::test]
-async fn create_gitlab_repo() {
+async fn create_gitlab_repo() -> Result<(), mynox::Report> {
     let payload = json!({
         "path": "Hello-Gitlab",
         "description": "My first Gitlab project!",
@@ -38,15 +38,17 @@ async fn create_gitlab_repo() {
         description: Some("My first Gitlab project!".to_string()),
     };
     
-    let created = Gitlab.create_repo(None::<String>, repo, &config, &an).await.unwrap();
+    let created = Gitlab.create_repo(None::<String>, repo, &config, &an).await?;
     
     assert_eq!(&created.name, "Hello-Gitlab");
     assert_eq!(&created.path, "gitlab_user/Hello-Gitlab");
     assert_eq!(created.private, Some(false));
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn create_gitlab_repo_for_org() {
+async fn create_gitlab_repo_for_org() -> Result<(), mynox::Report> {
     let payload = json!({
         "path": "Hello-Gitlab",
         "description": "My first Gitlab project!",
@@ -71,8 +73,10 @@ async fn create_gitlab_repo_for_org() {
         description: Some("My first Gitlab project!".to_string()),
     };
     
-    let created = Gitlab.create_repo(Some("gitlab_group"), repo, &config, &an).await.unwrap();
+    let created = Gitlab.create_repo(Some("gitlab_group"), repo, &config, &an).await?;
     
     assert_eq!(&created.name, "Hello-Gitlab");
     assert_eq!(&created.path, "gitlab_user/Hello-Gitlab");
+    server.verify().await;
+    Ok(())
 }

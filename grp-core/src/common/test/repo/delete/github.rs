@@ -9,7 +9,7 @@ use crate::Platform::Github;
 use crate::animation;
 
 #[tokio::test]
-async fn delete_github_repo() {
+async fn delete_github_repo() -> Result<(), mynox::Report> {
     let server = server!(
         delete!(204, "/repos/octocat/Hello-World", auth!(gh)),
     );
@@ -17,7 +17,7 @@ async fn delete_github_repo() {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let result = Github.delete_repo("octocat", "Hello-World", &config, false, &an).await;
-
-    assert!(result.is_ok());
+    Github.delete_repo("octocat", "Hello-World", &config, false, &an).await?;
+    server.verify().await;
+    Ok(())
 }

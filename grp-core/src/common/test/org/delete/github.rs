@@ -9,7 +9,7 @@ use crate::Platform::Github;
 use crate::animation;
 
 #[tokio::test]
-async fn delete_github_org() {
+async fn delete_github_org() -> Result<(), mynox::Report> {
     let server = server!(
         delete!(202, "/orgs/github", auth!(gh)),
     );
@@ -17,7 +17,7 @@ async fn delete_github_org() {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let result = Github.delete_org("github", &config, false, &an).await;
-
-    assert!(result.is_ok());
+    Github.delete_org("github", &config, false, &an).await?;
+    server.verify().await;
+    Ok(())
 }

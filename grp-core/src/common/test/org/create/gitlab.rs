@@ -4,6 +4,7 @@ use serde_json::json;
 use crate::Config;
 use crate::auth;
 use crate::config;
+use crate::faild;
 use crate::server;
 use crate::get;
 use crate::post;
@@ -12,7 +13,7 @@ use crate::Platform::Gitlab;
 use crate::animation;
 
 #[tokio::test]
-async fn create_gitlab_org() {
+async fn create_gitlab_org() -> Result<(), mynox::Report> {
     let payload = json!({
         "parent_id": null,
         "name": "gitlab_group",
@@ -28,9 +29,12 @@ async fn create_gitlab_org() {
     let an = Box::new(animation::None);
     
     let (orgs, errors) = Gitlab.create_org("gitlab_group", &config, false, &an).await;
-
-    assert!(errors.is_empty());
+    
+    faild!(errors);
+    
     assert_eq!(orgs.len(), 1);
     assert_eq!(&orgs[0].name, "gitlab_group");
     assert_eq!(&orgs[0].id, "100");
+    server.verify().await;
+    Ok(())
 }

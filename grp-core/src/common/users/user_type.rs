@@ -25,7 +25,7 @@ impl Platform {
             Platform::Codeberg |
             Platform::Forgejo |
             Platform::Gitea => {
-                let user = User { id: name.clone(), name: name.clone(), path: None, url: String::default() };
+                let user = User { id: name.clone(), name: name.clone(), path: None };
                 let orgs = self.get_logged_orgs(conf).await?;
                 if orgs.iter().any(|org| org.name == name) { 
                     return Ok(UserType::LoggedOrg(user));

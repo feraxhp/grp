@@ -14,7 +14,7 @@ use crate::Platform::Forgejo;
 use crate::animation;
 
 #[tokio::test]
-async fn create_forgejo_repo() {
+async fn create_forgejo_repo() -> Result<(), mynox::Report> {
     let payload = json!({
         "name": "Hello-Forgejo",
         "description": "My first Forgejo repo!",
@@ -38,15 +38,17 @@ async fn create_forgejo_repo() {
         description: Some("My first Forgejo repo!".to_string()),
     };
     
-    let created = Forgejo.create_repo(None::<String>, repo, &config, &an).await.unwrap();
+    let created = Forgejo.create_repo(None::<String>, repo, &config, &an).await?;
     
     assert_eq!(&created.name, "Hello-Forgejo");
     assert_eq!(&created.path, "forgejo_user/Hello-Forgejo");
     assert_eq!(created.private, Some(false));
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn create_forgejo_repo_for_org() {
+async fn create_forgejo_repo_for_org() -> Result<(), mynox::Report> {
     let payload = json!({
         "name": "Hello-Forgejo",
         "description": "My first Forgejo repo!",
@@ -71,8 +73,10 @@ async fn create_forgejo_repo_for_org() {
         description: Some("My first Forgejo repo!".to_string()),
     };
     
-    let created = Forgejo.create_repo(Some("forgejo_org"), repo, &config, &an).await.unwrap();
+    let created = Forgejo.create_repo(Some("forgejo_org"), repo, &config, &an).await?;
     
     assert_eq!(&created.name, "Hello-Forgejo");
     assert_eq!(&created.path, "forgejo_user/Hello-Forgejo");
+    server.verify().await;
+    Ok(())
 }

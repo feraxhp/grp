@@ -11,33 +11,45 @@ use crate::Platform::Gitlab;
 use crate::animation;
 
 #[tokio::test]
-async fn delete_gitlab_repo() {
+async fn delete_gitlab_repo() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v4/projects/gitlab_user%2FHello-Gitlab", json!({"id": 123, "path_with_namespace": "gitlab_user/Hello-Gitlab"}), auth!(gl)),
+        get!(200, "/api/v4/projects/gitlab_user%2FHello-Gitlab", json!({
+            "id": 123, 
+            "name": "Hello-Gitlab",
+            "namespace": { "full_path": "gitlab_user" },
+            "path_with_namespace": "gitlab_user/Hello-Gitlab"
+        }), auth!(gl)),
         delete!(202, "/api/v4/projects/123", auth!(gl)),
     );
     
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let result = Gitlab.delete_repo("gitlab_user", "Hello-Gitlab", &config, false, &an).await;
-
-    assert!(result.is_ok());
+    Gitlab.delete_repo("gitlab_user", "Hello-Gitlab", &config, false, &an).await?;
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn delete_gitlab_repo_permanently() {
+async fn delete_gitlab_repo_permanently() -> Result<(), mynox::Report> {
+    let project = json!({
+        "id": 123, 
+        "name": "Hello-Gitlab",
+        "namespace": { "full_path": "gitlab_user" },
+        "path_with_namespace": "gitlab_user/Hello-Gitlab"
+    });
+    
     let server = server!(
-        get!(200, "/api/v4/projects/gitlab_user%2FHello-Gitlab", json!({"id": 123, "path_with_namespace": "gitlab_user/Hello-Gitlab"}), auth!(gl)),
+        get!(200, "/api/v4/projects/gitlab_user%2FHello-Gitlab", project.clone(), auth!(gl)),
         delete!(202, "/api/v4/projects/123", auth!(gl)).query("permanently_remove", "true"),
         delete!(202, "/api/v4/projects/123", auth!(gl)),
-        get!(200, "/api/v4/projects/123", json!({"id": 123, "path_with_namespace": "gitlab_user/Hello-Gitlab"}), auth!(gl)),
+        get!(200, "/api/v4/projects/123", project, auth!(gl)),
     );
     
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let result = Gitlab.delete_repo("gitlab_user", "Hello-Gitlab", &config, true, &an).await;
-
-    assert!(result.is_ok());
+    Gitlab.delete_repo("gitlab_user", "Hello-Gitlab", &config, true, &an).await?;
+    server.verify().await;
+    Ok(())
 }

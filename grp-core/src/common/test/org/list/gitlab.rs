@@ -11,7 +11,7 @@ use crate::Platform::Gitlab;
 use crate::animation;
 
 #[tokio::test]
-async fn list_gitlab_orgs() {
+async fn list_gitlab_orgs() -> Result<(), mynox::Report> {
     let server = server!(
         get!(200, "/api/v4/groups", value!("org.gl.json"), auth!(gl)),
     );
@@ -21,9 +21,11 @@ async fn list_gitlab_orgs() {
     
     let stream = Gitlab.list_orgs(&config, &an);
     tokio::pin!(stream);
-    let orgs = stream.next().await.unwrap().unwrap().result;
+    let orgs = stream.next().await.unwrap()?.result;
 
     assert_eq!(orgs.len(), 1);
     assert_eq!(&orgs[0].name, "gitlab_group");
     assert_eq!(&orgs[0].id, "100");
+    server.verify().await;
+    Ok(())
 }

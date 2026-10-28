@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 use mynox::Error;
 
-use crate::helpers::request::{RequestError, unknown};
+use crate::helpers::already_exist;
+use crate::helpers::not_found::not_found;
+use crate::helpers::request::{RequestError, bad_token_scope, unauthorized, unknown};
 use crate::common::structs::RequestType;
 use crate::config::Config;
 use reqwest::Response;
@@ -26,44 +28,59 @@ pub async fn unwrap(
     
     let error = match (status.as_u16(), request_type) {
           (200, RequestType::ListRepo { owner: _ })
+        | (200, RequestType::GetLoggedUser)
+        | (200, RequestType::ListOrg{ way: _ })
+        | (200, RequestType::ListIssues)
+        | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
-        => return Ok(text),
+        | (201, RequestType::CreateOrg { name: _ })
+        | (202, RequestType::DeleteOrg { permanent: _, name: _  })
+            => return Ok(text),
+        (403, RequestType::CreateRepo { 
+            owner: _, 
+            repo: _,
+        }) => bad_token_scope(["write:user"], request_type),
+        (404, _) => not_found(&config.pconf, request_type),
+        (409, RequestType::CreateRepo { owner, repo  }) => already_exist::repo(&config.pconf, owner, repo),
+        (422, RequestType::CreateOrg { name }) => already_exist::organization(name),
         (status, _) => {
-            let error: ErrorDeserialize = JSON::from_str(&text)?;
-            unknown(status, base_message, Some(error.message), request_type)
+            let error: ErrorDeserialize = JSON::from_str(&text)
+                .unwrap_or_else(|_| {
+                    ErrorDeserialize {
+                        message: text.to_string(),
+                        status: status.to_string(),
+                    }
+                })
+            ;
+            
+            match error.message.as_str() {
+                "user does not exist [uid: 0, name: ]" => unauthorized(request_type),
+                "GetOrgByName" if matches!(request_type, RequestType::CreateRepo { owner: _, repo: _ }) => {
+                    not_found(&config.pconf, request_type)
+                },
+                m if m.starts_with("{\"message\":\"Must be an organization owner\"") => {
+                    unauthorized(request_type)
+                        .extend_note("you must be an organization owner")
+                },
+                m if m.starts_with("user redirect does not exist [name: ") => {
+                    not_found(&config.pconf, request_type)
+                },
+                m if m.starts_with("token does not have at least one of required scope(s):")  => {
+                    let scopes_index = (error.message.find("[").unwrap() + 1)..error.message.find("]").unwrap();
+                    let scopes = error.message[scopes_index].split(",");
+                    
+                    bad_token_scope(scopes, request_type)
+                },
+                
+                message => unknown(status, base_message, Some(message.to_string()), request_type)
+            }
+            
+            
         }
     };
     
     // let error = match status.as_u16() {
-    //     200 => { return Ok(text) },
-    //     201 if matches!(context.request_type, RequestType::CreateRepo) |
-    //            matches!(context.request_type, RequestType::CreateOrg) 
-    //             => { return Ok(text) },
-    //     202 if matches!(context.request_type, RequestType::DeleteOrg) => { return Ok(text) },
-    //     403 if matches!(context.request_type, RequestType::CreateRepo) 
-    //         => Request::bad_token_scope(&config.pconf, vec!["write:user"]),
-    //     404 if matches!(context.request_type, RequestType::DeleteRepo) 
-    //         => NotFound::repository(
-    //             &config.pconf, 
-    //             context.owner.expect("The owner  must be provided in the context"), 
-    //             context.repo.expect("The repo name must be provided in the context")
-    //         ),
-    //     404 if matches!(context.request_type, RequestType::DeleteOrg) 
-    //         => NotFound::organization(
-    //             context.owner.expect("The owner  must be provided in the context"), 
-    //             empty_notes!()
-    //         ),
-    //     409 if matches!(context.request_type, RequestType::CreateRepo) 
-    //         => AlreadyExist::repository(
-    //             &config.pconf, 
-    //             context.owner.expect("The owner  must be provided in the context"), 
-    //             context.repo.expect("The repo name must be provided in the context")
-    //         ),
-    //     422 if matches!(context.request_type, RequestType::CreateOrg) 
-    //         => AlreadyExist::organization(
-    //             context.owner.expect("The owner  must be provided in the context"), 
-    //             empty_notes!()
-    //         ),
+    //     
     //     status => {
     //         let error: ErrorDeserialize = serde_json::from_str(&text)
     //             .unwrap_or_else(|_| {
@@ -75,12 +92,7 @@ pub async fn unwrap(
     //         );
     //         
     //         match error.message.as_str() {
-    //             "user does not exist [uid: 0, name: ]" 
-    //                 => Request::unauthorized(
-    //                     &config.pconf,
-    //                     context.owner.expect("The owner  must be provided in the context"),
-    //                     empty_notes!()
-    //                 ),
+    //             
     //             "GetOrgByName" if matches!(context.request_type, RequestType::CreateRepo) 
     //                 => NotFound::repository(
     //                     &config.pconf, 

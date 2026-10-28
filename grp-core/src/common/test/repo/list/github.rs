@@ -14,7 +14,7 @@ use crate::animation;
 
 
 #[tokio::test]
-async fn get_github_repo() {
+async fn get_github_repo() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
         get!(200, "/user/repos", value!("repo.gh.json"), auth!(gh)),
@@ -23,16 +23,18 @@ async fn get_github_repo() {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_repos(None::<String>, &config, &an).await.unwrap();
+    let stream = Github.list_repos(None::<String>, &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
+    let repos = stream.next().await.unwrap()?.result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-World");
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn list_github_repos_for_org() {
+async fn list_github_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
         get!(200, "/user/orgs", json!([{"login": "github", "id": 1}]), auth!(gh)),
@@ -42,16 +44,18 @@ async fn list_github_repos_for_org() {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_repos(Some("github"), &config, &an).await.unwrap();
+    let stream = Github.list_repos(Some("github"), &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
+    let repos = stream.next().await.unwrap()?.result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-World");
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn list_github_repos_for_unlogged_user() {
+async fn list_github_repos_for_unlogged_user() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
         get!(200, "/user/orgs", json!([]), auth!(gh)),
@@ -61,10 +65,12 @@ async fn list_github_repos_for_unlogged_user() {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_repos(Some("torvalds"), &config, &an).await.unwrap();
+    let stream = Github.list_repos(Some("torvalds"), &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
+    let repos = stream.next().await.unwrap()?.result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-World");
+    server.verify().await;
+    Ok(())
 }

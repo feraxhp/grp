@@ -2,8 +2,13 @@ use serde::{Deserialize, Serialize};
 use reqwest::Response;
 use mynox::Error;
 
-use crate::helpers::request::{RequestError, unknown};
+use crate::helpers::request::bad_token_scope;
+use crate::helpers::request::RequestError;
+use crate::helpers::request::unauthorized;
+use crate::helpers::not_found::not_found;
 use crate::common::structs::RequestType;
+use crate::helpers::request::unknown;
+use crate::helpers::already_exist;
 use crate::config::Config;
 use crate::JSON;
 
@@ -26,71 +31,29 @@ pub async fn unwrap(
     
     let error = match (status.as_u16(), request_type) {
           (200, RequestType::ListRepo { owner: _ })
-        | (200, RequestType::ListUser)
-        | (200, RequestType::ListOrg)
+        | (200, RequestType::GetLoggedUser)
+        | (200, RequestType::ListOrg{ way: _ })
         | (200, RequestType::ListIssues)
-        | (200, RequestType::ListIssuesComments)
+        | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
-        => return Ok(text),
+        | (201, RequestType::CreateOrg { name: _ })
+        | (202, RequestType::DeleteOrg { permanent: _, name: _  })
+            => return Ok(text),
+            
+        (401, _) => unauthorized(request_type),
+        (403, RequestType::DeleteRepo { 
+            permanent: _, 
+            owner: _, 
+            repo: _,
+        }) => bad_token_scope(["delete_repo"], request_type),
+        (404, _) => not_found(&config.pconf, request_type),
+        (422, RequestType::CreateOrg { name }) => already_exist::organization(name),
+        (422, RequestType::CreateRepo { owner, repo  }) => already_exist::repo(&config.pconf, owner, repo),
         (status, _) => {
             let error: ErrorDeserialize = JSON::from_str(&text)?;
             unknown(status, base_message, Some(error.message), request_type)
         }
     };
     
-    // let error = match status.as_u16() {
-    //     200 => { return Ok(text) }
-    //     201 if matches!(context.request_type, RequestType::CreateRepo) => { return Ok(text) },
-    //     202 if matches!(context.request_type, RequestType::DeleteOrg) => { return Ok(text) },
-    //     401 => Request::unauthorized(
-    //         &config.pconf,
-    //         context.owner.expect("The owner  must be provided in the context"),
-    //         empty_notes!()
-    //     ),
-    //     403 if matches!(context.request_type, RequestType::DeleteRepo)
-    //         => Request::bad_token_scope(&config.pconf, vec!["delete_repo"]),
-    //     404 if matches!(context.request_type, RequestType::DeleteRepo)
-    //         => NotFound::repository(
-    //             &config.pconf, 
-    //             context.owner.expect("The owner  must be provided in the context"), 
-    //             context.repo.expect("The repo name must be provided in the context")
-    //         ),
-    //     404 if matches!(
-    //         context.request_type,
-    //         RequestType::OrgList |
-    //         RequestType::DeleteOrg
-    //     ) => NotFound::organization(
-    //         context.owner.expect("The owner  must be provided in the context"), 
-    //         empty_notes!()
-    //     ),
-    //     422 if matches!(context.request_type, RequestType::CreateRepo)
-    //         => AlreadyExist::repository(
-    //             &config.pconf, 
-    //             context.owner.expect("The owner  must be provided in the context"), 
-    //             context.repo.expect("The repo name must be provided in the context")
-    //         ),
-    //     _ => {
-    //         let error: ErrorDeserialize = serde_json::from_str(&text)
-    //             .unwrap_or_else(|_| {
-    //                 ErrorDeserialize {
-    //                     message: text.to_string(),
-    //                     status: status.to_string(),
-    //                 }
-    //             }
-    //         );
-    //         
-    //         Error::new(
-    //             "unknown",
-    //             base_message,
-    //             "Something went wrong:",
-    //             vec![
-    //                 cformat!("  » Code: <r,i>{}</>", status),
-    //                 cformat!("  » Error: {}", error.message)
-    //             ],
-    //             empty_notes!()
-    //         )
-    //     }
-    // };
-
     Err(error)
 }

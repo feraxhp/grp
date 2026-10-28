@@ -10,7 +10,6 @@ impl Convert for super::Group {
             id: self.id.to_string(),
             name: self.name.to_owned(),
             path: Some(self.full_path.to_owned()),
-            url: self.web_url.to_owned(),
         }
     }
 }

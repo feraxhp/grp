@@ -1,4 +1,5 @@
 pub mod comment;
+pub mod author;
 pub mod issue;
 pub mod group;
 pub mod user;
@@ -7,6 +8,7 @@ pub mod user;
 use std::fmt::Debug;
 
 use serde::Deserialize;
+use serde::Serialize;
 use serde::de::DeserializeOwned;
 use chrono::Utc;
 use chrono::DateTime;
@@ -26,14 +28,19 @@ pub struct Repository {
 pub struct User {
     pub id: u64,
     pub username: String,
-    pub web_url: String,
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Author {
+    pub id: u64,
+    pub username: String,
+    pub web_url: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Group {
     pub id: u64,
     pub name: String,
-    pub web_url: String,
     pub full_path: String,
 }
 
@@ -41,7 +48,7 @@ pub struct Group {
 pub struct Issue {
     pub id: u64,
     pub iid: u64,
-    pub author: User,
+    pub author: Author,
     pub title: String,
     pub description: Option<String>,
     // pub issue_type: String,
@@ -54,7 +61,7 @@ pub struct Issue {
 #[derive(Debug, Deserialize)]
 pub struct Comment {
     pub id: u64,
-    pub author: User,
+    pub author: Author,
     pub body: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

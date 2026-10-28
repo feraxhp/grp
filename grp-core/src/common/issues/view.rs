@@ -41,7 +41,7 @@ impl Platform {
         animation.change_message("fetching issue comments...");
         
         Ok(
-            self.pagginate(url, config, RequestType::ListIssuesComments, 1)
+            self.pagginate(url, config, RequestType::ListIssuesComments { owner, repo: repo.clone(), number: *issue }, 1)
                 .map(move |result| {
                     let repo = repo.clone();
                     self.get_comments(result, repo)
@@ -80,7 +80,7 @@ impl Platform {
         let result = self.get(url, true, config).await?;
         
         let base_message = "Failed to fetch issue";
-        let result = self.unwrap(result, base_message, config, &RequestType::ListIssuesComments).await?;
+        let result = self.unwrap(result, base_message, config, &RequestType::ListIssuesComments{ owner, repo: repo_path.to_string(), number: *issue }).await?;
         
         Ok(
             Issue::from_text_array(&format!("[{result}]"), self)?[0].clone()

@@ -62,24 +62,20 @@ impl Show for Vec<Repo> {
 
 impl Show for Vec<User> {
     fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
-        self.first()
-            .map(|first| {
-                let header = match first.path {
-                    Some(_) => "PATH".to_string(),
-                    None => "NAME".to_string(),
-                };
-    
-                let body = self.iter().map(|user| {
-                    match &user.path {
-                        Some(path) => path.to_string(),
-                        None => user.name.to_string(),
-                    }
-                });
-    
-                std::iter::once(header).chain(body)
-            })
-            .into_iter()
-            .flatten()
+        let mut sorted: Vec<String> = self.iter().map(|user| {
+            match &user.path {
+                Some(p) => p.clone(),
+                None => user.name.clone(),
+            }
+        }).collect();
+        sorted.sort();
+        
+        (!sorted.is_empty()).then(|| {
+            let header = "ORG_NAME".to_string();
+            std::iter::once(header).chain(sorted)
+        })
+        .into_iter()
+        .flatten()
     }
 }
 

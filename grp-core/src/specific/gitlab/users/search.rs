@@ -20,7 +20,7 @@ pub async fn by_name(platform: &Platform, name: &String, conf: &Config) -> Resul
     let result = platform.get(url, true, conf).await?;
     
     let base = "Failed during fetch of logged user";
-    let text = platform.unwrap(result, base,conf, &RequestType::ListUser).await?;
+    let text = platform.unwrap(result, base,conf, &RequestType::GetLoggedUser).await?;
     
     let users: Vec<gitlab::parser::User> = JSON::from_str(&text)?;
     if users.is_empty() { return Ok(None) }

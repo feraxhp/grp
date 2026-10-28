@@ -9,7 +9,7 @@ use crate::Platform::Forgejo;
 use crate::animation;
 
 #[tokio::test]
-async fn delete_forgejo_repo() {
+async fn delete_forgejo_repo() -> Result<(), mynox::Report> {
     let server = server!(
         delete!(204, "/api/v1/repos/forgejo_user/Hello-Forgejo", auth!(fj)),
     );
@@ -17,7 +17,7 @@ async fn delete_forgejo_repo() {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let result = Forgejo.delete_repo("forgejo_user", "Hello-Forgejo", &config, false, &an).await;
-
-    assert!(result.is_ok());
+    Forgejo.delete_repo("forgejo_user", "Hello-Forgejo", &config, false, &an).await?;
+    server.verify().await;
+    Ok(())
 }

@@ -10,7 +10,6 @@ impl Convert for super::User {
             id: self.id.to_string(),
             name: self.username.to_owned(),
             path: None,
-            url: self.web_url.to_owned(),
         }
     }
 }

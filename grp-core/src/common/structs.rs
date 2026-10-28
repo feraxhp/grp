@@ -41,6 +41,18 @@ pub struct User {
     pub id: String,
     pub name: String,
     pub path: Option<String>, // Optional path for the group, for Gitlab
+}
+
+/// # User
+/// Represents a _user_ or _org_ for every platform.
+/// 
+/// 1. `id`: the id of the user.
+/// 2. `name`: the name of the user.
+/// 3. `path`: an optional path for the group or organization (Gitlab)
+#[derive(Clone, Debug)]
+pub struct Author {
+    pub id: String,
+    pub name: String,
     pub url: String,
 }
 
@@ -76,7 +88,7 @@ pub struct Context {
 #[derive(Clone, Debug)]
 pub struct Issue {
     pub id: u64,
-    pub author: User,
+    pub author: Author,
     pub number: u64,
     pub title: String,
     pub body: Option<String>,
@@ -90,7 +102,7 @@ pub struct Issue {
 #[derive(Clone, Debug)]
 pub struct Comment {
     pub id: u64,
-    pub author: User,
+    pub author: Author,
     pub body: String,
     pub url: String,
     pub created_at: DateTime<Utc>,
@@ -117,11 +129,15 @@ pub enum RequestType {
         owner: String,
         repo: String,
     },
-    ListUser,
-    ListOrg,
-    CreateOrg,
-    DeleteOrg,
+    GetLoggedUser,
+    ListOrg { way: String } ,
+    CreateOrg { name: String } ,
+    DeleteOrg { permanent: bool, name: String } ,
     ListIssues,
-    ListIssuesComments,
+    ListIssuesComments {
+        owner: String,
+        repo: String,
+        number: u64,
+    },
     ListTodos,
 }

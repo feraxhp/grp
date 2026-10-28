@@ -1,6 +1,8 @@
 use serde::Serialize;
 use mynox::Error;
 
+use crate::JSON;
+use crate::common::traits::Convert;
 use crate::specific::gitlab::groups::utils::search::get_closest_parent_and_stack;
 use crate::common::structs::RequestType;
 use crate::animation::Animation;
@@ -39,7 +41,7 @@ pub(crate) async fn create_group<A: Animation + ?Sized>(
         animation.change_message(format!("Creating <m>{}/{}</m><y> groups ...</>", i, stack.len()));
         let p_ = match create(platform, &parent, name, config, animation).await {
             Ok(u) => {
-                groups.push(u.clone());
+                groups.push(u.convert());
                 u
             },
             Err(e) => {
@@ -47,7 +49,7 @@ pub(crate) async fn create_group<A: Animation + ?Sized>(
                 return (groups, errors);
             },
         };
-        parent = Some(p_);
+        parent = Some(p_.convert());
     }
     
     (groups, errors)
@@ -59,7 +61,7 @@ async fn create<A: Animation + ?Sized>(
     name: &str,
     config: &Config,
     animation: &Box<A>
-) -> Result<User, Error> {
+) -> Result<super::super::parser::Group, Error> {
     assert!(matches!(platform, Platform::Gitlab));
     
     animation.change_message("generating url ...");
@@ -78,7 +80,7 @@ async fn create<A: Animation + ?Sized>(
     
     animation.change_message("unwraping response ...");
     let base_message = "Error creating group ...";
-    let result = platform.unwrap(result, base_message, config, &RequestType::CreateOrg).await?;
+    let result = platform.unwrap(result, base_message, config, &RequestType::CreateOrg { name: name.to_owned() }).await?;
     
-    User::from_text(&result, platform)
+    JSON::from_str(&result)
 }

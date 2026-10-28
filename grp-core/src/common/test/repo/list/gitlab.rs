@@ -14,7 +14,7 @@ use crate::animation;
 
 
 #[tokio::test]
-async fn get_gitlab_repo() {
+async fn get_gitlab_repo() -> Result<(), mynox::Report> {
     let server = server!(
         gitlab_user(),
         get!(200, "/api/v4/projects", value!("repo.gl.json"), auth!(gl)),
@@ -23,16 +23,18 @@ async fn get_gitlab_repo() {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_repos(None::<String>, &config, &an).await.unwrap();
+    let stream = Gitlab.list_repos(None::<String>, &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
+    let repos = stream.next().await.unwrap()?.result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Gitlab");
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn list_gitlab_repos_for_org() {
+async fn list_gitlab_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         gitlab_user(),
         get!(200, "/api/v4/groups", json!([{"id": 100, "name": "gitlab_group", "full_path": "gitlab_group"}]), auth!(gl)),
@@ -42,10 +44,12 @@ async fn list_gitlab_repos_for_org() {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_repos(Some("gitlab_group"), &config, &an).await.unwrap();
+    let stream = Gitlab.list_repos(Some("gitlab_group"), &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
+    let repos = stream.next().await.unwrap()?.result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Gitlab");
+    server.verify().await;
+    Ok(())
 }

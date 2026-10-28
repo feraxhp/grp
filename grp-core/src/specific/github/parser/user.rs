@@ -7,10 +7,9 @@ impl Convert for super::User {
 
     fn convert(&self) -> Self::Local {
         User {
-            id: self.login.clone(),
+            id: self.id.to_string(),
             name: self.login.to_owned(),
             path: None,
-            url: self.html_url.to_owned(),
         }
     }
 }

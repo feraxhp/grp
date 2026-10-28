@@ -1,5 +1,5 @@
-use crate::structs::User;
 use crate::common::traits::Convert;
+use crate::structs::User;
 
 
 impl Convert for super::User {
@@ -7,10 +7,9 @@ impl Convert for super::User {
 
     fn convert(&self) -> Self::Local {
         User {
-            id: self.login.clone(),
-            name: self.login.to_owned(),
+            id: self.id.to_string(),
+            name: self.name.to_owned(),
             path: None,
-            url: self.html_url.to_owned(),
         }
     }
 }

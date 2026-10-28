@@ -41,6 +41,12 @@ impl Deref for Server {
     fn deref(&self) -> &Self::Target { &self.0 }
 }
 
+impl Drop for Server {
+    fn drop(&mut self) {
+        futures::executor::block_on(self.0.reset());
+    }
+}
+
 impl Server {
     async fn start() -> Self {
         let mock_server = MockServer::start().await;
@@ -58,6 +64,11 @@ impl Server {
             response = response.set_body_json(value.body);
         }
         mock.respond_with(response).expect(value.calls).mount(self).await
+    }
+    
+    pub async fn verify(&self) {
+        self.0.verify().await;
+        self.0.reset().await;
     }
 }
 
@@ -107,6 +118,15 @@ macro_rules! value { ($file:literal) => { {
     let json: Value = serde_json::from_str(str).unwrap();
     json
 }}; }
+
+#[macro_export]
+macro_rules! faild { ($errors:expr) => { 
+    let error = $errors.into_iter().collect::<mynox::OptionError>();
+    
+    if let mynox::OptionError::Some(e) = error {
+        return Err(e.into())
+    }
+}; }
 
 #[macro_export]
 macro_rules! auth { 

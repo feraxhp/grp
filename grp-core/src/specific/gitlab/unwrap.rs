@@ -1,7 +1,7 @@
 use reqwest::Response;
 use mynox::Error;
 
-use crate::helpers::request::RequestError;
+use crate::helpers::request::{RequestError, unauthorized};
 use crate::common::structs::RequestType;
 use crate::helpers::request::unknown;
 use crate::config::Config;
@@ -13,7 +13,7 @@ use super::parser::ErrorDeserialize;
 pub async fn unwrap(
     result: Response,
     base_message: String,
-    config: &Config,
+    _config: &Config,
     request_type: &RequestType,
 ) -> Result<String, Error> {
 
@@ -22,47 +22,20 @@ pub async fn unwrap(
     
     let error = match (status.as_u16(), request_type) {
           (200, RequestType::ListRepo { owner: _ })
+        | (200, RequestType::RepositoryDetails { owner: _,  repo: _ })
+        | (200, RequestType::GetLoggedUser)
+        | (200, RequestType::ListOrg{ way: _ })
+        | (200, RequestType::ListIssues)
+        | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
+        | (201, RequestType::CreateOrg { name: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
         => return Ok(text),
+        (401, _) => unauthorized(request_type),
         (status, _) => {
             let error: ErrorDeserialize = JSON::from_str(&text)?;
             unknown(status, base_message, error.text, request_type)
         }
     };
-    
-    // let error = match status.as_u16() {
-    //     200 => { return Ok(text) },
-    //     201 if matches!(context.request_type, RequestType::CreateRepo) => { return Ok(text) },
-    //     201 if matches!(context.request_type, RequestType::CreateOrg) => { return Ok(text) },
-    //     202 if matches!(context.request_type, RequestType::CreateRepo) => { return Ok(text) },
-    //     
-    //     401 => Request::unauthorized(
-    //         &config.pconf,
-    //         context.owner.expect("The owner  must be provided in the context"),
-    //         empty_notes!()
-    //     ),
-    //     status => {
-    //         let error: ErrorDeserialize = serde_json::from_str(&text)
-    //             .unwrap_or_else(|_| {
-    //                 ErrorDeserialize {
-    //                     message: None,
-    //                     text: Some(text.to_string())
-    //                 }
-    //             }
-    //         );
-    //         
-    //         Error::new(
-    //             "unknown",
-    //             base_message,
-    //             "Something went wrong:",
-    //             vec![
-    //                 cformat!("  » Code: <r,i>{}</>", status),
-    //                 cformat!("  » Error: {}", error.text.unwrap_or(cformat!("<r>No error message provided</>")))
-    //             ],
-    //             empty_notes!()
-    //         )
-    //     }
-    // };
     
     Err(error)
 }

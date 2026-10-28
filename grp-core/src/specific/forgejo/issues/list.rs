@@ -7,7 +7,6 @@ use crate::specific::forgejo::parser::Issue;
 use crate::structs::PaginatorResult;
 use crate::animation::Animation;
 use crate::structs::RequestType;
-use crate::structs::Context;
 use crate::Platform;
 use crate::Config;
 use crate::JSON;

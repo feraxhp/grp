@@ -1,6 +1,6 @@
 use mynox::Error;
 
-use crate::common::structs::{Context, RequestType};
+use crate::common::structs::RequestType;
 use crate::animation::Animation;
 use crate::platform::Platform;
 use crate::specific::gitlab;
@@ -54,7 +54,7 @@ impl Platform {
                 , 204
             ) | (_, 202) => Ok(()),
             (_, _) => {
-                let context = RequestType::DeleteOrg; // no-permanent
+                let context = RequestType::DeleteOrg { permanent, name: name_copy };
                 
                 let base_message = "Error deleting organization";
                 Err(self.unwrap(result, base_message, config, &context).await.unwrap_err())

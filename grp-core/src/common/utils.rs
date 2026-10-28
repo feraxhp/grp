@@ -21,12 +21,31 @@ impl Display for RequestType {
             RequestType::ListRepo { owner } => write!(f, "listing repos for `{owner}`"),
             RequestType::CreateRepo { owner, repo } => write!(f, "creating `{owner}/{repo}`"),
             RequestType::DeleteRepo { permanent, owner, repo } => {
-                write!(f, "Deleting")?;
-                if *permanent { write!(f, " -permanent-")?; }
-                write!(f, " `{owner}/{repo}`")?;
+                if *permanent { write!(f, "-_permanently_-")?; }
+                write!(f, " -deleting- `{owner}/{repo}`")?;
                 Ok(())
             },
-            _ => todo!(),
+            RequestType::RepositoryDetails { owner, repo } => {
+                write!(f, "getting details for `{owner}/{repo}`")?;
+                Ok(())
+            },
+            RequestType::GetLoggedUser => {
+                write!(f, "getting the logged user")?;
+                Ok(())
+            },
+            RequestType::ListOrg { way } => {
+                write!(f, "Listing orgs {way}")?;
+                Ok(())
+            },
+            RequestType::CreateOrg { name } => write!(f, "creating `{name}`"),
+            RequestType::DeleteOrg { permanent, name } => {
+                if *permanent { write!(f, "-_permanently_-")?; }
+                write!(f, " -deleting- `{name}`")?;
+                Ok(())
+            },
+            RequestType::ListIssues => write!(f, "listing issues"),
+            RequestType::ListIssuesComments { owner, repo, number } => write!(f, "listing comments for `{owner}/{repo}#{number}`"),
+            RequestType::ListTodos => write!(f, "listing todos"),
         }
     }
 }
@@ -37,7 +56,14 @@ impl AsRef<str> for RequestType {
             RequestType::ListRepo { owner: _ } => "list_repo",
             RequestType::CreateRepo { owner: _, repo: _ } => "create_repo",
             RequestType::DeleteRepo { permanent: _, owner: _, repo: _ } => "delete_repo",
-            _ => todo!(),
+            RequestType::RepositoryDetails { owner: _, repo: _ } => "repository_details",
+            RequestType::GetLoggedUser => "get_logged_user",
+            RequestType::ListOrg { way: _ } => "list_org",
+            RequestType::CreateOrg { name: _ } => "create_org",
+            RequestType::DeleteOrg { permanent: _, name: _ } => "delete_org",
+            RequestType::ListIssues => "list_issues",
+            RequestType::ListIssuesComments { owner: _, repo: _, number: _ } => "list_issues_comments",
+            RequestType::ListTodos => "list_todos",
         }
     }
 }

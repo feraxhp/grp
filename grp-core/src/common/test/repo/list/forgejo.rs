@@ -14,7 +14,7 @@ use crate::animation;
 
 
 #[tokio::test]
-async fn get_forgejo_repo() {
+async fn get_forgejo_repo() -> Result<(), mynox::Report> {
     let server = server!(
         forgejo_user(),
         get!(200, "/api/v1/user/repos", value!("repo.fj.json"), auth!(fj)),
@@ -23,16 +23,18 @@ async fn get_forgejo_repo() {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_repos(None::<String>, &config, &an).await.unwrap();
+    let stream = Forgejo.list_repos(None::<String>, &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
+    let repos = stream.next().await.unwrap()?.result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Forgejo");
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn list_forgejo_repos_for_org() {
+async fn list_forgejo_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         forgejo_user(),
         get!(200, "/api/v1/user/orgs", json!([{"name": "forgejo_org", "id": 1}]), auth!(fj)),
@@ -42,16 +44,18 @@ async fn list_forgejo_repos_for_org() {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_repos(Some("forgejo_org"), &config, &an).await.unwrap();
+    let stream = Forgejo.list_repos(Some("forgejo_org"), &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
-
+    let repos = stream.next().await.unwrap()?.result;
+    
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Forgejo");
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn list_forgejo_repos_for_unlogged_user() {
+async fn list_forgejo_repos_for_unlogged_user() -> Result<(), mynox::Report> {
     let server = server!(
         forgejo_user(),
         get!(200, "/api/v1/user/orgs", json!([]), auth!(fj)),
@@ -61,10 +65,12 @@ async fn list_forgejo_repos_for_unlogged_user() {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_repos(Some("other_user"), &config, &an).await.unwrap();
+    let stream = Forgejo.list_repos(Some("other_user"), &config, &an).await?;
     tokio::pin!(stream);
-    let repos = stream.next().await.unwrap().unwrap().result;
+    let repos = stream.next().await.unwrap()?.result;
 
     assert_eq!(repos.len(), 1);
     assert_eq!(&repos[0].name, "Hello-Forgejo");
+    server.verify().await;
+    Ok(())
 }

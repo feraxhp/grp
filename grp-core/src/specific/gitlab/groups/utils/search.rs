@@ -38,10 +38,10 @@ mod tests {
 
     fn setup() -> Vec<User> {
         vec![
-            User{ id: "1".to_string(), path: Some("test1".to_string()),              name: "".to_string(), url: "".to_string() },
-            User{ id: "2".to_string(), path: Some("test1/prueba".to_string()),       name: "".to_string(), url: "".to_string() },
-            User{ id: "3".to_string(), path: Some("test1/prueba2".to_string()),      name: "".to_string(), url: "".to_string() },
-            User{ id: "4".to_string(), path: Some("test2/prueba3/sub1".to_string()), name: "".to_string(), url: "".to_string() },
+            User{ id: "1".to_string(), path: Some("test1".to_string()),              name: "".to_string() },
+            User{ id: "2".to_string(), path: Some("test1/prueba".to_string()),       name: "".to_string() },
+            User{ id: "3".to_string(), path: Some("test1/prueba2".to_string()),      name: "".to_string() },
+            User{ id: "4".to_string(), path: Some("test2/prueba3/sub1".to_string()), name: "".to_string() },
         ]
     }
 

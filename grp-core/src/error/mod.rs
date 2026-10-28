@@ -41,6 +41,8 @@ pub mod ErrorType {
         
         pub const organization: &str = not_found!("organization");
         pub const repository:   &str = not_found!("repository");
+        pub const resource:     &str = not_found!("resource");
+        pub const issue:        &str = not_found!("issue");
         pub const user:         &str = not_found!("user");
     }
     
@@ -50,6 +52,8 @@ pub mod ErrorType {
         
         pub const organization: &str = existing!("organization");
         pub const repository:   &str = existing!("repository");
-        pub const user:         &str = existing!("user");
+        // pub const resource:     &str = existing!("resource");
+        // pub const issue:        &str = existing!("issue");
+        // pub const user:         &str = existing!("user");
     }
 }

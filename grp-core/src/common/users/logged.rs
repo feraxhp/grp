@@ -27,7 +27,7 @@ impl Platform {
         
         let text = self.unwrap(
             result, "Failed during fetch of logged user",
-            conf, &RequestType::ListUser
+            conf, &RequestType::GetLoggedUser
         ).await?;
 
         User::from_text(&text, self)

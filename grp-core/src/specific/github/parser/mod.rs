@@ -1,4 +1,5 @@
 pub mod comment;
+pub mod author;
 pub mod issue;
 pub mod user;
 
@@ -23,6 +24,12 @@ pub struct Repository {
 
 #[derive(Debug, Deserialize)]
 pub struct User {
+    pub id: u64,
+    pub login: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Author {
     pub login: String,
     pub html_url: String,
 }
@@ -33,7 +40,7 @@ pub struct Issue {
     pub number: u64,
     pub title: String,
     pub body: Option<String>,
-    pub user: User,
+    pub user: Author,
     pub pull_request: Option<Value>,
     pub html_url: String,
     pub state: String,
@@ -45,7 +52,7 @@ pub struct Issue {
 #[derive(Debug, Deserialize)]
 pub struct Comment {
     pub id: u64,
-    pub user: User,
+    pub user: Author,
     pub body: String,
     pub html_url: String,
     pub created_at: DateTime<Utc>,

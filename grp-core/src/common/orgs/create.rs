@@ -33,7 +33,7 @@ impl Platform {
             Platform::Github => (
                 vec![],
                 vec![ 
-                    helpers::unsuported(self, RequestType::CreateOrg.as_ref())
+                    helpers::unsuported(self, RequestType::CreateOrg{ name }.as_ref())
                         .extend_notes([
                             "you have to create the _org manualy on github_".as_tip()
                         ]),

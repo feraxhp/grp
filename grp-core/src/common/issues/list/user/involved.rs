@@ -30,7 +30,7 @@ impl Platform {
     {
         match self {
             Github => {
-                let owner = self.get_logged_user(config).await?;
+                // let owner = self.get_logged_user(config).await?;
                 let url = self.url_list_all_involved_user_issues(config);
                 
                 animation.change_message("fetching issues...");

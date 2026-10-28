@@ -1,8 +1,14 @@
 {
-  "id": 1,
-  "name": "forgejo_org",
-  "username": "forgejo_org",
-  "full_name": "Forgejo Organization",
-  "avatar_url": "https://example.com/avatar.png",
-  "description": "An organization in Forgejo"
+    "id": 5,
+    "name": "forgejo_org",
+    "full_name": "",
+    "email": "",
+    "avatar_url": "https://git.feraxhp.com/avatars/5df5f457f33680855c82f1d73f582e9b",
+    "description": "",
+    "website": "",
+    "location": "",
+    "visibility": "public",
+    "repo_admin_change_team_access": false,
+    "created": "2026-10-28T17:02:02Z",
+    "username": "forgejo_org"
 }

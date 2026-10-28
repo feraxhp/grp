@@ -30,7 +30,7 @@ pub(crate) async fn create<A: Animation + ?Sized>(
     
     animation.change_message("unwraping response ...");
     let base_message = "Error creating orgs";
-    let result = platform.unwrap(result, base_message, config, &RequestType::CreateOrg).await?;
+    let result = platform.unwrap(result, base_message, config, &RequestType::CreateOrg{ name: name.to_owned() }).await?;
     
     User::from_text(&result, platform)
 }

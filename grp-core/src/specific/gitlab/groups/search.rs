@@ -16,15 +16,9 @@ pub async fn by_full_path(name: &String, config: &Config) -> Result<Option<User>
     let platform = Platform::Gitlab;
     let url = format!("{}/groups?search={}", platform.get_base_url(config), name);
     
-    // let context = Context {
-    //     request_type: RequestType::OrgList,
-    //     owner: None,
-    //     repo: None,
-    //     additional: Some(format!("Error finding {} id", name)),
-    // };
     let mut user: Option<User> = None;
     
-    let errors: Vec<Error> = platform.pagginate(url, config, RequestType::ListOrg, 1)
+    let errors: Vec<Error> = platform.pagginate(url, config, RequestType::ListOrg { way: "gitlab search".to_string() }, 1)
         .map(|result| -> Result<Vec<Group>, Error>{
             match result {
                 Ok(s) => JSON::from_str(&s.result),

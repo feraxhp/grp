@@ -3,10 +3,15 @@ use mynox::Error;
 
 use crate::common::structs::RequestType;
 use crate::structs::PaginatorResult;
+use crate::common::traits::Convert;
 use crate::animation::Animation;
 use crate::platform::Platform;
+use crate::specific::forgejo;
+use crate::specific::gitlab;
+use crate::specific::github;
 use crate::config::Config;
 use crate::structs::User;
+use crate::JSON;
 
 
 impl Platform {
@@ -30,7 +35,7 @@ impl Platform {
         let url = self.url_list_orgs(config);
         
         animation.change_message("getting organizations ...");
-        self.pagginate(url, config, RequestType::ListOrg, 1)
+        self.pagginate(url, config, RequestType::ListOrg { way: "by_url".to_string() }, 1)
             .map(|result| {
                 self.get_user(result)
             })
@@ -38,7 +43,24 @@ impl Platform {
     
     pub fn get_user(&self, response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<User>>, Error> {
         let pagginator = response?;
-        let users = User::from_text_array(&pagginator.result, self)?;
+        
+        let users = match self {
+            Platform::Github => {
+                let users: Vec<github::parser::User> = JSON::from_str(&pagginator.result)?;
+                users.iter().map(|g|g.convert()).collect()
+            },
+            Platform::Gitlab => {
+                let users: Vec<gitlab::parser::Group> = JSON::from_str(&pagginator.result)?;
+                users.iter().map(|g|g.convert()).collect()
+            },
+            Platform::Gitea |
+            Platform::Codeberg |
+            Platform::Forgejo => {
+                let users: Vec<forgejo::parser::User> = JSON::from_str(&pagginator.result)?;
+                users.iter().map(|g|g.convert()).collect()
+            },
+        };
+        
         Ok(pagginator.parse_result(users))
     }
 }

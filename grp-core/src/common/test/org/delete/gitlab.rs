@@ -11,7 +11,7 @@ use crate::Platform::Gitlab;
 use crate::animation;
 
 #[tokio::test]
-async fn delete_gitlab_org() {
+async fn delete_gitlab_org() -> Result<(), mynox::Report> {
     let server = server!(
         get!(200, "/api/v4/groups/gitlab_group", json!({"id": 100, "name": "gitlab_group", "full_path": "gitlab_group"}), auth!(gl)),
         delete!(202, "/api/v4/groups/100", auth!(gl)),
@@ -20,13 +20,13 @@ async fn delete_gitlab_org() {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let result = Gitlab.delete_org("gitlab_group", &config, false, &an).await;
-
-    assert!(result.is_ok());
+    Gitlab.delete_org("gitlab_group", &config, false, &an).await?;
+    server.verify().await;
+    Ok(())
 }
 
 #[tokio::test]
-async fn delete_gitlab_org_permanently() {
+async fn delete_gitlab_org_permanently() -> Result<(), mynox::Report> {
     let server = server!(
         get!(200, "/api/v4/groups/gitlab_group", json!({"id": 100, "name": "gitlab_group", "full_path": "gitlab_group"}), auth!(gl)),
         delete!(202, "/api/v4/groups/100", auth!(gl)).query("permanently_remove", "true"),
@@ -37,7 +37,7 @@ async fn delete_gitlab_org_permanently() {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let result = Gitlab.delete_org("gitlab_group", &config, true, &an).await;
-
-    assert!(result.is_ok());
+    Gitlab.delete_org("gitlab_group", &config, true, &an).await?;
+    server.verify().await;
+    Ok(())
 }
