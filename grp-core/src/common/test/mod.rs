@@ -118,7 +118,11 @@ macro_rules! value { ($file:literal) => { {
     let str = include_str!($file);
     let json: Value = serde_json::from_str(str).unwrap();
     json
-}}; }
+}}; (array $file:literal) => { {
+    let str = format!("[{}]", include_str!($file));
+    let json: Value = serde_json::from_str(&str).unwrap();
+    json
+}};}
 
 #[macro_export]
 macro_rules! faild { ($errors:expr) => { 

@@ -57,7 +57,7 @@ async fn create_forgejo_repo_for_org() -> Result<(), mynox::Report> {
     
     let server = server!(
         forgejo_user(),
-        get!(200, "/api/v1/user/orgs", json!([{"name": "forgejo_org", "id": 1}]), auth!(fj)),
+        get!(200, "/api/v1/user/orgs", value!("../../org/list/org.fj.json"), auth!(fj)),
         post!(201, "/api/v1/orgs/forgejo_org/repos", payload, value!("repo.fj.json"), auth!(fj)),
     );
     

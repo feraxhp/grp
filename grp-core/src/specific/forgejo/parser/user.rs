@@ -8,7 +8,7 @@ impl Convert for super::User {
     fn convert(&self) -> Self::Local {
         User {
             id: self.id.to_string(),
-            name: self.name.to_owned(),
+            name: self.username.to_owned(),
             path: None,
         }
     }

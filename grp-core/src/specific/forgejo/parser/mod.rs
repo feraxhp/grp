@@ -21,7 +21,7 @@ pub struct Repository {
 #[derive(Debug, Deserialize)]
 pub struct User {
     pub id: u64,
-    pub name: String,
+    pub username: String,
 }
 
 #[derive(Debug, Deserialize)]
