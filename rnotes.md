@@ -1,3 +1,7 @@
+# Fast _bug fix_
+
+- `*!` fix forgejo parsing for user / orgs
+
 ## Whats new
 
 - `*+` add `issues` subcomand to list and view issues.
