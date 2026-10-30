@@ -14,7 +14,7 @@ use crate::animation;
 #[tokio::test]
 async fn get_github_issue() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/repos/octocat/Hello-World/issues/1347", value!("issue.gh.json"), auth!(gh)),
+        get!(200, "/repos/octocat/Hello-World/issues/1347", value!("issue/view.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -32,7 +32,7 @@ async fn get_github_issue() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn get_github_issue_with_owner() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/repos/octocat/Hello-World/issues/1347", value!("issue.gh.json"), auth!(gh)),
+        get!(200, "/repos/octocat/Hello-World/issues/1347", value!("issue/view.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -50,7 +50,7 @@ async fn get_github_issue_with_owner() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_github_issue_comments() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/repos/octocat/Hello-World/issues/1347/comments", value!("comment.gh.json"), auth!(gh)),
+        get!(200, "/repos/octocat/Hello-World/issues/1347/comments", value!("issue/comment.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);

@@ -13,7 +13,7 @@ use crate::animation;
 #[tokio::test]
 async fn delete_gitlab_org() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v4/groups/gitlab_group", value!("../create/org.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/groups/gitlab_group", value!("org/create.gl.json"), auth!(gl)),
         delete!(202, "/api/v4/groups/100", auth!(gl)),
     );
     
@@ -28,10 +28,10 @@ async fn delete_gitlab_org() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn delete_gitlab_org_permanently() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v4/groups/gitlab_group", value!("../create/org.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/groups/gitlab_group", value!("org/create.gl.json"), auth!(gl)),
         delete!(202, "/api/v4/groups/100", auth!(gl)).query("permanently_remove", "true"),
         delete!(202, "/api/v4/groups/100", auth!(gl)),
-        get!(200, "/api/v4/groups/100", value!("../create/org.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/groups/100", value!("org/create.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);

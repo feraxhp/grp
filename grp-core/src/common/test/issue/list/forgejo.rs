@@ -15,7 +15,7 @@ use crate::animation;
 #[tokio::test]
 async fn list_forgejo_issues() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues", value!("issue.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues", value!("issue/list.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
@@ -35,7 +35,7 @@ async fn list_forgejo_issues() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_forgejo_issues_for_repo() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v1/repos/forgejo_org/Hello-Forgejo/issues", value!("issue.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/repos/forgejo_org/Hello-Forgejo/issues", value!("issue/list.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
@@ -56,7 +56,7 @@ async fn list_forgejo_issues_for_repo() -> Result<(), mynox::Report> {
 async fn list_forgejo_user_assigned_issues() -> Result<(), mynox::Report> {
     let server = server!(
         forgejo_user(),
-        get!(200, "/api/v1/repos/issues/search", value!("issue.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/repos/issues/search", value!("issue/list.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
@@ -76,9 +76,9 @@ async fn list_forgejo_user_assigned_issues() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_forgejo_all_user_issues() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v1/repos/issues/search", value!("issue.fj.json"), auth!(fj)).query("assigned", "true"),
-        get!(200, "/api/v1/repos/issues/search", value!("issue.fj.json"), auth!(fj)).query("created", "true"),
-        get!(200, "/api/v1/repos/issues/search", value!("issue.fj.json"), auth!(fj)).query("mentioned", "true"),
+        get!(200, "/api/v1/repos/issues/search", value!("issue/list.fj.json"), auth!(fj)).query("assigned", "true"),
+        get!(200, "/api/v1/repos/issues/search", value!("issue/list.fj.json"), auth!(fj)).query("created", "true"),
+        get!(200, "/api/v1/repos/issues/search", value!("issue/list.fj.json"), auth!(fj)).query("mentioned", "true"),
     );
     
     let config = config!(fj server);

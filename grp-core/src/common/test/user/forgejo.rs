@@ -5,7 +5,7 @@ use crate::Platform::Forgejo;
 
 pub use super::*;
 
-pub fn forgejo_user() -> Endpoint<2> { get!(200, "/api/v1/user", value!("user.fj.json"), auth!(fj)) }
+pub fn forgejo_user() -> Endpoint<2> { get!(200, "/api/v1/user", value!("user/user.fj.json"), auth!(fj)) }
 
 #[tokio::test]
 async fn forgejo_authenticated_user() -> Result<(), mynox::Report> {

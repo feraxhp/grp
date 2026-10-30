@@ -21,7 +21,7 @@ async fn get_gitlab_issue() -> Result<(), mynox::Report> {
             "namespace": { "full_path": "gitlab_user" },
             "path_with_namespace": "gitlab_user/Hello-Gitlab"
         }), auth!(gl)),
-        get!(200, "/api/v4/projects/123/issues/1", value!("issue.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/projects/123/issues/1", value!("issue/view.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);
@@ -45,7 +45,7 @@ async fn get_gitlab_issue_with_owner() -> Result<(), mynox::Report> {
             "namespace": { "full_path": "gitlab_user" },
             "path_with_namespace": "gitlab_user/Hello-Gitlab"
         }), auth!(gl)),
-        get!(200, "/api/v4/projects/123/issues/1", value!("issue.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/projects/123/issues/1", value!("issue/view.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);
@@ -69,7 +69,7 @@ async fn list_gitlab_issue_comments() -> Result<(), mynox::Report> {
             "namespace": { "full_path": "gitlab_user" },
             "path_with_namespace": "gitlab_user/Hello-Gitlab"
         }), auth!(gl)),
-        get!(200, "/api/v4/projects/123/issues/1/notes", value!("comment.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/projects/123/issues/1/notes", value!("issue/comment.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);

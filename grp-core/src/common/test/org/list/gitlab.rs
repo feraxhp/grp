@@ -13,7 +13,7 @@ use crate::animation;
 #[tokio::test]
 async fn list_gitlab_orgs() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v4/groups", value!("org.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/groups", value!("org/list.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);

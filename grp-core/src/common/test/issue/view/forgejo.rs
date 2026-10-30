@@ -14,7 +14,7 @@ use crate::animation;
 #[tokio::test]
 async fn get_forgejo_issue() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues/1", value!("issue.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues/1", value!("issue/view.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
@@ -32,7 +32,7 @@ async fn get_forgejo_issue() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn get_forgejo_issue_with_owner() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues/1", value!("issue.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues/1", value!("issue/view.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
@@ -50,7 +50,7 @@ async fn get_forgejo_issue_with_owner() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_forgejo_issue_comments() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues/1/comments", value!("comment.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/repos/forgejo_user/Hello-Forgejo/issues/1/comments", value!("issue/comment.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);

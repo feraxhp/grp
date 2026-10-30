@@ -22,7 +22,7 @@ async fn list_gitlab_issues() -> Result<(), mynox::Report> {
             "namespace": { "full_path": "gitlab_user" },
             "path_with_namespace": "gitlab_user/Hello-Gitlab"
         }), auth!(gl)),
-        get!(200, "/api/v4/projects/123/issues", value!("issue.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/projects/123/issues", value!("issue/list.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);
@@ -48,7 +48,7 @@ async fn list_gitlab_issues_for_repo() -> Result<(), mynox::Report> {
             "namespace": { "full_path": "gitlab_group" },
             "path_with_namespace": "gitlab_group/Hello-Gitlab"
         }), auth!(gl)),
-        get!(200, "/api/v4/projects/123/issues", value!("issue.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/projects/123/issues", value!("issue/list.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);
@@ -69,7 +69,7 @@ async fn list_gitlab_issues_for_repo() -> Result<(), mynox::Report> {
 async fn list_gitlab_user_assigned_issues() -> Result<(), mynox::Report> {
     let server = server!(
         gitlab_user(),
-        get!(200, "/api/v4/issues", value!("issue.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/issues", value!("issue/list.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);
@@ -89,8 +89,8 @@ async fn list_gitlab_user_assigned_issues() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_gitlab_all_user_issues() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v4/issues", value!("issue.gl.json"), auth!(gl)).query("scope", "assigned_to_me"),
-        get!(200, "/api/v4/issues", value!("issue.gl.json"), auth!(gl)).query("scope", "created_by_me"),
+        get!(200, "/api/v4/issues", value!("issue/list.gl.json"), auth!(gl)).query("scope", "assigned_to_me"),
+        get!(200, "/api/v4/issues", value!("issue/list.gl.json"), auth!(gl)).query("scope", "created_by_me"),
     );
     
     let config = config!(gl server);
@@ -114,13 +114,13 @@ async fn list_gitlab_all_involved_user_issues() -> Result<(), mynox::Report> {
     let todo_issue = json!([
         {
             "target_type": "Issue",
-            "target": value!("issue.gl.json")[0]
+            "target": value!("issue/list.gl.json")[0]
         }
     ]);
     let server = server!(
         get!(200, "/api/v4/todos", todo_issue, auth!(gl)),
-        get!(200, "/api/v4/issues", value!("issue.gl.json"), auth!(gl)).query("scope", "assigned_to_me"),
-        get!(200, "/api/v4/issues", value!("issue.gl.json"), auth!(gl)).query("scope", "created_by_me"),
+        get!(200, "/api/v4/issues", value!("issue/list.gl.json"), auth!(gl)).query("scope", "assigned_to_me"),
+        get!(200, "/api/v4/issues", value!("issue/list.gl.json"), auth!(gl)).query("scope", "created_by_me"),
     );
     
     let config = config!(gl server);

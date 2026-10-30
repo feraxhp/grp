@@ -115,11 +115,11 @@ macro_rules! server {
 
 #[macro_export]
 macro_rules! value { ($file:literal) => { {
-    let str = include_str!($file);
+    let str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/reponses/", $file));
     let json: Value = serde_json::from_str(str).unwrap();
     json
 }}; (array $file:literal) => { {
-    let str = format!("[{}]", include_str!($file));
+    let str = format!("[{}]", include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/reponses/", $file)));
     let json: Value = serde_json::from_str(&str).unwrap();
     json
 }};}

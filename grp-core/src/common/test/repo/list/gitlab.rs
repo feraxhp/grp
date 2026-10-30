@@ -16,7 +16,7 @@ use crate::animation;
 async fn get_gitlab_repo() -> Result<(), mynox::Report> {
     let server = server!(
         gitlab_user(),
-        get!(200, "/api/v4/projects", value!("repo.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/projects", value!("repo/list.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);
@@ -36,8 +36,8 @@ async fn get_gitlab_repo() -> Result<(), mynox::Report> {
 async fn list_gitlab_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         gitlab_user(),
-        get!(200, "/api/v4/groups", value!("../../org/list/org.gl.json"), auth!(gl)),
-        get!(200, "/api/v4/groups/100/projects", value!("repo.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/groups", value!("org/list.gl.json"), auth!(gl)),
+        get!(200, "/api/v4/groups/100/projects", value!("repo/list.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);

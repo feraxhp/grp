@@ -5,7 +5,7 @@ use crate::Platform::Gitlab;
 
 pub use super::*;
 
-pub fn gitlab_user() -> Endpoint<2> { get!(200, "/api/v4/user", value!("user.gl.json"), auth!(gl)) }
+pub fn gitlab_user() -> Endpoint<2> { get!(200, "/api/v4/user", value!("user/user.gl.json"), auth!(gl)) }
 
 #[tokio::test]
 async fn gitlab_authenticated_user() -> Result<(), mynox::Report> {

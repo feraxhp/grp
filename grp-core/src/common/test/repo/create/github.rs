@@ -23,7 +23,7 @@ async fn create_github_repo() -> Result<(), mynox::Report> {
     
     let server = server!(
         github_user(),
-        post!(201, "/user/repos", payload, value!("repo.gh.json"), auth!(gh)),
+        post!(201, "/user/repos", payload, value!("repo/create.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -57,8 +57,8 @@ async fn create_github_repo_for_org() -> Result<(), mynox::Report> {
     
     let server = server!(
         github_user(),
-        get!(200, "/user/orgs", value!("../../org/list/org.gh.json"), auth!(gh)),
-        post!(201, "/orgs/github/repos", payload, value!("repo.gh.json"), auth!(gh)),
+        get!(200, "/user/orgs", value!("org/list.gh.json"), auth!(gh)),
+        post!(201, "/orgs/github/repos", payload, value!("repo/create.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);

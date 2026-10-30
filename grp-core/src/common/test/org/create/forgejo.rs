@@ -19,7 +19,7 @@ async fn create_forgejo_org() -> Result<(), Report> {
     });
     
     let server = server!(
-        post!(201, "/api/v1/orgs", payload, value!("org.fj.json"), auth!(fj)),
+        post!(201, "/api/v1/orgs", payload, value!("org/create.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);

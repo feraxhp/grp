@@ -16,7 +16,7 @@ use crate::animation;
 #[tokio::test]
 async fn list_github_issues() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/repos/octocat/Hello-World/issues", value!("issue.gh.json"), auth!(gh)),
+        get!(200, "/repos/octocat/Hello-World/issues", value!("issue/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -36,7 +36,7 @@ async fn list_github_issues() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_github_issues_for_repo() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/repos/other_user/Hello-World/issues", value!("issue.gh.json"), auth!(gh)),
+        get!(200, "/repos/other_user/Hello-World/issues", value!("issue/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -57,7 +57,7 @@ async fn list_github_issues_for_repo() -> Result<(), mynox::Report> {
 async fn list_github_user_assigned_issues() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
-        get!(200, "/user/issues", value!("issue.gh.json"), auth!(gh)),
+        get!(200, "/user/issues", value!("issue/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -77,7 +77,7 @@ async fn list_github_user_assigned_issues() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_github_all_user_issues() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/issues", value!("issue.gh.json"), auth!(gh)),
+        get!(200, "/issues", value!("issue/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -97,7 +97,7 @@ async fn list_github_all_user_issues() -> Result<(), mynox::Report> {
 #[tokio::test]
 async fn list_github_all_involved_user_issues() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/search/issues", json!({ "items": value!("issue.gh.json") }), auth!(gh)),
+        get!(200, "/search/issues", json!({ "items": value!("issue/list.gh.json") }), auth!(gh)),
     );
     
     let config = config!(gh server);

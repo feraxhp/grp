@@ -22,7 +22,7 @@ async fn create_gitlab_org() -> Result<(), mynox::Report> {
     
     let server = server!(
         get!(200, "/api/v4/groups", json!([]), auth!(gl)),
-        post!(201, "/api/v4/groups", payload, value!("org.gl.json"), auth!(gl)),
+        post!(201, "/api/v4/groups", payload, value!("org/create.gl.json"), auth!(gl)),
     );
     
     let config = config!(gl server);

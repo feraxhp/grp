@@ -17,7 +17,7 @@ use crate::animation;
 async fn get_github_repo() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
-        get!(200, "/user/repos", value!("repo.gh.json"), auth!(gh)),
+        get!(200, "/user/repos", value!("repo/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -37,8 +37,8 @@ async fn get_github_repo() -> Result<(), mynox::Report> {
 async fn list_github_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
-        get!(200, "/user/orgs", value!("../../org/list/org.gh.json"), auth!(gh)),
-        get!(200, "/orgs/github/repos", value!("repo.gh.json"), auth!(gh)),
+        get!(200, "/user/orgs", value!("org/list.gh.json"), auth!(gh)),
+        get!(200, "/orgs/github/repos", value!("repo/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);
@@ -59,7 +59,7 @@ async fn list_github_repos_for_unlogged_user() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
         get!(200, "/user/orgs", json!([]), auth!(gh)),
-        get!(200, "/users/torvalds/repos", value!("repo.gh.json"), auth!(gh)),
+        get!(200, "/users/torvalds/repos", value!("repo/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);

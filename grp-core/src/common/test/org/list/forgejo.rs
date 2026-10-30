@@ -13,7 +13,7 @@ use crate::animation;
 #[tokio::test]
 async fn list_forgejo_orgs() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/api/v1/user/orgs", value!("org.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/user/orgs", value!("org/list.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);

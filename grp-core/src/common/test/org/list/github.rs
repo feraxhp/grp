@@ -13,7 +13,7 @@ use crate::animation;
 #[tokio::test]
 async fn list_github_orgs() -> Result<(), mynox::Report> {
     let server = server!(
-        get!(200, "/user/orgs", value!("org.gh.json"), auth!(gh)),
+        get!(200, "/user/orgs", value!("org/list.gh.json"), auth!(gh)),
     );
     
     let config = config!(gh server);

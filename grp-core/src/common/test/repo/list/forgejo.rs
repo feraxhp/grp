@@ -17,7 +17,7 @@ use crate::animation;
 async fn get_forgejo_repo() -> Result<(), mynox::Report> {
     let server = server!(
         forgejo_user(),
-        get!(200, "/api/v1/user/repos", value!("repo.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/user/repos", value!("repo/list.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
@@ -37,8 +37,8 @@ async fn get_forgejo_repo() -> Result<(), mynox::Report> {
 async fn list_forgejo_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         forgejo_user(),
-        get!(200, "/api/v1/user/orgs", value!("../../org/list/org.fj.json"), auth!(fj)),
-        get!(200, "/api/v1/orgs/forgejo_org/repos", value!("repo.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/user/orgs", value!("org/list.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/orgs/forgejo_org/repos", value!("repo/list.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
@@ -59,7 +59,7 @@ async fn list_forgejo_repos_for_unlogged_user() -> Result<(), mynox::Report> {
     let server = server!(
         forgejo_user(),
         get!(200, "/api/v1/user/orgs", json!([]), auth!(fj)),
-        get!(200, "/api/v1/users/other_user/repos", value!("repo.fj.json"), auth!(fj)),
+        get!(200, "/api/v1/users/other_user/repos", value!("repo/list.fj.json"), auth!(fj)),
     );
     
     let config = config!(fj server);
