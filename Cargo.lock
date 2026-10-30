@@ -2818,9 +2818,9 @@ checksum = "743fb55ba31b18fb1ecef6bdc9aa2743314978ac084044301a7eee33fb99a20d"
 
 [[package]]
 name = "mynox"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7c7c59af9b754d56b27c7046337c3bdf4cf9704a5404aa98ade841cebb782de"
+checksum = "4797081fe2057e5b754fed5a1f4b6abcfbb09019c2e2a90bdc0441153bd9b81b"
 
 [[package]]
 name = "new_debug_unreachable"
