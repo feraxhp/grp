@@ -57,7 +57,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     let an = &animation;
-    let (repos, errors) = stream
+    let (issues, errors) = stream
         .enumerate()
         .map(|(i, s)| {
             match &s {
@@ -79,11 +79,11 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .await;
     
     let errors = errors.into_iter().collect::<OptionError>().into_option();
-    match (repos.is_empty(), errors.is_none()) {
+    match (issues.is_empty(), errors.is_none()) {
         (true, true) => { animation.finish_with_success("<i>No issues found</>"); },
         (false,  true) => {
             animation.finish_with_success(cformat!("<y,i>list issues</y,i> <g>succeeded!</>"));
-            repos.print_pretty(());
+            issues.print_pretty(pconf.owner);
         },
         (true, false) => {
             let error = errors.unwrap();
@@ -93,7 +93,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (false, false) => {
             animation.finish_with_warning(cformat!("<m,i>list issues</m,i> <y>finish with errors!</>"));
-            repos.print_pretty(());
+            issues.print_pretty(pconf.owner);
             if show_errors { errors.unwrap().eprint(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");
