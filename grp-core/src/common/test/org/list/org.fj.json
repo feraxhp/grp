@@ -2,9 +2,14 @@
   {
     "id": 1,
     "name": "forgejo_org",
-    "username": "forgejo_org",
     "full_name": "Forgejo Organization",
-    "avatar_url": "https://example.com/avatar.png",
-    "description": "An organization in Forgejo"
+    "avatar_url": "https://forgejo.example.com/avatars/4a689b9d3637e1dc9f400fb86ef6934c",
+    "description": "An organization in Forgejo",
+    "website": "https://dev.example.com",
+    "location": "Remote",
+    "visibility": "public",
+    "repo_admin_change_team_access": true,
+    "username": "forgejo_org",
+    "email": "forgejo_org@example.com"
   }
 ]

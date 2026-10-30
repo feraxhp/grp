@@ -1,6 +1,5 @@
 use super::*;
 
-use serde_json::json;
 use futures::StreamExt;
 use crate::Config;
 use crate::auth;
@@ -37,7 +36,7 @@ async fn get_gitlab_repo() -> Result<(), mynox::Report> {
 async fn list_gitlab_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         gitlab_user(),
-        get!(200, "/api/v4/groups", json!([{"id": 100, "name": "gitlab_group", "full_path": "gitlab_group"}]), auth!(gl)),
+        get!(200, "/api/v4/groups", value!("../../org/list/org.gl.json"), auth!(gl)),
         get!(200, "/api/v4/groups/100/projects", value!("repo.gl.json"), auth!(gl)),
     );
     

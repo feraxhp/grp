@@ -37,7 +37,7 @@ async fn get_github_repo() -> Result<(), mynox::Report> {
 async fn list_github_repos_for_org() -> Result<(), mynox::Report> {
     let server = server!(
         github_user(),
-        get!(200, "/user/orgs", json!([{"login": "github", "id": 1}]), auth!(gh)),
+        get!(200, "/user/orgs", value!("../../org/list/org.gh.json"), auth!(gh)),
         get!(200, "/orgs/github/repos", value!("repo.gh.json"), auth!(gh)),
     );
     

@@ -2,12 +2,28 @@
   {
     "id": 305,
     "body": "Text of the comment",
+    "attachment": null,
     "author": {
       "id": 1,
       "username": "gitlab_user",
+      "email": "gitlab_user@example.com",
+      "name": "GitLab User",
+      "state": "active",
+      "created_at": "2024-09-06T12:00:00Z",
+      "avatar_url": "https://gitlab.example/uploads/-/system/user/avatar/1/avatar.png",
       "web_url": "https://gitlab.example/gitlab_user"
     },
     "created_at": "2024-09-06T12:00:00Z",
-    "updated_at": "2024-09-06T12:00:00Z"
+    "updated_at": "2024-09-06T12:00:00Z",
+    "system": false,
+    "noteable_id": 76,
+    "noteable_type": "Issue",
+    "project_id": 123,
+    "noteable_iid": 1,
+    "resolvable": false,
+    "confidential": false,
+    "internal": false,
+    "imported": false,
+    "imported_from": "none"
   }
 ]

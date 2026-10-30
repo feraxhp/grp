@@ -57,7 +57,7 @@ async fn create_gitlab_repo_for_org() -> Result<(), mynox::Report> {
     
     let server = server!(
         gitlab_user(),
-        get!(200, "/api/v4/groups", json!([{"id": 100, "name": "gitlab_group", "full_path": "gitlab_group"}]), auth!(gl)),
+        get!(200, "/api/v4/groups", value!("../../org/list/org.gl.json"), auth!(gl)),
         post!(201, "/api/v4/projects", payload, value!("repo.gl.json"), auth!(gl)),
     );
     
