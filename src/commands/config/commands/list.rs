@@ -16,7 +16,7 @@ pub fn command() -> Command {
 
 pub fn manager() {
     match Usettings::read() {
-        Ok(u) => u.pconfs.print_pretty(),
+        Ok(u) => u.pconfs.print_pretty(()),
         Err(e) => {
             ceprintln!("{}", e.message());
             e.eprint();

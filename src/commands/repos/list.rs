@@ -88,7 +88,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (true, true) => { animation.finish_with_success("<i>No repos found</>"); },
         (false,  true) => {
             animation.finish_with_success(success!(np "list repos"));
-            repos.print_pretty();
+            repos.print_pretty(());
         },
         (true, false) => {
             let error = errors.unwrap();
@@ -97,7 +97,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (false, false) => {
             animation.finish_with_warning(warning!(np "list repos"));
-            repos.print_pretty();
+            repos.print_pretty(());
             if show_errors { errors.unwrap().eprint(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");

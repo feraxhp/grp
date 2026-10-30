@@ -12,16 +12,20 @@ use crate::usettings::structs::Pconf;
 
 
 pub trait Show {
-    fn print_pretty(&self) {
-        self.to_string_iter().for_each(|s| {
+    type Context;
+    
+    fn print_pretty(&self, context: Self::Context) {
+        self.to_string_iter(context).for_each(|s| {
             println!("{}", s)
         });
     }
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_;
+    fn to_string_iter(&self, context: Self::Context) -> impl Iterator<Item = String> + '_;
 }
 
 impl Show for Vec<Repo> {
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+    type Context = ();
+    
+    fn to_string_iter(&self, _: Self::Context) -> impl Iterator<Item = String> + '_ {
         let (max_path, max_url) = self.iter().fold((4, 3), |(p, u), repo| {
             (p.max(repo.path.len()), u.max(repo.url.len()))
         });
@@ -61,7 +65,9 @@ impl Show for Vec<Repo> {
 }
 
 impl Show for Vec<User> {
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+    type Context = ();
+    
+    fn to_string_iter(&self, _: Self::Context) -> impl Iterator<Item = String> + '_ {
         let mut sorted: Vec<String> = self.iter().map(|user| {
             match &user.path {
                 Some(p) => p.clone(),
@@ -80,7 +86,9 @@ impl Show for Vec<User> {
 }
 
 impl Show for Vec<Pconf> {
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+    type Context = ();
+    
+    fn to_string_iter(&self, _: Self::Context) -> impl Iterator<Item = String> + '_ {
         let (max_name, max_endpoint, max_user) = self.iter().fold((4, 8, 7), |(n, e, u), pconf| {
             (n.max(pconf.name.len()), e.max(pconf.endpoint.len()), u.max(pconf.owner.len()))
         });
@@ -134,7 +142,9 @@ impl Empty for &String {
 }
 
 impl Show for Vec<Issue> {
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+    type Context = ();
+    
+    fn to_string_iter(&self, _: Self::Context) -> impl Iterator<Item = String> + '_ {
         let (max_number, max_autor) = self.iter().fold((2, 6), |(number, author), issue| {
             (
                 number.max(issue.number.to_string().len() + 1),
@@ -166,7 +176,9 @@ impl Show for Vec<Issue> {
 }
 
 impl Show for Vec<Comment> {
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+    type Context = ();
+    
+    fn to_string_iter(&self, _: Self::Context) -> impl Iterator<Item = String> + '_ {
         (!self.is_empty())
             .then(move || {
                 self.iter().map(move |comment| {
@@ -179,7 +191,9 @@ impl Show for Vec<Comment> {
 }
 
 impl Show for Vec<String> {
-    fn to_string_iter(&self) -> impl Iterator<Item = String> + '_ {
+    type Context = ();
+    
+    fn to_string_iter(&self, _: Self::Context) -> impl Iterator<Item = String> + '_ {
         self.iter().map(|s| s.to_owned())
     }
 }

@@ -103,7 +103,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (true, true) => { unreachable!("This must be unrechable") },
         (false,  true) => {
             animation.finish_with_success(cformat!("<y,i>issues fetch</y,i> <g>succeeded!</>"));
-            chunks.print_pretty();
+            chunks.print_pretty(());
         },
         (true, false) => {
             let error = errors.unwrap();
@@ -112,7 +112,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (false, false) => {
             animation.finish_with_warning(cformat!("<m,i>{}</m,i> <y>finish with errors!</>", issue_detail.title));
-            chunks.print_pretty();
+            chunks.print_pretty(());
             if show_errors { errors.unwrap().eprint(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");

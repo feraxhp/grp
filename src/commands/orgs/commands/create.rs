@@ -61,12 +61,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         }
         (false, true) => {
             animation.finish_with_success(success!(np "org creation"));
-            users.print_pretty();
+            users.print_pretty(());
         }
         (false, false) => {
             animation.finish_with_warning(warning!(np "org creation"));
             cprintln!("* Some groups where created!");
-            users.print_pretty();
+            users.print_pretty(());
             if show_errors { errors.into_iter().collect::<OptionError>().into_option().unwrap().eprint(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");

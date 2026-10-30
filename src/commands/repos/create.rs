@@ -202,7 +202,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             }
             else {
                 messages.extend(
-                    vec![repo].to_string_iter()
+                    vec![repo].to_string_iter(())
                 );
             }
             

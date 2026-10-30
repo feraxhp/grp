@@ -115,7 +115,7 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
     match platform.clone_repo(&repo.owner, &repo.path, &options, &config, animation).await {
         Ok(r) => {
             animation.finish_with_success(success!(np "clone"));
-            vec![r].print_pretty();
+            vec![r].print_pretty(());
         },
         Err(e) => {
             let action =  Action::Clone;
@@ -175,7 +175,7 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
                 description: None,
             };
             
-            vec![repo].print_pretty();
+            vec![repo].print_pretty(());
         },
         Err(e) => {
             let action =  Action::Clone;

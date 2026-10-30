@@ -83,7 +83,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (true, true) => { animation.finish_with_success("<i>No issues found</>"); },
         (false,  true) => {
             animation.finish_with_success(cformat!("<y,i>list issues</y,i> <g>succeeded!</>"));
-            repos.print_pretty();
+            repos.print_pretty(());
         },
         (true, false) => {
             let error = errors.unwrap();
@@ -93,7 +93,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (false, false) => {
             animation.finish_with_warning(cformat!("<m,i>list issues</m,i> <y>finish with errors!</>"));
-            repos.print_pretty();
+            repos.print_pretty(());
             if show_errors { errors.unwrap().eprint(); } 
             else {
                 cprintln!("<y>* Some errors were found, use <g,i>--show-errors</g,i> to see them</>");
