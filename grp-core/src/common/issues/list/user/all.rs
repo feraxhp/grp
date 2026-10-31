@@ -45,7 +45,12 @@ impl Platform {
                 issues
                     .map(|result| { 
                         let pagginator = result?;
-                        let issues = pagginator.result.iter().map(|s| s.convert()).collect();
+                        let issues = pagginator.result.iter().filter_map(|s| {
+                            match &s.pull_request {
+                                Some(_) => None,
+                                None => Some(s.convert()),
+                            }
+                        }).collect();
                         
                         Ok(pagginator.parse_result(issues))
                     })
@@ -91,7 +96,12 @@ impl Platform {
                     let response = forgejo::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
                     let response = response.map(|result | {
                         let result = result?;
-                        let issues = result.result.iter().map(|s| s.convert()).collect();
+                        let issues = result.result.iter().filter_map(|s| {
+                            match &s.pull_request {
+                                Some(_) => None,
+                                None => Some(s.convert()),
+                            }
+                        }).collect();
                         
                         Ok(result.parse_result(issues))
                     });

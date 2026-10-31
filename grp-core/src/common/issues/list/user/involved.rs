@@ -76,7 +76,12 @@ impl Platform {
         let issues = match self {
             Platform::Github => {
                 let result: SearchResult<github::parser::Issue> = JSON::from_str(&pagginator.result)?;
-                result.items.iter().map(|s| s.convert()).collect()
+                result.items.iter().filter_map(|s| {
+                    match &s.pull_request {
+                        Some(_) => None,
+                        None => Some(s.convert()),
+                    }
+                }).collect()
             },
             Platform::Gitea | 
             Platform::Gitlab | 
