@@ -55,7 +55,7 @@ impl Platform {
             Platform::Gitlab => { gitlab::header::get_auth_header(token) }
         }
     }
-
+    
     pub(crate) fn get_base_url(&self, config: &Config) -> String {
         let endpoint = &config.endpoint;
         let https = if config.unsafed { "http" } else { "https" };
@@ -67,7 +67,25 @@ impl Platform {
             Platform::Gitlab => { format!("{https}://{}/api/v4", endpoint) }
         }
     }
-
+    
+    pub fn get_user_url(&self, config: &Config, user: impl Display) -> String {
+        let endpoint = &config.endpoint;
+        let https = if config.unsafed { "http" } else { "https" };
+        match self {
+            Platform::Github => {
+                let endpoint = if endpoint == "api.github.com" { "github.com" } 
+                    else { 
+                        endpoint.split("/api/").next().unwrap_or("github.com")
+                    };
+                format!("{https}://{}/{}", endpoint, user) 
+            },
+            Platform::Codeberg |
+            Platform::Forgejo |
+            Platform::Gitea =>  { format!("{https}://{}/{}", endpoint, user) }
+            Platform::Gitlab => { format!("{https}://{}/{}", endpoint, user) }
+        }
+    }
+    
     /// this function allows to discern if the platform fails, or success 
     /// procesing the request.
     /// 

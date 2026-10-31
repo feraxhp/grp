@@ -5,7 +5,7 @@ use clap::{arg, ArgMatches, Command};
 use color_print::{cformat, cprintln};
 use grp_core::animation::Animation;
 use grp_core::structs::{Comment, Issue};
-use grp_core::Platform;
+use grp_core::{Config, Platform};
 use mynox::OptionError;
 use mynox::Error;
 
@@ -17,6 +17,7 @@ use crate::commands::validations::or_exit::structure::OrExit;
 use crate::printables::FormatTools;
 use crate::printables::humanize::Humanize;
 use crate::printables::markdown::Markdown;
+use crate::printables::show::replace_user_mentions;
 use crate::printables::show::Show;
 use crate::printables::stylizer::Stylizer;
 use crate::usettings::structs::Usettings;
@@ -95,7 +96,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         })
         .await;
 
-    let (chunks, errors__) = print_issue(&issue_detail, comments);
+    let (chunks, errors__) = print_issue(&issue_detail, comments, &platform, &config);
     
     errors.extend(errors__);
     let errors = errors.into_iter().collect::<OptionError>().into_option();
@@ -121,7 +122,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     }
 }
 
-fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error>) {
+fn print_issue(
+    issue: &Issue,
+    comments: Vec<Comment>,
+    platform: &Platform,
+    config: &Config,
+) -> (Vec<String>, Vec<Error>) {
     let mut chunks = Vec::with_capacity(6 + comments.len() * 5 + 1); // Improve latter on
     let mut errors = Vec::with_capacity(comments.len() + 1);
 
@@ -134,6 +140,8 @@ fn print_issue(issue: &Issue, comments: Vec<Comment>) -> (Vec<String>, Vec<Error
                     $text.to_owned().unwrap_or($default)
                 },
             };
+            
+            let text = replace_user_mentions(&text, platform, config);
             
             text.lines()
                 .filter_map(|s| {

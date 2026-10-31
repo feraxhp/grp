@@ -1,7 +1,7 @@
 # Issues
 
 - [x] add comment url
-- [ ] replace @mentions to [@mentions](url-of-mentions)
+- [x] replace @mentions to [@mentions](url-of-mentions)
 - [x] implemetn rich markdown preview for issues
 - [ ] add create issue command
 - [ ] add delete issue command
