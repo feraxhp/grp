@@ -45,13 +45,18 @@ pub struct Group {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct IssueRefereces {
+    full: String
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Issue {
     pub id: u64,
     pub iid: u64,
     pub author: Author,
     pub title: String,
     pub description: Option<String>,
-    // pub issue_type: String,
+    pub references: IssueRefereces,
     pub web_url: String,
     pub state: String,
     pub created_at: DateTime<Utc>,

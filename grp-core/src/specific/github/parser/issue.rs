@@ -15,6 +15,14 @@ impl Convert for super::Issue {
             state: self.state.to_owned(),
             url: self.html_url.to_owned(),
             locked: self.locked.to_owned(),
+            reference: {
+                let mut parts = self.repository_url.split("/repos/").peekable();
+                
+                match (parts.next(), parts.peek()) {
+                    (_, Some(s)) => format!("{s}#{}", self.number),
+                    _ => String::new(),
+                }
+            },
             created_at: self.created_at.to_owned(),
             updated_at: self.updated_at.to_owned(),
         }

@@ -15,6 +15,7 @@ impl Convert for super::Issue {
             state: self.state.to_owned(),
             url: self.html_url.to_owned(),
             locked: self.is_locked.to_owned(),
+            reference: format!("{}#{}", self.repository.full_name, self.number),
             created_at: self.created_at.to_owned(),
             updated_at: self.updated_at.to_owned(),
         }

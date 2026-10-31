@@ -31,6 +31,11 @@ pub struct Author {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct RepoReference {
+    full_name: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Issue {
     pub id: u64,
     pub number: u64,
@@ -41,6 +46,7 @@ pub struct Issue {
     pub html_url: String,
     pub state: String,
     pub is_locked: bool,
+    pub repository: RepoReference,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

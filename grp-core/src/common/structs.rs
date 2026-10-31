@@ -94,6 +94,7 @@ pub struct Issue {
     pub body: Option<String>,
     pub state: String,
     pub url: String,
+    pub reference: String,
     pub locked: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,

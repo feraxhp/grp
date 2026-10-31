@@ -14,6 +14,7 @@ impl Convert for super::Issue {
             body: self.description.to_owned(),
             state: self.state.to_owned(),
             url: self.web_url.to_owned(),
+            reference: self.references.full.to_owned(),
             locked: false,
             created_at: self.created_at.to_owned(),
             updated_at: self.updated_at.to_owned(),

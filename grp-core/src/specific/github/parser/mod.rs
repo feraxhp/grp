@@ -43,6 +43,7 @@ pub struct Issue {
     pub user: Author,
     pub pull_request: Option<Value>,
     pub html_url: String,
+    pub repository_url: String,
     pub state: String,
     pub locked: bool,
     pub created_at: DateTime<Utc>,
