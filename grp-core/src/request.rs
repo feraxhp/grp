@@ -1,6 +1,7 @@
 use std::sync::OnceLock;
 
 use async_stream::stream;
+use futures::StreamExt;
 use futures::Stream;
 
 use hyper::header::HeaderValue;
@@ -129,6 +130,37 @@ impl Platform {
             next = pagger.next.clone();
             
             yield Ok(PaginatorResult { result: string, pager: pagger });
+        }
+    }}
+    
+    pub fn pagginates<const N: usize>(&self,
+        destinations: [(String, RequestType); N],
+        config: &Config, 
+        page: u64,
+    ) -> impl Stream<Item = Result<PaginatorResult<[Option<String>; N]>, Error>> { stream! {
+        let mut streams = destinations.map(|(url, req_type)| {
+            Box::pin(self.pagginate(url, config, req_type, page))
+        });
+        
+        loop {
+            let mut results: [Option<String>; N] = std::array::from_fn(|_| None);
+            let mut best_pager = Pager::none();
+            let mut any_active = false;
+            
+            for (i, s) in streams.iter_mut().enumerate() {
+                if let Some(res) = s.next().await {
+                    any_active = true;
+                    let page_res = res?;
+                    
+                    if page_res.pager.last_number() > best_pager.last_number() {
+                        best_pager = page_res.pager;
+                    }
+                    results[i] = Some(page_res.result);
+                }
+            }
+            
+            if !any_active { break; }
+            yield Ok(PaginatorResult { result: results, pager: best_pager });
         }
     }}
 }
