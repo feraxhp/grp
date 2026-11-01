@@ -15,6 +15,7 @@ use crate::Config;
 use crate::JSON;
 
 
+#[allow(unused)]
 pub async fn list_todos<T, A, D>(
     platform: &Platform,
     target: Option<D>, 
@@ -41,6 +42,7 @@ where
     )
 }
 
+#[allow(unused)]
 pub(crate) fn parse<T: Debug + DeserializeOwned>(response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Todos<T>>>, Error> {
     let result = response?;
     let todos: Vec<Todos<T>> = JSON::from_str(&result.result)?;

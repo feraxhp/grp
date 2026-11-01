@@ -1,6 +1,5 @@
 use std::pin::Pin;
 
-use futures::stream::select;
 use futures::{Stream, StreamExt};
 
 use crate::Config;
@@ -19,12 +18,6 @@ impl Platform {
     /// 1. for github uses the filter All
     /// 2. for gitlab unifies the request from _AssignedToMe, CreatedByMe_ (this may return duplicates)
     /// 3. for forgejo (and compatibles) unifies the request from _AssignedToMe, CreatedByMe, Mentioned_ (this may return duplicates)
-    /// 
-    /// __Every chunk is a page__ is only true on __github__, the other platforms due to the non unified enpoint to call, will return the first available 
-    /// page of the pool request, for the n request with filters
-    /// 
-    /// > I will love to get a better implementation of this in the future, if you have an idea of how to
-    /// > improve it, you are wellcome to contribute on github. (opening an issue or a pull request)
     pub async fn list_all_user_issues<'a, A>(&'a self,
         config: &'a Config,
         animation: &'a Box<A>
@@ -63,24 +56,15 @@ impl Platform {
                     gitlab::issues::list::Scope::CreatedByMe,
                 ];
                 
-                let mut stream = None;
-                for scope in scopes {
-                    let response = gitlab::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
-                    let response = response.map(|result | {
-                        let result = result?;
-                        let issues = result.result.iter().map(|s| s.convert()).collect();
-                        
-                        Ok(result.parse_result(issues))
-                    });
+                let response = gitlab::issues::list::list_issues_by_scope(self, scopes, config, animation).await?;
+                let stream = response.map(|result| {
+                    let result = result?;
+                    let issues = result.result.iter().map(|s| s.convert()).collect();
                     
-                    match stream {
-                        Some(other) 
-                        => stream = Some(select(other, response).boxed()),
-                        None => stream = Some(response.boxed()),
-                    }
-                }
+                    Ok(result.parse_result(issues))
+                });
                 
-                Ok(stream.unwrap().filter(skip_empty).boxed())
+                Ok(stream.filter(skip_empty).boxed())
             },
             Platform::Forgejo |
             Platform::Gitea |
@@ -91,29 +75,20 @@ impl Platform {
                     forgejo::issues::list::Scope::Mentioned,
                 ];
                 
-                let mut stream = None;
-                for scope in scopes {
-                    let response = forgejo::issues::list::list_issues_by_scope(self, scope, config, animation).await?;
-                    let response = response.map(|result | {
-                        let result = result?;
-                        let issues = result.result.iter().filter_map(|s| {
-                            match &s.pull_request {
-                                Some(_) => None,
-                                None => Some(s.convert()),
-                            }
-                        }).collect();
-                        
-                        Ok(result.parse_result(issues))
-                    });
+                let response = forgejo::issues::list::list_issues_by_scope(self, scopes, config, animation).await?;
+                let stream = response.map(|result| {
+                    let result = result?;
+                    let issues = result.result.iter().filter_map(|s| {
+                        match &s.pull_request {
+                            Some(_) => None,
+                            None => Some(s.convert()),
+                        }
+                    }).collect();
                     
-                    match stream {
-                        Some(other) 
-                        => stream = Some(select(other, response).boxed()),
-                        None => stream = Some(response.boxed()),
-                    }
-                }
+                    Ok(result.parse_result(issues))
+                });
                 
-                Ok(stream.unwrap().filter(skip_empty).boxed())
+                Ok(stream.filter(skip_empty).boxed())
             },
         }
     }

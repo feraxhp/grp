@@ -1,7 +1,6 @@
 use std::pin::Pin;
 
 use futures::{Stream, StreamExt};
-use futures::stream::select;
 use mynox::Error;
 
 use crate::helpers::unsuported;
@@ -43,25 +42,21 @@ impl Platform {
                 )
             },
             Platform::Gitlab => {
-                let issues = gitlab::todo::list::list_todos::<gitlab::parser::Issue, A, &str>(self, Some("Issues"), config, animation).await?;
-                let todos = issues.map(|response| -> Result<PaginatorResult<Vec<Issue>>, Error> {
-                    // let result = parse::<gitlab::parser::Issue>(response)?;
-                    let result = response?;
-                    let issues = &result.result;
-                    
-                    let issues: Vec<Issue> = issues.iter().map(|b| {
-                        b.target.convert()
-                    }).collect();
+                let scopes = [
+                    gitlab::issues::list::Scope::Todos,
+                    gitlab::issues::list::Scope::AssignedToMe,
+                    gitlab::issues::list::Scope::CreatedByMe,
+                ];
+                
+                let response = gitlab::issues::list::list_issues_by_scope(self, scopes, config, animation).await?;
+                let stream = response.map(|result| {
+                    let result = result?;
+                    let issues = result.result.iter().map(|s| s.convert()).collect();
                     
                     Ok(result.parse_result(issues))
                 });
                 
-                let assigned_issues = self.list_all_user_issues(config, animation).await?;
-                
-                let union = select(todos, assigned_issues)
-                    .filter(skip_empty);
-                
-                Ok(union.boxed())
+                Ok(stream.filter(skip_empty).boxed())
             },
             Platform::Gitea |
             Platform::Codeberg |

@@ -36,29 +36,42 @@ impl Scope {
             Scope::Mentioned => "mentioned=true",
         }
     }
+    
+    fn destination(&self, platform: &Platform, config: &Config) -> (String, RequestType) {
+        (
+            format!("{}/repos/issues/search?state=open&type=issues&{}", platform.get_base_url(config), self.filter()),
+            RequestType::ListIssues,
+        )
+    }
 }
 
-pub async fn list_issues_by_scope<A>(
+pub async fn list_issues_by_scope<A, const N: usize>(
     platform: &Platform,
-    scope: Scope,
+    scopes: [Scope; N],
     config: &Config,
     animation: &Box<A>,
 ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
 where 
     A: Animation + ?Sized,
 {
-    let url = format!("{}/repos/issues/search?state=open&type=issues&{}", platform.get_base_url(config), scope.filter());
-    animation.change_message(format!("requesting {} issues...", scope));
+    let destinations = scopes.map(|scope| scope.destination(platform, config));
+    
+    animation.change_message("requesting issues...");
     Ok(
         platform
-            .pagginate(url, config, RequestType::ListIssues, 1)
+            .pagginates(destinations, config, 1)
             .map(parse)
     )
 }
 
-pub(crate) fn parse(response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Issue>>, Error> {
+pub(crate) fn parse<const N: usize>(response: Result<PaginatorResult<[Option<String>; N]>, Error>) -> Result<PaginatorResult<Vec<Issue>>, Error> {
     let result = response?;
-    let todos: Vec<Issue> = JSON::from_str(&result.result)?;
+    let mut todos = Vec::new();
+    
+    for json in result.result.iter().flatten() {
+        let issues: Vec<Issue> = JSON::from_str(json)?;
+        todos.extend(issues);
+    }
     
     Ok(result.parse_result(todos))
 }
