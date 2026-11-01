@@ -1,6 +1,7 @@
 use std::sync::OnceLock;
 
 use async_stream::stream;
+use futures::future::join_all;
 use futures::StreamExt;
 use futures::Stream;
 
@@ -147,8 +148,10 @@ impl Platform {
             let mut best_pager = Pager::none();
             let mut any_active = false;
             
-            for (i, s) in streams.iter_mut().enumerate() {
-                if let Some(res) = s.next().await {
+            let responses = join_all(streams.iter_mut().map(|s| s.next())).await;
+            
+            for (i, res) in responses.into_iter().enumerate() {
+                if let Some(res) = res {
                     any_active = true;
                     let page_res = res?;
                     
