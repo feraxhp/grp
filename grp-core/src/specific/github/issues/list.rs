@@ -52,7 +52,7 @@ pub async fn list_issues_by_scope<A>(
     scope: Filter,
     config: &Config,
     animation: &Box<A>,
-    page: u64,
+    page: usize,
 ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<crate::specific::github::parser::Issue>>, Error>>, Error> 
 where 
     A: Animation + ?Sized,

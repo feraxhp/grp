@@ -1,3 +1,4 @@
+
 use futures::{Stream, StreamExt};
 use mynox::Error;
 
@@ -31,7 +32,7 @@ impl Platform {
     pub fn list_orgs<A: Animation + ?Sized>(&self, 
         config: &Config, 
         animation: &Box<A>,
-        page: u64,
+        page: usize,
     ) -> impl Stream<Item = Result<PaginatorResult<Vec<User>>, Error>> {
         let url = self.url_list_orgs(config);
         

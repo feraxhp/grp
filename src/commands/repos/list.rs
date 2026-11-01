@@ -12,6 +12,7 @@ use crate::cache::structure::Cacher;
 use crate::commands::core::args::Arguments;
 use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
+use crate::commands::validations::range::Range;
 use crate::{success, warning};
 use crate::printables::show::Show;
 use crate::usettings::structs::{Pconf, Usettings};
@@ -21,6 +22,7 @@ pub fn command() -> Command {
         .args([
             Arguments::pconf(false, true),
             arg!([owner] "The user to list the repositories from"),
+            Arguments::page(false, "Controls wich pages to request before printing (defaults to all)"),
             arg!(-s  --"show-errors" "Show the erros when they happen during paggination request")
                 .required(false)
         ])
@@ -35,6 +37,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     let owner = args.get_one::<String>("owner");
+    let range = args.get_one::<Range>("owner").cloned().unwrap_or_default();
     let show_errors = args.get_flag("show-errors");
     
     let platform = match Platform::matches(&pconf.r#type) {
@@ -48,7 +51,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let config = pconf.to_config();
     
     let stream = match platform.list_repos(owner, &config, &animation, 1).await {
-        Ok(s) => s,
+        Ok(s) => s.take(range.take()),
         Err(e) => {
             animation.finish_with_error(e.message());
             e.eprint();
@@ -62,7 +65,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         .map(|(i, s)| {
             match &s {
                 Ok(pr) if let Some(last) = pr.pager.last_number() => {
-                    an.change_message(format!("Requesting page: {} of {}", i + 1, last))
+                    an.change_message(format!("Requesting page: {} of {}", i + 1, range.to_or(last)))
                 },
                 _ => an.change_message(format!("Requesting page: {}", i + 1)),
             }

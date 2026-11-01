@@ -5,11 +5,14 @@ use clap::{Arg, arg};
 use clap::builder::ValueParser;
 use color_print::cformat;
 
+use crate::commands::validations::structure::Validations;
 use crate::commands::validations::issues::IssueStructure;
 use crate::commands::validations::repo::RepoStructure;
-use crate::commands::validations::structure::{Raw, Validations};
-use crate::usettings::structs::{Pconf, Usettings};
 use super::super::completions::structure::Completer;
+use crate::commands::validations::structure::Raw;
+use crate::commands::validations::range::Range;
+use crate::usettings::structs::Usettings;
+use crate::usettings::structs::Pconf;
 
 
 pub(crate) struct Arguments;
@@ -72,6 +75,17 @@ impl Arguments {
             .required(required)
             .value_hint(clap::ValueHint::DirPath)
             .value_parser(ValueParser::path_buf())
+    }
+    
+    pub(crate) fn page(required: bool, about: &str) -> Arg {
+        Arg::new("page")
+            .short('p')
+            .long("page")
+            .help(about.to_owned())
+            .required(required)
+            .require_equals(true)
+            .alias("range")
+            .value_parser(Range::parse)
     }
 }
 

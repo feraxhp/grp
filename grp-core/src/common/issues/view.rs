@@ -20,7 +20,7 @@ impl Platform {
         issue: &u64,
         config: &Config,
         animation: &Box<A>,
-        page: u64,
+        page: usize,
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Comment>>, Error>>, Error> 
     where 
         T: Into<String>, 

@@ -23,7 +23,7 @@ impl Platform {
     pub async fn list_all_involved_user_issues<'a ,A>(&'a self,
         config: &'a Config,
         animation: &'a Box<A>,
-        page: u64,
+        page: usize,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>> + Send + 'a>>, Error> 
     where 
         A: Animation + ?Sized,

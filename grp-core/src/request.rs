@@ -97,7 +97,7 @@ impl Platform {
         url: String, 
         config: &Config, 
         request_type: RequestType, 
-        page: u64,
+        page: usize,
     ) -> impl Stream<Item = Result<PaginatorResult<String>, Error>> { stream! {
         let client = client();
         let headers = self.get_auth_header(&config.token);
@@ -137,7 +137,7 @@ impl Platform {
     pub fn pagginates<const N: usize>(&self,
         destinations: [(String, RequestType); N],
         config: &Config, 
-        page: u64,
+        page: usize,
     ) -> impl Stream<Item = Result<PaginatorResult<[Option<String>; N]>, Error>> { stream! {
         let mut streams = destinations.map(|(url, req_type)| {
             Box::pin(self.pagginate(url, config, req_type, page))
@@ -213,7 +213,7 @@ fn extract_next(link_header: Option<&HeaderValue>) -> Result<Pager, Error> {
 impl Pager {
     fn none() -> Self { Self { next: None, last: None } }
     
-    pub fn last_number(&self) -> Option<u64>{
+    pub fn last_number(&self) -> Option<usize> {
         let last = self.last.clone().map(|url| {
             let value = url.query_pairs()
                 .flat_map(| (key, value) | {
@@ -222,11 +222,11 @@ impl Pager {
                 })
                 .last();
             
-            value.map(|value| value.parse::<u64>())
+            value.map(|value| value.parse::<usize>().ok())
         });
         
         match last {
-            Some(Some(Ok(number))) => Some(number),
+            Some(Some(Some(number))) => Some(number),
             _ => None,
         }
     }

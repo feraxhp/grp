@@ -1,3 +1,4 @@
+
 use futures::{Stream, StreamExt};
 use mynox::Error;
 
@@ -14,7 +15,7 @@ impl Platform {
         owner: Option<T>, 
         config: &Config,
         animation: &Box<A>,
-        page: u64,
+        page: usize,
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Repo>>, Error>>, Error> {
         let owner = owner.map(|o| o.into());
         let owner = owner.unwrap_or(config.user.clone());

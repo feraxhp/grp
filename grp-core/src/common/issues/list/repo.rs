@@ -18,7 +18,7 @@ impl Platform {
         repo_path: &R,
         config: &Config,
         animation: &Box<A>,
-        page: u64,
+        page: usize,
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
     where 
         T: Into<String>, 
