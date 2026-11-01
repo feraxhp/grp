@@ -12,7 +12,8 @@ use crate::Config;
 impl Platform {
     pub async fn list_user_assigned_issues<A>(&self,
         config: &Config,
-        animation: &Box<A>
+        animation: &Box<A>,
+        page: u64,
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
     where 
         A: Animation + ?Sized,
@@ -24,7 +25,7 @@ impl Platform {
         animation.change_message("fetching issues...");
         
         Ok(
-            self.pagginate(url, config, RequestType::ListIssues, 1)
+            self.pagginate(url, config, RequestType::ListIssues, page)
                 .map(|result| {
                     self.get_issues(result)
                 })

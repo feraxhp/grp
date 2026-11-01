@@ -28,7 +28,7 @@ async fn list_gitlab_issues() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_issues(None::<String>, &"Hello-Gitlab", &config, &an).await?;
+    let stream = Gitlab.list_issues(None::<String>, &"Hello-Gitlab", &config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -54,7 +54,7 @@ async fn list_gitlab_issues_for_repo() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_issues(Some("gitlab_group"), &"Hello-Gitlab", &config, &an).await?;
+    let stream = Gitlab.list_issues(Some("gitlab_group"), &"Hello-Gitlab", &config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -75,7 +75,7 @@ async fn list_gitlab_user_assigned_issues() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_user_assigned_issues(&config, &an).await?;
+    let stream = Gitlab.list_user_assigned_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -96,7 +96,7 @@ async fn list_gitlab_all_user_issues() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_all_user_issues(&config, &an).await?;
+    let stream = Gitlab.list_all_user_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let mut issues = vec![];
     while let Some(item) = stream.next().await {
@@ -126,7 +126,7 @@ async fn list_gitlab_all_involved_user_issues() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_all_involved_user_issues(&config, &an).await?;
+    let stream = Gitlab.list_all_involved_user_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let mut issues = vec![];
     while let Some(item) = stream.next().await {

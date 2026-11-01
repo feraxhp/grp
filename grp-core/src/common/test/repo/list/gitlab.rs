@@ -22,7 +22,7 @@ async fn get_gitlab_repo() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_repos(None::<String>, &config, &an).await?;
+    let stream = Gitlab.list_repos(None::<String>, &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
 
@@ -43,7 +43,7 @@ async fn list_gitlab_repos_for_org() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_repos(Some("gitlab_group"), &config, &an).await?;
+    let stream = Gitlab.list_repos(Some("gitlab_group"), &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
 

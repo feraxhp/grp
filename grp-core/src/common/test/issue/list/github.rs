@@ -22,7 +22,7 @@ async fn list_github_issues() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_issues(None::<String>, &"Hello-World", &config, &an).await?;
+    let stream = Github.list_issues(None::<String>, &"Hello-World", &config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -42,7 +42,7 @@ async fn list_github_issues_for_repo() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_issues(Some("other_user"), &"Hello-World", &config, &an).await?;
+    let stream = Github.list_issues(Some("other_user"), &"Hello-World", &config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -63,7 +63,7 @@ async fn list_github_user_assigned_issues() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_user_assigned_issues(&config, &an).await?;
+    let stream = Github.list_user_assigned_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -83,7 +83,7 @@ async fn list_github_all_user_issues() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_all_user_issues(&config, &an).await?;
+    let stream = Github.list_all_user_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -103,7 +103,7 @@ async fn list_github_all_involved_user_issues() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_all_involved_user_issues(&config, &an).await?;
+    let stream = Github.list_all_involved_user_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 

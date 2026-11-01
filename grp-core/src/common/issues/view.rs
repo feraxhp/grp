@@ -19,7 +19,8 @@ impl Platform {
         repo_path: &R,
         issue: &u64,
         config: &Config,
-        animation: &Box<A>
+        animation: &Box<A>,
+        page: u64,
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Comment>>, Error>>, Error> 
     where 
         T: Into<String>, 
@@ -41,7 +42,7 @@ impl Platform {
         animation.change_message("fetching issue comments...");
         
         Ok(
-            self.pagginate(url, config, RequestType::ListIssuesComments { owner, repo: repo.clone(), number: *issue }, 1)
+            self.pagginate(url, config, RequestType::ListIssuesComments { owner, repo: repo.clone(), number: *issue }, page)
                 .map(move |result| {
                     let repo = repo.clone();
                     self.get_comments(result, repo, config, issue)

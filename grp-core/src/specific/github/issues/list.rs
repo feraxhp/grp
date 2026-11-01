@@ -3,7 +3,6 @@ use std::fmt::Display;
 use futures::{Stream, StreamExt};
 use mynox::Error;
 
-use crate::specific::github::parser::Issue;
 use crate::structs::PaginatorResult;
 use crate::animation::Animation;
 use crate::structs::RequestType;
@@ -53,7 +52,8 @@ pub async fn list_issues_by_scope<A>(
     scope: Filter,
     config: &Config,
     animation: &Box<A>,
-) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
+    page: u64,
+) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<crate::specific::github::parser::Issue>>, Error>>, Error> 
 where 
     A: Animation + ?Sized,
 {
@@ -62,14 +62,14 @@ where
     animation.change_message(format!("requesting {} issues...", scope));
     Ok(
         platform
-            .pagginate(url, config, RequestType::ListIssues, 1)
+            .pagginate(url, config, RequestType::ListIssues, page)
             .map(parse)
     )
 }
 
-pub(crate) fn parse(response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<Issue>>, Error> {
+pub(crate) fn parse(response: Result<PaginatorResult<String>, Error>) -> Result<PaginatorResult<Vec<crate::specific::github::parser::Issue>>, Error> {
     let result = response?;
-    let todos: Vec<Issue> = JSON::from_str(&result.result)?;
+    let todos: Vec<crate::specific::github::parser::Issue> = JSON::from_str(&result.result)?;
     
     Ok(result.parse_result(todos))
 }

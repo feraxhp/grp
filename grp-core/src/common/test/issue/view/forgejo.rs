@@ -56,7 +56,7 @@ async fn list_forgejo_issue_comments() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_issue_comments(None::<String>, &"Hello-Forgejo", &1, &config, &an).await?;
+    let stream = Forgejo.list_issue_comments(None::<String>, &"Hello-Forgejo", &1, &config, &an, 1).await?;
     tokio::pin!(stream);
     let comments = stream.next().await.unwrap()?.result;
 

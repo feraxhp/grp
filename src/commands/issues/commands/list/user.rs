@@ -52,7 +52,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let config = pconf.to_config();
     
     let stream = match mode {
-        Mode::Assigned => match platform.list_user_assigned_issues(&config, &animation).await {
+        Mode::Assigned => match platform.list_user_assigned_issues(&config, &animation, 1).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(e.message());
@@ -60,7 +60,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 return;
             },
         },
-        Mode::All => match platform.list_all_user_issues(&config, &animation).await {
+        Mode::All => match platform.list_all_user_issues(&config, &animation, 1).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(e.message());
@@ -68,7 +68,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 return;
             },
         },
-        Mode::Involved => match platform.list_all_involved_user_issues(&config, &animation).await {
+        Mode::Involved => match platform.list_all_involved_user_issues(&config, &animation, 1).await {
             Ok(s) => s.boxed(),
             Err(e) => {
                 animation.finish_with_error(e.message());

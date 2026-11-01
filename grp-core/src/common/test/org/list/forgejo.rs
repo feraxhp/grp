@@ -19,7 +19,7 @@ async fn list_forgejo_orgs() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_orgs(&config, &an);
+    let stream = Forgejo.list_orgs(&config, &an, 1);
     tokio::pin!(stream);
     let orgs = stream.next().await.unwrap()?.result;
 

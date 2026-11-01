@@ -30,12 +30,13 @@ impl Platform {
     /// a better solution with yield is planned, but for know this is the best i could do.
     pub fn list_orgs<A: Animation + ?Sized>(&self, 
         config: &Config, 
-        animation: &Box<A>
+        animation: &Box<A>,
+        page: u64,
     ) -> impl Stream<Item = Result<PaginatorResult<Vec<User>>, Error>> {
         let url = self.url_list_orgs(config);
         
         animation.change_message("getting organizations ...");
-        self.pagginate(url, config, RequestType::ListOrg { way: "by_url".to_string() }, 1)
+        self.pagginate(url, config, RequestType::ListOrg { way: "by_url".to_string() }, page)
             .map(|result| {
                 self.get_user(result)
             })

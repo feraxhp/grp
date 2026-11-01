@@ -23,7 +23,7 @@ async fn get_github_repo() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_repos(None::<String>, &config, &an).await?;
+    let stream = Github.list_repos(None::<String>, &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
 
@@ -44,7 +44,7 @@ async fn list_github_repos_for_org() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_repos(Some("github"), &config, &an).await?;
+    let stream = Github.list_repos(Some("github"), &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
 
@@ -65,7 +65,7 @@ async fn list_github_repos_for_unlogged_user() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_repos(Some("torvalds"), &config, &an).await?;
+    let stream = Github.list_repos(Some("torvalds"), &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
 

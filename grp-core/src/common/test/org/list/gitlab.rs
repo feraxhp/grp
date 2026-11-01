@@ -19,7 +19,7 @@ async fn list_gitlab_orgs() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_orgs(&config, &an);
+    let stream = Gitlab.list_orgs(&config, &an, 1);
     tokio::pin!(stream);
     let orgs = stream.next().await.unwrap()?.result;
 

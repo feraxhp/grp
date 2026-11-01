@@ -75,7 +75,7 @@ async fn list_gitlab_issue_comments() -> Result<(), mynox::Report> {
     let config = config!(gl server);
     let an = Box::new(animation::None);
     
-    let stream = Gitlab.list_issue_comments(None::<String>, &"Hello-Gitlab", &1, &config, &an).await?;
+    let stream = Gitlab.list_issue_comments(None::<String>, &"Hello-Gitlab", &1, &config, &an, 1).await?;
     tokio::pin!(stream);
     let comments = stream.next().await.unwrap()?.result;
 

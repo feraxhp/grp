@@ -23,7 +23,7 @@ async fn get_forgejo_repo() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_repos(None::<String>, &config, &an).await?;
+    let stream = Forgejo.list_repos(None::<String>, &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
 
@@ -44,7 +44,7 @@ async fn list_forgejo_repos_for_org() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_repos(Some("forgejo_org"), &config, &an).await?;
+    let stream = Forgejo.list_repos(Some("forgejo_org"), &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
     
@@ -65,7 +65,7 @@ async fn list_forgejo_repos_for_unlogged_user() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_repos(Some("other_user"), &config, &an).await?;
+    let stream = Forgejo.list_repos(Some("other_user"), &config, &an, 1).await?;
     tokio::pin!(stream);
     let repos = stream.next().await.unwrap()?.result;
 

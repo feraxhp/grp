@@ -63,6 +63,7 @@ pub async fn list_issues_by_scope<A, const N: usize>(
     scopes: [Scope; N],
     config: &Config,
     animation: &Box<A>,
+    page: u64,
 ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
 where 
     A: Animation + ?Sized,
@@ -73,7 +74,7 @@ where
     animation.change_message("requesting issues...");
     Ok(
         platform
-            .pagginates(destinations, config, 1)
+            .pagginates(destinations, config, page)
             .map(move |response| parse(response, &scopes, &mut seen))
     )
 }

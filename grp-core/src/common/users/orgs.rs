@@ -18,7 +18,7 @@ impl Platform {
         let an = Box::new(animation::None);
         
         let mut error: Option<Error> = None;
-        let orgs: Vec<User> = self.list_orgs(config, &an)
+        let orgs: Vec<User> = self.list_orgs(config, &an, 1)
             .take_while(|result| {
                 match result {
                     Ok(_) => future::ready(true),

@@ -22,7 +22,8 @@ use crate::JSON;
 impl Platform {
     pub async fn list_all_involved_user_issues<'a ,A>(&'a self,
         config: &'a Config,
-        animation: &'a Box<A>
+        animation: &'a Box<A>,
+        page: u64,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>> + Send + 'a>>, Error> 
     where 
         A: Animation + ?Sized,
@@ -34,7 +35,7 @@ impl Platform {
                 
                 animation.change_message("fetching issues...");
                 Ok(
-                    self.pagginate(url, config, RequestType::ListIssues, 1)
+                    self.pagginate(url, config, RequestType::ListIssues, page)
                         .map(|result| {
                             self.get_seach_result(result)
                         })
@@ -48,7 +49,7 @@ impl Platform {
                     gitlab::issues::list::Scope::CreatedByMe,
                 ];
                 
-                let response = gitlab::issues::list::list_issues_by_scope(self, scopes, config, animation).await?;
+                let response = gitlab::issues::list::list_issues_by_scope(self, scopes, config, animation, page).await?;
                 let stream = response.map(|result| {
                     let result = result?;
                     let issues = result.result.iter().map(|s| s.convert()).collect();

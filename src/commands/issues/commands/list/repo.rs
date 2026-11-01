@@ -47,7 +47,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     let config = pconf.to_config();
     
-    let stream = match platform.list_issues(owner, &repo.path, &config, &animation).await {
+    let stream = match platform.list_issues(owner, &repo.path, &config, &animation, 1).await {
         Ok(s) => s,
         Err(e) => {
             animation.finish_with_error(e.message());

@@ -13,7 +13,8 @@ impl Platform {
     pub async fn list_repos<T: Into<String>, A: Animation + ?Sized>(&self,
         owner: Option<T>, 
         config: &Config,
-        animation: &Box<A>
+        animation: &Box<A>,
+        page: u64,
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Repo>>, Error>>, Error> {
         let owner = owner.map(|o| o.into());
         let owner = owner.unwrap_or(config.user.clone());
@@ -26,7 +27,7 @@ impl Platform {
         animation.change_message("fetching repositories...");
         
         Ok(
-            self.pagginate(url, config, RequestType::ListRepo { owner }, 1)
+            self.pagginate(url, config, RequestType::ListRepo { owner }, page)
                 .map(|result| {
                     self.get_repos(result)
                 })

@@ -17,7 +17,8 @@ impl Platform {
         owner: Option<T>, 
         repo_path: &R,
         config: &Config,
-        animation: &Box<A>
+        animation: &Box<A>,
+        page: u64,
     ) -> Result<impl Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>>, Error> 
     where 
         T: Into<String>, 
@@ -38,7 +39,7 @@ impl Platform {
         animation.change_message("fetching issues...");
         
         Ok(
-            self.pagginate(url, config, RequestType::ListIssues, 1)
+            self.pagginate(url, config, RequestType::ListIssues, page)
                 .map(|result| {
                     self.get_issues(result)
                 })

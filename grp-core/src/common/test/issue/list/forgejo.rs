@@ -21,7 +21,7 @@ async fn list_forgejo_issues() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_issues(None::<String>, &"Hello-Forgejo", &config, &an).await?;
+    let stream = Forgejo.list_issues(None::<String>, &"Hello-Forgejo", &config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -41,7 +41,7 @@ async fn list_forgejo_issues_for_repo() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_issues(Some("forgejo_org"), &"Hello-Forgejo", &config, &an).await?;
+    let stream = Forgejo.list_issues(Some("forgejo_org"), &"Hello-Forgejo", &config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -62,7 +62,7 @@ async fn list_forgejo_user_assigned_issues() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_user_assigned_issues(&config, &an).await?;
+    let stream = Forgejo.list_user_assigned_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let issues = stream.next().await.unwrap()?.result;
 
@@ -84,7 +84,7 @@ async fn list_forgejo_all_user_issues() -> Result<(), mynox::Report> {
     let config = config!(fj server);
     let an = Box::new(animation::None);
     
-    let stream = Forgejo.list_all_user_issues(&config, &an).await?;
+    let stream = Forgejo.list_all_user_issues(&config, &an, 1).await?;
     tokio::pin!(stream);
     let mut issues = vec![];
     while let Some(item) = stream.next().await {

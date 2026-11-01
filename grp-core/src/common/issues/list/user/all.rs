@@ -20,7 +20,8 @@ impl Platform {
     /// 3. for forgejo (and compatibles) unifies the request from _AssignedToMe, CreatedByMe, Mentioned_ (this may return duplicates)
     pub async fn list_all_user_issues<'a, A>(&'a self,
         config: &'a Config,
-        animation: &'a Box<A>
+        animation: &'a Box<A>,
+        page: u64,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<PaginatorResult<Vec<Issue>>, Error>> + Send + 'a>>, Error> 
     where 
         A: Animation + ?Sized,
@@ -31,7 +32,8 @@ impl Platform {
                     self, 
                     github::issues::list::Filter::All,
                     config, 
-                    animation
+                    animation,
+                    page,
                 ).await?;
 
                 Ok(
@@ -56,7 +58,7 @@ impl Platform {
                     gitlab::issues::list::Scope::CreatedByMe,
                 ];
                 
-                let response = gitlab::issues::list::list_issues_by_scope(self, scopes, config, animation).await?;
+                let response = gitlab::issues::list::list_issues_by_scope(self, scopes, config, animation, page).await?;
                 let stream = response.map(|result| {
                     let result = result?;
                     let issues = result.result.iter().map(|s| s.convert()).collect();
@@ -75,7 +77,7 @@ impl Platform {
                     forgejo::issues::list::Scope::Mentioned,
                 ];
                 
-                let response = forgejo::issues::list::list_issues_by_scope(self, scopes, config, animation).await?;
+                let response = forgejo::issues::list::list_issues_by_scope(self, scopes, config, animation, page).await?;
                 let stream = response.map(|result| {
                     let result = result?;
                     let issues = result.result.iter().filter_map(|s| {

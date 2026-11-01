@@ -48,7 +48,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let config = pconf.to_config();
     
     let an = &animation;
-    let (orgs, mut errors) = platform.list_orgs(&config, &animation)
+    let (orgs, mut errors) = platform.list_orgs(&config, &animation, 1)
         .enumerate()
         .map(|(i, s)| {
             match &s {

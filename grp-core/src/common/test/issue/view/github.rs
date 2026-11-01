@@ -56,7 +56,7 @@ async fn list_github_issue_comments() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_issue_comments(None::<String>, &"Hello-World", &1347, &config, &an).await?;
+    let stream = Github.list_issue_comments(None::<String>, &"Hello-World", &1347, &config, &an, 1).await?;
     tokio::pin!(stream);
     let comments = stream.next().await.unwrap()?.result;
 

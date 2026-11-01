@@ -19,7 +19,7 @@ async fn list_github_orgs() -> Result<(), mynox::Report> {
     let config = config!(gh server);
     let an = Box::new(animation::None);
     
-    let stream = Github.list_orgs(&config, &an);
+    let stream = Github.list_orgs(&config, &an, 1);
     tokio::pin!(stream);
     let orgs = stream.next().await.unwrap()?.result;
 

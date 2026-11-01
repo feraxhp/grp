@@ -64,7 +64,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     animation.change_message("Getting issue comments...");
-    let stream = match platform.list_issue_comments(owner, &issue.repo.path, &issue.number, &config, &animation).await {
+    let stream = match platform.list_issue_comments(owner, &issue.repo.path, &issue.number, &config, &animation, 1).await {
         Ok(s) => s,
         Err(e) => {
             animation.finish_with_error(e.message());
@@ -153,7 +153,7 @@ fn print_issue(
         }};
     }
     
-    chunks.push(cformat!("\n<b, bold> █ {}</> <i, dim>{}</>", &issue.title, cformat!("#{}", issue.number).as_link(&issue.url)));
+    chunks.push(cformat!("\n<b, bold> █ {}</> <i, dim>{}</>", &issue.title, cformat!("#{}" , issue.number).as_link(&issue.url)));
     chunks.push(cformat!("<b, bold> █"));
     chunks.push(cformat!("<b, bold> █ </><b>╭──</> <green>{}</> <dim>- {}</>",issue.author.to_link(), issue.created_at.to_human()));
     chunks.push(lazy_parse!(errors, issue.body, cformat!("<dim, i>no detail</>"), " █"));
