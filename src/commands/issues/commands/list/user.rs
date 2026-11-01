@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use std::process::exit;
 use futures::StreamExt;
 
@@ -80,7 +79,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     let an = &animation;
-    let (mut issues, errors) = stream
+    let (issues, errors) = stream
         .enumerate()
         //.take(1)
         .map(|(i, s)| {
@@ -101,10 +100,6 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             (repos, errors)
         })
         .await;
-
-    animation.change_message("Removing duplicates...");
-    let mut seen = HashSet::new();
-    issues.retain(|issue| seen.insert(issue.id));
 
     let errors = errors.into_iter().collect::<OptionError>().into_option();
     match (issues.is_empty(), errors.is_none()) {

@@ -103,7 +103,7 @@ async fn list_gitlab_all_user_issues() -> Result<(), mynox::Report> {
         issues.extend(item?.result);
     }
 
-    assert_eq!(issues.len(), 2);
+    assert_eq!(issues.len(), 1);
     assert_eq!(&issues[0].title, "Found a bug in Gitlab");
     server.verify().await;
     Ok(())
@@ -133,7 +133,7 @@ async fn list_gitlab_all_involved_user_issues() -> Result<(), mynox::Report> {
         issues.extend(item?.result);
     }
 
-    assert_eq!(issues.len(), 3);
+    assert_eq!(issues.len(), 1);
     assert_eq!(&issues[0].title, "Found a bug in Gitlab");
     server.verify().await;
     Ok(())

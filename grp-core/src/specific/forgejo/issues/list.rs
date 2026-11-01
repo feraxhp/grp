@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::fmt::Display;
 
 use futures::{Stream, StreamExt};
@@ -55,22 +56,26 @@ where
     A: Animation + ?Sized,
 {
     let destinations = scopes.map(|scope| scope.destination(platform, config));
+    let mut seen = HashSet::new();
     
     animation.change_message("requesting issues...");
     Ok(
         platform
             .pagginates(destinations, config, 1)
-            .map(parse)
+            .map(move |response| parse(response, &mut seen))
     )
 }
 
-pub(crate) fn parse<const N: usize>(response: Result<PaginatorResult<[Option<String>; N]>, Error>) -> Result<PaginatorResult<Vec<Issue>>, Error> {
+pub(crate) fn parse<const N: usize>(
+    response: Result<PaginatorResult<[Option<String>; N]>, Error>,
+    seen: &mut HashSet<u64>,
+) -> Result<PaginatorResult<Vec<Issue>>, Error> {
     let result = response?;
     let mut todos = Vec::new();
     
     for json in result.result.iter().flatten() {
         let issues: Vec<Issue> = JSON::from_str(json)?;
-        todos.extend(issues);
+        todos.extend(issues.into_iter().filter(|issue| seen.insert(issue.id)));
     }
     
     Ok(result.parse_result(todos))
