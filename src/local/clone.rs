@@ -29,7 +29,7 @@ impl Local {
     ) -> Result<Repo, Error> {
         
         animation.change_message("Preparing clone ...");
-        let url = self.generate_clone_url(&config.endpoint, owner, repo);
+        let url = self.generate_clone_url(config, owner, repo);
         
         Self::clone_by_url(&url, options, config, animation).await.map(|_| Repo {
             path: format!("{}/{}", owner, repo),
@@ -111,13 +111,13 @@ impl Local {
         }
     }
 
-    fn generate_clone_url<S: AsRef<str>>(&self, endpoint: &S, owner: &S, repo: &S) -> String {
+    fn generate_clone_url<S: AsRef<str>>(&self, config: &Config, owner: &S, repo: &S) -> String {
         match self.0 {
-            Platform::Github => format!("https://github.com/{}/{}.git", owner.as_ref(), repo.as_ref()),
+            Platform::Github |
             Platform::Gitlab |
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => format!("https://{}/{}/{}.git", endpoint.as_ref(), owner.as_ref(), repo.as_ref()),
+            Platform::Gitea => format!("{}/{}/{}.git", self.get_base_url(config), owner.as_ref(), repo.as_ref()),
         }
     }
 

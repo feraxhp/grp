@@ -56,7 +56,7 @@ impl Platform {
         }
     }
     
-    pub(crate) fn get_base_url(&self, config: &Config) -> String {
+    pub fn get_base_url(&self, config: &Config) -> String {
         let endpoint = &config.endpoint;
         let https = if config.unsafed { "http" } else { "https" };
         match self {
