@@ -37,7 +37,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     };
     
     let owner = args.get_one::<String>("owner");
-    let range = args.get_one::<Range>("owner").cloned().unwrap_or_default();
+    let range = args.get_one::<Range>("page").cloned().unwrap_or_default();
     let show_errors = args.get_flag("show-errors");
     
     let platform = match Platform::matches(&pconf.r#type) {

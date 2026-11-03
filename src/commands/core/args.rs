@@ -83,7 +83,6 @@ impl Arguments {
             .long("page")
             .help(about.to_owned())
             .required(required)
-            .require_equals(true)
             .alias("range")
             .value_parser(Range::parse)
     }
