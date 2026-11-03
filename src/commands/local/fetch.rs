@@ -20,6 +20,8 @@ pub fn command() -> Command {
         .about("Fetch a repository from a configured platform")
         .args([
             arg!( -n --"dry-run" "Do everything except actually fetch the updates."),
+            arg!( -d --depth [depth] "Number of commits to fetch (shallow)")
+                .value_parser(clap::value_parser!(i32)),
             arg!([remote] "The name of the remote to fetch from")
                 .add(Remote::complete())
             ,
@@ -34,6 +36,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let pconf = args.get_one::<Pconf>("pconf").cloned();
     
     let dry_run = args.get_flag("dry-run");
+    let depth = args.get_one::<i32>("depth").copied();
     
     let path = match args.get_one::<PathBuf>("path"){
         Some(value) => value.clone(),
@@ -43,9 +46,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let remote = args.get_one::<String>("remote").map(|e| e.to_owned());
     
     let options = Options {
-        method: Methods::Default ,
+        method: Methods::Default,
         remote, branch: None,
-        force: false, dry_run
+        force: false, dry_run,
+        depth,
     };
     
     let result = Local::fetch_repo(&path, pconf.clone(), options, &usettings, &mut animation).await;

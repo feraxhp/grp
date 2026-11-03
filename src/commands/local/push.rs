@@ -99,7 +99,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let options = Options {
         method, remote,
         branch, force,
-        dry_run
+        dry_run,
+        depth: None,
     };
 
     let result = Local::push_repo(&path, pconf.clone(), options, &usettings, &mut animation);

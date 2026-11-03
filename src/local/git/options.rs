@@ -17,7 +17,8 @@ pub(crate) struct Options {
     pub(crate) remote: Option<String>,
     pub(crate) branch: Option<String>,
     pub(crate) force: bool,
-    pub(crate) dry_run: bool
+    pub(crate) dry_run: bool,
+    pub(crate) depth: Option<i32>,
 }
 
 

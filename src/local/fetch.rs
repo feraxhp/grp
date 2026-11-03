@@ -134,6 +134,7 @@ impl Local {
         let mut fetch_options = FetchOptions::new();
         fetch_options.remote_callbacks(callbacks);
         fetch_options.download_tags(AutotagOption::Auto);
+        if let Some(depth) = options.depth { fetch_options.depth(depth); }
         
         let bbranches = GitUtils::get_branches_by_remote(repo, &remote_name)?;
         

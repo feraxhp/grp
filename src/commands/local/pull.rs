@@ -1,22 +1,21 @@
 use std::path::PathBuf;
-
-use clap::{arg, Arg, ArgMatches, Command, command};
+use clap::{Arg, ArgMatches, Command, arg, command};
 use color_print::cformat;
-
 use grp_core::animation::Animation;
+
+use super::super::completions::structure::Completer;
 
 use crate::commands::completions::git::branch::Branch;
 use crate::commands::completions::git::remote::Remote;
 use crate::commands::completions::git::upstream::Upstream;
-use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
+use crate::errors::ToError;
 use crate::local::git::options::{Methods, Options};
 use crate::local::git::structs::Action;
 use crate::local::pull::PullAction;
 use crate::local::structs::{Git2Context, Local, LocalError};
-use crate::errors::ToError;
-use crate::{success, warning};
 use crate::usettings::structs::{Pconf, Usettings};
+use crate::{success, warning};
 use crate::animations::animation::Fetch;
 
 
@@ -27,6 +26,8 @@ pub(crate) fn command() -> Command {
             arg!( -f --force "Do a force pull"),
             arg!( -r --rebase).help(cformat!("Do a <i>pull --rebase</>")),
             arg!( -n --"dry-run" "Do everything except actually fetch the updates."),
+            arg!( -d --depth [depth] "Number of commits to fetch before merging (shallow)")
+                .value_parser(clap::value_parser!(i32)),
             Arg::new("set-upstream").short('u').long("set-upstream")
                 .num_args(2)
                 .value_names(["remote", "branch"])
@@ -50,6 +51,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let force = args.get_flag("force");
     let dry_run = args.get_flag("dry-run");
+    let depth = args.get_one::<i32>("depth").copied();
     
     let path = match args.get_one::<PathBuf>("path"){
         Some(value) => value.clone(),
@@ -70,7 +72,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let options = Options {
         method: if up_stream { Methods::Upstream } else { Methods::Default },
         remote, branch,
-        force, dry_run
+        force, dry_run,
+        depth,
     };
     
     let action = match args.get_flag("rebase") {
