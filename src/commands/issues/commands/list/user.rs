@@ -10,13 +10,15 @@ use mynox::OptionError;
 use crate::animations::animation::Fetch;
 use crate::commands::core::args::Arguments;
 use crate::commands::validations::or_exit::structure::OrExit;
+use crate::commands::validations::range::Range;
 use crate::printables::show::Show;
 use crate::usettings::structs::{Pconf, Usettings};
 
 
-pub fn arguments() -> [Arg; 4] {
+pub fn arguments() -> [Arg; 5] {
     [
         Arguments::pconf(false, true),
+        Arguments::page(false, "Controls wich pages to request before printing (defaults to all)"),
         arg!(-a --assigned "Show only the assigned issues for the authenticated user (Experimental)")
         ,
         arg!(-i --involved "Show all the involved issues for the authenticated user")
@@ -40,6 +42,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         _ => Mode::All,
     };
     
+    let range = args.get_one::<Range>("page").cloned().unwrap_or_default();
     let show_errors = args.get_flag("show-errors");
     let platform = match Platform::matches(&pconf.r#type) {
         Ok(p) => p,
@@ -80,12 +83,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let an = &animation;
     let (issues, errors) = stream
+        .take(range.take())
         .enumerate()
-        //.take(1)
         .map(|(i, s)| {
             match &s {
             Ok(pr) if let Some(last) = pr.pager.last_number() => {
-                    an.change_message(format!("Requesting page: {} of {}", i + 1, last))
+                    an.change_message(format!("Requesting page: {} of {}", i + 1, range.to_or(last)))
                 },
                 _ => an.change_message(format!("Requesting page: {}", i + 1)),
             }
