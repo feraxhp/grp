@@ -28,6 +28,22 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 | Create  | 🟪`1`  | ✅    | ✅       | ✅        | ✅`2`  | 🟪           |
 | Delete  | ✅     | ✅    | ✅       | ✅        | ✅`3`  | 🟪           |
 
+### Issues
+| Feature     | GitHub | Gitea | Codeberg | Forgejo | GitLab |
+|:-----------:|:------:|:-----:|:--------:|:--------:|:------:|
+| List        | ✅     | ✅    | ✅       | ✅        | ✅     |
+| See deatils | ✅     | ✅    | ✅       | ✅        | ✅     |
+| Create      | 🟥     | 🟥    | 🟥       | 🟥        | 🟥     |
+| Comment     | 🟥     | 🟥    | 🟥       | 🟥        | 🟥     |
+| Delete      | 🟥     | 🟥    | 🟥       | 🟥        | 🟥     |
+| Close       | 🟥     | 🟥    | 🟥       | 🟥        | 🟥     |
+| Reopen      | 🟥     | 🟥    | 🟥       | 🟥        | 🟥     |
+
+### Pull Request
+| Feature     | GitHub | Gitea | Codeberg | Forgejo  | GitLab |
+|:-----------:|:------:|:-----:|:--------:|:--------:|:------:|
+| Create      | 🔶     | 🔶    | 🔶       | 🔶       | 🔶     |
+
 ### git integrations
 
 > [!TIP]
@@ -37,6 +53,7 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 - ✅ Clone
     - [x] bare
     - [x] branch
+    - [x] depth
     - [x] __url clone__ This is how to clone __any platform__
     - [x] **repo_structure** base clone example `gh:feraxhp/grp` 
 - ✅ Push
@@ -50,8 +67,10 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
     - [x] force: **Overrides any local code**
     - [x] rebase: Do a `git pull rebase` 
     - [x] dry-run
+    - [x] depth
     - [x] set-upstream
 - ✅ Fetch 
+    - [x] depth
 
 ---
 ## Installation
@@ -194,9 +213,9 @@ ideas to implement, and I hope I have the time and motivation to go through all 
 those ideas. More apps and stuff will be needed to reach that point. 
 For now, the roadmap will be this simple list below.
 
-- [ ] better token security handling (WIP)
+- [x] better token security handling
 - [ ] issues sub-command 
-    - [x] `list` (WIP - betta) 
+    - [x] `list` 
     - [x] `detail` 
     - [ ] `add` 
     - [ ] `close` 

@@ -7,14 +7,18 @@
 - [ ] add delete issue command
 - [ ] add comment on issue
 - [ ] add edit comment on issue
-- [ ] update documentation
+- [ ] update documentation (WIP)
+
+# Pull Requests
+
+- [ ] Create a pull request
 
 # Pagination
-- [-] move stating page
+- [x] move stating page
 
 ## CLI
-- [ ] add range for pagina
-    - [ ] `2:6` from  page 2 to 6
-    - [ ] `:3` from page 1 to 3
-    - [ ] `1:` from page 1 to last
+- [x] add range for pagina
+    - [x] `2:6` from  page 2 to 6
+    - [x] `:3` from page 1 to 3
+    - [x] `1:` from page 1 to last
     - [ ] `1::` from page 1 then skip to last _¿usefull?_
