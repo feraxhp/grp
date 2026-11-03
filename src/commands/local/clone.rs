@@ -35,7 +35,9 @@ pub fn command() -> Command {
             ,
             Arguments::path(false, "The path to clone the repository"),
             arg!(-b --branch [name] "The name of the branch"),
-            arg!(-B --bare "Clone as bare repo")
+            arg!(-B --bare "Clone as bare repo"),
+            arg!(-d --depth [depth] "Create a shallow clone with history truncated to the specified number of commits")
+                .value_parser(clap::value_parser!(i32)),
         ])
 }
 
@@ -44,11 +46,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let path = args.get_one::<PathBuf>("path");
     let branch = args.get_one::<String>("branch").cloned();
+    let depth = args.get_one::<i32>("depth").copied();
     
     let bare = args.get_flag("bare");
     
     match (args.get_one::<RepoStructure>("repo"), args.get_many::<String>("url"))  {
-        (Some(repo), None) => by_repostructure(repo, bare, path, branch, &mut animation, usettings).await,
+        (Some(repo), None) => by_repostructure(repo, bare, path, branch, depth, &mut animation, usettings).await,
         (None, Some(values)) => {
             let mut values_iter = values.clone();
             let pconf = values_iter.next().unwrap().to_owned();
@@ -70,7 +73,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                 },
             };
             
-            by_url(url, bare, path, pconf, branch, &mut animation, usettings).await;
+            by_url(url, bare, path, pconf, branch, depth, &mut animation, usettings).await;
         }
         _ => unreachable!()
     }
@@ -80,6 +83,7 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
     bare: bool,
     path: Option<&PathBuf>, 
     branch: Option<String>, 
+    depth: Option<i32>,
     animation: &mut Box<A>, 
     usettings: Usettings
 ) {
@@ -110,7 +114,7 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
     }
     
     let config = pconf.to_config();
-    let options = CloneOptions { path, branch, bare, };
+    let options = CloneOptions { path, branch, bare, depth };
     
     match platform.clone_repo(&repo.owner, &repo.path, &options, &config, animation).await {
         Ok(r) => {
@@ -138,6 +142,7 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
     bare: bool,
     path: Option<&PathBuf>, pconf: String,
     branch: Option<String>, 
+    depth: Option<i32>,
     animation: &mut Box<A>, 
     usettings: Usettings
 ) {
@@ -161,7 +166,7 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
     let config = pconf.to_config();
     let url_string = url.to_string();
     
-    let options = CloneOptions { path: path.clone(), branch, bare };
+    let options = CloneOptions { path: path.clone(), branch, bare, depth };
     
     match Local::clone_by_url(&url_string, &options, &config,  animation).await {
         Ok(_) => {

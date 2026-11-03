@@ -18,6 +18,7 @@ pub struct CloneOptions {
     pub path: PathBuf,
     pub branch: Option<String>,
     pub bare: bool,
+    pub depth: Option<i32>,
 }
 
 impl Local {
@@ -79,10 +80,11 @@ impl Local {
         
         let mut fo = git2::FetchOptions::new();
         fo.remote_callbacks(callbacks);
-
+        if let Some(depth) = options.depth { fo.depth(depth); }
+        
         let mut builder = RepoBuilder::new();
         builder.fetch_options(fo);
-
+        
         match options.branch.clone() {
             Some(value) => { builder.branch(value.as_str()); },
             None => (),
