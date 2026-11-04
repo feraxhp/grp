@@ -1,4 +1,4 @@
-use std::{env::current_dir, fmt::Display};
+use std::{env::current_dir, fmt::Display, io::SeekFrom::Current};
 
 use clap::{ArgMatches, Command, arg, command};
 use color_print::cformat;
@@ -7,7 +7,7 @@ use ink_md::platform;
 use mynox::{Context, Error, Extend, Formater, error};
 use reqwest::Url;
 
-use crate::{animations::animation::{self, Process}, commands::{config::config, core::{args::Arguments, commands::Commands}, validations::{branch::BranchStructure, or_exit::structure::OrExit, repo::RepoStructure}}, errors::ToError, local::{git::{options::Options, structs::GitUtils}, structs::{Git2Context, LocalError}}, printables::show::pconf, system::directories::BasicDir, usettings::structs::Usettings};
+use crate::{animations::animation::{self, Process}, commands::{config::{commands::default, config}, core::{args::Arguments, commands::Commands}, validations::{branch::BranchStructure, or_exit::structure::OrExit, repo::RepoStructure}}, errors::ToError, local::{git::{options::Options, structs::GitUtils}, structs::{Git2Context, LocalError}}, printables::show::pconf, system::directories::BasicDir, usettings::structs::Usettings};
 
 pub fn command() -> Command {
         Commands::create(cformat!("Create a <y,i>pull-request</> for the given platform"))
@@ -39,17 +39,23 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let (target, origin) = match (args.get_one::<BranchStructure>("target"), args.get_one::<BranchStructure>("origin")) {
         (None, None) => {
             animation.change_message("Autodetecting target and origin repos");
-            let current = as_mynox(detect_current_repo(&usettings, &animation), &usettings).or_exit(&animation);
-            (current.clone(), current)
+            let (current, default) = as_mynox(detect_current_repo(&usettings, &animation, true), &usettings).or_exit(&animation);
+            
+            let mut target = current.clone();
+            target.branch = default;
+            
+            (target, current)
         },
         (None, Some(o)) => {
             animation.change_message("Autodetecting target repo");
-            let current = as_mynox(detect_current_repo(&usettings, &animation), &usettings).or_exit(&animation);
+            let (mut current, default) = as_mynox(detect_current_repo(&usettings, &animation, true), &usettings).or_exit(&animation);
+            current.branch = default;
+            
             (current, o.clone())
         },
         (Some(t), None) => {
             animation.change_message("Autodetecting origin repo");
-            let current = as_mynox(detect_current_repo(&usettings, &animation), &usettings).or_exit(&animation);
+            let (current, _) = as_mynox(detect_current_repo(&usettings, &animation, false), &usettings).or_exit(&animation);
             (t.clone(), current)
         },
         (Some(t), Some(o)) => (t.clone(), o.clone()),
@@ -107,7 +113,7 @@ fn as_mynox<T>(result: Result<T, LocalError>, usettings: &Usettings) -> Result<T
     })
 }
 
-fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animation: &Box<A>) -> Result<BranchStructure, LocalError> {
+fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animation: &Box<A>, ask_default: bool) -> Result<(BranchStructure, String), LocalError> {
     let repo = git2::Repository::discover(".")?;
     let branch_name = GitUtils::get_branch_name(&repo)?;
     
@@ -123,7 +129,7 @@ fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animation: 
     
     let pconf = usettings.get_raw_pconf_by_name(&remote).or_exit(animation);
     
-    let remote = repo.find_remote(&remote)?;
+    let mut remote = repo.find_remote(&remote)?;
     let url = remote.url()?;
     
     let url = match Url::parse(url) {
@@ -156,15 +162,23 @@ fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animation: 
     let path = last.replace(".git", "");
     
     let owner = full_path.get(..(full_path.len() -1)).unwrap().join("/");
+
+    let mut default = String::new();
+    if ask_default {
+        remote.connect(git2::Direction::Fetch)?;
+        
+        let buf = remote.default_branch()?;
+        default = buf.as_str()?.to_string();
+    }
     
-    Ok(BranchStructure { 
+    Ok((BranchStructure { 
         repo: RepoStructure {
             pconf: Some(pconf.name),
             owner, path,
             len: full_path.len() - 1,
         }, 
         branch: branch_name
-    })
+    }, default))
 }
 
 fn error_autodetect(url: impl Display, remote: impl Display) -> Error {
