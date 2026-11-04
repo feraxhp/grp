@@ -47,6 +47,16 @@ impl Display for RequestType {
             RequestType::IssueDetails { owner, repo, number } => write!(f, "getting details for `{owner}/{repo}#{number}`"),
             RequestType::ListIssuesComments { owner, repo, number } => write!(f, "listing comments for `{owner}/{repo}#{number}`"),
             RequestType::ListTodos => write!(f, "listing todos"),
+            RequestType::CreatePr(pull_request_options) => {
+                write!(f, "creating pr: `{}/{}:+{}+` -> `{}/{}:+{}+`", 
+                    &pull_request_options.origin.owner,
+                    &pull_request_options.origin.repo,
+                    &pull_request_options.origin.branch,
+                    &pull_request_options.target.owner,
+                    &pull_request_options.target.repo,
+                    &pull_request_options.target.branch,
+                )
+            },
         }
     }
 }
@@ -66,6 +76,7 @@ impl AsRef<str> for RequestType {
             RequestType::IssueDetails { owner: _, repo: _, number: _ } => "issue_details",
             RequestType::ListIssuesComments { owner: _, repo: _, number: _ } => "list_issues_comments",
             RequestType::ListTodos => "list_todos",
+            RequestType::CreatePr(_) => "create_pull_request",
         }
     }
 }

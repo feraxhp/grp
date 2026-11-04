@@ -14,6 +14,22 @@ pub struct PaginatorResult<T> {
     pub pager: Pager
 }
 
+#[derive(Clone, Debug)]
+pub struct BranchIdentifier {
+    pub owner: String,
+    pub repo: String,
+    pub branch: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct PullRequestOptions {
+    pub target: BranchIdentifier,
+    pub origin: BranchIdentifier,
+    pub title: String,
+    pub body: String,
+    pub draft: bool,
+    pub maintainer_can_modify: bool,
+}
 
 /// # UserType
 /// represents the type of the user that was given.
@@ -110,6 +126,18 @@ pub struct Comment {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Clone, Debug)]
+pub struct PullRequest {
+    pub id: u64,
+    pub number: u64,
+    pub author: Author,
+    pub title: String,
+    pub body: String,
+    pub url: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
 /// # RequestType
 /// 
 /// an enum used to represent the aim of the request.
@@ -146,4 +174,5 @@ pub enum RequestType {
         number: u64,
     },
     ListTodos,
+    CreatePr(PullRequestOptions),
 }
