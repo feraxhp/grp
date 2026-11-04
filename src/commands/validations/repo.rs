@@ -7,6 +7,8 @@ use mynox::Error;
 
 use grp_core::Platform;
 
+use crate::system::input;
+
 
 #[derive(Debug, Clone)]
 pub struct RepoStructure {
@@ -47,8 +49,21 @@ impl Display for ParseError {
 
 #[allow(dead_code, unused_variables)]
 impl RepoStructure {
-    pub fn parse<S: Into<String>>(value: S) -> Result<Self, ParseError> {
-        let input = value.into();
+    pub fn parse<S: Into<String>>(value: S) -> Result<Self, ParseError> { Self::parse_skipping(value, None) }
+    pub fn parse_skipping<S: Into<String>>(value: S, skip_after: Option<&str>) -> Result<Self, ParseError> {
+        let mut input = value.into();
+        let mut skiped = None;
+        
+        if let Some(delimiter) = skip_after {
+            let clone = input.clone();
+            let mut sub_parts = clone.split(delimiter);
+            
+            if let Some(start) = sub_parts.next() {
+                input = start.to_string();
+            }
+            
+            skiped = Some(sub_parts.collect::<String>());
+        }
         
         if input.starts_with(":") { return Err(ParseError::StartWithDobleDots) }
         if input.contains(" ") { return Err(ParseError::BadSpace) }
@@ -75,11 +90,15 @@ impl RepoStructure {
         let mut parts: Vec<String> = intermediate.split("/").map(|s| s.to_string()).collect();
         
         let len: usize = parts.len();
-        let repo: String = parts.pop().unwrap_or_default();
+        let mut repo: String = parts.pop().unwrap_or_default();
         let owner: String = parts.join("/");
         
         if owner.is_empty() || owner.starts_with("/") { return Err(ParseError::NoOwner); }
         if repo.is_empty() { return Err(ParseError::NoRepo); }
+        
+        if skip_after.is_some() && skiped.is_some() {
+            repo = repo + skip_after.unwrap() + &skiped.unwrap();
+        }
         
         Ok(Self {
             pconf: pconf, 

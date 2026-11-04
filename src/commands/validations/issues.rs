@@ -3,6 +3,7 @@ use color_print::cformat;
 use crate::commands::validations::structure::Validations;
 use crate::commands::validations::repo::RepoStructure;
 
+const DIVIDER: &str = "#";
 
 #[derive(Debug, Clone)]
 pub struct IssueStructure {
@@ -14,29 +15,29 @@ impl IssueStructure {
     fn from(repo: RepoStructure) -> Result<Self, String> {
         let path = repo.path;
         
-        if !path.contains("#") {
+        if !path.contains(DIVIDER) {
             return Err(
-                cformat!("\n<y>Invalid issue structure, you must specify a issue number</>\n  <g><<pconf>:<<owner>/<<repo><r>#<<issue></>")
+                cformat!("\n<y>Invalid issue structure, you must specify a issue number</>\n  <g><<pconf>:<<owner>/<<repo><r>{DIVIDER}<<issue></>")
             );
         };
         
-        let parts = path.split("#").collect::<Vec<&str>>();
+        let parts = path.split(DIVIDER).collect::<Vec<&str>>();
         if parts.len() > 2 {
             return Err(
-                cformat!("\n<y>Invalid issue structure, can only have one issue number</>\n  <g><<pconf>:<<owner>/<<repo><c>#<<issue></><r>#...</>")
+                cformat!("\n<y>Invalid issue structure, can only have one issue number</>\n  <g><<pconf>:<<owner>/<<repo><c>{DIVIDER}<<issue></><r>{DIVIDER}...</>")
             );
         }
         
         if parts.len() < 2 {
             return Err(
-                cformat!("\n<y>Invalid issue structure, you must specify a valid number</>\n  <g><<pconf>:<<owner>/<<repo>#<r><<issue></>")
+                cformat!("\n<y>Invalid issue structure, you must specify a valid number</>\n  <g><<pconf>:<<owner>/<<repo>{DIVIDER}<r><<issue></>")
             );
         }
         
         let number = match parts[1].parse::<u64>() {
             Ok(v) => v,
             Err(e) => return Err(
-                cformat!("\n<y>Invalid issue number</>: <r>{}</>\n  <g><<pconf>:<<owner>/<<repo>#<r><<issue></>", e)
+                cformat!("\n<y>Invalid issue number</>: <r>{}</>\n  <g><<pconf>:<<owner>/<<repo>{DIVIDER}<r><<issue></>", e)
             ),
         };
 
@@ -58,13 +59,19 @@ impl IssueStructure {
 impl Validations for IssueStructure {
     type Output = Self;
 
-    fn value_parcer(value: &str) -> Result<Self::Output, String> {
-        let repo = RepoStructure::value_parcer(value)?;
-        IssueStructure::from(repo)
+    fn value_parcer(_: &str) -> Result<Self::Output, String> {
+        unimplemented!("No need to implement this function")
     }
 
     fn strict_value_parcer(value: &str) -> Result<Self::Output, String> {
-        let repo = RepoStructure::strict_value_parcer(value)?;
-        IssueStructure::from(repo)
+        let repo = match RepoStructure::parse_skipping(value, Some(DIVIDER)) {
+            Ok(repo) => {
+                if repo.pconf.is_none() { Err(cformat!("\n * The <m>pconf</> is <i,r>obligatory</> for <b>security reasons</>: <g><r><<pconf></r>:<<owner>/<<repo>[/..]</> ")) }
+                else { Ok(repo) }
+            }
+            Err(e) => Err(format!("\n{}", e)),
+        }?;
+        
+        Self::from(repo)
     }
 }

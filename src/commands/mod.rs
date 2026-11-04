@@ -7,3 +7,4 @@ mod repos;
 mod local;
 mod orgs;
 mod core;
+mod pr;

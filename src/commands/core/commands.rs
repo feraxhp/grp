@@ -2,24 +2,24 @@
 // Licensed under the MIT License;
 
 use clap::{command, Command};
-use clap::builder::Str;
+use clap::builder::{IntoResettable, Str, StyledStr};
 
 pub(crate) struct Commands;
 
 #[allow(dead_code)]
 impl Commands {
-    fn base(name: &'static str, aliases: impl IntoIterator<Item = impl Into<Str>>, about: &'static str) -> Command
+    fn base(name: &'static str, aliases: impl IntoIterator<Item = impl Into<Str>>, about: impl IntoResettable<StyledStr>) -> Command
     { command!(name).aliases(aliases).about(about) }
 
-    pub(crate) fn list(about: &'static str) -> Command
+    pub(crate) fn list(about: impl IntoResettable<StyledStr>) -> Command
     { Self::base("list", ["ls"], about) }
 
-    pub(crate) fn view(about: &'static str) -> Command
+    pub(crate) fn view(about: impl IntoResettable<StyledStr>) -> Command
     { Self::base("view", ["vw"], about) }
 
-    pub(crate) fn create(about: &'static str) -> Command
+    pub(crate) fn create(about: impl IntoResettable<StyledStr>) -> Command
     { Self::base("create", ["+", "cr", "crt", "add"], about) }
 
-    pub(crate) fn delete(about: &'static str) -> Command
+    pub(crate) fn delete(about: impl IntoResettable<StyledStr>) -> Command
     { Self::base("delete", ["rm", "del", "remove"], about) }
 }

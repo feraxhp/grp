@@ -5,6 +5,7 @@ use clap::{Arg, arg};
 use clap::builder::ValueParser;
 use color_print::cformat;
 
+use crate::commands::validations::branch::BranchStructure;
 use crate::commands::validations::structure::Validations;
 use crate::commands::validations::issues::IssueStructure;
 use crate::commands::validations::repo::RepoStructure;
@@ -55,6 +56,13 @@ impl Arguments {
     pub(crate) fn issue_structure(required: bool) -> Arg {
         arg!(<issue> "The repository data as <pconf>:<owner>/<repo>#<issue>")
             .value_parser(IssueStructure::strict_value_parcer)
+            .required(required)
+            .add(RepoStructure::complete())
+    }
+
+    pub(crate) fn branch_structure(required: bool) -> Arg {
+        arg!(<"repo$branch"> "Repo and branch data as <pconf>:<owner>/<repo>$<branch>")
+            .value_parser(BranchStructure::strict_value_parcer)
             .required(required)
             .add(RepoStructure::complete())
     }

@@ -23,6 +23,7 @@ pub struct Git2Context<'a> {
     pub usettings: &'a Usettings,
 }
 
+#[derive(Debug)]
 pub enum LocalError {
     Core(Error),
     Git(git2::Error),
