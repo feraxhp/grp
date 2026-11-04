@@ -14,7 +14,7 @@ impl Platform {
             Platform::Gitea |
             Platform::Github |
             Platform::Codeberg |
-            Platform::Forgejo => format!("{}/{}/{}/pulls", self.get_base_url(config), options.origin.owner, options.origin.repo),
+            Platform::Forgejo => format!("{}/repos/{}/{}/pulls", self.get_base_url(config), options.origin.owner, options.origin.repo),
         }
     }
 }

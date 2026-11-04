@@ -18,15 +18,15 @@ pub fn skip_empty<T>(res: &Result<PaginatorResult<Vec<T>>, Error>) -> Ready<bool
 impl Display for RequestType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RequestType::ListRepo { owner } => write!(f, "listing repos for `{owner}`"),
-            RequestType::CreateRepo { owner, repo } => write!(f, "creating `{owner}/{repo}`"),
+            RequestType::ListRepo { owner } => write!(f, "listing repos for `<raw>{owner}</raw>`"),
+            RequestType::CreateRepo { owner, repo } => write!(f, "creating `<raw>{owner}/{repo}</raw>`"),
             RequestType::DeleteRepo { permanent, owner, repo } => {
                 if *permanent { write!(f, "-_permanently_-")?; }
-                write!(f, " -deleting- `{owner}/{repo}`")?;
+                write!(f, " -deleting- `<raw>{owner}/{repo}</raw>`")?;
                 Ok(())
             },
             RequestType::RepositoryDetails { owner, repo } => {
-                write!(f, "getting details for `{owner}/{repo}`")?;
+                write!(f, "getting details for `<raw>{owner}/{repo}</raw>`")?;
                 Ok(())
             },
             RequestType::GetLoggedUser => {
@@ -34,21 +34,21 @@ impl Display for RequestType {
                 Ok(())
             },
             RequestType::ListOrg { way } => {
-                write!(f, "Listing orgs {way}")?;
+                write!(f, "Listing orgs {way}</raw>")?;
                 Ok(())
             },
-            RequestType::CreateOrg { name } => write!(f, "creating `{name}`"),
+            RequestType::CreateOrg { name } => write!(f, "creating `<raw>{name}</raw>`"),
             RequestType::DeleteOrg { permanent, name } => {
                 if *permanent { write!(f, "-_permanently_-")?; }
-                write!(f, " -deleting- `{name}`")?;
+                write!(f, " -deleting- `<raw>{name}</raw>`")?;
                 Ok(())
             },
             RequestType::ListIssues => write!(f, "listing issues"),
-            RequestType::IssueDetails { owner, repo, number } => write!(f, "getting details for `{owner}/{repo}#{number}`"),
-            RequestType::ListIssuesComments { owner, repo, number } => write!(f, "listing comments for `{owner}/{repo}#{number}`"),
+            RequestType::IssueDetails { owner, repo, number } => write!(f, "getting details for `<raw>{owner}/{repo}#{number}</raw>`"),
+            RequestType::ListIssuesComments { owner, repo, number } => write!(f, "listing comments for `<raw>{owner}/{repo}#{number}</raw>`"),
             RequestType::ListTodos => write!(f, "listing todos"),
             RequestType::CreatePr(pull_request_options) => {
-                write!(f, "creating pr: `{}/{}:+{}+` -> `{}/{}:+{}+`", 
+                write!(f, "creating pr: `<raw>{}/{}:</raw>+<raw>{}</raw>+` -> `<raw>{}/{}:</raw>+<raw>{}</raw>+`", 
                     &pull_request_options.origin.owner,
                     &pull_request_options.origin.repo,
                     &pull_request_options.origin.branch,

@@ -2,7 +2,7 @@ use std::{env::current_dir, fmt::Display};
 
 use clap::{ArgMatches, Command, arg, command};
 use color_print::cformat;
-use grp_core::{ErrorType, Platform, animation::Animation};
+use grp_core::{ErrorType, Platform, animation::Animation, structs::{BranchIdentifier, PullRequestOptions}};
 use ink_md::platform;
 use mynox::{Context, Error, Extend, Formater, error};
 use reqwest::Url;
@@ -55,9 +55,32 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (Some(t), Some(o)) => (t.clone(), o.clone()),
     };
     
-    dbg!(&target);
-    dbg!(&origin);
+    let options = PullRequestOptions {
+        target: BranchIdentifier {
+            owner: target.repo.owner,
+            repo: target.repo.path,
+            branch: target.branch,
+        },
+        origin: BranchIdentifier { 
+            owner: origin.repo.owner, 
+            repo: origin.repo.path, 
+            branch: origin.branch, 
+        },
+        title: "help".to_string(),
+        body: "This is suppsed to be a pr".to_string(),
+        draft: false,
+        maintainer_can_modify: false,
+    };
     
+    let pconf = target.repo.pconf.unwrap();
+    let pconf = usettings.get_pconf_by_name(&pconf, &animation).or_exit(&animation);
+    let config = pconf.to_config();
+    
+    let platform = Platform::matches(&pconf.r#type).or_exit(&animation);
+    
+    let pr = platform.create_pr(&options, &config, &animation).await.or_exit(&animation);
+    
+    dbg!(pr);
 }
 
 fn as_mynox<T>(result: Result<T, LocalError>, usettings: &Usettings) -> Result<T, mynox::Error> {
