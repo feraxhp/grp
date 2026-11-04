@@ -1,13 +1,16 @@
-use std::{env::current_dir, fmt::Display, io::SeekFrom::Current};
+mod detect;
 
-use clap::{ArgMatches, Command, arg, command};
+
+use clap::{ArgMatches, Command, arg};
 use color_print::cformat;
-use grp_core::{ErrorType, Platform, animation::Animation, structs::{BranchIdentifier, PullRequestOptions}};
-use ink_md::platform;
-use mynox::{Context, Error, Extend, Formater, error};
-use reqwest::Url;
 
-use crate::{animations::animation::{self, Process}, commands::{config::{commands::default, config}, core::{args::Arguments, commands::Commands}, validations::{branch::BranchStructure, or_exit::structure::OrExit, repo::RepoStructure}}, errors::ToError, local::{git::{options::Options, structs::GitUtils}, structs::{Git2Context, LocalError}}, printables::show::pconf, system::directories::BasicDir, usettings::structs::Usettings};
+use grp_core::structs::PullRequestOptions;
+use grp_core::structs::BranchIdentifier;
+use grp_core::animation::Animation;
+use grp_core::Platform;
+
+use crate::commands::pr::commands::create::detect::detect_current_repo;
+use crate::{animations::animation::Process, commands::{core::{args::Arguments, commands::Commands}, validations::{branch::BranchStructure, or_exit::structure::OrExit}}, errors::ToError, local::structs::{Git2Context, LocalError}, system::directories::BasicDir, usettings::structs::Usettings};
 
 pub fn command() -> Command {
         Commands::create(cformat!("Create a <y,i>pull-request</> for the given platform"))
@@ -111,82 +114,4 @@ fn as_mynox<T>(result: Result<T, LocalError>, usettings: &Usettings) -> Result<T
             },
         }
     })
-}
-
-fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animation: &Box<A>, ask_default: bool) -> Result<(BranchStructure, String), LocalError> {
-    let repo = git2::Repository::discover(".")?;
-    let branch_name = GitUtils::get_branch_name(&repo)?;
-    
-    if branch_name.is_empty() {
-        return Err(LocalError::Git(git2::Error::new(
-            git2::ErrorCode::UnbornBranch, git2::ErrorClass::Callback,
-            "Impossible to auto-detect branch",
-        )));
-    }
-    
-    let branch = repo.find_branch(&branch_name, git2::BranchType::Local)?;
-    let remote = GitUtils::get_remote_from_branch(&repo, &branch)?;
-    
-    let pconf = usettings.get_raw_pconf_by_name(&remote).or_exit(animation);
-    
-    let mut remote = repo.find_remote(&remote)?;
-    let url = remote.url()?;
-    
-    let url = match Url::parse(url) {
-        Ok(u) => u,
-        Err(e) => {
-            return Err(
-                LocalError::Core(
-                    error_autodetect(url, pconf.name)
-                        .extend_detail(e.to_string())
-                )
-            )
-        },
-    };
-
-    let full_path = match url.path_segments() {
-        Some(ps) => ps.collect::<Vec<_>>(),
-        None => return Err(
-            LocalError::Core(
-                error_autodetect(url, pconf.name)
-                    .extend_note("The url should have a path to be recongnized".as_tip())
-            )
-        ),
-    };
-    
-    if full_path.len() < 2 { // the path should at least be 2 deep
-        return Err(LocalError::Core(error_autodetect(url, pconf.name)));
-    }
-    
-    let last = full_path.last().unwrap();
-    let path = last.replace(".git", "");
-    
-    let owner = full_path.get(..(full_path.len() -1)).unwrap().join("/");
-
-    let mut default = String::new();
-    if ask_default {
-        remote.connect(git2::Direction::Fetch)?;
-        
-        let buf = remote.default_branch()?;
-        default = buf.as_str()?.to_string();
-    }
-    
-    Ok((BranchStructure { 
-        repo: RepoStructure {
-            pconf: Some(pconf.name),
-            owner, path,
-            len: full_path.len() - 1,
-        }, 
-        branch: branch_name
-    }, default))
-}
-
-fn error_autodetect(url: impl Display, remote: impl Display) -> Error {
-    error!(
-        "auto::detect::current::repo",
-        "Imposible to autodetect the current repo structure",
-        "The url of the remote is mal formed",
-        => format!("» **url**: _<raw>{}</raw>_", url),
-           format!("» **remote**: _<raw>{}</raw>_", remote)
-    )
 }
