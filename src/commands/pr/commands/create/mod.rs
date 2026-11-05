@@ -8,7 +8,7 @@ use grp_core::structs::PullRequestOptions;
 use grp_core::structs::BranchIdentifier;
 use grp_core::animation::Animation;
 use grp_core::Platform;
-// use mynox::error;
+use mynox::error;
 
 use crate::animations::animation::Suspend;
 use crate::commands::pr::commands::create::detect::detect_current_repo;
@@ -105,31 +105,36 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
     };
     
-    let body = match templates.len() > 1 {
-        true => todo!(),
+    let template = match templates.len() > 1 {
+        true => {
+            animation.suspend(|| {
+                Input::raw_select("Template", None, templates)
+                    .or_exit(&animation)
+                    .to_string()
+            })
+        },
         false => {
-            let base_text = templates.get(0).map(|t| t.content.as_str()).unwrap_or_default();
-            let body = Input::use_editor(
-                    base_text, 
-                    "PR_TEMPLATE.md", 
-                    &usettings, 
-                    repo.as_ref(), 
-                    &animation
-                )
-                .or_exit(&animation);
-            
-            // if body.as_str() == base_text {
-            //     Err::<(), mynox::Error>(error!(
-            //         "input::unchanged::template", "Unchange body", 
-            //         "Yout did not add any text to the _`template`_",
-            //         "It is espected that you _+add a description+_,",
-            //         "before sending the _pr_"
-            //     )).or_exit(&animation);
-            // }
-            
-            body
+            templates.get(0).map(|t| t.content.to_owned()).unwrap_or_default()
         },
     };
+
+    let body = Input::use_editor(
+            &template, 
+            "PR_TEMPLATE.md", 
+            &usettings, 
+            repo.as_ref(), 
+            &animation
+        )
+        .or_exit(&animation);
+    
+    if body == template {
+        Err::<(), mynox::Error>(error!(
+            "input::unchanged::template", "Unchange body", 
+            "Yout did not add any text to the _`template`_",
+            "It is espected that you _+add a description+_,",
+            "before sending the _pr_"
+        )).or_exit(&animation);
+    }
     
     animation.change_message("Finishing data recopilation");
     let options = PullRequestOptions {
