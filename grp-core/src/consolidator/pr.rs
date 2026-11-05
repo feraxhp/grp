@@ -24,12 +24,9 @@ impl PullRequest {
             },
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => { todo!()
-                // let issue: forgejo::parser::Issue = JSON::from_str(text)?;
-                // match &issue.pull_request {
-                //     Some(_) => return Err(parsing_pull_request_as_issue()),
-                //     None => issue.convert(),
-                // }
+            Platform::Gitea => { 
+                let pr: forgejo::parser::Pr = JSON::from_str(text)?;
+                pr.convert()
             },
             Platform::Gitlab => { todo!()
                 // let issue: gitlab::parser::Issue = JSON::from_str(text)?;
@@ -50,19 +47,14 @@ impl PullRequest {
     pub fn from_text_array<S: AsRef<str>>(text: &S, platform: &Platform) -> Result<Vec<Self>, Error> {
         let prs: Vec<Self> = match platform {
             Platform::Github => {
-                let issues: Vec<github::parser::Pr> = JSON::from_str(text)?;
-                issues.into_iter().map(|i| { i.convert() }).collect()
+                let prs: Vec<github::parser::Pr> = JSON::from_str(text)?;
+                prs.into_iter().map(|i| { i.convert() }).collect()
             },
             Platform::Codeberg |
             Platform::Forgejo |
-            Platform::Gitea => { todo!()
-                // let issues: Vec<forgejo::parser::Issue> = JSON::from_str(text)?;
-                // issues.into_iter().filter_map(|i| {
-                //     match &i.pull_request {
-                //         Some(_) => None,
-                //         None => Some(i.convert()),
-                //     }
-                // }).collect()
+            Platform::Gitea => { 
+                let prs: Vec<forgejo::parser::Pr> = JSON::from_str(text)?;
+                prs.into_iter().map(|i| { i.convert() }).collect()
             },
             Platform::Gitlab => { todo!()
                 // let issues: Vec<gitlab::parser::Issue> = JSON::from_str(text)?;

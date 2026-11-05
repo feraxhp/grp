@@ -48,7 +48,7 @@ impl Display for RequestType {
             RequestType::ListIssuesComments { owner, repo, number } => write!(f, "listing comments for `<raw>{owner}/{repo}#{number}</raw>`"),
             RequestType::ListTodos => write!(f, "listing todos"),
             RequestType::CreatePr(pull_request_options) => {
-                write!(f, "creating pr: `<raw>{}/{}:</raw>+<raw>{}</raw>+` -> `<raw>{}/{}:</raw>+<raw>{}</raw>+`", 
+                write!(f, "creating pr: `<raw>{}/{}?</raw>+<raw>{}</raw>+` -> `<raw>{}/{}?</raw>+<raw>{}</raw>+`", 
                     &pull_request_options.origin.owner,
                     &pull_request_options.origin.repo,
                     &pull_request_options.origin.branch,

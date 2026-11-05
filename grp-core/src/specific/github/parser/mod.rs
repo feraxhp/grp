@@ -59,8 +59,8 @@ pub struct Pr {
     pub body: String,
     pub user: Author,
     pub html_url: String,
-    pub state: String,
-    pub locked: bool,
+    // pub state: String,
+    // pub locked: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

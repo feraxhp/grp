@@ -45,9 +45,14 @@ impl Platform {
                 allow_collaboration: options.maintainer_can_modify,
             }),
             Platform::Gitea
-            | Platform::Github
             | Platform::Codeberg
-            | Platform::Forgejo => PrPayload::Github(GithubPayload {
+            | Platform::Forgejo => PrPayload::Forgejo(ForgejoPayload {
+                title: &options.title,
+                body: &options.body,
+                head: format!("{}:{}", options.origin.owner, options.origin.branch),
+                base: &options.target.branch,
+            }),
+            Platform::Github => PrPayload::Github(GithubPayload {
                 title: &options.title,
                 body: &options.body,
                 head: format!("{}:{}", options.origin.owner, options.origin.branch),
@@ -65,6 +70,7 @@ impl Platform {
 enum PrPayload<'a> {
     GitLab(GitLabPayload<'a>),
     Github(GithubPayload<'a>),
+    Forgejo(ForgejoPayload<'a>),
 }
 
 #[derive(Serialize)]
@@ -85,4 +91,12 @@ struct GithubPayload<'a> {
     base: &'a str,
     draft: bool,
     maintainer_can_modify: bool,
+}
+
+#[derive(Serialize)]
+struct ForgejoPayload<'a> {
+    title: &'a str,
+    body: &'a str,
+    head: String,
+    base: &'a str,
 }
