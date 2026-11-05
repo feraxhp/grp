@@ -19,6 +19,8 @@ pub fn command() -> Command {
                 .id("target")
                 .help("The target repository to merge into")
             ,
+            arg!([title] "The title of the pull request (if not present, is ask interactively)"),
+            // arg!([body] "The title of the pull request (if not present, is ask interactively)"),
             Arguments::branch_structure(false)
                 .id("origin")
                 .help("The origin repository to merge from (defaults to the current repo$branch)")
@@ -63,6 +65,11 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         },
         (Some(t), Some(o)) => (t.clone(), o.clone()),
     };
+    
+    let title = args.get_one::<String>("title").cloned();
+    // let body = args.get_one::<String>("body").cloned();
+    
+    
     
     let options = PullRequestOptions {
         target: BranchIdentifier {
