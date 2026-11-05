@@ -11,6 +11,20 @@ use crate::system::input::endpoint::input_empty;
 
 
 impl Input {
+    pub fn text<M>(message : M, description: Option<&str>) -> Result<String, Error> 
+    where 
+        M: AsRef<str>,
+    {
+        let mut promp = Text::new(message.as_ref())
+        ;
+        
+        if let Some(desc) = description.as_ref().map(|s| s.as_ref()) {
+            promp = promp.with_help_message(desc);
+        }
+        
+        promp.prompt().map_err(|e| e.to_error(()))
+    }
+    
     pub fn identifier<M, S>(message : M, description: Option<S>) -> Result<String, Error> 
     where 
         M: AsRef<str>,

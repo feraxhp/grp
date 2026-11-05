@@ -85,7 +85,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         Some(t) => t,
         None => {
             animation.suspend(|| {
-                Input::identifier::<_, &str>("Title", None).or_exit(&animation)
+                Input::text("Title", None).or_exit(&animation)
             })
         },
     };
