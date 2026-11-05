@@ -28,9 +28,9 @@ impl PullRequest {
                 let pr: forgejo::parser::Pr = JSON::from_str(text)?;
                 pr.convert()
             },
-            Platform::Gitlab => { todo!()
-                // let issue: gitlab::parser::Issue = JSON::from_str(text)?;
-                // issue.convert()
+            Platform::Gitlab => { 
+                let pr: gitlab::parser::Pr = JSON::from_str(text)?;
+                pr.convert()
             },
         };
         
@@ -56,9 +56,9 @@ impl PullRequest {
                 let prs: Vec<forgejo::parser::Pr> = JSON::from_str(text)?;
                 prs.into_iter().map(|i| { i.convert() }).collect()
             },
-            Platform::Gitlab => { todo!()
-                // let issues: Vec<gitlab::parser::Issue> = JSON::from_str(text)?;
-                // issues.into_iter().map(|i| i.convert()).collect()
+            Platform::Gitlab => { 
+                let prs: Vec<gitlab::parser::Pr> = JSON::from_str(text)?;
+                prs.into_iter().map(|i| { i.convert() }).collect()
             },
         };
         
