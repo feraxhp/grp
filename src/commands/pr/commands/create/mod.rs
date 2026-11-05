@@ -9,6 +9,7 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 // use mynox::error;
 
+use crate::animations::animation::Suspend;
 use crate::commands::pr::commands::create::detect::detect_current_repo;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::branch::BranchStructure;
@@ -80,6 +81,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (Some(t), Some(o)) => (t.clone(), o.clone(), None),
     };
     
+    let title = match title {
+        Some(t) => t,
+        None => {
+            animation.suspend(|| {
+                Input::identifier::<_, &str>("Title", None).or_exit(&animation)
+            })
+        },
+    };
+    
     animation.change_message("Loading repository pr template");
     let pconf = target.repo.pconf.unwrap();
     let pconf = usettings.get_pconf_by_name(&pconf, &animation).or_exit(&animation);
@@ -130,10 +140,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             repo: origin.repo.path, 
             branch: origin.branch, 
         },
-        title: "help".to_string(),
+        title: title,
         body: body,
-        draft: false,
-        maintainer_can_modify: false,
+        draft,
+        maintainer_can_modify,
     };
     let config = pconf.to_config();
     dbg!(options);
@@ -155,7 +165,7 @@ fn as_mynox<T>(result: Result<T, LocalError>, usettings: &Usettings) -> Result<T
                 
                 let context = Git2Context {
                     action: crate::local::git::structs::Action::Push,
-                    owner: "",
+                    owner: "<unknown>",
                     repo: &repo.to_string_lossy(),
                     config: None,
                     usettings,

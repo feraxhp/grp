@@ -18,12 +18,8 @@ impl Input {
         let editor = Self::autodetect_default_editor(usettings, repo)?;
         let file = Self::set_file(base_text, name, repo)?;
         
-        let mut error = None;
         animation.change_message("Waiting for the editor to close the file");
-        animation.suspend(|| {
-            let f = Self::open_file_in(&editor, &file);
-            error = f.err()
-        });
+        animation.suspend(|| { Self::open_file_in(&editor, &file) })?;
         
         let string = File::read(file.as_path())?;
         Ok(string)
