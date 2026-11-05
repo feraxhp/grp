@@ -7,6 +7,7 @@ use grp_core::structs::PullRequestOptions;
 use grp_core::structs::BranchIdentifier;
 use grp_core::animation::Animation;
 use grp_core::Platform;
+// use mynox::error;
 
 use crate::commands::pr::commands::create::detect::detect_current_repo;
 use crate::commands::validations::or_exit::structure::OrExit;
@@ -19,6 +20,7 @@ use crate::usettings::structs::Usettings;
 use crate::local::structs::Git2Context;
 use crate::local::structs::LocalError;
 use crate::local::structs::Local;
+use crate::system::input::Input;
 use crate::errors::ToError;
 
 pub fn command() -> Command {
@@ -78,18 +80,44 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (Some(t), Some(o)) => (t.clone(), o.clone(), None),
     };
     
+    animation.change_message("Loading repository pr template");
     let pconf = target.repo.pconf.unwrap();
     let pconf = usettings.get_pconf_by_name(&pconf, &animation).or_exit(&animation);
     
     let platform: Local = Local(Platform::matches(&pconf.r#type).or_exit(&animation));
     
-    let templates = match repo {
-        Some(repo) => platform.load_pr_templates(&repo).or_exit(&animation),
+    let templates = match &repo {
+        Some(repo) => platform.load_pr_templates(repo).or_exit(&animation),
         None => todo!(),
     };
     
-    dbg!(&templates);
+    let body = match templates.len() > 1 {
+        true => todo!(),
+        false => {
+            let base_text = templates.get(0).map(|t| t.content.as_str()).unwrap_or_default();
+            let body = Input::use_editor(
+                    base_text, 
+                    "PR_TEMPLATE.md", 
+                    &usettings, 
+                    repo.as_ref(), 
+                    &animation
+                )
+                .or_exit(&animation);
+            
+            // if body.as_str() == base_text {
+            //     Err::<(), mynox::Error>(error!(
+            //         "input::unchanged::template", "Unchange body", 
+            //         "Yout did not add any text to the _`template`_",
+            //         "It is espected that you _+add a description+_,",
+            //         "before sending the _pr_"
+            //     )).or_exit(&animation);
+            // }
+            
+            body
+        },
+    };
     
+    animation.change_message("Finishing data recopilation");
     let options = PullRequestOptions {
         
         target: BranchIdentifier {
@@ -103,12 +131,12 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             branch: origin.branch, 
         },
         title: "help".to_string(),
-        body: "This is suppsed to be a pr".to_string(),
+        body: body,
         draft: false,
         maintainer_can_modify: false,
     };
     let config = pconf.to_config();
-    
+    dbg!(options);
     unreachable!();
     let pr = platform.create_pr(&options, &config, &animation).await.or_exit(&animation);
     

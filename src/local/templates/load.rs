@@ -1,10 +1,15 @@
 use std::collections::HashSet;
 use std::fs;
-use std::path::{Path, PathBuf};
-use git2::Repository;
-use grp_core::Platform;
-use mynox::{Context, Error, Extend, error};
+use std::path::Path;
+use std::path::PathBuf;
 
+use grp_core::Platform;
+use git2::Repository;
+use mynox::Context;
+use mynox::Extend;
+use mynox::Error;
+
+use crate::local::git::structs::GitUtils;
 use crate::local::structs::Local;
 use super::structs::PrTemplate;
 
@@ -15,16 +20,7 @@ struct LoadOptions<'a> {
 
 impl Local {
     pub fn load_pr_templates(&self, repo: &Repository) -> Result<Vec<PrTemplate>, Error> {
-        let workdir = match repo.workdir() {
-            Some(w) => w,
-            None => {
-                return Err(error!(
-                    "local::git::bare_repository",
-                    "Cannot read PR templates from a bare repository",
-                    "A working tree is required to find template files"
-                ));
-            }
-        };
+        let workdir = GitUtils::get_working_dir(repo)?;
 
         let mut templates = Vec::new();
         let mut visited_paths = HashSet::new();
