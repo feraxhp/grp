@@ -27,7 +27,11 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
     let branch = repo.find_branch(&branch_name, git2::BranchType::Local)?;
     let remote = GitUtils::get_remote_from_branch(&repo, &branch)?;
     
-    let pconf = usettings.get_raw_pconf_by_name(&remote).or_exit(animation);
+    let pconf = match usettings.get_raw_pconf_by_name(&remote) {
+        Some(p) => p,
+        None => &usettings.get_raw_default_pconf().or_exit(animation),
+    };
+    let pconf_name = pconf.name.clone();
     
     let mut remote = repo.find_remote(&remote)?;
     let url = remote.url()?;
@@ -37,7 +41,7 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
         Err(e) => {
             return Err(
                 LocalError::Core(
-                    error_autodetect(url, pconf.name)
+                    error_autodetect(url, pconf_name)
                         .extend_detail(e.to_string())
                 )
             )
@@ -48,14 +52,14 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
         Some(ps) => ps.collect::<Vec<_>>(),
         None => return Err(
             LocalError::Core(
-                error_autodetect(url, pconf.name)
+                error_autodetect(url, pconf_name)
                     .extend_note("The url should have a path to be recongnized".as_tip())
             )
         ),
     };
     
     if full_path.len() < 2 { // the path should at least be 2 deep
-        return Err(LocalError::Core(error_autodetect(url, pconf.name)));
+        return Err(LocalError::Core(error_autodetect(url, pconf_name)));
     }
     
     let last = full_path.last().unwrap();
@@ -75,7 +79,7 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
     
     Ok((BranchStructure { 
         repo: RepoStructure {
-            pconf: Some(pconf.name),
+            pconf: Some(pconf_name),
             owner, path,
             len: full_path.len() - 1,
         }, 
