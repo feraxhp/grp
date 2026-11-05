@@ -10,5 +10,5 @@ pub enum Action {
     /// Name, Url
     SetRemote(String, String),
     SetUpstream,
+    ReadTemplate,
 }
-

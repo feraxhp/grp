@@ -10,6 +10,7 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 
 use crate::commands::pr::commands::create::detect::detect_current_repo;
+use crate::local::structs::Local;
 use crate::{animations::animation::Process, commands::{core::{args::Arguments, commands::Commands}, validations::{branch::BranchStructure, or_exit::structure::OrExit}}, errors::ToError, local::structs::{Git2Context, LocalError}, system::directories::BasicDir, usettings::structs::Usettings};
 
 pub fn command() -> Command {
@@ -41,6 +42,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let draft = args.get_flag("draft");
     let push = args.get_flag("push");
     
+    let repo = as_mynox(git2::Repository::discover(".").map_err(|e| e.into() ), &usettings).or_exit(&animation);
+    
     let (target, origin) = match (args.get_one::<BranchStructure>("target"), args.get_one::<BranchStructure>("origin")) {
         (None, None) => {
             animation.change_message("Autodetecting target and origin repos");
@@ -71,7 +74,18 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     
     
+    
+    let pconf = target.repo.pconf.unwrap();
+    let pconf = usettings.get_pconf_by_name(&pconf, &animation).or_exit(&animation);
+    let config = pconf.to_config();
+    
+    let platform = Local(Platform::matches(&pconf.r#type).or_exit(&animation));
+    
+    let templates = platform.load_pr_templates(&repo);
+    dbg!(&templates);
+    
     let options = PullRequestOptions {
+        
         target: BranchIdentifier {
             owner: target.repo.owner,
             repo: target.repo.path,
@@ -87,13 +101,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         draft: false,
         maintainer_can_modify: false,
     };
-    
-    let pconf = target.repo.pconf.unwrap();
-    let pconf = usettings.get_pconf_by_name(&pconf, &animation).or_exit(&animation);
-    let config = pconf.to_config();
-    
-    let platform = Platform::matches(&pconf.r#type).or_exit(&animation);
-    
+    unreachable!();
     let pr = platform.create_pr(&options, &config, &animation).await.or_exit(&animation);
     
     dbg!(pr);
