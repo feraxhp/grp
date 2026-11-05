@@ -1,6 +1,7 @@
 mod detect;
 
 use clap::{ArgMatches, Command, arg};
+use color_print::ceprintln;
 use color_print::cformat;
 
 use grp_core::structs::PullRequestOptions;
@@ -81,15 +82,6 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (Some(t), Some(o)) => (t.clone(), o.clone(), None),
     };
     
-    let title = match title {
-        Some(t) => t,
-        None => {
-            animation.suspend(|| {
-                Input::text("Title", None).or_exit(&animation)
-            })
-        },
-    };
-    
     animation.change_message("Loading repository pr template");
     let pconf = target.repo.pconf.unwrap();
     let pconf = usettings.get_pconf_by_name(&pconf, &animation).or_exit(&animation);
@@ -98,7 +90,19 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let templates = match &repo {
         Some(repo) => platform.load_pr_templates(repo).or_exit(&animation),
-        None => todo!(),
+        None => {
+            ceprintln!("<y>Downloading templates from <i>remote repos</i>, is not yet suported</>");
+            Vec::new()
+        },
+    };
+    
+    let title = match title {
+        Some(t) => t,
+        None => {
+            animation.suspend(|| {
+                Input::text("Title", None).or_exit(&animation)
+            })
+        },
     };
     
     let body = match templates.len() > 1 {
