@@ -2,6 +2,7 @@ mod detect;
 
 use clap::{ArgMatches, Command, arg};
 use color_print::ceprintln;
+use color_print::cprintln;
 use color_print::cformat;
 
 use grp_core::structs::PullRequestOptions;
@@ -10,13 +11,13 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 use mynox::error;
 
-use crate::animations::animation::Suspend;
 use crate::commands::pr::commands::create::detect::detect_current_repo;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::branch::BranchStructure;
 use crate::commands::core::commands::Commands;
 use crate::commands::core::args::Arguments;
 use crate::animations::animation::Process;
+use crate::animations::animation::Suspend;
 use crate::system::directories::BasicDir;
 use crate::usettings::structs::Usettings;
 use crate::local::structs::Git2Context;
@@ -24,6 +25,7 @@ use crate::local::structs::LocalError;
 use crate::local::structs::Local;
 use crate::system::input::Input;
 use crate::errors::ToError;
+use crate::success;
 
 pub fn command() -> Command {
         Commands::create(cformat!("Create a <y,i>pull-request</> for the given platform"))
@@ -39,15 +41,12 @@ pub fn command() -> Command {
                 .help("The origin repository to merge from (defaults to the current repo$branch)")
                 .long("origin")
                 .short('s')
-                .conflicts_with("push")
             ,
-            arg!(-p --push "If present, pushes the changes before creating the pr (upstream must be set)"),
             arg!(-d --draft "If present, sets the pull request as a draft "),
             arg!(-m --maintainer_can_modify "If present, allows maintainers to update your branch"),
         ])
 }
 
-#[allow(unused)]
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Process::new("Preparing pull request");
     
@@ -55,7 +54,6 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     // let body = args.get_one::<String>("body").cloned();
     let maintainer_can_modify = args.get_flag("maintainer_can_modify");
     let draft = args.get_flag("draft");
-    let push = args.get_flag("push");
     
     let (target, origin, repo) = match (args.get_one::<BranchStructure>("target"), args.get_one::<BranchStructure>("origin")) {
         (None, None) => {
@@ -155,11 +153,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         maintainer_can_modify,
     };
     let config = pconf.to_config();
-    dbg!(options);
-    unreachable!();
     let pr = platform.create_pr(&options, &config, &animation).await.or_exit(&animation);
     
-    dbg!(pr);
+    animation.finish_with_success(success!(np "create pr"));
+    cprintln!("see <i>pull-request</i> at: <b,i,u>{}</>", pr.url);
 }
 
 fn as_mynox<T>(result: Result<T, LocalError>, usettings: &Usettings) -> Result<T, mynox::Error> {
