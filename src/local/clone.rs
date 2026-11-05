@@ -4,7 +4,6 @@ use std::path::PathBuf;
 use git2::build::RepoBuilder;
 
 use grp_core::Config;
-use grp_core::Platform;
 use grp_core::animation::Animation;
 use grp_core::structs::Repo;
 
@@ -30,7 +29,7 @@ impl Local {
     ) -> Result<Repo, Error> {
         
         animation.change_message("Preparing clone ...");
-        let url = self.generate_clone_url(config, owner, repo);
+        let url = self.get_clone_url(config, owner, repo);
         
         Self::clone_by_url(&url, options, config, animation).await.map(|_| Repo {
             path: format!("{}/{}", owner, repo),
@@ -112,15 +111,4 @@ impl Local {
             Err(e) => Err(e),
         }
     }
-
-    fn generate_clone_url<S: AsRef<str>>(&self, config: &Config, owner: &S, repo: &S) -> String {
-        match self.0 {
-            Platform::Github |
-            Platform::Gitlab |
-            Platform::Codeberg |
-            Platform::Forgejo |
-            Platform::Gitea => format!("{}/{}/{}.git", self.get_base_url(config), owner.as_ref(), repo.as_ref()),
-        }
-    }
-
 }

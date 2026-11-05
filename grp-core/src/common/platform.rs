@@ -86,6 +86,24 @@ impl Platform {
         }
     }
     
+    pub fn get_clone_url(&self, config: &Config, user: impl Display, repo: impl Display) -> String {
+        let endpoint = &config.endpoint;
+        let https = if config.unsafed { "http" } else { "https" };
+        match self {
+            Platform::Github => {
+                let endpoint = if endpoint == "api.github.com" { "github.com" } 
+                    else { 
+                        endpoint.split("/api/").next().unwrap_or("github.com")
+                    };
+                format!("{https}://{}/{}/{}.git", endpoint, user, repo) 
+            },
+            Platform::Codeberg |
+            Platform::Forgejo |
+            Platform::Gitea =>  { format!("{https}://{}/{}/{}.git", endpoint, user, repo) }
+            Platform::Gitlab => { format!("{https}://{}/{}/{}.git", endpoint, user, repo) }
+        }
+    }
+    
     /// this function allows to discern if the platform fails, or success 
     /// procesing the request.
     /// 
