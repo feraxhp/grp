@@ -8,6 +8,8 @@ use mynox::Context;
 use mynox::Error;
 
 use crate::animations::animation::Suspend;
+use crate::system::directories::Directories;
+use crate::system::directories::Tmp;
 use crate::usettings::structs::Usettings;
 use crate::system::input::Input;
 use crate::system::file::File;
@@ -78,12 +80,16 @@ impl Input {
     }
     
     fn set_file(text: &str, name: &str, repo: Option<&Repository>) -> Result<PathBuf, Error> {
+        let directory = Tmp::directory()?;
         let path = match repo {
             Some(repo) => {
                 let workdir = repo.commondir();
                 workdir
             },
-            None => todo!("Tmp directory"),
+            None => {
+                Tmp::create_dirs(&directory)?;
+                directory.as_path()
+            },
         }; 
         
         let path = path.join(name);
