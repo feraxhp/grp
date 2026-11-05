@@ -35,7 +35,9 @@ pub async fn unwrap(
         | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
         | (201, RequestType::CreateOrg { name: _ })
+        | (201, RequestType::CreatePr(_))
         | (202, RequestType::DeleteOrg { permanent: _, name: _  })
+        | (202, RequestType::DeleteRepo { permanent: _, owner: _, repo: _ })
             => return Ok(text),
         (403, RequestType::CreateRepo { 
             owner: _, 

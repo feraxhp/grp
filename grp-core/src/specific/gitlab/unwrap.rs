@@ -32,6 +32,9 @@ pub async fn unwrap(
         | (200, RequestType::ListTodos)
         | (201, RequestType::CreateOrg { name: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
+        | (201, RequestType::CreatePr(_))
+        | (202, RequestType::DeleteOrg { permanent: _, name: _  })
+        | (202, RequestType::DeleteRepo { permanent: _, owner: _, repo: _ })
         => return Ok(text),
         (401, _) => unauthorized(request_type),
         (404, _) => not_found(&config.pconf, request_type),
