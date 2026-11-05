@@ -188,13 +188,6 @@ impl ToError for git2::Error {
                     "and then *copying your +local changes+* into it.".as_tip_cotinuation(),
                 }
             }
-            (ErrorCode::NotFound, _, message, Action::ReadTemplate) => {
-                error!{
-                    etype!("not_found::template"),
-                    "Template not found",
-                    message,
-                }
-            }
             (code, class_, message,action) => {
                 error!{
                     etype!("unmapped"),

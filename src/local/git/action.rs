@@ -12,7 +12,6 @@ impl Display for Action {
             Action::Clone => "clone",
             Action::SetRemote(_, _) => "set remote",
             Action::SetUpstream => "set upstream",
-            Action::ReadTemplate => "read template",
         };
         
         write!(f, "{}", write)
