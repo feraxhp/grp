@@ -1,6 +1,5 @@
 mod detect;
 
-
 use clap::{ArgMatches, Command, arg};
 use color_print::cformat;
 
@@ -10,8 +9,17 @@ use grp_core::animation::Animation;
 use grp_core::Platform;
 
 use crate::commands::pr::commands::create::detect::detect_current_repo;
+use crate::commands::validations::or_exit::structure::OrExit;
+use crate::commands::validations::branch::BranchStructure;
+use crate::commands::core::commands::Commands;
+use crate::commands::core::args::Arguments;
+use crate::animations::animation::Process;
+use crate::system::directories::BasicDir;
+use crate::usettings::structs::Usettings;
+use crate::local::structs::Git2Context;
+use crate::local::structs::LocalError;
 use crate::local::structs::Local;
-use crate::{animations::animation::Process, commands::{core::{args::Arguments, commands::Commands}, validations::{branch::BranchStructure, or_exit::structure::OrExit}}, errors::ToError, local::structs::{Git2Context, LocalError}, system::directories::BasicDir, usettings::structs::Usettings};
+use crate::errors::ToError;
 
 pub fn command() -> Command {
         Commands::create(cformat!("Create a <y,i>pull-request</> for the given platform"))
@@ -35,53 +43,51 @@ pub fn command() -> Command {
         ])
 }
 
+#[allow(unused)]
 pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let animation = Process::new("Preparing pull request");
     
+    let title = args.get_one::<String>("title").cloned();
+    // let body = args.get_one::<String>("body").cloned();
     let maintainer_can_modify = args.get_flag("maintainer_can_modify");
     let draft = args.get_flag("draft");
     let push = args.get_flag("push");
     
-    let repo = as_mynox(git2::Repository::discover(".").map_err(|e| e.into() ), &usettings).or_exit(&animation);
-    
-    let (target, origin) = match (args.get_one::<BranchStructure>("target"), args.get_one::<BranchStructure>("origin")) {
+    let (target, origin, repo) = match (args.get_one::<BranchStructure>("target"), args.get_one::<BranchStructure>("origin")) {
         (None, None) => {
             animation.change_message("Autodetecting target and origin repos");
-            let (current, default) = as_mynox(detect_current_repo(&usettings, &animation, true), &usettings).or_exit(&animation);
+            let (current, default, repo) = as_mynox(detect_current_repo(&usettings, &animation, true), &usettings).or_exit(&animation);
             
             let mut target = current.clone();
             target.branch = default;
             
-            (target, current)
+            (target, current, Some(repo))
         },
         (None, Some(o)) => {
             animation.change_message("Autodetecting target repo");
-            let (mut current, default) = as_mynox(detect_current_repo(&usettings, &animation, true), &usettings).or_exit(&animation);
+            let (mut current, default, repo) = as_mynox(detect_current_repo(&usettings, &animation, true), &usettings).or_exit(&animation);
             current.branch = default;
             
-            (current, o.clone())
+            (current, o.clone(), Some(repo))
         },
         (Some(t), None) => {
             animation.change_message("Autodetecting origin repo");
-            let (current, _) = as_mynox(detect_current_repo(&usettings, &animation, false), &usettings).or_exit(&animation);
-            (t.clone(), current)
+            let (current, _, repo) = as_mynox(detect_current_repo(&usettings, &animation, false), &usettings).or_exit(&animation);
+            (t.clone(), current, Some(repo))
         },
-        (Some(t), Some(o)) => (t.clone(), o.clone()),
+        (Some(t), Some(o)) => (t.clone(), o.clone(), None),
     };
-    
-    let title = args.get_one::<String>("title").cloned();
-    // let body = args.get_one::<String>("body").cloned();
-    
-    
-    
     
     let pconf = target.repo.pconf.unwrap();
     let pconf = usettings.get_pconf_by_name(&pconf, &animation).or_exit(&animation);
-    let config = pconf.to_config();
     
-    let platform = Local(Platform::matches(&pconf.r#type).or_exit(&animation));
+    let platform: Local = Local(Platform::matches(&pconf.r#type).or_exit(&animation));
     
-    let templates = platform.load_pr_templates(&repo);
+    let templates = match repo {
+        Some(repo) => platform.load_pr_templates(&repo).or_exit(&animation),
+        None => todo!(),
+    };
+    
     dbg!(&templates);
     
     let options = PullRequestOptions {
@@ -101,6 +107,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         draft: false,
         maintainer_can_modify: false,
     };
+    let config = pconf.to_config();
+    
     unreachable!();
     let pr = platform.create_pr(&options, &config, &animation).await.or_exit(&animation);
     

@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use grp_core::animation::Animation;
 use mynox::{Error, Formater, error};
+use git2::Repository;
 use reqwest::Url;
 
 use crate::commands::validations::or_exit::structure::OrExit;
@@ -12,7 +13,7 @@ use crate::local::git::structs::GitUtils;
 use crate::local::structs::LocalError;
 
 
-pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animation: &Box<A>, ask_default: bool) -> Result<(BranchStructure, String), LocalError> {
+pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animation: &Box<A>, ask_default: bool) -> Result<(BranchStructure, String, Repository), LocalError> {
     let repo = git2::Repository::discover(".")?;
     let branch_name = GitUtils::get_branch_name(&repo)?;
     
@@ -70,6 +71,8 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
         default = buf.as_str()?.to_string();
     }
     
+    drop(branch); drop(remote);
+    
     Ok((BranchStructure { 
         repo: RepoStructure {
             pconf: Some(pconf.name),
@@ -77,7 +80,7 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
             len: full_path.len() - 1,
         }, 
         branch: branch_name
-    }, default))
+    }, default, repo))
 }
 
 fn error_autodetect(url: impl Display, remote: impl Display) -> Error {
