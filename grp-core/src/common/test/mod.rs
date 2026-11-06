@@ -1,5 +1,6 @@
 pub mod issue;
 pub mod org;
+pub mod pr;
 pub mod repo;
 pub mod user;
 
