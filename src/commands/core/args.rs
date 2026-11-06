@@ -1,7 +1,9 @@
 // Copyright 2024 feraxhp
 // Licensed under the MIT License;
 
-use clap::{Arg, arg};
+use std::fmt::Debug;
+
+use clap::{Arg, Id, arg};
 use clap::builder::ValueParser;
 use color_print::cformat;
 
@@ -12,6 +14,7 @@ use crate::commands::validations::repo::RepoStructure;
 use super::super::completions::structure::Completer;
 use crate::commands::validations::structure::Raw;
 use crate::commands::validations::range::Range;
+use crate::commands::validations::PconfOr;
 use crate::usettings::structs::Usettings;
 use crate::usettings::structs::Pconf;
 
@@ -65,6 +68,20 @@ impl Arguments {
             .value_parser(BranchStructure::strict_value_parcer)
             .required(required)
             .add(RepoStructure::complete())
+    }
+
+    pub(crate) fn pconf_or<T>(id: impl Into<Id>, option: &str, required: bool) -> Arg 
+    where 
+        T: Validations + 'static,
+        T: Clone,
+        T: Debug,
+        T::Output: Send,
+    {
+        let string = cformat!("<g,i>pconf</g,i>|<m,i>{option}</m,i>|<r>-</r>");
+        Arg::new(id)
+            .value_name(string)
+            .value_parser(&PconfOr::<T>::strict_value_parcer)
+            .required(required)
     }
 
     pub(crate) fn path(required: bool, about: &str) -> Arg {

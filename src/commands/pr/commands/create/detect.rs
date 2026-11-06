@@ -24,15 +24,15 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
     }
     
     let branch = repo.find_branch(&branch_name, git2::BranchType::Local)?;
-    let remote = GitUtils::get_remote_from_branch(&repo, &branch)?;
+    let remote_name = GitUtils::get_remote_from_branch(&repo, &branch)?;
     
-    let pconf = match usettings.get_raw_pconf_by_name(&remote) {
+    let pconf = match usettings.get_raw_pconf_by_name(&remote_name) {
         Some(p) => p,
         None => &usettings.get_raw_default_pconf().or_exit(animation),
     };
     let pconf_name = pconf.name.clone();
     
-    let mut remote = repo.find_remote(&remote)?;
+    let mut remote = repo.find_remote(&remote_name)?;
     let url = remote.url()?;
     
     let url = match Url::parse(url) {
@@ -70,29 +70,17 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
     let owner = full_path.get(..(full_path.len() -1)).unwrap().join("/");
     
     let mut default = String::new();
-    if ask_default {
-        let cb = GitUtils::get_credential_callbacks(&pconf.to_config());
-        remote.connect_auth(git2::Direction::Fetch, Some(cb), None)?;
-        
-        let buf = remote.default_branch()?;
-        let buf = buf.as_str()?;
-        default = buf
-            .strip_prefix("refs/heads/")
-            .unwrap_or(buf)
-            .to_string()
-        ;
-    }
     
     drop(branch); drop(remote);
-    
-    Ok((BranchStructure { 
-        repo: RepoStructure {
-            pconf: Some(pconf_name),
-            owner, path,
-            len: full_path.len() - 1,
-        }, 
-        branch: branch_name
-    }, default, repo))
+    todo!();
+    // Ok((BranchStructure { 
+    //     repo: RepoStructure {
+    //         pconf: Some(pconf_name),
+    //         owner, path,
+    //         len: full_path.len() - 1,
+    //     }, 
+    //     branch: branch_name
+    // }, default, repo, remote))
 }
 
 fn error_autodetect(url: impl Display, remote: impl Display) -> Error {
