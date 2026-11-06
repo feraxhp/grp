@@ -35,9 +35,17 @@ impl Platform {
     }
     
     fn payload<'a>(&self, options: &'a PullRequestOptions, target_id: u64) -> PrPayload<'a> {
+        let draft_title = || {
+            if options.draft {
+                format!("Draft: {}", options.title)
+            } else {
+                options.title.to_owned()
+            }
+        };
+
         match self {
             Platform::Gitlab => PrPayload::GitLab(GitLabPayload {
-                title: &options.title,
+                title: draft_title(),
                 description: &options.body,
                 source_branch: &options.origin.branch,
                 target_branch: &options.target.branch,
@@ -47,7 +55,7 @@ impl Platform {
             Platform::Gitea
             | Platform::Codeberg
             | Platform::Forgejo => PrPayload::Forgejo(ForgejoPayload {
-                title: &options.title,
+                title: draft_title(),
                 body: &options.body,
                 head: format!("{}:{}", options.origin.owner, options.origin.branch),
                 base: &options.target.branch,
@@ -75,7 +83,7 @@ enum PrPayload<'a> {
 
 #[derive(Serialize)]
 struct GitLabPayload<'a> {
-    title: &'a str,
+    title: String,
     description: &'a str,
     source_branch: &'a str,
     target_branch: &'a str,
@@ -95,7 +103,7 @@ struct GithubPayload<'a> {
 
 #[derive(Serialize)]
 struct ForgejoPayload<'a> {
-    title: &'a str,
+    title: String,
     body: &'a str,
     head: String,
     base: &'a str,

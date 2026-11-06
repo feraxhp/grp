@@ -56,7 +56,7 @@ pub struct Pr {
     pub id: u64,
     pub number: u64,
     pub title: String,
-    pub body: String,
+    pub body: Option<String>,
     pub user: Author,
     pub html_url: String,
     // pub state: String,

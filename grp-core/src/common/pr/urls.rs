@@ -1,3 +1,5 @@
+use urlencoding::encode;
+
 use crate::structs::PullRequestOptions;
 use crate::Platform;
 use crate::Config;
@@ -8,8 +10,8 @@ impl Platform {
         match self {
             Platform::Gitlab => {
                 let origin_path = format!("{}/{}", options.origin.owner, options.origin.repo);
-                let encoded_target: String = url::form_urlencoded::byte_serialize(origin_path.as_bytes()).collect();
-                format!("{}/projects/{}/merge_requests", self.get_base_url(config), encoded_target)
+                let encoded_origin = encode(&origin_path);
+                format!("{}/projects/{}/merge_requests", self.get_base_url(config), encoded_origin)
             },
             Platform::Gitea |
             Platform::Github |
@@ -18,4 +20,3 @@ impl Platform {
         }
     }
 }
-

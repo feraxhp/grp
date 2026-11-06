@@ -45,6 +45,7 @@ pub async fn unwrap(
         }) => bad_token_scope(["write:user"], request_type),
         (404, _) => not_found(&config.pconf, request_type),
         (409, RequestType::CreateRepo { owner, repo  }) => already_exist::repo(&config.pconf, owner, repo),
+        (409, RequestType::CreatePr(options)) => already_exist::pull_request(&config.pconf, options),
         (422, RequestType::CreateOrg { name }) => already_exist::organization(name),
         (status, _) => {
             let error: ErrorDeserialize = JSON::from_str(&text)

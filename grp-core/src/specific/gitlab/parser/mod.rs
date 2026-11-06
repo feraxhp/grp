@@ -50,7 +50,7 @@ pub struct Pr {
     pub id: u64,
     pub iid: u64,
     pub title: String,
-    pub description: String,
+    pub description: Option<String>,
     pub author: Author,
     pub web_url: String,
     pub created_at: DateTime<Utc>,

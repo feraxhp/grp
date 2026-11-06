@@ -1,6 +1,7 @@
 use reqwest::Response;
 use mynox::Error;
 
+use crate::helpers::already_exist;
 use crate::helpers::not_found::not_found;
 use crate::helpers::request::{RequestError, unauthorized};
 use crate::common::structs::RequestType;
@@ -38,6 +39,7 @@ pub async fn unwrap(
         => return Ok(text),
         (401, _) => unauthorized(request_type),
         (404, _) => not_found(&config.pconf, request_type),
+        (409, RequestType::CreatePr(options)) => already_exist::pull_request(&config.pconf, options),
         (status, _) => {
             let error: ErrorDeserialize = JSON::from_str(&text)?;
             unknown(status, base_message, error.text, request_type)

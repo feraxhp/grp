@@ -10,7 +10,7 @@ impl Convert for super::Pr {
             id: self.id.to_owned(),
             author: self.user.convert(),
             title: self.title.to_owned(),
-            body: self.body.to_owned(),
+            body: self.body.to_owned().unwrap_or_default(),
             url: self.html_url.to_owned(),
             number: self.number.to_owned(),
             created_at: self.created_at.to_owned(),
