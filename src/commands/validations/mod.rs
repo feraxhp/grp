@@ -1,4 +1,5 @@
 pub mod structure;
+pub mod pconf_or;
 pub mod or_exit;
 pub mod issues;
 pub mod branch;
@@ -11,65 +12,15 @@ use std::fmt::Debug;
 use crate::usettings::structs::Pconf;
 use self::structure::Validations;
 
+pub type PconfOr<T> = DoubleOption<Pconf, T>;
+
 #[derive(Clone, Debug)]
-pub enum PconfOr<T>
+pub enum DoubleOption<F, S>
 where 
-    T: Validations,
-    T: Clone,
-    T: Debug,
+    F: Validations + Clone + Debug,
+    S: Validations + Clone + Debug,
 {
-    Default,
-    Pconf(Pconf),
-    Other(T::Output)
+    None,
+    First(F::Output),
+    Second(S::Output),
 }
-
-impl<T> Validations for PconfOr<T>
-where
-    T: Validations,
-    T: Clone,
-    T: Debug,
-{
-    type Output = Self;
-
-    fn value_parcer(value: &str) -> Result<Self::Output, String> {
-        match value {
-            "-" => Ok(Self::Default),
-            value if value.contains(":") => {
-                let val = T::value_parcer(value)?;
-                Ok(Self::Other(val))
-            }
-            value => {
-                let val = Pconf::value_parcer(value)?;
-                Ok(Self::Pconf(val))
-            }
-        }
-    }
-
-    fn strict_value_parcer(value: &str) -> Result<Self::Output, String> {
-        match value {
-            "-" => Ok(Self::Default),
-            value if value.contains(":") => {
-                let val = T::strict_value_parcer(value)?;
-                Ok(Self::Other(val))
-            }
-            value => {
-                let val = Pconf::strict_value_parcer(value)?;
-                Ok(Self::Pconf(val))
-            }
-        }
-    }
-}
-
-impl<T> Default for &PconfOr<T>
-where
-    T: Validations,
-    T: Clone,
-    T: Debug,
-{ fn default() -> Self { &PconfOr::Default } }
-
-impl<T> Default for PconfOr<T>
-where
-    T: Validations,
-    T: Clone,
-    T: Debug,
-{ fn default() -> Self { PconfOr::Default } }

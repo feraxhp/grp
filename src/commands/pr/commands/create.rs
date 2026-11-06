@@ -1,4 +1,3 @@
-mod detect;
 
 use clap::{ArgMatches, Command, arg};
 use color_print::ceprintln;
@@ -12,7 +11,6 @@ use grp_core::Platform;
 use mynox::OptionError::Some;
 use mynox::error;
 
-use crate::commands::pr::commands::create::detect::detect_current_repo;
 use crate::commands::validations::PconfOr;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::branch::BranchStructure;
