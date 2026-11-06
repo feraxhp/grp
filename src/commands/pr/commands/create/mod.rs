@@ -171,10 +171,10 @@ fn as_mynox<T>(result: Result<T, LocalError>, usettings: &Usettings) -> Result<T
                 
                 let context = Git2Context {
                     action: crate::local::git::structs::Action::Push,
-                    owner: "<unknown>",
+                    owner: None,
                     repo: &repo.to_string_lossy(),
                     config: None,
-                    usettings,
+                    usettings: Some(usettings),
                 };
                 
                 error.to_error(context)

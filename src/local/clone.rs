@@ -1,4 +1,4 @@
-use git2::{Error, Repository};
+use git2::Error;
 use indicatif::HumanBytes;
 use std::path::PathBuf;
 use git2::build::RepoBuilder;
@@ -47,7 +47,7 @@ impl Local {
         options: &CloneOptions,
         config: &Config,
         animation: &mut Box<A>
-    ) -> Result<Repository, Error> { 
+    ) -> Result<GitUtils, Error> { 
         animation.change_message("Setting up credentials ...");
         let mut callbacks = GitUtils::get_credential_callbacks(config);
         
@@ -99,15 +99,16 @@ impl Local {
         animation.change_message("Cloning repository ...");
         match builder.clone(url, options.path.as_path()) {
             Ok(r) => {
-                match GitUtils::get_branch_name(&r) {
+                let repo = GitUtils::from(r);
+                match repo.get_branch_name() {
                     Ok(b) => {
                         let _ = Methods::Upstream
-                            .set_upstream(&r, &b, config.pconf.as_str());
+                            .set_upstream(&repo, &b, config.pconf.as_str());
                     }
                     Err(_) => todo!(),
                 };
                 
-                Ok(r)
+                Ok(repo)
             },
             Err(e) => Err(e),
         }

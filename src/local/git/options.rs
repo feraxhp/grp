@@ -1,4 +1,6 @@
-use git2::{Error, Repository};
+use git2::Error;
+
+use crate::local::git::utils::GitUtils;
 
 
 #[derive(PartialEq, Clone)]
@@ -23,7 +25,7 @@ pub(crate) struct Options {
 
 
 impl Methods {
-    pub(crate) fn set_upstream(&self, repo: &Repository ,branch_name: &str, remote_name: &str) -> Result<(), Error> {
+    pub(crate) fn set_upstream(&self, repo: &GitUtils, branch_name: &str, remote_name: &str) -> Result<(), Error> {
         match self {
             Methods::Upstream => {
                 let mut conf = repo.config()?;

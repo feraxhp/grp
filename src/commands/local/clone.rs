@@ -125,10 +125,10 @@ async fn by_repostructure<A: Animation + Subprogress + Suspend + ?Sized>(repo: &
             let action =  Action::Clone;
             let context = Git2Context {
                 action,
-                owner: &repo.owner,
+                owner: Some(&repo.owner),
                 repo: &repo.path,
                 config: Some(&config),
-                usettings: &usettings,
+                usettings: Some(&usettings),
             };
             let error = e.to_error(context);
             
@@ -187,10 +187,10 @@ async fn by_url<A: Animation + Subprogress + Suspend + ?Sized>(url: Url,
             let repo = format!("[{}]", url);
             let context = Git2Context {
                 action,
-                owner: &config.user,
+                owner: Some(&config.user),
                 repo: &repo,
                 config: Some(&config),
-                usettings: &usettings,
+                usettings: Some(&usettings),
             };
             let error = e.to_error(context);
             

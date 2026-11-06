@@ -1,11 +1,11 @@
 use grp_core::location;
-use git2::{Error, ErrorClass, ErrorCode, Repository};
+use git2::{Error, ErrorClass, ErrorCode};
 
 use super::super::structs::GitUtils;
 use super::super::options::Methods;
 
 impl Methods {
-    pub fn get_push_refs(&self, repo: &Repository, branch: Option<&String>, force: &bool) -> Result<Vec<String>, Error> {
+    pub fn get_push_refs(&self, repo: &GitUtils, branch: Option<&String>, force: &bool) -> Result<Vec<String>, Error> {
         let force_str = if *force { "+" } else { "" };
         let vec = match self {
             Methods::All => {

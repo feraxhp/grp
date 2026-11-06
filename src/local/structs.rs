@@ -17,10 +17,10 @@ impl Deref for Local {
 
 pub struct Git2Context<'a> {
     pub action: Action, 
-    pub owner: &'a str,
+    pub owner: Option<&'a str>,
     pub repo: &'a str, 
     pub config: Option<&'a Config>,
-    pub usettings: &'a Usettings,
+    pub usettings: Option<&'a Usettings>,
 }
 
 #[derive(Debug)]

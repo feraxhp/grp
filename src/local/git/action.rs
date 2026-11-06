@@ -12,6 +12,7 @@ impl Display for Action {
             Action::Clone => "clone",
             Action::SetRemote(_, _) => "set remote",
             Action::SetUpstream => "set upstream",
+            Action::Discover => "discover",
         };
         
         write!(f, "{}", write)

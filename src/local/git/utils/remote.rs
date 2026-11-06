@@ -1,18 +1,18 @@
-use git2::{Branch, Error, ErrorClass, ErrorCode, Repository};
+use git2::{Branch, Error, ErrorClass, ErrorCode};
 
 use super::super::structs::GitUtils;
 
 impl GitUtils {
-    pub(crate) fn get_remote_from_branch(repo: &Repository, branch: &Branch) -> Result<String, Error> {
+    pub(crate) fn get_remote_from_branch(&self, branch: &Branch) -> Result<String, Error> {
         let branch_ref_name = branch.get().name()?;
         
-        let remote_buf = match repo.branch_upstream_remote(branch_ref_name) {
+        let remote_buf = match self.branch_upstream_remote(branch_ref_name) {
             Ok(buf) => Ok(buf),
             Err(error) if ( matches!(
                 (error.code(), error.class()), 
                 (ErrorCode::NotFound, ErrorClass::Config)
             ) ) => {
-                let remotes = repo.remotes()?;
+                let remotes = self.remotes()?;
                 if remotes.is_empty() {
                     Err(
                         Error::new(
