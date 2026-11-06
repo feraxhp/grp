@@ -5,6 +5,7 @@ use std::process::Command;
 use grp_core::animation::Animation;
 use mynox::Context;
 use mynox::Error;
+use mynox::error;
 
 use crate::animations::animation::Suspend;
 use crate::local::git::utils::GitUtils;
@@ -70,11 +71,25 @@ impl Input {
                 )
         ?;
         
-        child.wait()
+        let status = child.wait()
             .context(
-                "io::spawn::editor", 
-                "This happends while waitgin for the editor to close the file"
+                "exec::wait::editor", 
+                "This happends while waiting for the editor to close the file"
             )?;
+        
+        if !status.success() {
+            let detail = match status.code() {
+                Some(c) if c == 130 => "You cancel de _operation_",
+                _ => "This happends _after the process -ended-_",
+            };
+            
+            return Err(
+                error!(
+                    "exec::status::unsucces",
+                    status, detail
+                )
+            );
+        }
         
         Ok(())
     }
