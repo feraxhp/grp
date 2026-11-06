@@ -30,6 +30,16 @@ impl GitUtils {
             )));
         }
         
+        if &branch_name == "HEAD" {
+            return Err(LocalError::Core(
+                error!(
+                    "grp::local::branch::detached", "Unkown branch",
+                    "You have a detach *HEAD*, that makes",
+                    "imposible to autodetect the _branch_"
+                )
+            ));
+        }
+        
         let branch = self.find_branch(&branch_name, git2::BranchType::Local)?;
         
         let remote_name = match pconf {
