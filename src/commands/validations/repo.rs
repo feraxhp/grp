@@ -60,7 +60,7 @@ impl RepoStructure {
                 input = start.to_string();
             }
             
-            skiped = Some(sub_parts.collect::<String>());
+            skiped = Some(sub_parts.fold(String::with_capacity(clone.len()), |acc, cur| { acc + delimiter + cur } ));
         }
         
         if input.starts_with(":") { return Err(ParseError::StartWithDobleDots) }

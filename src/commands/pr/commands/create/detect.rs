@@ -63,16 +63,24 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
     }
     
     let last = full_path.last().unwrap();
-    let path = last.replace(".git", "");
+    let path = last.strip_suffix(".git")
+        .unwrap_or(last)
+        .to_string()
+    ;
     
     let owner = full_path.get(..(full_path.len() -1)).unwrap().join("/");
-
+    
     let mut default = String::new();
     if ask_default {
         remote.connect(git2::Direction::Fetch)?;
         
         let buf = remote.default_branch()?;
-        default = buf.as_str()?.to_string();
+        let buf = buf.as_str()?;
+        default = buf
+            .strip_prefix("refs/heads/")
+            .unwrap_or(buf)
+            .to_string()
+        ;
     }
     
     drop(branch); drop(remote);

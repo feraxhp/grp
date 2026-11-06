@@ -35,7 +35,12 @@ impl BranchStructure {
         }
         
         let branch = parts[1].to_string();
-
+        if branch.is_empty() {
+            return Err(
+                cformat!("\n<y>Invalid branch structure, the name can not be <i>empty</>\n  <g><<pconf>:<<owner>/<<repo>{DIVIDER}<r><<branch></>")
+            );
+        }
+        
         Ok(
             BranchStructure {
                 repo: RepoStructure { 

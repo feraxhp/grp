@@ -108,7 +108,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
             animation.suspend(|| {
                 Input::raw_select("Template", None, templates)
                     .or_exit(&animation)
-                    .to_string()
+                    .content
             })
         },
         false => {
