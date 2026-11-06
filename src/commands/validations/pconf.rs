@@ -1,8 +1,10 @@
 use grp_core::animation;
 use color_print::cformat;
 
-use crate::usettings::structs::{Pconf, RawPconf, Usettings};
-use crate::commands::validations::structure::{Raw, Validations};
+use crate::commands::validations::structure::Validations;
+use crate::usettings::structs::Usettings;
+use crate::usettings::structs::RawPconf;
+use crate::usettings::structs::Pconf;
 
 
 impl Validations for Pconf {

@@ -1,10 +1,9 @@
 use std::fmt::Display;
 
-use grp_core::animation::Animation;
-use mynox::{Formater, error};
+use mynox::Formater;
+use mynox::error;
 use reqwest::Url;
 
-use crate::animations::animation::Suspend;
 use crate::usettings::structs::RawPconf;
 use crate::local::structs::LocalError;
 

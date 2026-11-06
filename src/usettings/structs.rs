@@ -14,6 +14,7 @@ pub struct Pconf {
 }
 
 #[derive(Clone, Debug)]
+#[allow(unused)]
 pub struct RawPconf {
     pub name: String,
     pub owner: String,
