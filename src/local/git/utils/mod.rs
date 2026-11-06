@@ -1,4 +1,5 @@
 pub mod credentials;
+pub mod autodetect;
 pub mod branch;
 pub mod remote;
 pub mod rebase;

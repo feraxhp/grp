@@ -1,7 +1,7 @@
 use grp_core::animation;
 use color_print::cformat;
 
-use crate::usettings::structs::{Pconf, Usettings};
+use crate::usettings::structs::{Pconf, RawPconf, Usettings};
 use crate::commands::validations::structure::{Raw, Validations};
 
 
@@ -57,8 +57,8 @@ impl Validations for Pconf {
     }
 }
 
-impl Validations for Raw<Pconf> {
-    type Output = Pconf;
+impl Validations for RawPconf {
+    type Output = RawPconf;
     
     fn value_parcer(value: &str) -> Result<Self::Output, String> {
         let usettings = Usettings::read().map_err(|e| e.message())?;

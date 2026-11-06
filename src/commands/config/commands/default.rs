@@ -29,16 +29,16 @@ pub fn manager(args: &ArgMatches) {
         Some(sub) => match sub {
             ("list", _) => {
                 let default = match usettings.get_raw_default_pconf() {
-                    Some(p) => &p.name,
+                    Some(p) => p.name,
                     None => {
-                        let default = &usettings.default;
+                        let default = usettings.default;
                         ceprintln!("<y>orphan default</> '{}'", default.empty());
                         default
                     },
                 };
                 
                 for pconf in usettings.pconfs.iter() {
-                    match &pconf.name == default {
+                    match pconf.name == default {
                         true  => cprintln!("<g    >{} <m><<- default </>", pconf.name),
                         false => cprintln!("<dim,i>{}</>", pconf.name),
                     }

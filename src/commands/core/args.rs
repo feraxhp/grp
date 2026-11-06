@@ -12,10 +12,10 @@ use crate::commands::validations::structure::Validations;
 use crate::commands::validations::issues::IssueStructure;
 use crate::commands::validations::repo::RepoStructure;
 use super::super::completions::structure::Completer;
-use crate::commands::validations::structure::Raw;
 use crate::commands::validations::range::Range;
 use crate::commands::validations::PconfOr;
 use crate::usettings::structs::Usettings;
+use crate::usettings::structs::RawPconf;
 use crate::usettings::structs::Pconf;
 
 
@@ -35,8 +35,8 @@ impl Arguments {
     }
     
     pub(crate) fn raw_pconf(required: bool, plus: bool) -> Arg {
-        let value_parser = if plus { Raw::<Pconf>::value_parcer }
-        else { Raw::<Pconf>::strict_value_parcer };
+        let value_parser = if plus { RawPconf::value_parcer }
+        else { RawPconf::strict_value_parcer };
         
         arg!([pconf])
             .help(pconf_help(!plus))

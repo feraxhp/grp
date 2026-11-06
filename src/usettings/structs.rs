@@ -13,6 +13,14 @@ pub struct Pconf {
     pub encripted: bool,
 }
 
+#[derive(Clone, Debug)]
+pub struct RawPconf {
+    pub name: String,
+    pub owner: String,
+    pub r#type: String,
+    pub endpoint: String,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Usettings {
     pub default: String,
@@ -25,3 +33,14 @@ pub struct Usettings {
 }
 
 fn default_true() -> bool { true }
+
+impl Pconf {
+    pub(crate) fn as_raw(&self) -> RawPconf {
+        RawPconf { 
+            name: self.name.to_owned(),
+            owner: self.owner.to_owned(),
+            r#type: self.r#type.to_owned(),
+            endpoint: self.endpoint.to_owned(),
+        }
+    }
+}
