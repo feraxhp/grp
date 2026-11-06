@@ -61,7 +61,7 @@ impl Arguments {
     }
 
     pub(crate) fn branch_structure(required: bool) -> Arg {
-        arg!(<"repo$branch"> "Repo and branch data as <pconf>:<owner>/<repo>$<branch>")
+        arg!(<"repo?branch"> "Repo and branch data as <pconf>:<owner>/<repo>?<branch>")
             .value_parser(BranchStructure::strict_value_parcer)
             .required(required)
             .add(RepoStructure::complete())
