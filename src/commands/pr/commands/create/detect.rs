@@ -71,7 +71,8 @@ pub fn detect_current_repo<A: Animation + ?Sized>(usettings: &Usettings, animati
     
     let mut default = String::new();
     if ask_default {
-        remote.connect(git2::Direction::Fetch)?;
+        let cb = GitUtils::get_credential_callbacks(&pconf.to_config());
+        remote.connect_auth(git2::Direction::Fetch, Some(cb), None)?;
         
         let buf = remote.default_branch()?;
         let buf = buf.as_str()?;
