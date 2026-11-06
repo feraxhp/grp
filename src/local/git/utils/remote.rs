@@ -41,11 +41,11 @@ impl GitUtils {
         Ok(remote_name.to_string())
     }
     
-    pub(crate) fn get_default_branch(&self, remote_name: &str, config: &Config) -> Result<String, Error> {
+    pub(crate) fn get_default_branch(&self, remote_name: &str, config: Option<&Config>) -> Result<String, Error> {
         let mut remote = self.find_remote(remote_name)?;
         
-        let cb = GitUtils::get_credential_callbacks(config);
-        remote.connect_auth(git2::Direction::Fetch, Some(cb), None)?;
+        let cb = config.map(|c| GitUtils::get_credential_callbacks(c));
+        remote.connect_auth(git2::Direction::Fetch, cb, None)?;
         
         let buf = remote.default_branch()?;
         let buf = buf.as_str()?;

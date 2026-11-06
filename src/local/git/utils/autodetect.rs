@@ -12,16 +12,16 @@ use super::GitUtils;
 
 
 pub struct RepoInformation {
-    depth: u8,
-    owner: String,
-    repo: String,
-    branch: String,
-    remote: String,
+    pub depth: usize,
+    pub owner: String,
+    pub repo: String,
+    pub branch: String,
+    pub remote: String,
 }
 
 
 impl GitUtils {
-    fn autodetect<A: Animation + Suspend + ?Sized>(&self, pconf: Option<RawPconf>) -> Result<RepoInformation, LocalError> {
+    pub fn autodetect(&self, pconf: Option<RawPconf>) -> Result<RepoInformation, LocalError> {
         let branch_name = self.get_branch_name()?;
         
         if branch_name.is_empty() {
@@ -80,7 +80,7 @@ impl GitUtils {
         
         Ok(
             RepoInformation { 
-                depth: (full_path.len() - 1) as u8, 
+                depth: (full_path.len() - 1), 
                 owner, 
                 repo: path, 
                 branch: branch_name, 
