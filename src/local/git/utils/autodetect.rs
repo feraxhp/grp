@@ -56,7 +56,7 @@ impl GitUtils {
                 return Err(
                     LocalError::Core(
                         error_autodetect(url, remote_name)
-                            .extend_detail(e.to_string())
+                            .extend_detail(e.as_tip())
                     )
                 )
             },
