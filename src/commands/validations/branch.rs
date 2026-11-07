@@ -61,8 +61,10 @@ impl BranchStructure {
 impl Validations for BranchStructure {
     type Output = Self;
 
-    fn value_parcer(_: &str) -> Result<Self::Output, String> {
-        unimplemented!("No need to implement this function")
+    fn value_parcer(value: &str) -> Result<Self::Output, String> {
+        let repo = RepoStructure::parse_skipping(value, Some(DIVIDER))
+            .map_err(|e| e.to_string())?;
+        Self::from(repo)
     }
 
     fn strict_value_parcer(value: &str) -> Result<Self::Output, String> {

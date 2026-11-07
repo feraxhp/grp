@@ -63,9 +63,12 @@ impl Arguments {
             .add(RepoStructure::complete())
     }
 
-    pub(crate) fn branch_structure(required: bool) -> Arg {
+    pub(crate) fn branch_structure(required: bool, strict: bool) -> Arg {
+        let value_parser = if strict { BranchStructure::strict_value_parcer }
+        else { BranchStructure::value_parcer };
+        
         arg!(<"repo?branch"> "Repo and branch data as <pconf>:<owner>/<repo>?<branch>")
-            .value_parser(BranchStructure::strict_value_parcer)
+            .value_parser(value_parser)
             .required(required)
             .add(RepoStructure::complete())
     }

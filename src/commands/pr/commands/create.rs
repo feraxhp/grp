@@ -41,11 +41,11 @@ pub fn command() -> Command {
             ,
             arg!([title] "The title of the pull request (if not present, is ask interactively)"),
             // arg!([body] "The title of the pull request (if not present, is ask interactively)"),
-            Arguments::branch_structure(false)
+            Arguments::branch_structure(false, false)
                 .id("origin")
-                .help("The origin repository to merge from (defaults to the current repo$branch)")
+                .help("The origin repository to merge from (defaults to the current repo?branch) pconf is ignored, you can avoid adding one")
                 .long("origin")
-                .short('s')
+                .short('o')
             ,
             arg!(-d --draft "If present, sets the pull request as a draft "),
             arg!(-m --maintainer_can_modify "If present, allows maintainers to update your branch"),
