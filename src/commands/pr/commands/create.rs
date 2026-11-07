@@ -141,7 +141,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     let templates = match &repo {
         Some(repo) => platform.load_pr_templates(repo).or_exit(&animation),
         None => {
-            ceprintln!("<y>Downloading templates from <i>remote repos</i>, is not yet suported</>");
+            animation.spinners.get(0).unwrap()
+                .println(cformat!("<y>Downloading templates from <i>remote repos</i>, is not yet suported</>"))
+            ;
             Vec::new()
         },
     };
