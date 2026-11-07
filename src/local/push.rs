@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use color_print::cformat;
 use git2::IntoCString;
 use indicatif::HumanBytes;
-use git2::{PushOptions, Repository};
+use git2::PushOptions;
 
 use grp_core::animation::Animation;
 
@@ -27,7 +27,7 @@ impl Local {
         animation: &mut Box<A>
     ) -> Result<(Vec<String>, bool), LocalError> {
         animation.change_message("Getting the local repository ...");
-        let repo = Repository::discover(path)?;
+        let repo = GitUtils::discover(path)?;
         
         animation.change_message("Getting the branch and remote ...");
         let (

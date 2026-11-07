@@ -73,10 +73,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     let config = p.to_config();
                     let context = Git2Context {
                         action,
-                        owner: &p.owner,
+                        owner: Some(&p.owner),
                         repo: path,
                         config: Some(&config),
-                        usettings: &usettings,
+                        usettings: Some(&usettings),
                     };
                     
                     match e {
@@ -91,19 +91,19 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         Ok(p) => {
                             Git2Context {
                                 action,
-                                owner: &p.owner.clone(),
+                                owner: Some(&p.owner.clone()),
                                 repo: path,
                                 config: None,
-                                usettings: &usettings,
+                                usettings: Some(&usettings),
                             }
                         },
                         Err(e) => {
                             Git2Context {
                                 action,
-                                owner: &e.message().clone(),
+                                owner: Some(&e.message().clone()),
                                 repo: path,
                                 config: None,
-                                usettings: &usettings,
+                                usettings: Some(&usettings),
                             }
                         },
                     };

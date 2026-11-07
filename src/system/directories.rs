@@ -95,3 +95,25 @@ pub trait Directories {
         }
     }
 }
+
+pub struct Tmp;
+impl Directories for Tmp {
+    fn new() -> Result<ProjectDirs, Error> {
+        unimplemented!("Project dirs does not support tmp")
+    }
+    
+    fn file() -> Result<PathBuf, Error> {
+        Self::directory().map(|s| s.join("tmp_place_holder"))
+    }
+
+    fn directory() -> Result<PathBuf, Error> {
+        let base = { 
+             #[cfg(unix)]
+             { PathBuf::from("/tmp") }
+             #[cfg(not(unix))]
+             { std::env::temp_dir() }
+        };
+        
+        Ok(base.join("girep"))
+    }
+}

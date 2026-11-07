@@ -1,5 +1,5 @@
 
-pub struct GitUtils;
+pub use super::utils::GitUtils;
 
 pub enum Action {
     Push,
@@ -10,5 +10,5 @@ pub enum Action {
     /// Name, Url
     SetRemote(String, String),
     SetUpstream,
+    Discover,
 }
-

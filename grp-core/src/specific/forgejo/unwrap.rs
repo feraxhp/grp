@@ -35,7 +35,9 @@ pub async fn unwrap(
         | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
         | (201, RequestType::CreateOrg { name: _ })
+        | (201, RequestType::CreatePr(_))
         | (202, RequestType::DeleteOrg { permanent: _, name: _  })
+        | (202, RequestType::DeleteRepo { permanent: _, owner: _, repo: _ })
             => return Ok(text),
         (403, RequestType::CreateRepo { 
             owner: _, 
@@ -43,6 +45,7 @@ pub async fn unwrap(
         }) => bad_token_scope(["write:user"], request_type),
         (404, _) => not_found(&config.pconf, request_type),
         (409, RequestType::CreateRepo { owner, repo  }) => already_exist::repo(&config.pconf, owner, repo),
+        (409, RequestType::CreatePr(options)) => already_exist::pull_request(&config.pconf, options),
         (422, RequestType::CreateOrg { name }) => already_exist::organization(name),
         (status, _) => {
             let error: ErrorDeserialize = JSON::from_str(&text)

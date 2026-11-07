@@ -1,3 +1,4 @@
+pub mod templates;
 pub mod structs;
 pub mod remote;
 pub mod clone;

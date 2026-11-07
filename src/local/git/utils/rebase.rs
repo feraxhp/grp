@@ -7,28 +7,27 @@ use crate::local::git::structs::GitUtils;
 
 
 impl GitUtils {
-    pub(crate) fn rebase(
-        repo: &Repository,
+    pub(crate) fn rebase(&self,
         local: &AnnotatedCommit,
         upstream: &AnnotatedCommit,
     ) -> Result<String, Error> {
-        let branch = Self::get_branch_name(repo)?;
+        let branch = self.get_branch_name()?;
         
-        let head_commit_oid = repo.head()?.target().ok_or_else(|| {
+        let head_commit_oid = self.head()?.target().ok_or_else(|| {
             Error::new(ErrorCode::UnbornBranch, ErrorClass::Reference, "HEAD is detached or branch is unborn")
         })?;
 
-        let git2_result = Self::try_git2_rebase(repo, local, upstream);
+        let git2_result = self.try_git2_rebase(local, upstream);
 
         match git2_result {
             Ok(success_message) => Ok(success_message),
             Err(e) => {
                 match (e.code(), e.class()) {
                     (ErrorCode::Unmerged, ErrorClass::Rebase) => {
-                        let head_commit_obj = repo.find_commit(head_commit_oid)?.into_object();
-                        repo.reset(&head_commit_obj, ResetType::Hard, None)?;
+                        let head_commit_obj = self.find_commit(head_commit_oid)?.into_object();
+                        self.reset(&head_commit_obj, ResetType::Hard, None)?;
 
-                        Self::rebase_with_git(repo, branch, upstream)
+                        Self::rebase_with_git(&self.git2, branch, upstream)
                     }
                     _ => Err(e)
                 }
@@ -36,13 +35,12 @@ impl GitUtils {
         }
     }
 
-    fn try_git2_rebase(
-        repo: &Repository,
+    fn try_git2_rebase(&self,
         local: &AnnotatedCommit,
         upstream: &AnnotatedCommit,
     ) -> Result<String, Error> {
         let mut rebase_options = git2::RebaseOptions::new();
-        let mut rebase = repo.rebase(
+        let mut rebase = self.git2.rebase(
             Some(local),
             Some(upstream),
             None,
@@ -50,7 +48,7 @@ impl GitUtils {
         )?;
 
         while let Some(_operation) = rebase.next().transpose()? {
-            match rebase.commit(None, &repo.signature()?, None) {
+            match rebase.commit(None, &self.signature()?, None) {
                 Ok(_) => {}
                 Err(e) => return Err(e),
             }

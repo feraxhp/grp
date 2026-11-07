@@ -47,8 +47,18 @@ impl Display for ParseError {
 
 #[allow(dead_code, unused_variables)]
 impl RepoStructure {
-    pub fn parse<S: Into<String>>(value: S) -> Result<Self, ParseError> {
-        let input = value.into();
+    pub fn parse<S: Into<String>>(value: S) -> Result<Self, ParseError> { Self::parse_skipping(value, None) }
+    pub fn parse_skipping<S: Into<String>>(value: S, skip_after: Option<&str>) -> Result<Self, ParseError> {
+        let mut input = value.into();
+        let mut skiped = None;
+        
+        if let Some(delimiter) = skip_after {
+            let clone = input.clone();
+            if let Some((start, rest)) = clone.split_once(delimiter) {
+                input = start.to_string();
+                skiped = Some(rest.to_string());
+            }
+        }
         
         if input.starts_with(":") { return Err(ParseError::StartWithDobleDots) }
         if input.contains(" ") { return Err(ParseError::BadSpace) }
@@ -75,11 +85,15 @@ impl RepoStructure {
         let mut parts: Vec<String> = intermediate.split("/").map(|s| s.to_string()).collect();
         
         let len: usize = parts.len();
-        let repo: String = parts.pop().unwrap_or_default();
+        let mut repo: String = parts.pop().unwrap_or_default();
         let owner: String = parts.join("/");
         
         if owner.is_empty() || owner.starts_with("/") { return Err(ParseError::NoOwner); }
         if repo.is_empty() { return Err(ParseError::NoRepo); }
+        
+        if skip_after.is_some() && skiped.is_some() {
+            repo = repo + skip_after.unwrap() + &skiped.unwrap();
+        }
         
         Ok(Self {
             pconf: pconf, 
@@ -180,5 +194,32 @@ mod tests {
     fn start_with_doble_dots() {
         let r = RepoStructure::parse(":owner/repo_name").unwrap_err();
         assert_eq!(r, ParseError::StartWithDobleDots)
+    }
+
+    #[test]
+    fn parse_skipping_with_empty_after_delimiter() {
+        let r = RepoStructure::parse_skipping("pconf:owner/repo_name?", Some("?")).unwrap();
+        assert_eq!(r.pconf, Some("pconf".to_string()));
+        assert_eq!(r.owner, "owner".to_string());
+        assert_eq!(r.path, "repo_name?".to_string());
+        assert_eq!(r.len, 1)
+    }
+
+    #[test]
+    fn parse_skipping_with_value_after_delimiter() {
+        let r = RepoStructure::parse_skipping("pconf:owner/repo_name?feat/branch", Some("?")).unwrap();
+        assert_eq!(r.pconf, Some("pconf".to_string()));
+        assert_eq!(r.owner, "owner".to_string());
+        assert_eq!(r.path, "repo_name?feat/branch".to_string());
+        assert_eq!(r.len, 1)
+    }
+
+    #[test]
+    fn parse_skipping_without_delimiter_present() {
+        let r = RepoStructure::parse_skipping("pconf:owner/repo_name", Some("?")).unwrap();
+        assert_eq!(r.pconf, Some("pconf".to_string()));
+        assert_eq!(r.owner, "owner".to_string());
+        assert_eq!(r.path, "repo_name".to_string());
+        assert_eq!(r.len, 1)
     }
 }

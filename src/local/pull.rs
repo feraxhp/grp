@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use git2::Repository;
 use grp_core::animation::Animation;
 
 use super::structs::Local;
 use crate::local::git::options::Options;
 use crate::animations::animation::{Subprogress, Suspend};
+use crate::local::git::utils::GitUtils;
 use crate::local::structs::LocalError;
 use crate::usettings::structs::{Pconf, Usettings};
 
@@ -27,7 +27,7 @@ impl Local {
         animation: &mut Box<A>
     ) -> Result<(Vec<String>, bool), LocalError> {
         animation.change_message("Getting the local repository ...");
-        let repo = Repository::discover(path)?;
+        let repo = GitUtils::discover(path)?;
         
         let result = Local::fetch(&repo, pconf, options.clone(), usettings, animation)?;
         

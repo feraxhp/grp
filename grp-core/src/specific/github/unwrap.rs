@@ -16,7 +16,7 @@ use crate::JSON;
 #[derive(Serialize, Deserialize)]
 struct ErrorDeserialize {
     message: String,
-    status: String,
+    status: Option<String>,
 }
 
 pub async fn unwrap(
@@ -38,7 +38,9 @@ pub async fn unwrap(
         | (200, RequestType::ListIssuesComments{ owner: _, repo: _, number: _ })
         | (201, RequestType::CreateRepo { owner: _, repo: _ })
         | (201, RequestType::CreateOrg { name: _ })
+        | (201, RequestType::CreatePr(_))
         | (202, RequestType::DeleteOrg { permanent: _, name: _  })
+        | (202, RequestType::DeleteRepo { permanent: _, owner: _, repo: _ })
             => return Ok(text),
             
         (401, _) => unauthorized(request_type),
@@ -50,6 +52,9 @@ pub async fn unwrap(
         (404, _) => not_found(&config.pconf, request_type),
         (422, RequestType::CreateOrg { name }) => already_exist::organization(name),
         (422, RequestType::CreateRepo { owner, repo  }) => already_exist::repo(&config.pconf, owner, repo),
+        (422, RequestType::CreatePr(options)) if text.contains("A pull request already exists") => {
+            already_exist::pull_request(&config.pconf, options)
+        },
         (status, _) => {
             let error: ErrorDeserialize = JSON::from_str(&text)?;
             unknown(status, base_message, Some(error.message), request_type)

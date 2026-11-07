@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use color_print::cformat;
-use git2::{AnnotatedCommit, AutotagOption, Error, ErrorClass, ErrorCode, FetchOptions, Repository};
+use git2::{AnnotatedCommit, AutotagOption, Error, ErrorClass, ErrorCode, FetchOptions};
 use indicatif::HumanBytes;
 
 use grp_core::animation::Animation;
@@ -20,7 +20,7 @@ pub struct FetchResult<'repo> {
 
 impl Local {
     pub(crate) fn fetch<'repo, A: Animation + Subprogress + Suspend + ?Sized>(
-        repo: &'repo Repository,
+        repo: &'repo GitUtils,
         pconf: Option<Pconf>, 
         options: Options,
         usettings: &Usettings, 
@@ -165,7 +165,7 @@ impl Local {
         usettings: &Usettings, 
         animation: &mut Box<A>
     ) -> Result<Vec<String>, LocalError> {
-        let repo = Repository::discover(path)?;
+        let repo = GitUtils::discover(path)?;
         
         let result = Local::fetch(&repo, pconf, options, usettings, animation)?;
         

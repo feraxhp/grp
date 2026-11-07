@@ -3,6 +3,7 @@ pub mod author;
 pub mod issue;
 pub mod group;
 pub mod user;
+pub mod pr;
 
 
 use std::fmt::Debug;
@@ -42,6 +43,18 @@ pub struct Group {
     pub id: u64,
     pub name: String,
     pub full_path: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Pr {
+    pub id: u64,
+    pub iid: u64,
+    pub title: String,
+    pub description: Option<String>,
+    pub author: Author,
+    pub web_url: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Deserialize)]

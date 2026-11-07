@@ -14,7 +14,7 @@ use crate::commands::core::commands::Commands;
 use crate::commands::validations::or_exit::structure::OrExit;
 use crate::commands::validations::repo::RepoStructure;
 use crate::errors::ToError;
-use crate::local::structs::{Git2Context, Local};
+use crate::local::structs::{Git2Context, Local, LocalError};
 use crate::success;
 use crate::printables::show::Show;
 use crate::local::git::structs::Action;
@@ -148,12 +148,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
                         let context = Git2Context {
                             action,
-                            owner: &owner,
+                            owner: Some(&owner),
                             repo: path,
                             config: Some(&config),
-                            usettings: &usettings,
+                            usettings: Some(&usettings),
                         };
-                        let error = e.to_error(context);
+                        let error = match e {
+                            LocalError::Core(error) => error,
+                            LocalError::Git(error) => error.to_error(context),
+                        };
                         finish_mode = FinishMode::Warning(cformat!("Failed adding remote: <r>{}</>", error.message()));
                         
                         messages.push(cformat!("<m>2.</> <r>no remote added"));
@@ -179,12 +182,15 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                                 let path = path.as_os_str().to_str().unwrap_or("{{ Break path }}");
                                 let context = Git2Context {
                                     action,
-                                    owner: &owner,
+                                    owner: Some(&owner),
                                     repo: path,
                                     config: Some(&config),
-                                    usettings: &usettings,
+                                    usettings: Some(&usettings),
                                 };
-                                let error = e.to_error(context);
+                                let error = match e {
+                                    LocalError::Core(error) => error,
+                                    LocalError::Git(error) => error.to_error(context),
+                                };
                                 finish_mode = FinishMode::Warning(cformat!("Failed setting upstream: <r>{}</>", error.message()));
                                 
                                 messages.push(cformat!("<m>3.</> <r>no upstream set"));

@@ -1,8 +1,10 @@
 use grp_core::animation;
 use color_print::cformat;
 
-use crate::usettings::structs::{Pconf, Usettings};
-use crate::commands::validations::structure::{Raw, Validations};
+use crate::commands::validations::structure::Validations;
+use crate::usettings::structs::Usettings;
+use crate::usettings::structs::RawPconf;
+use crate::usettings::structs::Pconf;
 
 
 impl Validations for Pconf {
@@ -15,15 +17,17 @@ impl Validations for Pconf {
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         
-        let posible_values: String = usettings.pconfs.iter()
-            .flat_map( | p |  vec![cformat!("<g>{}</>, ", p.name.clone())])
-            .collect();
+        let posible_values: String = usettings.pconfs
+            .iter().map( | p |  cformat!("<g>{}</>", p.name.clone()))
+            .collect::<Vec<_>>()
+            .join(", ")
+        ;
         
         match usettings.get_pconf_by_name(value, &Box::new(animation::None)) {
             Ok(pconf) => Ok(pconf),
             Err(error) => {
-                match error.is("custom::grp::ussetings::nopconf") {
-                     true => Err(cformat!("\n* Posible values are {:?}", posible_values)),
+                match error.is("grp::usetings::nopconf") {
+                     true => Err(cformat!("\n* Posible values are [{}]", posible_values)),
                     false => Err(error.message())
                 }
             },
@@ -37,13 +41,17 @@ impl Validations for Pconf {
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         
-        let posible_values: Vec<String> = usettings.pconfs.iter().map( | p |  cformat!("<g>{}</>", p.name.clone())).collect();
+        let posible_values: String = usettings.pconfs
+            .iter().map( | p |  cformat!("<g>{}</>", p.name.clone()))
+            .collect::<Vec<_>>()
+            .join(", ")
+        ;
         
         match usettings.get_pconf_by_name(value, &Box::new(animation::None)) {
             Ok(pconf) => Ok(pconf),
             Err(error) => {
-                match error.is("custom::grp::ussetings::nopconf") {
-                     true => Err(cformat!("\n* Posible values are {:?}", posible_values)),
+                match error.is("grp::usetings::nopconf") {
+                     true => Err(cformat!("\n* Posible values are [{}]", posible_values)),
                     false => Err(error.message())
                 }
             },
@@ -51,8 +59,8 @@ impl Validations for Pconf {
     }
 }
 
-impl Validations for Raw<Pconf> {
-    type Output = Pconf;
+impl Validations for RawPconf {
+    type Output = RawPconf;
     
     fn value_parcer(value: &str) -> Result<Self::Output, String> {
         let usettings = Usettings::read().map_err(|e| e.message())?;
@@ -61,13 +69,15 @@ impl Validations for Raw<Pconf> {
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         
-        let posible_values: String = usettings.pconfs.iter()
-            .flat_map( | p |  vec![cformat!("<g>{}</>, ", p.name.clone())])
-            .collect();
+        let posible_values: String = usettings.pconfs
+            .iter().map( | p |  cformat!("<g>{}</>", p.name.clone()))
+            .collect::<Vec<_>>()
+            .join(", ")
+        ;
         
         match usettings.get_raw_pconf_by_name(value) {
             Some(pconf) => Ok(pconf.to_owned()),
-            None => Err(cformat!("\n* Posible values are {:?}", posible_values)),
+            None => Err(cformat!("\n* Posible values are [{}]", posible_values)),
         }
     }
     
@@ -78,11 +88,15 @@ impl Validations for Raw<Pconf> {
             return Err(cformat!("\n* No <m,i>pconfs</> configured, please configure some")) 
         }
         
-        let posible_values: Vec<String> = usettings.pconfs.iter().map( | p |  cformat!("<g>{}</>", p.name.clone())).collect();
+        let posible_values: String = usettings.pconfs
+            .iter().map( | p |  cformat!("<g>{}</>", p.name.clone()))
+            .collect::<Vec<_>>()
+            .join(", ")
+        ;
         
         match usettings.get_raw_pconf_by_name(value) {
             Some(pconf) => Ok(pconf.to_owned()),
-            None => Err(cformat!("\n* Posible values are {:?}", posible_values)),
+            None => Err(cformat!("\n* Posible values are [{}]", posible_values)),
         }
     }
 }

@@ -1,4 +1,6 @@
 
+use std::fmt::Debug;
+
 use color_print::cformat;
 
 use crate::commands::validations::repo::RepoStructure;
@@ -6,7 +8,7 @@ use crate::commands::validations::repo::RepoStructure;
 #[allow(dead_code)]
 pub struct Raw<T>(T);
 pub trait Validations {
-    type Output;
+    type Output: Clone + Sync + Debug;
     
     fn value_parcer(value: &str) -> Result<Self::Output, String>;
     fn strict_value_parcer(value: &str) -> Result<Self::Output, String>;

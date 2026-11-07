@@ -9,6 +9,7 @@ use crate::system::directories::Directories;
 use crate::animations::animation::Suspend;
 use crate::system::directories::Config;
 use crate::system::cripto::Cripto;
+use crate::usettings::structs::RawPconf;
 use super::structs::Usettings;
 use crate::system::file::File;
 use super::structs::Pconf;
@@ -36,15 +37,21 @@ impl Usettings {
     }
 
     /// Gets the pconf without trying to decode the token
-    pub fn get_raw_pconf_by_name(&self, name: &str) -> Option<&Pconf> {
+    pub fn get_raw_pconf_by_name(&self, name: &str) -> Option<RawPconf> {
         if name == "*" { return self.get_raw_default_pconf() }
         
-        self.pconfs.iter().find(|pconf| pconf.name == name)
+        self.pconfs
+            .iter()
+            .find(|pconf| pconf.name == name)
+            .map(|s| s.as_raw())
     }
 
     /// Gets the pconf without trying to decode the token
-    pub fn get_raw_default_pconf(&self) -> Option<&Pconf> {
-        self.pconfs.iter().find(|pconf| pconf.name == self.default)
+    pub fn get_raw_default_pconf(&self) -> Option<RawPconf> {
+        self.pconfs
+            .iter()
+            .find(|pconf| pconf.name == self.default)
+            .map(|s| s.as_raw())
     }
     
     /// Gets the pconf trying to decode the token
@@ -67,10 +74,10 @@ impl Usettings {
     
     /// Gets the pconf trying to decode the token
     pub fn get_pconf_or_default<A: Suspend + ?Sized>(&self, name: &str, animation: &Box<A>) -> Result<Pconf, Error> {
-        let pconf = self.get_raw_pconf_by_name(name)
-            .or_else(|| self.get_raw_default_pconf());
-        
-        self.unlock_pconf(pconf, animation)
+        match self.get_raw_pconf_by_name(name) {
+            Some(_) => self.get_pconf_by_name(name, animation),
+            None => self.get_default_pconf(animation),
+        }
     }
     
     pub fn read() -> Result<Usettings, Error> {

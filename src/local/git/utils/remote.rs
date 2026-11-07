@@ -1,18 +1,19 @@
-use git2::{Branch, Error, ErrorClass, ErrorCode, Repository};
+use git2::{Branch, Error, ErrorClass, ErrorCode};
+use grp_core::Config;
 
 use super::super::structs::GitUtils;
 
 impl GitUtils {
-    pub(crate) fn get_remote_from_branch(repo: &Repository, branch: &Branch) -> Result<String, Error> {
+    pub(crate) fn get_remote_from_branch(&self, branch: &Branch) -> Result<String, Error> {
         let branch_ref_name = branch.get().name()?;
         
-        let remote_buf = match repo.branch_upstream_remote(branch_ref_name) {
+        let remote_buf = match self.branch_upstream_remote(branch_ref_name) {
             Ok(buf) => Ok(buf),
             Err(error) if ( matches!(
                 (error.code(), error.class()), 
                 (ErrorCode::NotFound, ErrorClass::Config)
             ) ) => {
-                let remotes = repo.remotes()?;
+                let remotes = self.remotes()?;
                 if remotes.is_empty() {
                     Err(
                         Error::new(
@@ -38,5 +39,22 @@ impl GitUtils {
         
         let remote_name = remote_buf.as_str()?;
         Ok(remote_name.to_string())
+    }
+    
+    pub(crate) fn get_default_branch(&self, remote_name: &str, config: Option<&Config>) -> Result<String, Error> {
+        let mut remote = self.find_remote(remote_name)?;
+        
+        let cb = config.map(|c| GitUtils::get_credential_callbacks(c));
+        remote.connect_auth(git2::Direction::Fetch, cb, None)?;
+        
+        let buf = remote.default_branch()?;
+        let buf = buf.as_str()?;
+        
+        Ok(
+            buf
+                .strip_prefix("refs/heads/")
+                .unwrap_or(buf)
+                .to_string()
+        )
     }
 }

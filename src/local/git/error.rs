@@ -70,7 +70,7 @@ impl ToError for git2::Error {
                 }
             }
             (ErrorCode::GenericError, ErrorClass::Http, _, Action::Clone) => {
-                let pconf = config.map_or_else(|| { &usettings.default }, |e| &e.pconf);
+                let pconf = config.map_or_else(|| { usettings.map_or("-", |u| &u.default ) }, |e| &e.pconf );
                 
                 error!{
                     etype!("not_found::repository::remote"),
@@ -78,7 +78,7 @@ impl ToError for git2::Error {
                     format!("The repository does not exist"),
                     =>
                     if !repo.to_string().contains("[") { 
-                        format!("**<<{}:{}/{}>>**", pconf, owner, repo) 
+                        format!("**<raw><{}:{}/{}></raw>**", pconf, owner.unwrap_or("-"), repo) 
                     }
                     else { 
                         format!("**{}**", repo) 
@@ -102,16 +102,21 @@ impl ToError for git2::Error {
                 }
             }
             (ErrorCode::GenericError, ErrorClass::Http, "too many redirects or authentication replays", _) => {
-                let pconf = config.map_or_else(|| { &usettings.default }, |e| &e.pconf);
+                let pconf = config.map_or_else(|| { usettings.map_or("-", |u| &u.default ) }, |e| &e.pconf );
                 
-                error!{
+                let mut er = error!{
                     etype!("unauthorized"),
                     "too many redirects or authentication replays",
                     "Please check your token and the repo access",
                     =>
                     format!("pconf: **{pconf}**"),
-                    format!("owner: **{owner}**"),
+                };
+                
+                if let Some(owner) = owner {
+                    er = er.extend_note(format!("owner: **{owner}**"))
                 }
+                
+                return er;
             }
             (ErrorCode::NotFastForward, ErrorClass::Reference, _, Action::Push) => {
                 error!{

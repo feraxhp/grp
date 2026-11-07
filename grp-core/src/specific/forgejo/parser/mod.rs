@@ -2,6 +2,7 @@ pub mod comment;
 pub mod author;
 pub mod issue;
 pub mod user;
+pub mod pr;
 
 use serde::Deserialize;
 use serde_json::Value;
@@ -33,6 +34,20 @@ pub struct Author {
 #[derive(Debug, Deserialize)]
 pub struct RepoReference {
     full_name: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Pr {
+    pub id: u64,
+    pub number: u64,
+    pub title: String,
+    pub body: Option<String>,
+    pub user: Author,
+    pub html_url: String,
+    // pub state: String,
+    // pub locked: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Deserialize)]

@@ -52,6 +52,7 @@ pub mod ErrorType {
         
         pub const organization: &str = existing!("organization");
         pub const repository:   &str = existing!("repository");
+        pub const pull_request: &str = existing!("pull_request");
         // pub const resource:     &str = existing!("resource");
         // pub const issue:        &str = existing!("issue");
         // pub const user:         &str = existing!("user");

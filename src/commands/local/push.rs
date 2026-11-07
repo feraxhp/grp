@@ -9,8 +9,10 @@ use crate::commands::completions::git::remote::Remote;
 use crate::commands::completions::git::upstream::Upstream;
 use crate::commands::completions::structure::Completer;
 use crate::commands::core::args::Arguments;
+use crate::commands::validations::or_exit::structure::OrExit;
 use crate::local::structs::{Git2Context, Local, LocalError};
 use crate::errors::ToError;
+use crate::system::directories::BasicDir;
 use crate::{success, warning};
 use crate::usettings::structs::{Pconf, Usettings};
 use crate::local::git::{structs::Action};
@@ -74,7 +76,7 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
     
     let path = match args.get_one::<PathBuf>("path"){
         Some(value) => value.clone(),
-        None => std::env::current_dir().unwrap()
+        None => BasicDir::current().or_exit(&animation)
     };
 
     let mut remote = args.get_one::<String>("remote").map(|e| e.to_owned());
@@ -128,10 +130,10 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                     let config = p.to_config();
                     let context = Git2Context {
                         action,
-                        owner: &p.owner,
+                        owner: Some(&p.owner),
                         repo: path,
                         config: Some(&config),
-                        usettings: &usettings,
+                        usettings: Some(&usettings),
                     };
                     
                     match e {
@@ -146,19 +148,19 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
                         Ok(p) => {
                             Git2Context {
                                 action,
-                                owner: &p.owner.clone(),
+                                owner: Some(&p.owner.clone()),
                                 repo: path,
                                 config: None,
-                                usettings: &usettings,
+                                usettings: Some(&usettings),
                             }
                         },
                         Err(e) => {
                             Git2Context {
                                 action,
-                                owner: &e.message().to_string(),
+                                owner: Some(&e.message().to_string()),
                                 repo: path,
                                 config: None,
-                                usettings: &usettings,
+                                usettings: Some(&usettings),
                             }
                         },
                     };
