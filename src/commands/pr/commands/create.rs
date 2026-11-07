@@ -128,6 +128,19 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         (Some(t), Some(o)) => (t.clone(), o.clone(), None),
     };
     
+    let tr = (&target).to_string();
+    let or = (&origin).to_string();
+    if tr == or {
+        Err::<(), _>(
+            error!(
+                "invalid::pr::same::branch", "Invalid target for PR",
+                "The _target_ and _origin_ cant be the same",
+                => format!("» **target**: +_<raw>{tr}</raw>_+"),
+                   format!("» **origin**: -_<raw>{or}</raw>_-"),
+            )
+        ).or_exit(&animation)
+    }
+    
     animation.change_message("Loading repository pr template");
     
     let pconf = match pconf {

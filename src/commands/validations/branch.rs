@@ -1,3 +1,5 @@
+use std::fmt;
+
 use color_print::cformat;
 
 use crate::commands::validations::structure::Validations;
@@ -73,5 +75,18 @@ impl Validations for BranchStructure {
         }?;
         
         Self::from(repo)
+    }
+}
+
+impl fmt::Display for &BranchStructure {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if f.alternate() {
+            match &self.repo.pconf {
+                Some(p) => write!(f, "{p}:")?,
+                None => write!(f, "-:")?,
+            }
+            ;
+        }
+        write!(f, "{}/{}?{}", self.repo.owner, self.repo.path, self.branch)
     }
 }
