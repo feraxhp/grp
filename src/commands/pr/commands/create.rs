@@ -141,6 +141,19 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         ).or_exit(&animation)
     }
     
+    animation.spinners.get(0).unwrap()
+        .println(
+            cformat!(
+                "<g>* <y,i>creating pr</y,i> from '<b>{}</b><c>:{}/{}?</c><m>{}</m>' to '<c>{}/{}?</c><m>{}</m>'</>", 
+                &target.repo.pconf.clone().map_or("-".to_string(), |p| p),
+                &origin.repo.owner, 
+                &origin.repo.path, 
+                &origin.branch, 
+                &target.repo.owner, 
+                &target.repo.path, 
+                &target.branch, 
+            )
+        );
     animation.change_message("Loading repository pr template");
     
     let pconf = match pconf {
