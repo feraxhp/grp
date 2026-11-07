@@ -4,7 +4,6 @@ use std::process::exit;
 
 use clap::{ArgMatches, Command, arg};
 use color_print::ceprint;
-use color_print::ceprintln;
 use color_print::cprintln;
 use color_print::cformat;
 
@@ -152,8 +151,8 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         Some(t) => t,
         None => {
             animation.suspend(|| {
-                Input::text("Title", None).or_exit(&animation)
-            })
+                Input::text("Title", None)
+            }).or_exit(&animation)
         },
     };
     
@@ -161,9 +160,9 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         true => {
             animation.suspend(|| {
                 Input::raw_select("Template", None, templates)
-                    .or_exit(&animation)
-                    .content
             })
+            .or_exit(&animation)
+            .content
         },
         false => {
             templates.get(0).map(|t| t.content.to_owned()).unwrap_or_default()
