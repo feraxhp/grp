@@ -1,72 +1,43 @@
-# Fast _bug fix_
-
-- `*!` fix forgejo parsing for user / orgs
-
 ## Whats new
 
-- `*+` add `issues` subcomand to list and view issues.
-- `*+` add `cripto` subcomand to encrip tokens
+### Create Pull Requests
 
-### Token Encryption
+You can know create pr's directly with grp, 
+to be able to use the 100% of the `grp pr create` 
+you should have your repos configured to work by default 
+with grp.
 
-`grp` now implements a encription algoritm, to avoid having 
-the tokens in plain text. 
+various new flows are added.
+~~~bash
+# 1. create a pr from the current branch to the default branch on the remote
+grp pr create
+# 2. force the selected remote (asuming gj is for gitlab)
+grp pr create gj
+# 3. create a pr on a foreing repo from your current fork
+grp pr create gh:zed-industries/zed?main
+# 4. create a pr on a foreing repo from your remote fork
+grp pr create gh:zed-industries/zed?main --origin feraxhp/zed?feat/render-colrv1-emojis
+# 5. create a pr passing the title directly
+grp pr create - "This will autodetect the target and origin branches" 
+~~~
 
-by default it will not do the encription though, you have to tell 
-grp that you will encript that especific `pconf`. for simplicity 
-all the `pconf`s will be encripted with the same password.
+> [!tip]
+> Note that in the **example `#4`** you do not need to have the repo cloned
+> `grp` will trust that the information is correct fron your side.
 
-#### Password
+> [!important]
+> Currently the autodetect feature will not work with `ssh@hots:path/[...]` remotes, only works with
+> url based remotes
 
-to stop asking constanly the password to the user, grp will 
-use the keyring of the os to save the password needed to encript 
-and decript the tokens.
+> [!tip]
+> Note that in the **example `#5`** the `-` is in place of the target parameter
 
-#### Commands
+> [!caution]
+> This was tested on github y forgejo, more than on gitlab, if you got an issue with **gitlab** 
+> please report it as soon as posible.
 
-- encript all the `pconf`s
-    ~~~bash
-    grp config cripto encript --all
-    ~~~
-- encript one `pconf`
-    ~~~bash
-    grp config cripto encript <pconf>
-    ~~~
-- decript all the `pconf`s
-    ~~~bash
-    grp config cripto decript --all
-    ~~~
-- decript one `pconf`
-    ~~~bash
-    grp config cripto decript <pconf>
-    ~~~
-
-### Issues
-
-- `++` support listing and viewing issues:
-  - list user issues (all issues by default):
-    ~~~bash
-    grp issues ls
-    ~~~
-  - list user issues filtered by assigned or involved:
-    ~~~bash
-    grp issues ls -a # or --assigned
-    grp issues ls -i # or --involved
-    ~~~
-  - list issues from a specific repository:
-    ~~~bash
-    grp issues ls repo <repo>
-    ~~~
-  - view issue details and comments with rich markdown output:
-    ~~~bash
-    grp issues view <repo>#<number>
-    ~~~
-
-## Internal
-
-- `* ` migrate error handling to `mynox` in other to consolidate my projects.
-- `++` add unit and integration test suite to `grp-core` covering `org`, `repo`, `user`, and `issue` endpoints across GitHub, GitLab, and Forgejo.
 
 by @feraxhp
+
 ---
-**Full Changelog**: https://github.com/feraxhp/grp/compare/v0.13.2...v0.15.0
+**Full Changelog**: https://github.com/feraxhp/grp/compare/v0.15.1...v0.16.0

@@ -42,7 +42,8 @@ It is written in Rust, and it is inspired by [gcli](https://github.com/herrhotze
 ### Pull Request
 | Feature     | GitHub | Gitea | Codeberg | Forgejo  | GitLab |
 |:-----------:|:------:|:-----:|:--------:|:--------:|:------:|
-| Create      | 🔶     | 🔶    | 🔶       | 🔶       | 🔶     |
+| List        | 🔶     | 🔶    | 🔶       | 🔶       | 🔶     |
+| Create      | 🎉     | 🎉    | 🎉       | 🎉       | 🎉     |
 
 ### git integrations
 
