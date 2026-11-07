@@ -1,5 +1,9 @@
 
+use std::io;
+use std::process::exit;
+
 use clap::{ArgMatches, Command, arg};
+use color_print::ceprint;
 use color_print::ceprintln;
 use color_print::cprintln;
 use color_print::cformat;
@@ -8,6 +12,7 @@ use grp_core::structs::PullRequestOptions;
 use grp_core::structs::BranchIdentifier;
 use grp_core::animation::Animation;
 use grp_core::Platform;
+use mynox::Formater;
 use mynox::error;
 
 use crate::commands::validations::or_exit::structure::OrExit;
@@ -172,14 +177,52 @@ pub async fn manager(args: &ArgMatches, usettings: Usettings) {
         )
         .or_exit(&animation);
     
-    if body == template {
-        Err::<(), mynox::Error>(error!(
-            "input::unchanged::template", "Unchange body", 
+    let body_trimmed = body.trim();
+    let template_trimmed = template.trim();
+    let has_template = !template_trimmed.is_empty();
+    
+    let body = match has_template {
+        true if body_trimmed == template_trimmed 
+        => Err(error!(
+            "input::unchanged::template", "Unchanged body",
             "Yout did not add any text to the _`template`_",
-            "It is espected that you _+add a description+_,",
-            "before sending the _pr_"
-        )).or_exit(&animation);
-    }
+            "It is expected that you _+set a description+_" =>
+            "Please fill in the template before submitting the *PR*".as_tip()
+        )),
+        true if body_trimmed.is_empty() 
+        => Err(error!(
+            "input::empty::body", "Aborting PR creation",
+            "You cleared the _template_ there for the _*PR* is -canceled-_",
+        )),
+        false if body_trimmed.is_empty() 
+        => {
+            let confirmation = animation.suspend(|| {
+                ceprint!( "<y>Create <c>PR</c> with an <dim><<empty>></dim> body [y/<r>N</r>]?: </>");
+                
+                loop {
+                    let mut input = String::new();
+                    io::stdin().read_line(&mut input)
+                        .expect("Something went wrong while reading the input");
+                    
+                    let input = input.trim();
+                    if input.is_empty() { break false; }
+                    if input.to_lowercase() == "n" { break false; }
+                    if input.to_lowercase() == "y" { break true; }
+                    
+                    ceprint!("<y>Type <r>'y'</r> to confirm or <g>'n'</g> to <dim,i>cancel</dim,i>: </>");
+                }
+            });
+            
+            match confirmation {
+                true => Ok(String::new()),
+                false => {
+                    animation.finish_with_success(success!(np "pr creation" "canceled!"));
+                    exit(0);
+                },
+            }
+        },
+        true | false => Ok(body_trimmed.to_string()),
+    }.or_exit(&animation);
     
     animation.change_message("Finishing data recopilation");
     let options = PullRequestOptions {
